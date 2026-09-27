@@ -1,20 +1,20 @@
 # PROGRESS
 
-**Current phase:** Phase 0: Foundations (done locally; awaiting first CI run)
+**Current phase:** Phase 1: Orbit engine (not started)
 **Last updated:** 2026-09-28
 
 ## Phase status
 
-| Phase                         | Status                          |
-| ----------------------------- | ------------------------------- |
-| 0. Foundations                | 🟨 Done locally, CI not yet run |
-| 1. Orbit engine               | ⬜ Not started                  |
-| 2. Data layer                 | ⬜ Not started                  |
-| 3. Scene foundation           | ⬜ Not started                  |
-| 4. Shot 1: The Swarm          | ⬜ Not started                  |
-| 5. Shot 2: The Close Approach | ⬜ Not started                  |
-| 6. Shot 3: The Eruption       | ⬜ Not started                  |
-| 7. Polish & ship              | ⬜ Not started                  |
+| Phase                         | Status         |
+| ----------------------------- | -------------- |
+| 0. Foundations                | ✅ Done        |
+| 1. Orbit engine               | ⬜ Not started |
+| 2. Data layer                 | ⬜ Not started |
+| 3. Scene foundation           | ⬜ Not started |
+| 4. Shot 1: The Swarm          | ⬜ Not started |
+| 5. Shot 2: The Close Approach | ⬜ Not started |
+| 6. Shot 3: The Eruption       | ⬜ Not started |
+| 7. Polish & ship              | ⬜ Not started |
 
 Legend: ⬜ not started · 🟨 in progress · ✅ done (all exit criteria verified)
 
@@ -26,10 +26,8 @@ Legend: ⬜ not started · 🟨 in progress · ✅ done (all exit criteria verif
 - [x] Web: R3F scene with sphere + FPS overlay (verified in Chrome via `npm run dev`)
 - [x] Server: Fastify `/health` (test via `inject()`; live `curl` returned `{"status":"ok"}`)
 - [x] `npm run check` script (green locally: 5 test files, 7 tests)
-- [x] CI workflow (written; not yet run, since nothing has been pushed)
+- [x] CI workflow (green on `main` at `ca384de`, run 36353074544: `npm ci` + `npm run check`)
 - [x] `.env.example`
-
-Remaining exit criterion: `npm run check` green **in CI** (needs a push).
 
 ## Phase 1: Orbit engine
 
@@ -94,7 +92,9 @@ Checklists will be expanded from `PLAN.md` when each phase starts.
 - Vite warns the web bundle is 1.13 MB (310 kB gzipped), mostly three.js. Revisit code-splitting in Phase 7.
 - In the automated Chrome tab the Stats panel read 1 FPS. It was updating, so the render loop runs; likely background-tab
   throttling, but not confirmed. Check the frame rate in a focused window.
+- `npm ci` warns that esbuild's postinstall script is not covered by npm's `allowScripts` policy (esbuild comes in
+  via tsx). It doesn't affect `check`; revisit if `npm run dev` for the server breaks on a fresh install.
 
 ## Blockers
 
-- Phase 0 CI exit criterion can't be verified until the branch is pushed.
+_None._
