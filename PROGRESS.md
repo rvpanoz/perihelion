@@ -76,6 +76,8 @@ Checklists will be expanded from `PLAN.md` when each phase starts.
 - **2026-09-28:** `npm run dev` uses `scripts/dev.mjs` (spawns both workspaces) instead of adding `concurrently`.
 - **2026-09-28:** Server dev port 8787; Vite proxies `/api` to it. FPS overlay is drei `<Stats />`.
 - **2026-09-28:** `packages/fixtures` gets Node types (its generator runs in Node); orbit/data stay DOM- and Node-free.
+- **2026-09-28:** Work is tracked on GitHub: issues per checklist item, `type:`/`phase:`/`area:` labels, a milestone
+  per phase, the Perihelion project board, and a `v0.N.0` tag + release per finished phase (see CLAUDE.md).
 
 ## Open questions
 

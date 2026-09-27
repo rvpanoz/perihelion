@@ -76,10 +76,25 @@ packages/fixtures  Horizons ground-truth fixtures + generator
 
 - **Every new feature works on its own branch, branched off `main`.** Never
   commit feature work directly to `main`. Create the branch before the first
-  edit: `git checkout -b <phase>/<short-name>`. One branch per step or feature,
+  edit: `git checkout -b phase-N/<short-name>`. One branch per step or feature,
   merged back when its step is done and `npm run check` passes.
+- Push the branch and open a PR; the user reviews and merges. Never merge PRs or push to `main` yourself.
 - All commit messages must strictly contain only the functional description of the changes.
 - No trailers. Write commit messages and PR descriptions in plain English.
+
+## GitHub tracking
+
+- **Issues:** one per `PROGRESS.md` checklist item, created when its phase starts. A PR closes its
+  issue with `Closes #N` in the description.
+- **Labels:** every issue and PR gets one `type:` (feature, fix, docs, chore, test, ci), one `phase:N`
+  (0–7) and one or more `area:` (orbit, web, server, data, fixtures, infra).
+- **Milestones:** one per phase, titled `Phase N: Name`. Attach every issue and PR; close the milestone
+  when the phase is done.
+- **Pull requests:** always assigned to `rvpanoz` (`gh pr create --assignee @me`).
+- **Project board:** <https://github.com/users/rvpanoz/projects/1>. Add every issue and PR and keep
+  its Status (Todo / In Progress / Done) current.
+- **Releases:** when a phase is merged and CI on `main` is green, tag the merge commit `v0.N.0`
+  (annotated; Phase 0 = `v0.0.0`) and publish a GitHub release summarising the phase.
 
 ## Agent Guardrails & Cost Optimization
 
