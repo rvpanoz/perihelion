@@ -1,1 +1,5 @@
 package-lock.json
+
+# Ground truth from JPL Horizons: regenerate, never reformat
+packages/fixtures/data/
+packages/fixtures/src/recorded/
