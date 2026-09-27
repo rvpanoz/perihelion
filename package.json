@@ -19,7 +19,7 @@
     "test": "vitest run",
     "build": "npm run build --workspaces --if-present",
     "check": "npm run typecheck && npm run lint && npm run test && npm run build",
-    "fixtures": "echo \"fixtures: not implemented (Phase 1)\"",
+    "fixtures": "npm run generate --workspace @perihelion/fixtures",
     "snapshot": "echo \"snapshot: not implemented (Phase 2)\""
   },
   "devDependencies": {
