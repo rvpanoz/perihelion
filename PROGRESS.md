@@ -34,7 +34,7 @@ Legend: ⬜ not started · 🟨 in progress · ✅ done (all exit criteria verif
 - [x] Time scales (UTC → TT/TDB, JD)
 - [x] Kepler solver + property tests
 - [x] Elements ↔ state vectors + round-trip tests
-- [ ] Two-body propagation + conservation tests
+- [x] Two-body propagation + conservation tests
 - [ ] Planet positions (Standish tables)
 - [ ] Horizons fixture generator + committed fixtures
 - [ ] Golden tests: planets
