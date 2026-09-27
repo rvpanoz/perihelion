@@ -36,7 +36,7 @@ Legend: ⬜ not started · 🟨 in progress · ✅ done (all exit criteria verif
 - [x] Elements ↔ state vectors + round-trip tests
 - [x] Two-body propagation + conservation tests
 - [x] Planet positions (Standish tables)
-- [ ] Horizons fixture generator + committed fixtures
+- [x] Horizons fixture generator + committed fixtures
 - [ ] Golden tests: planets
 - [ ] Golden tests: asteroids (tolerance calibrated and recorded below)
 
@@ -88,6 +88,16 @@ Checklists will be expanded from `PLAN.md` when each phase starts.
 - **2026-09-28:** Planets use Standish Table 1 (1800–2050), transcribed by script from JPL's page. "Earth" is the
   Earth–Moon barycentre as in the table. Dates outside 1800–2050 still compute (no throw) so the timeline can
   scrub freely; the validity range is exported for callers that show facts.
+- **2026-09-28:** Golden tests import `@perihelion/fixtures/golden` (loaders, spec constants, record types),
+  typechecked with no Node/DOM globals; orbit's tsconfig stays ES2023-only.
+- **2026-09-28:** Fixtures query Horizons planet-system barycentres 1–8 (what Standish Table 1 fits), heliocentric
+  `500@10`, ecliptic J2000, AU-D, TDB.
+- **2026-09-28:** Planet samples: 1 January of every decade 1800–2050 plus J2000 (27 dates). Asteroid elements at
+  JD 2461000.5 (2025-11-21), states at 0, ±10, ±30, ±60, ±120 days.
+- **2026-09-28:** Fixtures are JSON in `packages/fixtures/data/`, validated by zod on load; data and recorded
+  responses are Prettier-ignored so they are never reformatted.
+- **2026-09-28:** `packages/fixtures` depends on zod (validation) and tsx (dev, runs the generator); orbit stays
+  dependency-free.
 
 ## Open questions
 
@@ -108,6 +118,8 @@ Checklists will be expanded from `PLAN.md` when each phase starts.
   via tsx). It doesn't affect `check`; revisit if `npm run dev` for the server breaks on a fresh install.
 - The leap-second table ends at 2017-01-01 (TAI − UTC = 37 s) and assumes none since. Check it against the
   latest IERS Bulletin C before release.
+- Horizons rejects an unencoded `;` with HTTP 400 "parameter not recognized"; rows come back in time order
+  regardless of TLIST order.
 
 ## Blockers
 
