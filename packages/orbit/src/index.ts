@@ -3,3 +3,5 @@ export const KM_PER_AU = 149_597_870.7;
 
 export * from './time';
 export * from './kepler';
+export * from './vector3';
+export * from './elements';

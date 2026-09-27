@@ -33,7 +33,7 @@ Legend: ⬜ not started · 🟨 in progress · ✅ done (all exit criteria verif
 
 - [x] Time scales (UTC → TT/TDB, JD)
 - [x] Kepler solver + property tests
-- [ ] Elements ↔ state vectors + round-trip tests
+- [x] Elements ↔ state vectors + round-trip tests
 - [ ] Two-body propagation + conservation tests
 - [ ] Planet positions (Standish tables)
 - [ ] Horizons fixture generator + committed fixtures
@@ -83,6 +83,8 @@ Checklists will be expanded from `PLAN.md` when each phase starts.
 - **2026-09-28:** Kepler: hyperbolic orbits (e ≥ 1) are rejected with a `RangeError`; comets are parked.
 - **2026-09-28:** Asteroid golden tests take osculating elements from Horizons at a fixed epoch, so they
   measure only our two-body error. Bodies: Eros, Apophis, Bennu, Ryugu, Phaethon, one Aten, one Atira.
+- **2026-09-28:** GM☉ = k² with the IAU 1976 Gaussian constant (AU³/day²). Where elements are undefined, ecliptic
+  orbits get Ω = 0 and circular orbits get ω = 0; states still round-trip exactly.
 
 ## Open questions
 
