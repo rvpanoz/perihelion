@@ -89,8 +89,9 @@ async function fetchElements(
   const query = { command: horizonsCommand, jdTdbList: [ASTEROID_EPOCH_JD_TDB] };
   const rows = parseHorizonsTable(await client.fetchResultText(buildElementsQuery(query)));
   const [row] = rows;
-  if (rows.length !== 1 || row === undefined)
+  if (rows.length !== 1 || row === undefined) {
     throw new HorizonsError(`Expected one elements row, got ${rows.length}`);
+  }
   const elements = toElementsRecord(row);
   if (elements.epochJdTdb !== ASTEROID_EPOCH_JD_TDB) {
     throw new HorizonsError(

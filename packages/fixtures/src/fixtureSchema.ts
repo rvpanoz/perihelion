@@ -9,7 +9,7 @@ export const stateRecordSchema = z.object({
   velocityAuPerDay: vector3Schema,
 });
 
-/** Horizons osculating elements, degrees as published (converted to radians by the tests). */
+/** Horizons osculating elements, degrees as published (converted to radians downstream). */
 export const elementsRecordSchema = z.object({
   epochJdTdb: z.number(),
   eccentricity: z.number(),

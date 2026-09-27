@@ -88,6 +88,8 @@ Checklists will be expanded from `PLAN.md` when each phase starts.
 - **2026-09-28:** Planets use Standish Table 1 (1800–2050), transcribed by script from JPL's page. "Earth" is the
   Earth–Moon barycentre as in the table. Dates outside 1800–2050 still compute (no throw) so the timeline can
   scrub freely; the validity range is exported for callers that show facts.
+- **2026-09-28:** Golden tests import `@perihelion/fixtures/golden` (loaders, spec constants, record types),
+  typechecked with no Node/DOM globals; orbit's tsconfig stays ES2023-only.
 - **2026-09-28:** Fixtures query Horizons planet-system barycentres 1–8 (what Standish Table 1 fits), heliocentric
   `500@10`, ecliptic J2000, AU-D, TDB.
 - **2026-09-28:** Planet samples: 1 January of every decade 1800–2050 plus J2000 (27 dates). Asteroid elements at

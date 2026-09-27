@@ -64,7 +64,10 @@ export const PLANET_SAMPLE_JD_TDB: readonly number[] = [
   J2000_JD_TDB,
 ].toSorted((a, b) => a - b);
 
-/** 2025-11-21, the current standard epoch for published small-body osculating elements. */
+/**
+ * 2025-11-21, the standard epoch for published small-body osculating elements when these
+ * fixtures were generated (2026-09).
+ */
 export const ASTEROID_EPOCH_JD_TDB = 2_461_000.5;
 
 /** Covers PLAN.md's ±60-day target, with ±120 days of headroom for calibrating the tolerance. */

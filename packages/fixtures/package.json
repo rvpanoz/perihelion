@@ -4,10 +4,11 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./golden": "./src/golden.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.golden.json",
     "test": "vitest run",
     "generate": "tsx scripts/generateFixtures.ts"
   },
