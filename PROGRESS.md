@@ -35,7 +35,7 @@ Legend: ⬜ not started · 🟨 in progress · ✅ done (all exit criteria verif
 - [x] Kepler solver + property tests
 - [x] Elements ↔ state vectors + round-trip tests
 - [x] Two-body propagation + conservation tests
-- [ ] Planet positions (Standish tables)
+- [x] Planet positions (Standish tables)
 - [ ] Horizons fixture generator + committed fixtures
 - [ ] Golden tests: planets
 - [ ] Golden tests: asteroids (tolerance calibrated and recorded below)
@@ -85,6 +85,9 @@ Checklists will be expanded from `PLAN.md` when each phase starts.
   measure only our two-body error. Bodies: Eros, Apophis, Bennu, Ryugu, Phaethon, one Aten, one Atira.
 - **2026-09-28:** GM☉ = k² with the IAU 1976 Gaussian constant (AU³/day²). Where elements are undefined, ecliptic
   orbits get Ω = 0 and circular orbits get ω = 0; states still round-trip exactly.
+- **2026-09-28:** Planets use Standish Table 1 (1800–2050), transcribed by script from JPL's page. "Earth" is the
+  Earth–Moon barycentre as in the table. Dates outside 1800–2050 still compute (no throw) so the timeline can
+  scrub freely; the validity range is exported for callers that show facts.
 
 ## Open questions
 
