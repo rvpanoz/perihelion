@@ -8,7 +8,7 @@ small TypeScript orbit engine. See `PLAN.md` for scope and phases, `PROGRESS.md`
 - Read `PROGRESS.md` first. Work only on the current phase unless told otherwise.
 - A phase is done only when every exit criterion in `PLAN.md` is met and verified.
 - At the end of each task, update `PROGRESS.md`: tick items, add decisions, note blockers.
-- Run `pnpm check` before calling anything done.
+- Run `npm run check` before calling anything done.
 - Keep changes small and focused; don't refactor outside the task.
 
 ## Non-negotiables
@@ -24,12 +24,12 @@ small TypeScript orbit engine. See `PLAN.md` for scope and phases, `PROGRESS.md`
 ## Commands
 
 ```bash
-pnpm i            # install
-pnpm dev          # web + server in dev mode
-pnpm check        # typecheck + lint + test + build (must be green)
-pnpm test         # all unit/property tests
-pnpm fixtures     # regenerate Horizons fixtures (network; dev only; commit the result)
-pnpm snapshot     # refresh bundled data snapshot for the web app
+npm i             # install
+npm run dev       # web + server in dev mode
+npm run check     # typecheck + lint + test + build (must be green)
+npm test          # all unit/property tests
+npm run fixtures  # regenerate Horizons fixtures (network; dev only; commit the result)
+npm run snapshot  # refresh bundled data snapshot for the web app
 ```
 
 ## Layout

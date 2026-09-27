@@ -23,7 +23,7 @@
 | Layer       | Choice                                                                    |
 | ----------- | ------------------------------------------------------------------------- |
 | Language    | TypeScript (strict), ESM everywhere                                       |
-| Monorepo    | pnpm workspaces                                                           |
+| Monorepo    | npm workspaces                                                            |
 | Engine      | `packages/orbit`: pure TS, zero runtime dependencies                      |
 | Rendering   | React + React Three Fiber + drei + postprocessing (three.js), custom GLSL |
 | Web app     | Vite                                                                      |
@@ -72,15 +72,15 @@ Principles:
 
 **Goal:** an empty but fully wired project that an agent can work in safely.
 
-- pnpm monorepo with the layout above; TS strict; ESLint + Prettier; Vitest configured per package
+- npm workspaces monorepo with the layout above; TS strict; ESLint + Prettier; Vitest configured per package
 - `apps/web`: Vite + R3F rendering a black scene with a single sphere and an FPS overlay
 - `apps/server`: Fastify with `/health`
 - CI (GitHub Actions): typecheck, lint, test, build
 - ESLint rule: `packages/orbit` may not import anything (no deps, no DOM, no Node built-ins)
 - `.env.example` with `NASA_API_KEY`
 
-**Exit criteria:** `pnpm i && pnpm check` (typecheck + lint + test + build) is green locally and in CI;
-`pnpm dev` shows the sphere and FPS counter.
+**Exit criteria:** `npm i && npm run check` (typecheck + lint + test + build) is green locally and in CI;
+`npm run dev` shows the sphere and FPS counter.
 
 ## Phase 1 — Orbit engine
 
