@@ -32,7 +32,7 @@ Legend: ⬜ not started · 🟨 in progress · ✅ done (all exit criteria verif
 ## Phase 1: Orbit engine
 
 - [x] Time scales (UTC → TT/TDB, JD)
-- [ ] Kepler solver + property tests
+- [x] Kepler solver + property tests
 - [ ] Elements ↔ state vectors + round-trip tests
 - [ ] Two-body propagation + conservation tests
 - [ ] Planet positions (Standish tables)
