@@ -5,3 +5,5 @@ export * from './time';
 export * from './kepler';
 export * from './vector3';
 export * from './elements';
+export * from './angles';
+export * from './propagate';

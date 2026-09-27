@@ -3,13 +3,13 @@
  * Formulas follow Murray & Dermott, Solar System Dynamics (1999), ch. 2.
  */
 
+import { normalizeAngleRad } from './angles';
+import { assertPositiveSemiMajorAxis } from './assertions';
 import { meanAnomalyFromEccentric, solveKepler } from './kepler';
 import { type Vector3, cross, dot, norm } from './vector3';
 
 /** GM☉ = k², with k the Gaussian gravitational constant 0.01720209895 (IAU 1976), in AU³/day². */
 export const GM_SUN_AU3_PER_DAY2 = 0.01720209895 * 0.01720209895;
-
-const TWO_PI = 2 * Math.PI;
 
 /** Below these, perihelion or node is numerically undefined and we fall back to a convention. */
 const CIRCULAR_ECCENTRICITY = 1e-11;
@@ -39,9 +39,7 @@ export function stateFromElements(
   elements: OrbitalElements,
   out: StateVector = createStateVector(),
 ): StateVector {
-  if (!(elements.semiMajorAxisAu > 0)) {
-    throw new RangeError(`Semi-major axis must be positive, got ${elements.semiMajorAxisAu} AU.`);
-  }
+  assertPositiveSemiMajorAxis(elements.semiMajorAxisAu);
   const eccentricAnomalyRad = solveKepler(elements.meanAnomalyRad, elements.eccentricity);
   const planar = perifocalState(elements, eccentricAnomalyRad);
   const { towardPerihelion: p, towardQuadrature: q } = perifocalBasis(elements);
@@ -161,9 +159,4 @@ function meanAnomalyFromTrue(trueAnomalyRad: number, eccentricity: number): numb
     eccentricity + Math.cos(trueAnomalyRad),
   );
   return meanAnomalyFromEccentric(eccentricAnomalyRad, eccentricity);
-}
-
-function normalizeAngleRad(angleRad: number): number {
-  const wrapped = angleRad % TWO_PI;
-  return wrapped < 0 ? wrapped + TWO_PI : wrapped;
 }
