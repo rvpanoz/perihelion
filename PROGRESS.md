@@ -1,6 +1,6 @@
 # PROGRESS
 
-**Current phase:** Phase 1: Orbit engine (not started)
+**Current phase:** Phase 1: Orbit engine (in progress)
 **Last updated:** 2026-09-28
 
 ## Phase status
@@ -8,7 +8,7 @@
 | Phase                         | Status         |
 | ----------------------------- | -------------- |
 | 0. Foundations                | ✅ Done        |
-| 1. Orbit engine               | ⬜ Not started |
+| 1. Orbit engine               | 🟨 In progress |
 | 2. Data layer                 | ⬜ Not started |
 | 3. Scene foundation           | ⬜ Not started |
 | 4. Shot 1: The Swarm          | ⬜ Not started |
@@ -31,7 +31,7 @@ Legend: ⬜ not started · 🟨 in progress · ✅ done (all exit criteria verif
 
 ## Phase 1: Orbit engine
 
-- [ ] Time scales (UTC → TT/TDB, JD)
+- [x] Time scales (UTC → TT/TDB, JD)
 - [ ] Kepler solver + property tests
 - [ ] Elements ↔ state vectors + round-trip tests
 - [ ] Two-body propagation + conservation tests
@@ -78,6 +78,11 @@ Checklists will be expanded from `PLAN.md` when each phase starts.
 - **2026-09-28:** `packages/fixtures` gets Node types (its generator runs in Node); orbit/data stay DOM- and Node-free.
 - **2026-09-28:** Work is tracked on GitHub: issues per checklist item, `type:`/`phase:`/`area:` labels, a milestone
   per phase, the Perihelion project board, and a `v0.N.0` tag + release per finished phase (see CLAUDE.md).
+- **2026-09-28:** Time: calendar dates are proleptic Gregorian (Meeus ch. 7). TDB = TT (the periodic term is
+  ≤ 1.7 ms, about 50 m of Earth motion). UTC before 1972-01-01 is rejected; callers pass TDB directly.
+- **2026-09-28:** Kepler: hyperbolic orbits (e ≥ 1) are rejected with a `RangeError`; comets are parked.
+- **2026-09-28:** Asteroid golden tests take osculating elements from Horizons at a fixed epoch, so they
+  measure only our two-body error. Bodies: Eros, Apophis, Bennu, Ryugu, Phaethon, one Aten, one Atira.
 
 ## Open questions
 
@@ -96,6 +101,8 @@ Checklists will be expanded from `PLAN.md` when each phase starts.
   throttling, but not confirmed. Check the frame rate in a focused window.
 - `npm ci` warns that esbuild's postinstall script is not covered by npm's `allowScripts` policy (esbuild comes in
   via tsx). It doesn't affect `check`; revisit if `npm run dev` for the server breaks on a fresh install.
+- The leap-second table ends at 2017-01-01 (TAI − UTC = 37 s) and assumes none since. Check it against the
+  latest IERS Bulletin C before release.
 
 ## Blockers
 
