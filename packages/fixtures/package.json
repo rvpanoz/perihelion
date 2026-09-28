@@ -5,7 +5,9 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./golden": "./src/golden.ts"
+    "./golden": "./src/golden.ts",
+    "./upstream": "./src/upstream.ts",
+    "./upstream-full": "./src/upstreamFull.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.golden.json",
