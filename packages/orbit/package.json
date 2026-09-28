@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "devDependencies": {
+    "@perihelion/fixtures": "*",
     "fast-check": "^4.10.2"
   }
 }
