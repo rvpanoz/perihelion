@@ -1,6 +1,6 @@
 # PROGRESS
 
-**Current phase:** Phase 2: Data layer (not started)
+**Current phase:** Phase 2: Data layer (in progress)
 **Last updated:** 2026-09-28
 
 ## Phase status
@@ -9,7 +9,7 @@
 | ----------------------------- | -------------- |
 | 0. Foundations                | ✅ Done        |
 | 1. Orbit engine               | ✅ Done        |
-| 2. Data layer                 | ⬜ Not started |
+| 2. Data layer                 | 🟨 In progress |
 | 3. Scene foundation           | ⬜ Not started |
 | 4. Shot 1: The Swarm          | ⬜ Not started |
 | 5. Shot 2: The Close Approach | ⬜ Not started |
@@ -46,10 +46,12 @@ below, and `packages/orbit` has no runtime dependencies.
 
 ## Phase 2: Data layer
 
-- [ ] zod schemas (SBDB, CAD, DONKI)
-- [ ] `/api/neos`, `/api/close-approaches`, `/api/cmes`
-- [ ] SQLite cache + scheduled refresh
-- [ ] Recorded-response server tests
+- [ ] Upstream query definitions + esbuild server bundle
+- [ ] Recorded upstream responses (SBDB, CAD, DONKI) + `npm run record`
+- [ ] zod schemas + normalizers (SBDB, CAD, DONKI) and API types
+- [ ] Upstream HTTP client with per-host rate limiting
+- [ ] SQLite cache + stale-while-revalidate + scheduled refresh
+- [ ] `/api/neos`, `/api/close-approaches`, `/api/cmes` with recorded-response tests
 - [ ] Bundled snapshot + offline fallback verified
 
 ## Phase 3–7
