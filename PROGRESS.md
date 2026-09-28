@@ -46,7 +46,7 @@ below, and `packages/orbit` has no runtime dependencies.
 
 ## Phase 2: Data layer
 
-- [ ] Upstream query definitions + esbuild server bundle
+- [x] Upstream query definitions + esbuild server bundle
 - [ ] Recorded upstream responses (SBDB, CAD, DONKI) + `npm run record`
 - [ ] zod schemas + normalizers (SBDB, CAD, DONKI) and API types
 - [ ] Upstream HTTP client with per-host rate limiting
@@ -155,6 +155,13 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
   elements → state conversion at the epoch, and 1e-11 relative for GM. The conversion is exact to float noise; the
   error grows as t² away from the epoch (unmodelled planetary perturbations, not a GM or mean-motion error, which
   would grow linearly). Phaethon (e = 0.89) behaves like the rest.
+- **2026-09-28:** The server is bundled by esbuild (`apps/server/scripts/build.mjs`): workspace packages are bundled,
+  npm dependencies stay external, and `tsc` only typechecks the server, with Bundler resolution. This settles the
+  Phase 0 "bundle vs. emit" question.
+- **2026-09-28:** Upstream queries live in `packages/data` so the server and the recorder send identical requests.
+  SBDB is asked for asteroids only (`sb-kind=a`) at full precision; CAD's `dist-max=0.05` is pinned explicitly.
+- **2026-09-28:** The close-approach window is today ± `days` (a just-passed approach stays replayable); the CME
+  window is the last `days` days.
 
 ## Open questions
 
