@@ -88,8 +88,16 @@ describe('toNeoCatalog', () => {
     expect(() => toNeoCatalog(sbdbResponse(rows))).toThrow(UpstreamFormatError);
   });
 
-  it('returns an empty catalog for an empty answer', () => {
-    expect(toNeoCatalog(sbdbResponse([])).count).toBe(0);
+  it('fails loudly on an empty answer: a catalog of zero NEOs is never legitimate', () => {
+    expect(() => toNeoCatalog(sbdbResponse([]))).toThrow(UpstreamFormatError);
+  });
+
+  it('fails loudly when SBDB reports matches but the fields and data keys are gone', () => {
+    const drifted = jplColumnarResponseSchema.parse({
+      signature: { version: '1.0' },
+      count: 42534,
+    });
+    expect(() => toNeoCatalog(drifted)).toThrow(UpstreamFormatError);
   });
 });
 

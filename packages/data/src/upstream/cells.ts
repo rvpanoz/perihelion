@@ -26,7 +26,10 @@ export function readColumnarRows<F extends string>(
   response: JplColumnarResponse,
   required: readonly F[],
 ): Record<F, Cell>[] {
-  if (response.data.length === 0) return [];
+  if (response.data.length === 0) {
+    assertGenuinelyEmpty(response);
+    return [];
+  }
   const columns = required.map((field) => [field, columnIndex(response.fields, field)] as const);
   return response.data.map((row) => {
     if (row.length !== response.fields.length) {
@@ -37,6 +40,17 @@ export function readColumnarRows<F extends string>(
       columns.map(([field, index]) => [field, row[index] ?? null]),
     ) as Record<F, Cell>;
   });
+}
+
+/**
+ * Upstream drops `fields` and `data` when nothing matches, and reports `count: 0`. A positive `count`
+ * with no rows means the keys were renamed or dropped, which must not read as an empty answer.
+ * (`count` is not the row count in general: `limit` makes it larger than `data.length`.)
+ */
+function assertGenuinelyEmpty(response: JplColumnarResponse): void {
+  if (response.count > 0) {
+    throw new UpstreamFormatError(`Response reports ${response.count} matches but carries no rows`);
+  }
 }
 
 function columnIndex(fields: readonly string[], field: string): number {

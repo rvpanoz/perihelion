@@ -19,6 +19,12 @@ describe('readColumnarRows', () => {
     expect(readColumnarRows({ ...response([], []), count: 0 }, ['a'])).toEqual([]);
   });
 
+  it('fails loudly when upstream reports matches but sends no rows', () => {
+    // Shaped like a renamed `data` key: the envelope parses, count says 5, nothing is there.
+    const drifted = { ...response([], []), count: 5 };
+    expect(() => readColumnarRows(drifted, ['a'])).toThrow(UpstreamFormatError);
+  });
+
   it('fails loudly when a required field is missing', () => {
     expect(() => readColumnarRows(response(['b'], [['2']]), ['a'])).toThrow(UpstreamFormatError);
   });

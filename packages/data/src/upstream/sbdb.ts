@@ -48,6 +48,7 @@ type Elements = Omit<NeoRow, 'designation' | 'name' | 'absoluteMagnitude' | 'orb
 
 export function toNeoCatalog(response: JplColumnarResponse): NeoCatalog {
   const cells = readColumnarRows(response, SBDB_NEO_FIELDS);
+  assertAnyRows(cells.length);
   const rows = cells.flatMap((row) => toNeoRow(row) ?? []);
   assertFewSkipped(cells.length, rows.length);
   return toColumns(rows);
@@ -101,6 +102,11 @@ function toElements(raw: RawElements | null): Elements | null {
     argumentOfPerihelionDeg: roundTo(raw.w, ANGLE_DECIMALS),
     meanAnomalyDeg: roundTo(raw.ma, ANGLE_DECIMALS),
   };
+}
+
+/** Unlike a CAD or DONKI window, an empty NEO catalog is never right: serving it would blank the swarm. */
+function assertAnyRows(total: number): void {
+  if (total === 0) throw new UpstreamFormatError('SBDB returned no NEO rows');
 }
 
 function assertFewSkipped(total: number, kept: number): void {
