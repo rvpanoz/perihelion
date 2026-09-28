@@ -1821,6 +1821,12 @@ function clientAnswering(respond: () => Response | Promise<Response>) {
   return createHttpClient({ fetchImpl: async () => respond(), timeoutMs: 1_000 });
 }
 
+function tooManyRequests(retryAfter: string) {
+  return clientAnswering(
+    () => new Response('', { status: 429, headers: { 'retry-after': retryAfter } }),
+  );
+}
+
 async function failureOf(promise: Promise<unknown>): Promise<UpstreamError> {
   const error = await promise.then(
     () => undefined,
@@ -1841,12 +1847,18 @@ describe('createHttpClient', () => {
   });
 
   it('turns HTTP 429 into a back-off using Retry-After seconds, or a minute without it', async () => {
-    const withHeader = clientAnswering(
-      () => new Response('', { status: 429, headers: { 'retry-after': '120' } }),
+    expect((await failureOf(tooManyRequests('120').getJson(URL_WITH_KEY))).retryAfterMs).toBe(
+      120_000,
     );
-    expect((await failureOf(withHeader.getJson(URL_WITH_KEY))).retryAfterMs).toBe(120_000);
     const without = clientAnswering(() => new Response('', { status: 429 }));
     expect((await failureOf(without.getJson(URL_WITH_KEY))).retryAfterMs).toBe(60_000);
+  });
+
+  it('backs off a minute when Retry-After is not a positive number of seconds', async () => {
+    for (const retryAfter of ['0', '-5', 'Wed, 21 Oct 2026 07:28:00 GMT']) {
+      const error = await failureOf(tooManyRequests(retryAfter).getJson(URL_WITH_KEY));
+      expect(error.retryAfterMs).toBe(60_000);
+    }
   });
 
   it('reports other HTTP failures with the key redacted', async () => {
@@ -1858,8 +1870,27 @@ describe('createHttpClient', () => {
     expect(error.retryAfterMs).toBeNull();
   });
 
+  it('releases the body of a failed response so the connection can be reused', async () => {
+    let cancelled = false;
+    const body = new ReadableStream({ cancel: () => void (cancelled = true) });
+    await failureOf(
+      clientAnswering(() => new Response(body, { status: 503 })).getJson(URL_WITH_KEY),
+    );
+    expect(cancelled).toBe(true);
+  });
+
   it('rejects a body that is not JSON', async () => {
     await failureOf(clientAnswering(() => new Response('<html>')).getJson(URL_WITH_KEY));
+  });
+
+  it('reports a body that breaks off mid-read without the key', async () => {
+    const broken = new ReadableStream({
+      start: (controller) => controller.error(new TypeError('terminated')),
+    });
+    const error = await failureOf(
+      clientAnswering(() => new Response(broken)).getJson(URL_WITH_KEY),
+    );
+    expect(error.message).not.toContain('SECRET-KEY');
   });
 
   it('reports a network failure without the key', async () => {
@@ -1917,8 +1948,8 @@ export function createHttpClient(options: HttpClientOptions): HttpClient {
   return {
     async getJson(url) {
       const response = await fetchOrThrow(url, options);
-      if (!response.ok) throw statusError(response, url);
-      return parseBody(await response.text(), url);
+      if (!response.ok) throw await statusError(response, url);
+      return parseBody(await readTextOrThrow(response, url), url);
     },
   };
 }
@@ -1934,14 +1965,38 @@ async function fetchOrThrow(
   }
 }
 
-function statusError(response: Response, url: URL): UpstreamError {
+async function statusError(response: Response, url: URL): Promise<UpstreamError> {
+  await discardBody(response);
   const message = `HTTP ${response.status} from ${redactedUrl(url)}`;
   if (response.status !== HTTP_TOO_MANY_REQUESTS) return new UpstreamError(message);
-  const retryAfterSeconds = Number(response.headers.get('retry-after') ?? Number.NaN);
-  const retryAfterMs = Number.isFinite(retryAfterSeconds)
+  return new UpstreamError(message, retryAfterMsOf(response));
+}
+
+/** An unread body holds Node's connection until garbage collection; a discarded body may fail freely. */
+async function discardBody(response: Response): Promise<void> {
+  await response.body?.cancel().catch(() => undefined);
+}
+
+/**
+ * Retry-After in seconds (RFC 9110 §10.2.3). A zero or negative value would lift the back-off at once, and the
+ * HTTP-date form is not worth parsing for a fallback, so both get the default.
+ */
+function retryAfterMsOf(response: Response): number {
+  const retryAfterSeconds = Number(response.headers.get('retry-after'));
+  return Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0
     ? retryAfterSeconds * MS_PER_SECOND
     : DEFAULT_RETRY_AFTER_MS;
-  return new UpstreamError(message, retryAfterMs);
+}
+
+/** The timeout also covers the body, and a connection can drop mid-body; both must surface as UpstreamError. */
+async function readTextOrThrow(response: Response, url: URL): Promise<string> {
+  try {
+    return await response.text();
+  } catch (error) {
+    throw new UpstreamError(
+      `Reading the body from ${redactedUrl(url)} failed: ${messageOf(error)}`,
+    );
+  }
 }
 
 /** DONKI has answered an empty window with an empty body; null lets its schema decide. */
@@ -1959,7 +2014,7 @@ function messageOf(error: unknown): string {
 }
 ```
 
-Run the test again — Expected: PASS (7 tests).
+Run the test again — Expected: PASS (10 tests).
 
 - [ ] **Step 4: Write the failing gate tests** `apps/server/src/upstream/upstreamGate.test.ts`
 
@@ -2060,7 +2115,7 @@ export class UpstreamGate {
   #backOffUntilMs = 0;
 
   constructor(options: UpstreamGateOptions) {
-    this.#options = { sleep: realSleep, ...options };
+    this.#options = { ...options, sleep: options.sleep ?? realSleep };
   }
 
   run<T>(task: () => Promise<T>): Promise<T> {
@@ -2070,21 +2125,33 @@ export class UpstreamGate {
   }
 
   async #runInTurn<T>(task: () => Promise<T>): Promise<T> {
-    const { clock, sleep, minIntervalMs } = this.#options;
-    if (clock.now() < this.#backOffUntilMs) {
+    this.#refuseWhileBackingOff();
+    await this.#waitForInterval();
+    return this.#runAndRecord(task);
+  }
+
+  #refuseWhileBackingOff(): void {
+    if (this.#options.clock.now() < this.#backOffUntilMs) {
       throw new UpstreamError(
         `Upstream asked us to back off until ${new Date(this.#backOffUntilMs).toISOString()}`,
       );
     }
-    const waitMs = this.#nextAllowedAtMs - clock.now();
-    if (waitMs > 0) await sleep(waitMs);
+  }
+
+  async #waitForInterval(): Promise<void> {
+    const waitMs = this.#nextAllowedAtMs - this.#options.clock.now();
+    if (waitMs > 0) await this.#options.sleep(waitMs);
+  }
+
+  /** The interval runs from when a request ends, so a slow upstream is never hit back to back. */
+  async #runAndRecord<T>(task: () => Promise<T>): Promise<T> {
     try {
       return await task();
     } catch (error) {
       this.#noteBackOff(error);
       throw error;
     } finally {
-      this.#nextAllowedAtMs = clock.now() + minIntervalMs;
+      this.#nextAllowedAtMs = this.#options.clock.now() + this.#options.minIntervalMs;
     }
   }
 
@@ -2103,10 +2170,12 @@ export function gatedHttpClient(client: HttpClient, gate: UpstreamGate): HttpCli
 Run the test again — Expected: PASS (4 tests).
 
 - [ ] **Step 6: Finish** per the workflow. PROGRESS decisions to add:
-  - One `UpstreamGate` per host (JPL SSD, api.nasa.gov): one request at a time, ≥ 1 s apart; after a 429 the host
-    is refused until `Retry-After` (default 60 s) and callers fall back rather than queue.
-  - Upstream failures of every kind (network, timeout, HTTP status, non-JSON) become `UpstreamError` with the key
-    redacted.
+  - One `UpstreamGate` per host (JPL SSD, api.nasa.gov): one request at a time, ≥ 1 s apart, counted from when the
+    previous request ended; after a 429 the host is refused until `Retry-After` (default 60 s) and callers fall back
+    rather than queue.
+  - Upstream failures of every kind (network, timeout, HTTP status, a body cut off mid-read, non-JSON) become
+    `UpstreamError` with the key redacted. A failed response's body is cancelled so Node can reuse the connection.
+    `Retry-After` counts only as positive seconds; zero, negative or an HTTP date gets the 60 s default.
 
 Commit: `git commit -m "Add an upstream HTTP client with timeouts and per-host rate limiting"`
 
