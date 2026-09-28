@@ -1,6 +1,8 @@
 {
   "source": {
     "api": "https://ssd.jpl.nasa.gov/api/horizons.api",
+    "apiVersion": "1.2",
+    "generatedAt": "Mon Sep 28 04:32:22 2026 Pasadena, USA",
     "settings": {
       "format": "json",
       "CENTER": "'500@10'",
@@ -14,6 +16,7 @@
       "MAKE_EPHEM": "YES"
     }
   },
+  "ephemeris": "DE441",
   "planets": {
     "mercury": {
       "horizonsId": "1",

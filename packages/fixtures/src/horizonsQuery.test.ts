@@ -16,6 +16,10 @@ describe('buildVectorsQuery', () => {
     expect(params.get('format')).toBe('json');
   });
 
+  it('asks for geometric states with no light-time or aberration correction', () => {
+    expect(params.get('VEC_CORR')).toBe('NONE');
+  });
+
   it('quotes the command and each Julian Date in the time list', () => {
     expect(params.get('COMMAND')).toBe("'3'");
     expect(params.get('TLIST_TYPE')).toBe('JD');

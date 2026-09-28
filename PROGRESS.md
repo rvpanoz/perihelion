@@ -38,6 +38,7 @@ Legend: ⬜ not started · 🟨 in progress · ✅ done (all exit criteria verif
 - [x] Planet positions (Standish tables)
 - [x] Horizons fixture generator + committed fixtures
 - [x] Golden tests: planets (tolerances calibrated below)
+- [x] Fixture provenance recorded; `VEC_CORR` pinned to geometric
 - [ ] Golden tests: asteroids (tolerance calibrated and recorded below)
 
 ## Phase 2: Data layer
@@ -124,6 +125,13 @@ Planet tolerances are heliocentric longitude / latitude / distance, the units of
   error oscillates around zero with no drift away from J2000: Saturn ±700″ over ~60 years (Jupiter–Saturn
   perturbations), Neptune ±50″ (about the Sun's Jupiter-driven wobble seen from 30 AU). That is periodic perturbation a
   mean-element fit cannot model, not a transcription error.
+- **2026-09-28:** Fixtures record their provenance: the Horizons API version and timestamp per file, the planets'
+  ephemeris (DE441), and per asteroid its orbit solution, ephemeris, perturber set and Keplerian GM. Vector queries pin
+  `VEC_CORR='NONE'` (geometric states). Regenerating with these changes left every committed number identical.
+- **2026-09-28:** Horizons serves Bennu from the OSIRIS-REx tracking trajectory (`ORX_merged_DE424`), not a JPL orbit
+  fit, so its ephemeris is DE424 and it has no perturber set (recorded as `null`). Bennu stays in the set (user
+  decision), which is why provenance is kept per asteroid. Every asteroid's Keplerian GM is 2.9591220828411951e-4
+  AU³/day², within 5e-12 (relative) of the engine's k².
 
 ## Open questions
 

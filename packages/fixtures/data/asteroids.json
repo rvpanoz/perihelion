@@ -1,6 +1,8 @@
 {
   "source": {
     "api": "https://ssd.jpl.nasa.gov/api/horizons.api",
+    "apiVersion": "1.2",
+    "generatedAt": "Mon Sep 28 04:32:33 2026 Pasadena, USA",
     "settings": {
       "format": "json",
       "CENTER": "'500@10'",
@@ -18,6 +20,12 @@
   "asteroids": {
     "eros": {
       "horizonsCommand": "433;",
+      "provenance": {
+        "orbitSolution": "JPL#659",
+        "ephemeris": "DE441",
+        "perturbers": "SB441-N16",
+        "keplerianGmAu3PerDay2": 0.0002959122082841195
+      },
       "elements": {
         "epochJdTdb": 2461000.5,
         "eccentricity": 0.2228359405976197,
@@ -153,6 +161,12 @@
     },
     "apophis": {
       "horizonsCommand": "99942;",
+      "provenance": {
+        "orbitSolution": "JPL#220",
+        "ephemeris": "DE441",
+        "perturbers": "SB441-N16",
+        "keplerianGmAu3PerDay2": 0.0002959122082841195
+      },
       "elements": {
         "epochJdTdb": 2461000.5,
         "eccentricity": 0.1911663355501448,
@@ -288,6 +302,12 @@
     },
     "bennu": {
       "horizonsCommand": "101955;",
+      "provenance": {
+        "orbitSolution": "ORX_merged_DE424",
+        "ephemeris": "ORX_merged_DE424",
+        "perturbers": null,
+        "keplerianGmAu3PerDay2": 0.0002959122082841195
+      },
       "elements": {
         "epochJdTdb": 2461000.5,
         "eccentricity": 0.2036972964248782,
@@ -423,6 +443,12 @@
     },
     "ryugu": {
       "horizonsCommand": "162173;",
+      "provenance": {
+        "orbitSolution": "JPL#270",
+        "ephemeris": "DE441",
+        "perturbers": "SB441-N16",
+        "keplerianGmAu3PerDay2": 0.0002959122082841195
+      },
       "elements": {
         "epochJdTdb": 2461000.5,
         "eccentricity": 0.1910626229447914,
@@ -558,6 +584,12 @@
     },
     "phaethon": {
       "horizonsCommand": "3200;",
+      "provenance": {
+        "orbitSolution": "JPL#1003",
+        "ephemeris": "DE441",
+        "perturbers": "SB441-N16",
+        "keplerianGmAu3PerDay2": 0.0002959122082841195
+      },
       "elements": {
         "epochJdTdb": 2461000.5,
         "eccentricity": 0.8897184635704416,
@@ -693,6 +725,12 @@
     },
     "aten": {
       "horizonsCommand": "2062;",
+      "provenance": {
+        "orbitSolution": "JPL#149",
+        "ephemeris": "DE441",
+        "perturbers": "SB441-N16",
+        "keplerianGmAu3PerDay2": 0.0002959122082841195
+      },
       "elements": {
         "epochJdTdb": 2461000.5,
         "eccentricity": 0.1828994504698159,
@@ -828,6 +866,12 @@
     },
     "atira": {
       "horizonsCommand": "163693;",
+      "provenance": {
+        "orbitSolution": "JPL#225",
+        "ephemeris": "DE441",
+        "perturbers": "SB441-N16",
+        "keplerianGmAu3PerDay2": 0.0002959122082841195
+      },
       "elements": {
         "epochJdTdb": 2461000.5,
         "eccentricity": 0.3221203439618641,

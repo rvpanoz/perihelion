@@ -29,11 +29,26 @@ export type ElementsRecord = z.infer<typeof elementsRecordSchema>;
 
 const sourceSchema = z.object({
   api: z.string(),
+  apiVersion: z.string().min(1),
+  generatedAt: z.string().min(1),
   settings: z.record(z.string(), z.string()),
+});
+
+/**
+ * What an asteroid's ground truth was computed from, so a newer solution cannot slip in unseen.
+ * Kept per body: Horizons serves Bennu from OSIRIS-REx tracking on DE424, with no perturber set.
+ */
+const asteroidProvenanceSchema = z.object({
+  orbitSolution: z.string().min(1),
+  ephemeris: z.string().min(1),
+  perturbers: z.string().min(1).nullable(),
+  keplerianGmAu3PerDay2: z.number().positive(),
 });
 
 export const planetFixturesSchema = z.object({
   source: sourceSchema,
+  /** Shared by every planet: Standish Table 1 is checked against a single ephemeris. */
+  ephemeris: z.string().min(1),
   planets: z.record(
     z.enum(PLANET_NAMES),
     z.object({ horizonsId: z.string(), states: z.array(stateRecordSchema) }),
@@ -47,12 +62,15 @@ export const asteroidFixturesSchema = z.object({
     z.enum(ASTEROID_NAMES),
     z.object({
       horizonsCommand: z.string(),
+      provenance: asteroidProvenanceSchema,
       elements: elementsRecordSchema,
       states: z.array(stateRecordSchema),
     }),
   ),
 });
 
+export type FixtureSource = z.infer<typeof sourceSchema>;
+export type AsteroidProvenance = z.infer<typeof asteroidProvenanceSchema>;
 export type PlanetFixtures = z.infer<typeof planetFixturesSchema>;
 export type AsteroidFixtures = z.infer<typeof asteroidFixturesSchema>;
 export type PlanetFixture = PlanetFixtures['planets'][PlanetName];

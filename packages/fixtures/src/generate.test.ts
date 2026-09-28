@@ -11,9 +11,16 @@ import { HorizonsError } from './horizonsResponse';
 
 const VECTOR_HEADER = 'JDTDB, Calendar Date (TDB), X, Y, Z, VX, VY, VZ,';
 const ELEMENTS_HEADER = 'JDTDB, Calendar Date (TDB), EC, QR, IN, OM, W, Tp, N, MA, TA, A, AD, PR,';
+const PROVENANCE_HEADER = [
+  'Ephemeris / API_USER Sun Sep 27 15:54:02 2026 Pasadena, USA      / Horizons',
+  'Target body name: Test body (1)                   {source: JPL#1}',
+  'Center body name: Sun (10)                        {source: DE441}',
+  'Keplerian GM    : 2.9591220828411951E-04 au^3/d^2',
+  'Small perturbers: Yes                             {source: SB441-N16}',
+].join('\n');
 
 function table(header: string, rows: readonly string[]): string {
-  return [header, '*****', '$$SOE', ...rows, '$$EOE'].join('\n');
+  return [PROVENANCE_HEADER, header, '*****', '$$SOE', ...rows, '$$EOE'].join('\n');
 }
 
 function requestedJds(params: URLSearchParams): number[] {
@@ -36,9 +43,9 @@ function fakeResult(params: URLSearchParams): string {
 function recordingClient(answer: (params: URLSearchParams) => string = fakeResult) {
   const commands: string[] = [];
   const client: HorizonsClient = {
-    async fetchResultText(params) {
+    async fetchResponse(params) {
       commands.push(params.get('COMMAND') ?? '');
-      return answer(params);
+      return { resultText: answer(params), apiVersion: '1.2' };
     },
   };
   return { client, commands };
@@ -55,6 +62,36 @@ describe('generatePlanetFixtures', () => {
       );
     }
     expect(fixtures.source.settings.CENTER).toBe("'500@10'");
+  });
+
+  it('records the API version, ephemeris and Horizons timestamp of the run', async () => {
+    const fixtures = await generatePlanetFixtures(recordingClient().client);
+    expect(fixtures.source).toMatchObject({
+      apiVersion: '1.2',
+      generatedAt: 'Sun Sep 27 15:54:02 2026 Pasadena, USA',
+    });
+    expect(fixtures.ephemeris).toBe('DE441');
+  });
+
+  it('rejects a run whose responses come from different ephemerides', async () => {
+    const lastOnDe440 = (params: URLSearchParams) =>
+      params.get('COMMAND') === "'8'"
+        ? fakeResult(params).replace('{source: DE441}', '{source: DE440}')
+        : fakeResult(params);
+    await expect(generatePlanetFixtures(recordingClient(lastOnDe440).client)).rejects.toThrow(
+      /mixed ephemerides/,
+    );
+  });
+
+  it('rejects a run that straddles a Horizons API version change', async () => {
+    let calls = 0;
+    const client: HorizonsClient = {
+      async fetchResponse(params) {
+        calls += 1;
+        return { resultText: fakeResult(params), apiVersion: calls === 1 ? '1.2' : '1.3' };
+      },
+    };
+    await expect(generatePlanetFixtures(client)).rejects.toThrow(/API version changed/);
   });
 
   it('rejects a response that is missing a requested date', async () => {
@@ -87,7 +124,42 @@ describe('generateAsteroidFixtures', () => {
       expect(fixtures.asteroids[name].states.map((state) => state.jdTdb)).toEqual(
         ASTEROID_SAMPLE_JD_TDB,
       );
+      expect(fixtures.asteroids[name].provenance).toEqual({
+        orbitSolution: 'JPL#1',
+        ephemeris: 'DE441',
+        perturbers: 'SB441-N16',
+        keplerianGmAu3PerDay2: 2.9591220828411951e-4,
+      });
     }
+  });
+
+  it('rejects states from a different orbit solution than the elements', async () => {
+    const newerSolutionForStates = (params: URLSearchParams) =>
+      params.get('EPHEM_TYPE') === 'VECTORS'
+        ? fakeResult(params).replace('JPL#1', 'JPL#2')
+        : fakeResult(params);
+    await expect(
+      generateAsteroidFixtures(recordingClient(newerSolutionForStates).client),
+    ).rejects.toThrow(/orbit solution/);
+  });
+
+  it('keeps a spacecraft-derived trajectory, which has no perturber set', async () => {
+    const bennuFromMissionTracking = (params: URLSearchParams) =>
+      params.get('COMMAND') === "'101955;'"
+        ? fakeResult(params)
+            .replace(/\{source: (JPL#1|DE441)\}/g, '{source: ORX_merged_DE424}')
+            .replace(/^Small perturbers:.*\n/m, '')
+        : fakeResult(params);
+    const { asteroids } = await generateAsteroidFixtures(
+      recordingClient(bennuFromMissionTracking).client,
+    );
+    expect(asteroids.bennu.provenance).toEqual({
+      orbitSolution: 'ORX_merged_DE424',
+      ephemeris: 'ORX_merged_DE424',
+      perturbers: null,
+      keplerianGmAu3PerDay2: 2.9591220828411951e-4,
+    });
+    expect(asteroids.eros.provenance.ephemeris).toBe('DE441');
   });
 
   it('rejects elements returned for a different epoch', async () => {
