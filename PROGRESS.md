@@ -50,7 +50,7 @@ below, and `packages/orbit` has no runtime dependencies.
 - [x] Recorded upstream responses (SBDB, CAD, DONKI) + `npm run record`
 - [x] zod schemas + normalizers (SBDB, CAD, DONKI) and API types
 - [x] Upstream HTTP client with per-host rate limiting
-- [ ] SQLite cache + stale-while-revalidate + scheduled refresh
+- [x] SQLite cache + stale-while-revalidate + scheduled refresh
 - [ ] `/api/neos`, `/api/close-approaches`, `/api/cmes` with recorded-response tests
 - [ ] Bundled snapshot + offline fallback verified
 
@@ -188,6 +188,15 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
 - **2026-09-29:** Upstream failures of every kind (network, timeout, HTTP status, a body cut off mid-read, non-JSON)
   become `UpstreamError` with the key redacted. A failed response's body is cancelled so Node can reuse the
   connection. `Retry-After` counts only as positive seconds; zero, negative or an HTTP date gets the 60 s default.
+- **2026-09-29:** The dataset cache is one `node:sqlite` table (`dataset_cache`: key, validated JSON, fetch time) at
+  `DATABASE_PATH` (default `.cache/perihelion.sqlite`, git-ignored). Data is stored as JSON text so `/api/neos` is
+  never re-parsed per request.
+- **2026-09-29:** Read path: fresh → cache; stale → cache now + background refresh; cold → upstream, else snapshot,
+  else 503. Concurrent cold reads share one fetch. After a failure a dataset's upstream is left alone for 60 s: cold
+  reads go straight to the snapshot and stale reads skip the background refresh. `refreshIfStale` never rejects (every
+  failure, the cache's included, is logged) because the scheduler runs it unawaited.
+- **2026-09-29:** The scheduler refreshes the default queries at start-up and every 10 minutes (wired in Task 6),
+  skipping anything still fresh.
 
 ## Open questions
 
@@ -213,6 +222,8 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
   latest IERS Bulletin C before release.
 - Horizons rejects an unencoded `;` with HTTP 400 "parameter not recognized"; rows come back in time order
   regardless of TLIST order.
+- Node 24 prints `ExperimentalWarning: SQLite is an experimental feature and might change at any time` whenever
+  `node:sqlite` loads (tests, server start-up). Harmless; we use only `DatabaseSync` and prepared statements.
 
 ## Blockers
 
