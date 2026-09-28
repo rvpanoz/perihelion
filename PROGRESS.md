@@ -112,13 +112,18 @@ Planet tolerances are heliocentric longitude / latitude / distance, the units of
 
 - **2026-09-28:** Planet golden tests use calibrated tolerances, not Standish's published bounds (user decision).
   Against DE441 (Sun-centred) the engine exceeds the page's _nominal_ 1800–2050 errors by 1.1–2.3×, Neptune by ~6×.
-  The inner planets being close and the Table 1 constants looking right (checked by eye) point to the approximation's
+  The inner planets being close and the Table 1 constants matching the page point to the approximation's
   limits against a modern ephemeris rather than an engine bug.
 - **2026-09-28:** One-off barycentre check (dev only, not committed): measured from the solar-system barycentre,
   Neptune falls to about its published bound (10.8″ / 0.51″ / 291,700 km), the inner planets get ~100× worse, and
   Uranus fits neither frame. Fixtures and engine stay heliocentric as `PLAN.md` specifies.
 - **2026-09-28:** ESLint pins `tsconfigRootDir`, and ESLint and Prettier ignore `.kilo/`: another tool's git
   worktree inside the repo made typescript-eslint see two project roots and broke lint.
+- **2026-09-28:** All 96 Table 1 constants in `planets.ts` match the table on JPL's approx_pos page (numeric diff by
+  script), and the formulae (degrees; M = L − ϖ, ω = ϖ − Ω; no b, c, s, f terms in Table 1) follow the page. The engine's
+  error oscillates around zero with no drift away from J2000: Saturn ±700″ over ~60 years (Jupiter–Saturn
+  perturbations), Neptune ±50″ (about the Sun's Jupiter-driven wobble seen from 30 AU). That is periodic perturbation a
+  mean-element fit cannot model, not a transcription error.
 
 ## Open questions
 
@@ -141,8 +146,6 @@ Planet tolerances are heliocentric longitude / latitude / distance, the units of
   latest IERS Bulletin C before release.
 - Horizons rejects an unencoded `;` with HTTP 400 "parameter not recognized"; rows come back in time order
   regardless of TLIST order.
-- The Standish constants in `planets.ts` have not been diffed against JPL's Table 1 text file by script
-  (`/planets/p_elem_t1.txt` returned no table); they were checked by eye.
 
 ## Blockers
 
