@@ -1,5 +1,6 @@
 export * from './horizonsQuery';
 export * from './horizonsResponse';
+export * from './horizonsProvenance';
 export * from './horizonsTable';
 export * from './horizonsRecords';
 export * from './fixtureSchema';

@@ -7,10 +7,16 @@ import {
   PLANET_NAMES,
   PLANET_SAMPLE_JD_TDB,
 } from './fixtureSpec';
+import { asteroidFixturesSchema, planetFixturesSchema } from './fixtureSchema';
 import { toStateRecord } from './horizonsRecords';
 import { HORIZONS_FRAME_PARAMS } from './horizonsQuery';
 import { parseHorizonsTable } from './horizonsTable';
 import { loadAsteroidFixtures, loadPlanetFixtures } from './loaders';
+
+/** A fixture record with one field dropped, as a hand edit or an older generator would leave it. */
+function withoutField(record: object, field: string): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(record).filter(([name]) => name !== field));
+}
 
 describe('committed Horizons fixtures', () => {
   it('have a state for every planet at every sample date', () => {
@@ -38,5 +44,33 @@ describe('committed Horizons fixtures', () => {
     const recordedJ2000 = toStateRecord(parseHorizonsTable(vectorsResponse.result)[1] ?? {});
     const generated = loadPlanetFixtures().planets.earthMoonBarycenter.states;
     expect(generated.find((state) => state.jdTdb === 2451545)).toEqual(recordedJ2000);
+  });
+
+  it('record the ephemeris and the orbit solution each body came from', () => {
+    expect(loadPlanetFixtures().ephemeris).toBe('DE441');
+    const { asteroids } = loadAsteroidFixtures();
+    // Horizons serves Bennu from OSIRIS-REx tracking rather than a JPL orbit fit.
+    expect(asteroids.bennu.provenance).toMatchObject({
+      orbitSolution: 'ORX_merged_DE424',
+      perturbers: null,
+    });
+    for (const name of ASTEROID_NAMES.filter((asteroid) => asteroid !== 'bennu')) {
+      expect(asteroids[name].provenance.orbitSolution).toMatch(/^JPL#\d+$/);
+      expect(asteroids[name].provenance).toMatchObject({
+        ephemeris: 'DE441',
+        perturbers: 'SB441-N16',
+      });
+    }
+  });
+
+  it('are rejected when their provenance is missing', () => {
+    const planets = loadPlanetFixtures();
+    expect(planetFixturesSchema.safeParse(withoutField(planets, 'ephemeris')).success).toBe(false);
+    const noApiVersion = { ...planets, source: withoutField(planets.source, 'apiVersion') };
+    expect(planetFixturesSchema.safeParse(noApiVersion).success).toBe(false);
+    const asteroids = loadAsteroidFixtures();
+    const eros = withoutField(asteroids.asteroids.eros, 'provenance');
+    const noProvenance = { ...asteroids, asteroids: { ...asteroids.asteroids, eros } };
+    expect(asteroidFixturesSchema.safeParse(noProvenance).success).toBe(false);
   });
 });

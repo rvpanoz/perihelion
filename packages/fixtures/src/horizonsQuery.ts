@@ -25,8 +25,9 @@ export interface BodyQuery {
   jdTdbList: readonly number[];
 }
 
+// Geometric states are Horizons' default today; pinning it keeps the ground truth off an upstream default.
 export function buildVectorsQuery(query: BodyQuery): URLSearchParams {
-  return buildQuery(query, { EPHEM_TYPE: 'VECTORS', VEC_TABLE: '2' });
+  return buildQuery(query, { EPHEM_TYPE: 'VECTORS', VEC_TABLE: '2', VEC_CORR: 'NONE' });
 }
 
 export function buildElementsQuery(query: BodyQuery): URLSearchParams {

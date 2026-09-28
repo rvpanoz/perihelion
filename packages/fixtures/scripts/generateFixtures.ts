@@ -5,7 +5,7 @@ import {
   generateAsteroidFixtures,
   generatePlanetFixtures,
   horizonsUrl,
-  readHorizonsResultText,
+  readHorizonsResponse,
 } from '../src/index';
 
 // Horizons asks API users to send one query at a time; a pause keeps us well inside that.
@@ -13,11 +13,11 @@ const PAUSE_BETWEEN_QUERIES_MS = 1_000;
 const DATA_DIR = new URL('../data/', import.meta.url);
 
 const horizonsClient: HorizonsClient = {
-  async fetchResultText(params) {
+  async fetchResponse(params) {
     const response = await fetch(horizonsUrl(params));
     const body: unknown = await response.json();
     await new Promise((resolve) => setTimeout(resolve, PAUSE_BETWEEN_QUERIES_MS));
-    return readHorizonsResultText(body);
+    return readHorizonsResponse(body);
   },
 };
 
