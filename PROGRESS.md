@@ -1,7 +1,7 @@
 # PROGRESS
 
 **Current phase:** Phase 2: Data layer (in progress)
-**Last updated:** 2026-09-28
+**Last updated:** 2026-09-29
 
 ## Phase status
 
@@ -49,7 +49,7 @@ below, and `packages/orbit` has no runtime dependencies.
 - [x] Upstream query definitions + esbuild server bundle
 - [x] Recorded upstream responses (SBDB, CAD, DONKI) + `npm run record`
 - [x] zod schemas + normalizers (SBDB, CAD, DONKI) and API types
-- [ ] Upstream HTTP client with per-host rate limiting
+- [x] Upstream HTTP client with per-host rate limiting
 - [ ] SQLite cache + stale-while-revalidate + scheduled refresh
 - [ ] `/api/neos`, `/api/close-approaches`, `/api/cmes` with recorded-response tests
 - [ ] Bundled snapshot + offline fallback verified
@@ -182,6 +182,12 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
   plan's "returns an empty catalog for an empty answer" test (Review Focus 5). `count` must be a number or a digit
   string. CME analyses with a non-positive speed or half-angle count as incomplete, and SBDB elements are checked after
   rounding, so the normalizers never emit what their schemas reject.
+- **2026-09-29:** One `UpstreamGate` per host (JPL SSD, api.nasa.gov): one request at a time, ≥ 1 s apart, counted
+  from when the previous request ended; after a 429 the host is refused until `Retry-After` (default 60 s) and callers
+  fall back rather than queue.
+- **2026-09-29:** Upstream failures of every kind (network, timeout, HTTP status, a body cut off mid-read, non-JSON)
+  become `UpstreamError` with the key redacted. A failed response's body is cancelled so Node can reuse the
+  connection. `Retry-After` counts only as positive seconds; zero, negative or an HTTP date gets the 60 s default.
 
 ## Open questions
 
