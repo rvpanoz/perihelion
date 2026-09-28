@@ -37,7 +37,7 @@ Legend: ⬜ not started · 🟨 in progress · ✅ done (all exit criteria verif
 - [x] Two-body propagation + conservation tests
 - [x] Planet positions (Standish tables)
 - [x] Horizons fixture generator + committed fixtures
-- [ ] Golden tests: planets
+- [x] Golden tests: planets (tolerances calibrated below)
 - [ ] Golden tests: asteroids (tolerance calibrated and recorded below)
 
 ## Phase 2: Data layer
@@ -54,9 +54,20 @@ Checklists will be expanded from `PLAN.md` when each phase starts.
 
 ## Calibrated tolerances
 
-| Test                         | Tolerance | Rationale |
-| ---------------------------- | --------- | --------- |
-| _(filled in during Phase 1)_ |           |           |
+| Test                               | Tolerance                    | Rationale                                                                                  |
+| ---------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------ |
+| Planets vs Horizons: Mercury       | 31.4″ / 2.91″ / 2,250 km     | Measured 25.1″ / 2.33″ / 1,800 km × 1.25; Standish nominal 15″ / 1″ / 1,000 km             |
+| Planets vs Horizons: Venus         | 31.5″ / 1.88″ / 7,000 km     | Measured 25.2″ / 1.50″ / 5,600 km × 1.25; Standish nominal 20″ / 1″ / 4,000 km             |
+| Planets vs Horizons: EM barycentre | 24.6″ / 2.03″ / 8,875 km     | Measured 19.7″ / 1.62″ / 7,100 km × 1.25; Standish nominal 20″ / 8″ / 6,000 km             |
+| Planets vs Horizons: Mars          | 73.5″ / 1.71″ / 30,125 km    | Measured 58.8″ / 1.37″ / 24,100 km × 1.25; Standish nominal 40″ / 2″ / 25,000 km           |
+| Planets vs Horizons: Jupiter       | 568″ / 8.88″ / 711,125 km    | Measured 454.6″ / 7.10″ / 568,900 km × 1.25; Standish nominal 400″ / 10″ / 600,000 km      |
+| Planets vs Horizons: Saturn        | 891″ / 28.7″ / 3,502,375 km  | Measured 712.7″ / 22.95″ / 2,801,900 km × 1.25; Standish nominal 600″ / 25″ / 1,500,000 km |
+| Planets vs Horizons: Uranus        | 127″ / 4.39″ / 1,676,875 km  | Measured 101.9″ / 3.51″ / 1,341,500 km × 1.25; Standish nominal 50″ / 2″ / 1,000,000 km    |
+| Planets vs Horizons: Neptune       | 73.9″ / 2.09″ / 1,571,375 km | Measured 59.1″ / 1.67″ / 1,257,100 km × 1.25; Standish nominal 10″ / 1″ / 200,000 km       |
+
+Planet tolerances are heliocentric longitude / latitude / distance, the units of Standish's accuracy table
+(https://ssd.jpl.nasa.gov/planets/approx_pos.html): the worst case over the 27 fixture dates × 1.25
+(`TOLERANCE_MARGIN` in `planets.golden.test.ts`). Why they exceed the published bounds: see the decisions log.
 
 ## Decisions log
 
@@ -98,6 +109,21 @@ Checklists will be expanded from `PLAN.md` when each phase starts.
   responses are Prettier-ignored so they are never reformatted.
 - **2026-09-28:** `packages/fixtures` depends on zod (validation) and tsx (dev, runs the generator); orbit stays
   dependency-free.
+
+- **2026-09-28:** Planet golden tests use calibrated tolerances, not Standish's published bounds (user decision).
+  Against DE441 (Sun-centred) the engine exceeds the page's _nominal_ 1800–2050 errors by 1.1–2.3×, Neptune by ~6×.
+  The inner planets being close and the Table 1 constants matching the page point to the approximation's
+  limits against a modern ephemeris rather than an engine bug.
+- **2026-09-28:** One-off barycentre check (dev only, not committed): measured from the solar-system barycentre,
+  Neptune falls to about its published bound (10.8″ / 0.51″ / 291,700 km), the inner planets get ~100× worse, and
+  Uranus fits neither frame. Fixtures and engine stay heliocentric as `PLAN.md` specifies.
+- **2026-09-28:** ESLint pins `tsconfigRootDir`, and ESLint and Prettier ignore `.kilo/`: another tool's git
+  worktree inside the repo made typescript-eslint see two project roots and broke lint.
+- **2026-09-28:** All 96 Table 1 constants in `planets.ts` match the table on JPL's approx_pos page (numeric diff by
+  script), and the formulae (degrees; M = L − ϖ, ω = ϖ − Ω; no b, c, s, f terms in Table 1) follow the page. The engine's
+  error oscillates around zero with no drift away from J2000: Saturn ±700″ over ~60 years (Jupiter–Saturn
+  perturbations), Neptune ±50″ (about the Sun's Jupiter-driven wobble seen from 30 AU). That is periodic perturbation a
+  mean-element fit cannot model, not a transcription error.
 
 ## Open questions
 

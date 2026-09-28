@@ -11,9 +11,12 @@ const ORBIT_IMPORT_MESSAGE =
   'packages/orbit is dependency-free: only relative imports are allowed (no packages, DOM or Node built-ins).';
 
 export default defineConfig(
-  globalIgnores(['**/dist/**', '**/coverage/**']),
+  // Other tools (e.g. Kilo) check out worktrees inside the repo; those are separate checkouts.
+  globalIgnores(['**/dist/**', '**/coverage/**', '.kilo/**']),
   js.configs.recommended,
   tseslint.configs.strict,
+  // Pin the root: typescript-eslint refuses to guess when a nested worktree carries its own tsconfig.
+  { languageOptions: { parserOptions: { tsconfigRootDir: import.meta.dirname } } },
   {
     files: ['apps/web/src/**/*.{ts,tsx}'],
     extends: [reactHooks.configs.flat.recommended],
