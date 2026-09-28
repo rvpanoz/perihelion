@@ -39,7 +39,7 @@ Legend: ⬜ not started · 🟨 in progress · ✅ done (all exit criteria verif
 - [x] Horizons fixture generator + committed fixtures
 - [x] Golden tests: planets (tolerances calibrated below)
 - [x] Fixture provenance recorded; `VEC_CORR` pinned to geometric
-- [ ] Golden tests: asteroids (tolerance calibrated and recorded below)
+- [x] Golden tests: asteroids (tolerance calibrated and recorded below)
 
 ## Phase 2: Data layer
 
@@ -55,20 +55,33 @@ Checklists will be expanded from `PLAN.md` when each phase starts.
 
 ## Calibrated tolerances
 
-| Test                               | Tolerance                    | Rationale                                                                                  |
-| ---------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------ |
-| Planets vs Horizons: Mercury       | 31.4″ / 2.91″ / 2,250 km     | Measured 25.1″ / 2.33″ / 1,800 km × 1.25; Standish nominal 15″ / 1″ / 1,000 km             |
-| Planets vs Horizons: Venus         | 31.5″ / 1.88″ / 7,000 km     | Measured 25.2″ / 1.50″ / 5,600 km × 1.25; Standish nominal 20″ / 1″ / 4,000 km             |
-| Planets vs Horizons: EM barycentre | 24.6″ / 2.03″ / 8,875 km     | Measured 19.7″ / 1.62″ / 7,100 km × 1.25; Standish nominal 20″ / 8″ / 6,000 km             |
-| Planets vs Horizons: Mars          | 73.5″ / 1.71″ / 30,125 km    | Measured 58.8″ / 1.37″ / 24,100 km × 1.25; Standish nominal 40″ / 2″ / 25,000 km           |
-| Planets vs Horizons: Jupiter       | 568″ / 8.88″ / 711,125 km    | Measured 454.6″ / 7.10″ / 568,900 km × 1.25; Standish nominal 400″ / 10″ / 600,000 km      |
-| Planets vs Horizons: Saturn        | 891″ / 28.7″ / 3,502,375 km  | Measured 712.7″ / 22.95″ / 2,801,900 km × 1.25; Standish nominal 600″ / 25″ / 1,500,000 km |
-| Planets vs Horizons: Uranus        | 127″ / 4.39″ / 1,676,875 km  | Measured 101.9″ / 3.51″ / 1,341,500 km × 1.25; Standish nominal 50″ / 2″ / 1,000,000 km    |
-| Planets vs Horizons: Neptune       | 73.9″ / 2.09″ / 1,571,375 km | Measured 59.1″ / 1.67″ / 1,257,100 km × 1.25; Standish nominal 10″ / 1″ / 200,000 km       |
+| Test                                   | Tolerance                    | Rationale                                                                                  |
+| -------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------ |
+| Planets vs Horizons: Mercury           | 31.4″ / 2.91″ / 2,250 km     | Measured 25.1″ / 2.33″ / 1,800 km × 1.25; Standish nominal 15″ / 1″ / 1,000 km             |
+| Planets vs Horizons: Venus             | 31.5″ / 1.88″ / 7,000 km     | Measured 25.2″ / 1.50″ / 5,600 km × 1.25; Standish nominal 20″ / 1″ / 4,000 km             |
+| Planets vs Horizons: EM barycentre     | 24.6″ / 2.03″ / 8,875 km     | Measured 19.7″ / 1.62″ / 7,100 km × 1.25; Standish nominal 20″ / 8″ / 6,000 km             |
+| Planets vs Horizons: Mars              | 73.5″ / 1.71″ / 30,125 km    | Measured 58.8″ / 1.37″ / 24,100 km × 1.25; Standish nominal 40″ / 2″ / 25,000 km           |
+| Planets vs Horizons: Jupiter           | 568″ / 8.88″ / 711,125 km    | Measured 454.6″ / 7.10″ / 568,900 km × 1.25; Standish nominal 400″ / 10″ / 600,000 km      |
+| Planets vs Horizons: Saturn            | 891″ / 28.7″ / 3,502,375 km  | Measured 712.7″ / 22.95″ / 2,801,900 km × 1.25; Standish nominal 600″ / 25″ / 1,500,000 km |
+| Planets vs Horizons: Uranus            | 127″ / 4.39″ / 1,676,875 km  | Measured 101.9″ / 3.51″ / 1,341,500 km × 1.25; Standish nominal 50″ / 2″ / 1,000,000 km    |
+| Planets vs Horizons: Neptune           | 73.9″ / 2.09″ / 1,571,375 km | Measured 59.1″ / 1.67″ / 1,257,100 km × 1.25; Standish nominal 10″ / 1″ / 200,000 km       |
+| Asteroids vs Horizons: Eros            | 7.06e-5 AU over ±120 d       | Measured 5.65e-5 AU × 1.25 (JPL#659)                                                       |
+| Asteroids vs Horizons: Apophis         | 2.44e-5 AU over ±120 d       | Measured 1.95e-5 AU × 1.25 (JPL#220)                                                       |
+| Asteroids vs Horizons: Bennu           | 4.31e-5 AU over ±120 d       | Measured 3.45e-5 AU × 1.25 (ORX_merged_DE424)                                              |
+| Asteroids vs Horizons: Ryugu           | 2.95e-5 AU over ±120 d       | Measured 2.36e-5 AU × 1.25 (JPL#270)                                                       |
+| Asteroids vs Horizons: Phaethon        | 6.15e-5 AU over ±120 d       | Measured 4.92e-5 AU × 1.25 (JPL#1003; e = 0.89, q = 0.14 AU)                               |
+| Asteroids vs Horizons: Aten            | 2.15e-5 AU over ±120 d       | Measured 1.72e-5 AU × 1.25 (JPL#149)                                                       |
+| Asteroids vs Horizons: Atira           | 4.18e-5 AU over ±120 d       | Measured 3.34e-5 AU × 1.25 (JPL#225)                                                       |
+| Asteroids vs Horizons: PLAN target     | 1e-3 AU within ±60 d         | PLAN.md target; worst measured 1.42e-5 AU (Eros), ~70× inside                              |
+| Asteroids: elements → state at epoch   | 1e-12 AU / 1e-12 AU/day      | Fixed bound (15 cm); measured ≤ 3e-15 AU / 6e-14 AU/day                                    |
+| Asteroids: Horizons Keplerian GM vs k² | 1e-11 relative               | Measured 5e-12                                                                             |
 
 Planet tolerances are heliocentric longitude / latitude / distance, the units of Standish's accuracy table
 (https://ssd.jpl.nasa.gov/planets/approx_pos.html): the worst case over the 27 fixture dates × 1.25
 (`TOLERANCE_MARGIN` in `planets.golden.test.ts`). Why they exceed the published bounds: see the decisions log.
+
+Asteroid tolerances are the 3D heliocentric position error of two-body propagation from Horizons osculating elements at
+JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `asteroids.golden.test.ts`).
 
 ## Decisions log
 
@@ -132,6 +145,11 @@ Planet tolerances are heliocentric longitude / latitude / distance, the units of
   fit, so its ephemeris is DE424 and it has no perturber set (recorded as `null`). Bennu stays in the set (user
   decision), which is why provenance is kept per asteroid. Every asteroid's Keplerian GM is 2.9591220828411951e-4
   AU³/day², within 5e-12 (relative) of the engine's k².
+- **2026-09-28:** Asteroid golden tolerances approved (user decision): measured worst error over ±120 days × 1.25 per
+  asteroid, the PLAN target of 1e-3 AU within ±60 days asserted separately, a fixed 1e-12 AU / AU/day bound for the
+  elements → state conversion at the epoch, and 1e-11 relative for GM. The conversion is exact to float noise; the
+  error grows as t² away from the epoch (unmodelled planetary perturbations, not a GM or mean-motion error, which
+  would grow linearly). Phaethon (e = 0.89) behaves like the rest.
 
 ## Open questions
 
