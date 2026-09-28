@@ -2378,14 +2378,23 @@ import { TestClock } from '../testing/testClock.js';
 import { UpstreamError } from '../upstream/httpClient.js';
 import { DatasetService, FAILURE_BACKOFF_MS } from './datasetService.js';
 import { SqliteDatasetCache } from './sqliteDatasetCache.js';
-import type { DatasetRequest, SnapshotReader } from './types.js';
+import type { DatasetCache, DatasetRequest, SnapshotReader } from './types.js';
 
 const HOUR_MS = 3_600_000;
 const SNAPSHOT = { dataJson: '["snapshot"]', fetchedAtMs: Date.UTC(2026, 8, 1) };
 
-function setup(snapshots: SnapshotReader = NO_SNAPSHOTS) {
+const BROKEN_CACHE: DatasetCache = {
+  read: () => {
+    throw new TypeError('Corrupt cache row for cmes?days=30');
+  },
+  write: () => undefined,
+};
+
+function setup(
+  snapshots: SnapshotReader = NO_SNAPSHOTS,
+  cache: DatasetCache = new SqliteDatasetCache(new DatabaseSync(':memory:')),
+) {
   const clock = new TestClock(Date.UTC(2026, 8, 28, 12));
-  const cache = new SqliteDatasetCache(new DatabaseSync(':memory:'));
   const warnings: string[] = [];
   const logger = { warn: (_details: object, message: string) => void warnings.push(message) };
   return {
@@ -2492,6 +2501,22 @@ describe('DatasetService.read', () => {
     });
     await vi.waitFor(() => expect(warnings).toEqual(['Dataset refresh failed']));
   });
+
+  it('does not retry a failed background refresh on every stale read, only after the back-off', async () => {
+    const { service, clock, warnings } = setup();
+    let failing = false;
+    const { request, calls } = countingRequest(async () => (failing ? offline() : ['cached']));
+    await service.read(request);
+    failing = true;
+    clock.advance(HOUR_MS);
+    await service.read(request);
+    await vi.waitFor(() => expect(warnings).toHaveLength(1));
+    await expect(service.read(request)).resolves.toMatchObject({ origin: 'stale' });
+    expect(calls()).toBe(2);
+    clock.advance(FAILURE_BACKOFF_MS);
+    await service.read(request);
+    expect(calls()).toBe(3);
+  });
 });
 
 describe('DatasetService.refreshIfStale', () => {
@@ -2504,7 +2529,16 @@ describe('DatasetService.refreshIfStale', () => {
     clock.advance(HOUR_MS);
     await service.refreshIfStale(request);
     expect(calls()).toBe(2);
-    await expect(service.refreshIfStale(countingRequest(offline).request)).resolves.toBeUndefined();
+    // A cold cache of its own, so the failing upstream is actually called.
+    await expect(
+      setup().service.refreshIfStale(countingRequest(offline).request),
+    ).resolves.toBeUndefined();
+  });
+
+  it('logs instead of rejecting when the cache itself fails, so the scheduler cannot crash', async () => {
+    const { service, warnings } = setup(NO_SNAPSHOTS, BROKEN_CACHE);
+    await expect(service.refreshIfStale(countingRequest().request)).resolves.toBeUndefined();
+    expect(warnings).toEqual(['Dataset refresh failed']);
   });
 });
 ```
@@ -2525,7 +2559,7 @@ import type {
   SnapshotReader,
 } from './types.js';
 
-/** After an upstream failure, cold reads go straight to the snapshot for this long (Review Focus 1). */
+/** After an upstream failure, reads stop calling upstream for this long (Review Focus 1). */
 export const FAILURE_BACKOFF_MS = 60_000;
 
 interface DatasetServiceDependencies {
@@ -2553,15 +2587,26 @@ export class DatasetService {
     const cached = this.#deps.cache.read(request.cacheKey);
     if (cached === undefined) return this.#fetchOrFallBack(request);
     if (this.#isFresh(cached, request)) return { ...cached, origin: 'fresh' };
-    this.#refresh(request).catch((error: unknown) => this.#recordFailure(request, error));
+    // Without this, a failing upstream would be called (and logged) once per visitor request.
+    if (!this.#failedRecently(request)) this.#refreshInBackground(request);
     return { ...cached, origin: 'stale' };
   }
 
-  /** For the scheduler: refreshes only what has gone stale, and logs rather than rejects. */
+  /** For the scheduler, which cannot handle a rejection: every failure, the cache's too, is logged. */
   async refreshIfStale(request: DatasetRequest): Promise<void> {
+    await this.#refreshUnlessFresh(request).catch((error: unknown) =>
+      this.#recordFailure(request, error),
+    );
+  }
+
+  async #refreshUnlessFresh(request: DatasetRequest): Promise<void> {
     const cached = this.#deps.cache.read(request.cacheKey);
     if (cached !== undefined && this.#isFresh(cached, request)) return;
-    await this.#refresh(request).catch((error: unknown) => this.#recordFailure(request, error));
+    await this.#refresh(request);
+  }
+
+  #refreshInBackground(request: DatasetRequest): void {
+    this.#refresh(request).catch((error: unknown) => this.#recordFailure(request, error));
   }
 
   #isFresh(cached: CachedDataset, request: DatasetRequest): boolean {
@@ -2570,12 +2615,18 @@ export class DatasetService {
 
   async #fetchOrFallBack(request: DatasetRequest): Promise<ServedDataset> {
     if (this.#failedRecently(request)) return this.#snapshotOrThrow(request);
-    try {
-      return { ...(await this.#refresh(request)), origin: 'fresh' };
-    } catch (error) {
-      this.#recordFailure(request, error);
-      return this.#snapshotOrThrow(request);
-    }
+    return this.#fetchFresh(request).catch((error: unknown) =>
+      this.#fallBackAfterFailure(request, error),
+    );
+  }
+
+  async #fetchFresh(request: DatasetRequest): Promise<ServedDataset> {
+    return { ...(await this.#refresh(request)), origin: 'fresh' };
+  }
+
+  #fallBackAfterFailure(request: DatasetRequest, error: unknown): Promise<ServedDataset> {
+    this.#recordFailure(request, error);
+    return this.#snapshotOrThrow(request);
   }
 
   async #snapshotOrThrow(request: DatasetRequest): Promise<ServedDataset> {
@@ -2621,7 +2672,7 @@ export class DatasetService {
 }
 ```
 
-Run the test again — Expected: PASS (9 tests).
+Run the test again — Expected: PASS (11 tests).
 
 - [ ] **Step 6: Write the failing scheduler test** `apps/server/src/datasets/scheduledRefresh.test.ts`
 
@@ -2670,6 +2721,7 @@ Run: `npx vitest run apps/server/src/datasets/scheduledRefresh.test.ts` — Expe
 import type { DatasetRequest } from './types.js';
 
 interface ScheduledRefreshOptions {
+  /** Must never reject: ticks run unawaited, and an unhandled rejection would stop the server. */
   service: { refreshIfStale(request: DatasetRequest): Promise<void> };
   /** Rebuilt on every tick: date windows move with the clock. */
   requests: () => readonly DatasetRequest[];
@@ -2701,7 +2753,9 @@ Run the test again — Expected: PASS.
     (default `.cache/perihelion.sqlite`, git-ignored). Data is stored as JSON text so `/api/neos` is never re-parsed
     per request.
   - Read path: fresh → cache; stale → cache now + background refresh; cold → upstream, else snapshot, else 503.
-    Concurrent cold reads share one fetch; after a failure, cold reads go straight to the snapshot for 60 s.
+    Concurrent cold reads share one fetch. After a failure a dataset's upstream is left alone for 60 s: cold reads go
+    straight to the snapshot and stale reads skip the background refresh. `refreshIfStale` never rejects (every
+    failure, the cache's included, is logged) because the scheduler runs it unawaited.
   - The scheduler refreshes the default queries at start-up and every 10 minutes (wired in Task 6), skipping
     anything still fresh.
 
