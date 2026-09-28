@@ -3,3 +3,6 @@ package-lock.json
 # Ground truth from JPL Horizons: regenerate, never reformat
 packages/fixtures/data/
 packages/fixtures/src/recorded/
+
+# Other tools (e.g. Kilo) check out worktrees inside the repo; those are separate checkouts.
+.kilo/
