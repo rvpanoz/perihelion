@@ -833,8 +833,9 @@ const cellSchema = z.union([z.string(), z.number()]).nullable();
 export type Cell = z.infer<typeof cellSchema>;
 
 /**
- * The envelope SBDB Query and CAD share. Both omit `fields` and `data` when nothing matches, and CAD
- * sends `count` as a string. https://ssd-api.jpl.nasa.gov/doc/cad.html
+ * The envelope SBDB Query and CAD share. Both omit `fields` and `data` when nothing matches.
+ * `count` is coerced, so a string or a number both read; the recordings carry a number.
+ * https://ssd-api.jpl.nasa.gov/doc/cad.html
  */
 export const jplColumnarResponseSchema = z.object({
   signature: z.object({ version: z.string() }),
@@ -1230,9 +1231,10 @@ describe('toCloseApproaches', () => {
     const response = jplColumnarResponseSchema.parse(RECORDED_CAD_WINDOW);
     const approaches = toCloseApproaches(response);
     const distIndex = response.fields.indexOf('dist');
+    const ascending = (a: number, b: number) => a - b;
     expect(approaches).toHaveLength(response.data.length);
-    expect(approaches.map((a) => a.distanceAu).toSorted()).toEqual(
-      response.data.map((row) => Number(row[distIndex])).toSorted(),
+    expect(approaches.map((a) => a.distanceAu).toSorted(ascending)).toEqual(
+      response.data.map((row) => Number(row[distIndex])).toSorted(ascending),
     );
     for (const approach of approaches) closeApproachSchema.parse(approach);
   });
@@ -1376,6 +1378,7 @@ const ANALYSIS = {
   speed: 650,
   type: 'C',
   isMostAccurate: true,
+  submissionTime: '2026-09-01T19:00Z',
 };
 const CME = {
   activityID: '2026-09-01T12:00:00-CME-001',
@@ -1447,9 +1450,17 @@ describe('mostAccurateAnalysis', () => {
     ).toBeNull();
   });
 
-  it('takes the latest when several are flagged', () => {
+  it('takes the most recently submitted when several are flagged', () => {
+    // Shaped like DONKI's 2026-09-05 CME: a revision four days on, with an earlier time21_5.
+    const original = { ...ANALYSIS, time21_5: '2026-09-01T20:00Z', speed: 892 };
+    const revision = { ...ANALYSIS, submissionTime: '2026-09-05T16:15Z', speed: 1111 };
+    const analyses = parse([{ ...CME, cmeAnalyses: [original, revision] }])[0]?.cmeAnalyses ?? [];
+    expect(mostAccurateAnalysis(analyses)?.speedKmPerS).toBe(1111);
+  });
+
+  it('breaks a submission-time tie with the later time21_5', () => {
     const later = { ...ANALYSIS, time21_5: '2026-09-01T20:00Z', speed: 700 };
-    const analyses = parse([{ ...CME, cmeAnalyses: [later, ANALYSIS] }])[0]?.cmeAnalyses ?? [];
+    const analyses = parse([{ ...CME, cmeAnalyses: [ANALYSIS, later] }])[0]?.cmeAnalyses ?? [];
     expect(mostAccurateAnalysis(analyses)?.speedKmPerS).toBe(700);
   });
 });
@@ -1501,6 +1512,7 @@ const donkiAnalysisSchema = z.object({
   speed: z.number().nullable(),
   type: z.string().nullable().optional(),
   isMostAccurate: z.boolean(),
+  submissionTime: z.string().nullable().optional(),
 });
 export type DonkiCmeAnalysis = z.infer<typeof donkiAnalysisSchema>;
 
@@ -1525,18 +1537,30 @@ export function toCmes(response: readonly DonkiCme[]): Cme[] {
 
 /**
  * DONKI can hold several analyses per CME; PLAN.md asks for the most accurate. If several are flagged,
- * the latest measurement wins. A CME with no complete flagged analysis is left out: Phase 6 cannot
- * place a CME without its speed, direction and width.
+ * the most recently submitted wins, being the newest assessment; equal submission times fall back to
+ * the later time21_5. (Picking by time21_5 alone would favour the slowest estimate, which reaches
+ * 21.5 solar radii last.) A CME with no complete flagged analysis is left out: Phase 6 cannot place a
+ * CME without its speed, direction and width.
  */
 export function mostAccurateAnalysis(analyses: readonly DonkiCmeAnalysis[]): CmeAnalysis | null {
-  return analyses
+  const [newest] = analyses
     .filter((analysis) => analysis.isMostAccurate)
-    .flatMap(toCmeAnalysis)
-    .reduce<CmeAnalysis | null>(
-      (latest, analysis) =>
-        latest === null || analysis.time21_5 > latest.time21_5 ? analysis : latest,
-      null,
-    );
+    .toSorted(newestFirst)
+    .flatMap(toCmeAnalysis);
+  return newest ?? null;
+}
+
+function newestFirst(a: DonkiCmeAnalysis, b: DonkiCmeAnalysis): number {
+  return (
+    recencyMs(b.submissionTime) - recencyMs(a.submissionTime) ||
+    recencyMs(b.time21_5) - recencyMs(a.time21_5)
+  );
+}
+
+/** A missing or unreadable time ranks oldest; NaN from a comparator would leave the order undefined. */
+function recencyMs(text: string | null | undefined): number {
+  const ms = Date.parse(text ?? '');
+  return Number.isFinite(ms) ? ms : 0;
 }
 
 function toCme(cme: DonkiCme): Cme[] {
@@ -1590,7 +1614,7 @@ function blankToNull(text: string | null | undefined): string | null {
 }
 ```
 
-Run the DONKI test again — Expected: PASS (8 tests). If the recorded window yields no CMEs, **stop and report**.
+Run the DONKI test again — Expected: PASS (9 tests). If the recorded window yields no CMEs, **stop and report**.
 
 - [ ] **Step 11: Write the failing dataset tests** `src/datasets.test.ts`
 
@@ -1723,7 +1747,9 @@ into `NaN`, which is why the repeated-parameter case is rejected; if it is not, 
   - `/api/neos` is columnar JSON: e and a rounded to 1e-8, angles to 1e-6°, H to 0.01 (≈ 1–3 km at 1 AU). Rows
     that are unbound, unclassified or missing an element are skipped; more than 1% skipped is a format error.
   - CAD values are kept exactly as printed (facts); one bad row fails the list so the server falls back.
-  - A CME is served only with a complete `isMostAccurate` analysis; if several are flagged, the latest wins.
+  - A CME is served only with a complete `isMostAccurate` analysis; if several are flagged, the most recently
+    submitted wins (ties: the later `time21_5`). In the 2026-09-28 recording 6 of 126 CMEs had two flagged
+    analyses, and 40 were left out because their flagged analysis has no longitude (unknown far-side source).
   - API responses are `{ fetchedAt, origin: fresh | stale | snapshot, data }`; snapshots are `{ fetchedAt, data }`.
   - `days` is a whole number 1–60 (defaults: close approaches 7, CMEs 30).
 
