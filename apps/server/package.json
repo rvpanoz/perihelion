@@ -6,15 +6,17 @@
   "scripts": {
     "dev": "tsx watch src/main.ts",
     "start": "node dist/main.js",
-    "build": "tsc -p tsconfig.build.json",
+    "build": "node scripts/build.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
+    "@perihelion/data": "^0.0.0",
     "fastify": "^5.12.5"
   },
   "devDependencies": {
     "@types/node": "^24.19.0",
+    "esbuild": "^0.28.2",
     "tsx": "^4.23.15"
   }
 }
