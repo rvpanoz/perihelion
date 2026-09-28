@@ -6,13 +6,22 @@ const cellSchema = z.union([z.string(), z.number()]).nullable();
 export type Cell = z.infer<typeof cellSchema>;
 
 /**
+ * A whole number or a string of digits. Not z.coerce.number(): that reads null and '' as 0, so an
+ * envelope that lost its `count` would pass for a genuinely empty answer.
+ */
+const countSchema = z.union([
+  z.number().int().nonnegative(),
+  z.string().regex(/^\d+$/).transform(Number),
+]);
+
+/**
  * The envelope SBDB Query and CAD share. Both omit `fields` and `data` when nothing matches.
- * `count` is coerced, so a string or a number both read; the recordings carry a number.
+ * `count` may be a string or a number; the recordings carry a number.
  * https://ssd-api.jpl.nasa.gov/doc/cad.html
  */
 export const jplColumnarResponseSchema = z.object({
   signature: z.object({ version: z.string() }),
-  count: z.coerce.number().int().nonnegative(),
+  count: countSchema,
   fields: z.array(z.string()).default([]),
   data: z.array(z.array(cellSchema)).default([]),
 });

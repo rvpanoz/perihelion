@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { Cme, CmeAnalysis } from '../cme';
+import { readOptionalString } from './cells';
 import { UpstreamFormatError } from './upstreamFormatError';
 
 const donkiAnalysisSchema = z.object({
@@ -68,31 +69,44 @@ function toCme(cme: DonkiCme): Cme[] {
     {
       activityId: cme.activityID,
       startTime: toIsoTimestamp(cme.startTime, 'startTime'),
-      sourceLocation: blankToNull(cme.sourceLocation),
-      note: blankToNull(cme.note),
-      link: blankToNull(cme.link),
+      sourceLocation: readOptionalString(cme.sourceLocation ?? null),
+      note: readOptionalString(cme.note ?? null),
+      link: readOptionalString(cme.link ?? null),
       analysis,
     },
   ];
 }
 
+type PlaceableAnalysis = DonkiCmeAnalysis & {
+  time21_5: string;
+  latitude: number;
+  longitude: number;
+  halfAngle: number;
+  speed: number;
+};
+
+/** Phase 6 needs a time, a direction, a positive width and a positive speed; cmeAnalysisSchema demands the same. */
+function isPlaceable(analysis: DonkiCmeAnalysis): analysis is PlaceableAnalysis {
+  return (
+    analysis.time21_5 !== null &&
+    analysis.latitude !== null &&
+    analysis.longitude !== null &&
+    analysis.halfAngle !== null &&
+    analysis.halfAngle > 0 &&
+    analysis.speed !== null &&
+    analysis.speed > 0
+  );
+}
+
 function toCmeAnalysis(analysis: DonkiCmeAnalysis): CmeAnalysis[] {
-  const { time21_5, latitude, longitude, halfAngle, speed } = analysis;
-  if (
-    time21_5 === null ||
-    latitude === null ||
-    longitude === null ||
-    halfAngle === null ||
-    speed === null
-  )
-    return [];
+  if (!isPlaceable(analysis)) return [];
   return [
     {
-      time21_5: toIsoTimestamp(time21_5, 'time21_5'),
-      latitudeDeg: latitude,
-      longitudeDeg: longitude,
-      halfAngleDeg: halfAngle,
-      speedKmPerS: speed,
+      time21_5: toIsoTimestamp(analysis.time21_5, 'time21_5'),
+      latitudeDeg: analysis.latitude,
+      longitudeDeg: analysis.longitude,
+      halfAngleDeg: analysis.halfAngle,
+      speedKmPerS: analysis.speed,
       type: analysis.type ?? null,
     },
   ];
@@ -104,9 +118,4 @@ function toIsoTimestamp(text: string, field: string): string {
   if (!Number.isFinite(ms))
     throw new UpstreamFormatError(`Field ${field} is not a time: "${text}"`);
   return new Date(ms).toISOString();
-}
-
-function blankToNull(text: string | null | undefined): string | null {
-  const trimmed = text?.trim() ?? '';
-  return trimmed === '' ? null : trimmed;
 }

@@ -171,17 +171,26 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
   1 AU). Rows that are unbound, unclassified or missing an element are skipped; more than 1% skipped is a format error.
 - **2026-09-28:** CAD values are kept exactly as printed (facts); one bad row fails the list so the server falls back.
 - **2026-09-28:** A CME is served only with a complete `isMostAccurate` analysis; if several are flagged, the most
-  recently submitted wins (ties: the later `time21_5`). In the 2026-09-28 recording 6 of 126 CMEs had two flagged
-  analyses, and 40 were left out because their flagged analysis has no longitude (unknown far-side source).
+  recently submitted _complete_ one wins (an incomplete newer one falls back to an older complete one; ties: the later
+  `time21_5`). In the 2026-09-28 recording 6 of 126 CMEs had two flagged analyses, and 40 were left out because their
+  flagged analysis has no longitude (unknown far-side source).
 - **2026-09-28:** API responses are `{ fetchedAt, origin: fresh | stale | snapshot, data }`; snapshots are
   `{ fetchedAt, data }`.
 - **2026-09-28:** `days` is a whole number 1–60 (defaults: close approaches 7, CMEs 30).
+- **2026-09-28:** An SBDB or CAD answer that reports `count > 0` but carries no rows is a format error, and so is an
+  SBDB answer with no usable rows; the server falls back instead of serving an empty swarm or list. This overrides the
+  plan's "returns an empty catalog for an empty answer" test (Review Focus 5). `count` must be a number or a digit
+  string. CME analyses with a non-positive speed or half-angle count as incomplete, and SBDB elements are checked after
+  rounding, so the normalizers never emit what their schemas reject.
 
 ## Open questions
 
 - Final project name ("Perihelion" is a working name).
 - Hosting targets for web and server.
 - Confirm the opening scene (Swarm vs Eruption).
+- Before Phase 6 shows CME times or renders CME links: DONKI times go through `Date.parse`, which reads a time without
+  `Z` as local time (every recorded time has `Z`), so require an explicit `Z`; and `cmeSchema.link` accepts any string,
+  so restrict it to http(s).
 
 ## Known external issues
 

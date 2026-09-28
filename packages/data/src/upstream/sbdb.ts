@@ -92,11 +92,16 @@ function readRawElements(cells: SbdbCells): RawElements | null {
 
 /** The engine rejects e ≥ 1 (Phase 1 decision), so unbound orbits are skipped here. */
 function toElements(raw: RawElements | null): Elements | null {
-  if (raw === null || raw.e >= 1 || raw.a <= 0) return null;
+  if (raw === null) return null;
+  const eccentricity = roundTo(raw.e, ELEMENT_DECIMALS);
+  const semiMajorAxisAu = roundTo(raw.a, ELEMENT_DECIMALS);
+  // Checked after rounding: 0.999999996 becomes 1, which neoCatalogSchema rejects, so the check has to
+  // see what we would emit.
+  if (eccentricity >= 1 || semiMajorAxisAu <= 0) return null;
   return {
     epochJdTdb: raw.epoch,
-    eccentricity: roundTo(raw.e, ELEMENT_DECIMALS),
-    semiMajorAxisAu: roundTo(raw.a, ELEMENT_DECIMALS),
+    eccentricity,
+    semiMajorAxisAu,
     inclinationDeg: roundTo(raw.i, ANGLE_DECIMALS),
     longitudeOfAscendingNodeDeg: roundTo(raw.om, ANGLE_DECIMALS),
     argumentOfPerihelionDeg: roundTo(raw.w, ANGLE_DECIMALS),

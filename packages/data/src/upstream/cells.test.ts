@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { readColumnarRows, readNumber, readOptionalNumber, readOptionalString } from './cells';
+import {
+  jplColumnarResponseSchema,
+  readColumnarRows,
+  readNumber,
+  readOptionalNumber,
+  readOptionalString,
+} from './cells';
 import { UpstreamFormatError } from './upstreamFormatError';
 
 const response = (fields: string[], data: (string | null)[][]) => ({
@@ -51,5 +57,19 @@ describe('cell parsing', () => {
   it('trims strings and treats blank as absent', () => {
     expect(readOptionalString('   (2026 AB)')).toBe('(2026 AB)');
     expect(readOptionalString('  ')).toBeNull();
+  });
+});
+
+describe('jplColumnarResponseSchema count', () => {
+  const withCount = (count: unknown) => ({ signature: { version: '1.0' }, count });
+
+  it.each([null, '', ' ', 'many', -1, 2.5, undefined])('rejects count=%j', (count) => {
+    expect(jplColumnarResponseSchema.safeParse(withCount(count)).success).toBe(false);
+  });
+
+  it('reads a whole number or a string of digits, both as a number', () => {
+    expect(jplColumnarResponseSchema.parse(withCount(0)).count).toBe(0);
+    expect(jplColumnarResponseSchema.parse(withCount('0')).count).toBe(0);
+    expect(jplColumnarResponseSchema.parse(withCount('42534')).count).toBe(42534);
   });
 });

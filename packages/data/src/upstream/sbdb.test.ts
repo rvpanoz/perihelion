@@ -83,6 +83,17 @@ describe('toNeoCatalog', () => {
     }
   });
 
+  it('skips a row whose eccentricity only reaches 1 after rounding', () => {
+    // 0.999999996 rounds to 1 at 8 decimals, which neoCatalogSchema rejects (e < 1).
+    const nearlyUnbound = { ...EROS, e: '0.999999996' };
+    expect(toNeoCatalog(sbdbResponse([...copies(EROS, 200), nearlyUnbound])).count).toBe(200);
+  });
+
+  it('tolerates exactly 1% unusable rows: the limit is "more than 1%"', () => {
+    const rows = [...copies(EROS, 99), { ...EROS, a: null }];
+    expect(toNeoCatalog(sbdbResponse(rows)).count).toBe(99);
+  });
+
   it('fails loudly when more than 1% of rows are unusable, which means the format changed', () => {
     const rows = [...copies(EROS, 98), { ...EROS, a: null }, { ...EROS, a: null }];
     expect(() => toNeoCatalog(sbdbResponse(rows))).toThrow(UpstreamFormatError);
