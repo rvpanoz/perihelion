@@ -48,7 +48,7 @@ below, and `packages/orbit` has no runtime dependencies.
 
 - [x] Upstream query definitions + esbuild server bundle
 - [x] Recorded upstream responses (SBDB, CAD, DONKI) + `npm run record`
-- [ ] zod schemas + normalizers (SBDB, CAD, DONKI) and API types
+- [x] zod schemas + normalizers (SBDB, CAD, DONKI) and API types
 - [ ] Upstream HTTP client with per-host rate limiting
 - [ ] SQLite cache + stale-while-revalidate + scheduled refresh
 - [ ] `/api/neos`, `/api/close-approaches`, `/api/cmes` with recorded-response tests
@@ -167,6 +167,15 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
   gzipped (2.7 MB) for the payload-budget test; everything else is small.
 - **2026-09-28:** Recording loaders return `unknown`; `@perihelion/fixtures/upstream` is environment-free,
   `/upstream-full` needs Node.
+- **2026-09-28:** `/api/neos` is columnar JSON: e and a rounded to 1e-8, angles to 1e-6°, H to 0.01 (≈ 1–3 km at
+  1 AU). Rows that are unbound, unclassified or missing an element are skipped; more than 1% skipped is a format error.
+- **2026-09-28:** CAD values are kept exactly as printed (facts); one bad row fails the list so the server falls back.
+- **2026-09-28:** A CME is served only with a complete `isMostAccurate` analysis; if several are flagged, the most
+  recently submitted wins (ties: the later `time21_5`). In the 2026-09-28 recording 6 of 126 CMEs had two flagged
+  analyses, and 40 were left out because their flagged analysis has no longitude (unknown far-side source).
+- **2026-09-28:** API responses are `{ fetchedAt, origin: fresh | stale | snapshot, data }`; snapshots are
+  `{ fetchedAt, data }`.
+- **2026-09-28:** `days` is a whole number 1–60 (defaults: close approaches 7, CMEs 30).
 
 ## Open questions
 
