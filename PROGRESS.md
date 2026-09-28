@@ -1,6 +1,6 @@
 # PROGRESS
 
-**Current phase:** Phase 1: Orbit engine (in progress)
+**Current phase:** Phase 2: Data layer (not started)
 **Last updated:** 2026-09-28
 
 ## Phase status
@@ -8,7 +8,7 @@
 | Phase                         | Status         |
 | ----------------------------- | -------------- |
 | 0. Foundations                | ✅ Done        |
-| 1. Orbit engine               | 🟨 In progress |
+| 1. Orbit engine               | ✅ Done        |
 | 2. Data layer                 | ⬜ Not started |
 | 3. Scene foundation           | ⬜ Not started |
 | 4. Shot 1: The Swarm          | ⬜ Not started |
@@ -40,6 +40,9 @@ Legend: ⬜ not started · 🟨 in progress · ✅ done (all exit criteria verif
 - [x] Golden tests: planets (tolerances calibrated below)
 - [x] Fixture provenance recorded; `VEC_CORR` pinned to geometric
 - [x] Golden tests: asteroids (tolerance calibrated and recorded below)
+
+Exit criteria verified on `main` at `907abec` (CI green): all property and golden tests pass, tolerances are documented
+below, and `packages/orbit` has no runtime dependencies.
 
 ## Phase 2: Data layer
 
