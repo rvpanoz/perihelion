@@ -47,7 +47,7 @@ below, and `packages/orbit` has no runtime dependencies.
 ## Phase 2: Data layer
 
 - [x] Upstream query definitions + esbuild server bundle
-- [ ] Recorded upstream responses (SBDB, CAD, DONKI) + `npm run record`
+- [x] Recorded upstream responses (SBDB, CAD, DONKI) + `npm run record`
 - [ ] zod schemas + normalizers (SBDB, CAD, DONKI) and API types
 - [ ] Upstream HTTP client with per-host rate limiting
 - [ ] SQLite cache + stale-while-revalidate + scheduled refresh
@@ -162,6 +162,11 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
   SBDB is asked for asteroids only (`sb-kind=a`) at full precision; CAD's `dist-max=0.05` is pinned explicitly.
 - **2026-09-28:** The close-approach window is today ± `days` (a just-passed approach stays replayable); the CME
   window is the last `days` days.
+- **2026-09-28:** Upstream recordings live in `packages/fixtures/upstream/` (Prettier-ignored), written by
+  `npm run record` with a `manifest.json` (redacted URLs, status, `recordedAt`). The full SBDB NEO answer is committed
+  gzipped (2.7 MB) for the payload-budget test; everything else is small.
+- **2026-09-28:** Recording loaders return `unknown`; `@perihelion/fixtures/upstream` is environment-free,
+  `/upstream-full` needs Node.
 
 ## Open questions
 

@@ -20,7 +20,8 @@
     "build": "npm run build --workspaces --if-present",
     "check": "npm run typecheck && npm run lint && npm run test && npm run build",
     "fixtures": "npm run generate --workspace @perihelion/fixtures",
-    "snapshot": "echo \"snapshot: not implemented (Phase 2)\""
+    "snapshot": "echo \"snapshot: not implemented (Phase 2)\"",
+    "record": "npm run record --workspace @perihelion/server"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

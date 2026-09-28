@@ -29,6 +29,7 @@ npm run dev       # web + server in dev mode
 npm run check     # typecheck + lint + test + build (must be green)
 npm test          # all unit/property tests
 npm run fixtures  # regenerate Horizons fixtures (network; dev only; commit the result)
+npm run record    # re-record upstream API responses for server tests (network; dev only; commit the result)
 npm run snapshot  # refresh bundled data snapshot for the web app
 ```
 

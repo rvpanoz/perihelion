@@ -1,0 +1,29 @@
+{
+  "recordedAt": "2026-09-28T18:54:45.500Z",
+  "files": {
+    "sbdb-neo-sample.json": {
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb_query.api?fields=pdes%2Cname%2Cepoch%2Ce%2Ca%2Ci%2Com%2Cw%2Cma%2CH%2Cclass&sb-group=neo&sb-kind=a&full-prec=true&limit=25",
+      "status": 200
+    },
+    "sbdb-neo-full.json.gz": {
+      "url": "https://ssd-api.jpl.nasa.gov/sbdb_query.api?fields=pdes%2Cname%2Cepoch%2Ce%2Ca%2Ci%2Com%2Cw%2Cma%2CH%2Cclass&sb-group=neo&sb-kind=a&full-prec=true",
+      "status": 200
+    },
+    "cad-window.json": {
+      "url": "https://ssd-api.jpl.nasa.gov/cad.api?date-min=2026-09-21&date-max=2026-10-05&dist-max=0.05&fullname=true",
+      "status": 200
+    },
+    "cad-empty.json": {
+      "url": "https://ssd-api.jpl.nasa.gov/cad.api?date-min=2000-01-01&date-max=2000-01-02&dist-max=0.00001&fullname=true",
+      "status": 200
+    },
+    "donki-cme-window.json": {
+      "url": "https://api.nasa.gov/DONKI/CME?startDate=2026-08-29&endDate=2026-09-28&api_key=REDACTED",
+      "status": 200
+    },
+    "donki-cme-empty.json": {
+      "url": "https://api.nasa.gov/DONKI/CME?startDate=2026-10-28&endDate=2026-10-28&api_key=REDACTED",
+      "status": 200
+    }
+  }
+}
