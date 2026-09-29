@@ -8,7 +8,9 @@ export const RENDERER_PARAMETERS = {
 } as const satisfies WebGLRendererParameters;
 
 export const CAMERA_SETTINGS = {
-  position: [0, 0, 2] as [number, number, number],
+  // ≈ 3 AU out and 30° above the ecliptic (scene +y is ecliptic north), so orbits read as ellipses;
+  // R3F aims the default camera at the origin.
+  position: [0, 1.5, 2.598] as [number, number, number],
   fov: 50,
   near: 1e-6,
   far: 1e3,

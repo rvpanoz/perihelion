@@ -13,4 +13,9 @@ describe('canvas configuration', () => {
   it('keeps the near plane below the far plane', () => {
     expect(CAMERA_SETTINGS.near).toBeLessThan(CAMERA_SETTINGS.far);
   });
+
+  it('starts the camera about 3 AU from the Sun, above the ecliptic', () => {
+    expect(Math.hypot(...CAMERA_SETTINGS.position)).toBeCloseTo(3, 3);
+    expect(CAMERA_SETTINGS.position[1]).toBeGreaterThan(0);
+  });
 });

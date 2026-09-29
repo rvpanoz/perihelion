@@ -62,7 +62,7 @@ and gzipped `/api/neos` is 1,425,929 bytes, inside the 2 MB budget (`neoPayload.
 
 - [x] Floating origin (float64, focus-relative) + ecliptic → scene axes; logarithmic depth buffer kept
 - [x] Time store (the single time source) + `jdUtcFromJdTdb`
-- [ ] Sun, 8 planets from the engine, orbit lines
+- [x] Sun, 8 planets from the engine, orbit lines
 - [ ] Time controls: play/pause, speed (real time → 10 yr/s), scrub, "now"
 - [ ] Camera rig: orbit controls, focus, scripted `flyTo`
 - [ ] Postprocessing: bloom + tone mapping
@@ -251,6 +251,18 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
   once. It throws before 1972 like the forward conversion; its tests use a 1e-8 d (≈ 0.9 ms) bound.
 - **2026-09-29:** `useFrame` order is fixed by `FRAME_PRIORITY`: clock −3, body positions −2, camera rig −1, scene
   objects 0. R3F 9.8 sorts ascending and only priorities above 0 take over rendering.
+
+- **2026-09-29:** Bodies use true IAU mean radii (WGCCRE 2015; IAU 2015 nominal solar radius) plus a fixed 3 px
+  marker so they stay visible at any zoom. Earth is drawn at the Earth–Moon barycentre (what Standish gives). Colours
+  are illustrative.
+- **2026-09-29:** Orbit lines are 256 points of each planet's osculating ellipse, resampled after 365.25 simulated
+  days. They are float32 relative to the Sun (≈ 1.5 km rounding at 1 AU); only their origin is float64-exact.
+- **2026-09-29:** Sunlight is a point light with no distance falloff (illustrative), intensity 2.5, plus 0.03
+  ambient.
+- **2026-09-29:** The camera starts ≈ 3 AU out and 30° above the ecliptic (moved from Phase 3 Task 5 to Task 3, so
+  orbits read as ellipses from the first render).
+- **2026-09-29:** drei `OrbitControls` cannot mount under `@react-three/test-renderer` (its mock canvas has no event
+  target); the camera rig will split per-frame logic from the controls (Task 5 review).
 
 ## Open questions
 

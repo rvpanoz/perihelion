@@ -762,6 +762,13 @@ Commit: `Add the time store, frame priorities and the TDB to UTC conversion`.
 
 Branch: `phase-3/solar-system`.
 
+**Changes agreed in review (2026-09-29):** the camera start (`CAMERA_SETTINGS.position = [0, 1.5, 2.598]`, ≈ 3 AU
+and 30° above the ecliptic) and a `canvasConfig.test.ts` check (`Math.hypot(...position)` ≈ 3, `position[1] > 0`)
+move here from Task 5, because the Phase 0 camera at `[0, 0, 2]` sits in the ecliptic plane and Step 8 would see every
+orbit edge-on. **Checked while reviewing:** the test renderer mounts meshes, points, line loops and lights, runs
+negative-priority `useFrame` callbacks and supports `scene.find(...).instance`; drei `OrbitControls` does not mount
+under it (`reading 'removeEventListener'` of undefined), which Task 5's review addresses.
+
 **Files:**
 
 - Create: `apps/web/src/scene/bodies/bodyCatalog.ts`, `bodyPositions.ts`, `orbitPath.ts`
@@ -1607,7 +1614,6 @@ Branch: `phase-3/camera-rig`.
 - Create: `apps/web/src/scene/camera/viewDistances.ts`, `flight.ts`, `cameraRig.ts`, `CameraRigController.tsx`,
   `FocusPicker.tsx`
 - Test: `apps/web/src/scene/camera/viewDistances.test.ts`, `flight.test.ts`, `cameraRig.test.ts`
-- Modify: `apps/web/src/scene/canvasConfig.ts` + its test (start 3 AU from the Sun)
 - Modify: `apps/web/src/scene/SceneCanvas.tsx` (mount the rig), `apps/web/src/App.tsx` (add `<FocusPicker />`),
   `apps/web/src/scene/bodies/Body.tsx` (click to focus), `apps/web/src/styles.css`
 
@@ -2041,14 +2047,13 @@ export function FocusPicker() {
 - In `App.tsx`, render `<FocusPicker />` after `<TimeControls />`.
 - In `Body.tsx`, give the `<group>` an `onClick` that calls `event.stopPropagation()` then
   `cameraRig.flyTo({ focus: body })`.
-- In `canvasConfig.ts`, set `CAMERA_SETTINGS.position` to `[0, 1.5, 2.598]` (≈ 3 AU above the ecliptic at 30°,
-  matching `defaultViewDistanceAu('sun')`), and add to `canvasConfig.test.ts`:
+- Task 3 already moved the camera start to `[0, 1.5, 2.598]`. Add to `viewDistances.test.ts`:
 
-```ts
-it('starts the camera at the Sun’s default view distance', () => {
-  expect(Math.hypot(...CAMERA_SETTINGS.position)).toBeCloseTo(3, 3);
-});
-```
+  ```ts
+  it('starts the camera at the Sun’s default view distance', () => {
+    expect(Math.hypot(...CAMERA_SETTINGS.position)).toBeCloseTo(defaultViewDistanceAu('sun'), 3);
+  });
+  ```
 
 - Append to `styles.css`:
 
