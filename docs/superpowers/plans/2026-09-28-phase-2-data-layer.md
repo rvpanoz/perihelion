@@ -3694,7 +3694,7 @@ Branch: `phase-2/snapshot-fallback`
 
 ```ts
 import { mkdir, writeFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { gzipSync } from 'node:zlib';
 import {
   DATASET_NAMES,
@@ -3703,18 +3703,14 @@ import {
   snapshotFileName,
 } from '@perihelion/data';
 import { systemClock } from '../src/clock.js';
-import { readServerConfig } from '../src/config.js';
+import { type ServerConfig, readServerConfig } from '../src/config.js';
 import { createDatasetRequests, defaultDatasetRequests } from '../src/datasets/datasetRequests.js';
 import { createUpstreamClients } from '../src/upstream/upstreamClients.js';
-
-// Served by Vite as /snapshot/*.json and read by the server when upstream and cache both fail.
-const SNAPSHOT_DIR = new URL('../../web/public/snapshot/', import.meta.url);
 
 type SnapshotTexts = Record<DatasetName, string>;
 
 /** Same queries, validation and normalization as the live server, so a snapshot is a real answer. */
-async function fetchAll(): Promise<SnapshotTexts> {
-  const config = readServerConfig(process.env);
+async function fetchAll(config: ServerConfig): Promise<SnapshotTexts> {
   const clients = createUpstreamClients(systemClock);
   const requests = defaultDatasetRequests(
     createDatasetRequests({ ...clients, clock: systemClock, nasaApiKey: config.nasaApiKey }),
@@ -3736,13 +3732,15 @@ function assertNeoBudget(text: string): void {
 
 /** Everything is fetched and checked before anything is written, so a failure never leaves a mixed set. */
 async function main(): Promise<void> {
-  const texts = await fetchAll();
+  // The directory the server falls back to (apps/web/public/snapshot, which Vite serves as /snapshot/*.json).
+  const config = readServerConfig(process.env);
+  const texts = await fetchAll(config);
   assertNeoBudget(texts.neos);
-  await mkdir(SNAPSHOT_DIR, { recursive: true });
+  await mkdir(config.snapshotDirectory, { recursive: true });
   for (const name of DATASET_NAMES) {
-    const target = new URL(snapshotFileName(name), SNAPSHOT_DIR);
+    const target = join(config.snapshotDirectory, snapshotFileName(name));
     await writeFile(target, texts[name]);
-    console.log(`wrote ${fileURLToPath(target)}`);
+    console.log(`wrote ${target}`);
   }
 }
 
@@ -3760,7 +3758,8 @@ Add `apps/web/public/snapshot/` to `.prettierignore` (generated; never reformat)
 
 ```bash
 npm run snapshot
-[ -n "$NASA_API_KEY" ] && grep -rl "$NASA_API_KEY" apps/web/public/snapshot && echo "KEY LEAKED"
+KEY="$(grep -E '^NASA_API_KEY=' .env | cut -d= -f2- | tr -d '"')"   # the key lives in .env, not the shell
+[ -n "$KEY" ] && grep -rlF "$KEY" apps/web/public/snapshot && echo "KEY LEAKED"
 git check-ignore -v apps/web/public/snapshot/*   # expect no output
 ```
 
@@ -3771,13 +3770,14 @@ Expected: the gzipped-size line within budget, three `wrote …` lines, no leak,
 ```ts
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
 import { DATASET_NAMES, NEO_PAYLOAD_BUDGET_BYTES, snapshotFileName } from '@perihelion/data';
 import { describe, expect, it } from 'vitest';
+import { readServerConfig } from '../config.js';
 import { createFileSnapshotReader } from './snapshotReader.js';
 
-const SNAPSHOT_DIR = fileURLToPath(new URL('../../../web/public/snapshot/', import.meta.url));
+// The default directory: the one `npm run snapshot` writes and the server falls back to.
+const SNAPSHOT_DIR = readServerConfig({}).snapshotDirectory;
 
 describe('the snapshot committed to apps/web', () => {
   it.each(DATASET_NAMES)('has a valid %s snapshot', async (name) => {
@@ -3796,7 +3796,7 @@ the committed files; it was not written first because it needs real data to exis
 
 - [ ] **Step 4: Write the failing web fallback tests** `apps/web/src/data/loadDataset.test.ts`
 
-First: `npm i @perihelion/data@* -w @perihelion/web`.
+First: `npm i '@perihelion/data@*' -w @perihelion/web` (quoted so zsh does not glob it).
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -3893,26 +3893,32 @@ export async function loadDataset<N extends DatasetName>(
   name: N,
   fetchImpl: typeof fetch = fetch,
 ): Promise<DatasetResponse<N>> {
-  const fromServer = await tryLoad(fetchImpl, datasetApiPath(name), (body) =>
-    datasetResponseSchema(name).parse(body),
-  );
+  const fromServer = await tryLoad({
+    fetchImpl,
+    path: datasetApiPath(name),
+    parse: (body) => datasetResponseSchema(name).parse(body),
+  });
   if (fromServer !== undefined) return fromServer;
-  const snapshotPath = `${SNAPSHOT_BASE_PATH}/${snapshotFileName(name)}`;
-  const fromSnapshot = await tryLoad(fetchImpl, snapshotPath, (body) =>
-    datasetResponseSchema(name).parse({
-      ...datasetSnapshotSchema(name).parse(body),
-      origin: 'snapshot',
-    }),
-  );
+  const fromSnapshot = await tryLoad({
+    fetchImpl,
+    path: `${SNAPSHOT_BASE_PATH}/${snapshotFileName(name)}`,
+    parse: (body) =>
+      datasetResponseSchema(name).parse({
+        ...datasetSnapshotSchema(name).parse(body),
+        origin: 'snapshot',
+      }),
+  });
   if (fromSnapshot !== undefined) return fromSnapshot;
   throw new DatasetLoadError(`No ${name} data: the server and the bundled snapshot both failed`);
 }
 
-async function tryLoad<T>(
-  fetchImpl: typeof fetch,
-  path: string,
-  parse: (body: unknown) => T,
-): Promise<T | undefined> {
+interface LoadAttempt<T> {
+  fetchImpl: typeof fetch;
+  path: string;
+  parse: (body: unknown) => T;
+}
+
+async function tryLoad<T>({ fetchImpl, path, parse }: LoadAttempt<T>): Promise<T | undefined> {
   try {
     const response = await fetchImpl(path);
     return response.ok ? parse(await response.json()) : undefined;
@@ -3930,27 +3936,33 @@ Run the test again — Expected: PASS (5 tests). If TypeScript cannot relate the
 
 ```bash
 npm run build -w @perihelion/server
+RUN_DIR="<session scratchpad>/perihelion-offline"; mkdir -p "$RUN_DIR"
 # 1. Online, empty cache: expect origin "fresh"
-(cd apps/server && PORT=8799 DATABASE_PATH=/tmp/perihelion-offline.sqlite node dist/main.js & echo $! > /tmp/perihelion-server.pid)
-sleep 20; curl -s localhost:8799/api/cmes | head -c 80; echo
-kill "$(cat /tmp/perihelion-server.pid)"
+(cd apps/server && PORT=8799 DATABASE_PATH="$RUN_DIR/warm.sqlite" node --env-file-if-exists=../../.env dist/main.js & echo $! > "$RUN_DIR/server.pid")
+curl -s --retry 30 --retry-delay 1 --retry-connrefused localhost:8799/health > /dev/null
+curl -s localhost:8799/api/cmes | head -c 80; echo
+kill "$(cat "$RUN_DIR/server.pid")"
 ```
 
 Ask the user to **turn the network off**, then:
 
 ```bash
+RUN_DIR="<session scratchpad>/perihelion-offline"
 # 2. Offline, warm cache (restart proves SQLite persistence): expect "fresh" or "stale", not an error
-(cd apps/server && PORT=8799 DATABASE_PATH=/tmp/perihelion-offline.sqlite node dist/main.js & echo $! > /tmp/perihelion-server.pid)
-sleep 3; curl -s localhost:8799/api/cmes | head -c 80; echo
-kill "$(cat /tmp/perihelion-server.pid)"
-# 3. Offline, cold cache: expect origin "snapshot" for all three
-(cd apps/server && PORT=8799 DATABASE_PATH=/tmp/perihelion-cold.sqlite node dist/main.js & echo $! > /tmp/perihelion-server.pid)
-sleep 3; for d in neos close-approaches cmes; do curl -s "localhost:8799/api/$d" | head -c 80; echo; done
-kill "$(cat /tmp/perihelion-server.pid)"; rm -f /tmp/perihelion-offline.sqlite /tmp/perihelion-cold.sqlite
+(cd apps/server && PORT=8799 DATABASE_PATH="$RUN_DIR/warm.sqlite" node --env-file-if-exists=../../.env dist/main.js & echo $! > "$RUN_DIR/server.pid")
+curl -s --retry 30 --retry-delay 1 --retry-connrefused localhost:8799/health > /dev/null
+curl -s localhost:8799/api/cmes | head -c 80; echo
+kill "$(cat "$RUN_DIR/server.pid")"
+# 3. Offline, cold cache: expect origin "snapshot" for all three. This is also the first run-time check that the
+#    bundled server finds the snapshot at its default path (resolved from import.meta.url in dist/main.js).
+(cd apps/server && PORT=8799 DATABASE_PATH="$RUN_DIR/cold.sqlite" node --env-file-if-exists=../../.env dist/main.js & echo $! > "$RUN_DIR/server.pid")
+curl -s --retry 30 --retry-delay 1 --retry-connrefused localhost:8799/health > /dev/null
+for d in neos close-approaches cmes; do curl -s "localhost:8799/api/$d" | head -c 80; echo; done
+kill "$(cat "$RUN_DIR/server.pid")"
 # 4. Server down: the web build still serves the snapshot files
-npm run build -w @perihelion/web && (cd apps/web && npx vite preview --port 4173 & echo $! > /tmp/perihelion-web.pid)
-sleep 3; curl -s localhost:4173/snapshot/cmes.json | head -c 80; echo
-kill "$(cat /tmp/perihelion-web.pid)"
+npm run build -w @perihelion/web && (cd apps/web && npx vite preview --port 4173 & echo $! > "$RUN_DIR/web.pid")
+curl -s --retry 30 --retry-delay 1 --retry-connrefused localhost:4173/snapshot/cmes.json | head -c 80; echo
+kill "$(cat "$RUN_DIR/web.pid")"; rm -rf "$RUN_DIR"
 ```
 
 Record the four observed `origin` values in the PR description. Ask the user to turn the network back on.
