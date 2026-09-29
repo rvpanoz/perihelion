@@ -66,7 +66,7 @@ and gzipped `/api/neos` is 1,425,929 bytes, inside the 2 MB budget (`neoPayload.
 - [x] Time controls: play/pause, speed (real time → 10 yr/s), scrub, "now"
 - [x] Camera rig: orbit controls, focus, scripted `flyTo`
 - [x] Postprocessing: bloom + tone mapping
-- [ ] Render-loop test: nothing per-frame goes through React state
+- [x] Render-loop test: nothing per-frame goes through React state
 
 ## Phase 4–7
 
@@ -289,6 +289,15 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
   8 CPU / 10 GPU cores, 16 GB, macOS 26.5; tab visible, not focused): 75.0 fps over 10 s at the default view and
   75.0 fps over 10 s at Earth, median frame 13.3 ms, worst 15.2 ms, no frame over 20 ms. 75 Hz is the display's
   refresh rate, so this is the vsync cap, not the limit.
+
+- **2026-09-30:** `SceneContents.test.tsx` enforces "nothing per-frame goes through React state": 120 frames, zero
+  commits under a React `Profiler` (the mount's own commits are counted first, so zero is meaningful). Each frame runs
+  inside the test renderer's `act()`. `advanceFrames` calls the callbacks synchronously and React commits later, so the
+  planned single `advanceFrames(120)` read 0 commits even with a `useState` tick added to `SimulationClock`; with one
+  `act()` per frame that sabotage gives 120 commits.
+- **2026-09-30:** `SceneContents` is everything in the canvas that mounts under the test renderer (clock, ambient light,
+  solar system, camera-rig updater). `SceneCanvas` adds the background colour, `CameraControls` (mounted after it, so
+  the updater runs first), `Effects` and `Stats`.
 
 ## Open questions
 
