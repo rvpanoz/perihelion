@@ -9,7 +9,8 @@
     "build": "node scripts/build.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "record": "tsx --env-file-if-exists=../../.env scripts/recordUpstream.ts"
+    "record": "tsx --env-file-if-exists=../../.env scripts/recordUpstream.ts",
+    "snapshot": "tsx --env-file-if-exists=../../.env scripts/writeSnapshot.ts"
   },
   "dependencies": {
     "@fastify/compress": "^9.2.0",
