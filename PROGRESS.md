@@ -1,6 +1,6 @@
 # PROGRESS
 
-**Current phase:** Phase 2: Data layer (in progress)
+**Current phase:** Phase 3: Scene foundation (not started)
 **Last updated:** 2026-09-29
 
 ## Phase status
@@ -9,7 +9,7 @@
 | ----------------------------- | -------------- |
 | 0. Foundations                | ✅ Done        |
 | 1. Orbit engine               | ✅ Done        |
-| 2. Data layer                 | 🟨 In progress |
+| 2. Data layer                 | ✅ Done        |
 | 3. Scene foundation           | ⬜ Not started |
 | 4. Shot 1: The Swarm          | ⬜ Not started |
 | 5. Shot 2: The Close Approach | ⬜ Not started |
@@ -54,7 +54,20 @@ below, and `packages/orbit` has no runtime dependencies.
 - [x] `/api/neos`, `/api/close-approaches`, `/api/cmes` with recorded-response tests
 - [x] Bundled snapshot + offline fallback verified
 
-## Phase 3–7
+Exit criteria verified on `main` at `a2eef51` (CI green): server tests use recorded upstream responses only (global
+`fetch` is passed in `upstreamClients.ts` alone, which no test imports), offline behaviour is verified (decisions log),
+and gzipped `/api/neos` is 1,425,929 bytes, inside the 2 MB budget (`neoPayload.test.ts`).
+
+## Phase 3: Scene foundation
+
+- [ ] World units in AU, camera-relative rendering, logarithmic depth buffer
+- [ ] Sun (placeholder emissive sphere), 8 planets from the engine, orbit lines
+- [ ] Time controller: play/pause, speed (real time → years per second), scrub, "now"; the single time source
+- [ ] Camera rig: orbit controls + scripted camera moves
+- [ ] Postprocessing: bloom + tone mapping
+- [ ] Nothing per-frame goes through React state (`useFrame` + refs only)
+
+## Phase 4–7
 
 Checklists will be expanded from `PLAN.md` when each phase starts.
 
