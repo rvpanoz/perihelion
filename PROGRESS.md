@@ -52,7 +52,7 @@ below, and `packages/orbit` has no runtime dependencies.
 - [x] Upstream HTTP client with per-host rate limiting
 - [x] SQLite cache + stale-while-revalidate + scheduled refresh
 - [x] `/api/neos`, `/api/close-approaches`, `/api/cmes` with recorded-response tests
-- [ ] Bundled snapshot + offline fallback verified
+- [x] Bundled snapshot + offline fallback verified
 
 ## Phase 3–7
 
@@ -212,6 +212,15 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
 - **2026-09-29:** Measured: gzipped `/api/neos` on the full recording is 1,425,929 bytes (71% of the 2,000,000-byte
   budget; 4,264,785 bytes uncompressed), keeping all 42,534 recorded NEOs. Live on 2026-09-29: 1,425,931 bytes,
   42,534 NEOs.
+- **2026-09-29:** `npm run snapshot` writes `apps/web/public/snapshot/<name>.json` (`{ fetchedAt, data }`) through the
+  same queries and validation as the server, and refuses a NEO snapshot over the gzip budget. The snapshot is committed
+  and Prettier-ignored; a server test keeps it valid. Written from live data on 2026-09-29: `neos.json` 4,264,773 bytes
+  (1,425,917 gzipped, 42,534 NEOs), `close-approaches.json` 9 KB, `cmes.json` 58 KB.
+- **2026-09-29:** The web app loads data with `loadDataset(name)`: server first, bundled snapshot second, both validated.
+- **2026-09-29:** Offline fallback verified by hand on the built server and web app: online with an empty cache →
+  `fresh`; offline with a warm cache after a restart → `stale` (past the 1 h CME TTL; the failed refresh is logged);
+  offline with an empty cache → `snapshot` for all three routes, found at the default path from `dist/main.js`; server
+  down → `vite preview` serves `/snapshot/*.json`.
 
 ## Open questions
 
