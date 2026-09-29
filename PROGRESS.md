@@ -1,6 +1,6 @@
 # PROGRESS
 
-**Current phase:** Phase 4: Shot 1: The Swarm (not started)
+**Current phase:** Phase 4: Shot 1: The Swarm (in progress)
 **Last updated:** 2026-09-30
 
 ## Phase status
@@ -11,7 +11,7 @@
 | 1. Orbit engine               | ✅ Done        |
 | 2. Data layer                 | ✅ Done        |
 | 3. Scene foundation           | ✅ Done        |
-| 4. Shot 1: The Swarm          | ⬜ Not started |
+| 4. Shot 1: The Swarm          | 🟨 In progress |
 | 5. Shot 2: The Close Approach | ⬜ Not started |
 | 6. Shot 3: The Eruption       | ⬜ Not started |
 | 7. Polish & ship              | ⬜ Not started |
@@ -80,7 +80,17 @@ Exit criteria verified on `main` at `cb1f905` (CI green, run 36635761876), in Ch
 - Steady 60 fps: 75.0 fps (the display's refresh cap), median frame 13.3 ms, worst 15.7 ms, no frame over 20 ms,
   over 10 s each at the default view and at Earth, at 1 d/s and at 10 yr/s.
 
-## Phase 4–7
+## Phase 4: Shot 1: The Swarm
+
+- [ ] Swarm data: `/api/neos` columns → typed arrays for instanced attributes, with orbit class
+- [ ] GPU Kepler solver in the vertex shader (fixed Newton iterations, good starting guess, high-`e` clamp) + float32 JS port
+- [ ] GPU vs CPU cross-check test: the JS port matches the engine for sampled NEOs within a visual tolerance
+- [ ] Look: additive point sprites, size/brightness by H, colour by orbit class (Apollo/Aten/Amor/Atira)
+- [ ] Faint orbit trails
+- [ ] Choreography: scripted opening camera move + time ramp
+- [ ] Exit verification: 40k objects at ≥ 60 fps, smooth opening move (GPU frame timing + 4× stress run)
+
+## Phase 5–7
 
 Checklists will be expanded from `PLAN.md` when each phase starts.
 
@@ -313,6 +323,8 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
 - **2026-09-30:** The Stats panel's 1 FPS in the automated tab (Phase 0) is explained: Chrome stops drawing a hidden
   or covered window, so requestAnimationFrame stalls. In a visible window the scene runs at the display's 75 Hz
   (Task 6 and the Phase 3 close-out).
+
+- **2026-09-30:** Faint orbit trails stay in Phase 4 (user decision), not moved to Phase 7 polish.
 
 ## Open questions
 
