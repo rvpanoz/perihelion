@@ -51,7 +51,7 @@ below, and `packages/orbit` has no runtime dependencies.
 - [x] zod schemas + normalizers (SBDB, CAD, DONKI) and API types
 - [x] Upstream HTTP client with per-host rate limiting
 - [x] SQLite cache + stale-while-revalidate + scheduled refresh
-- [ ] `/api/neos`, `/api/close-approaches`, `/api/cmes` with recorded-response tests
+- [x] `/api/neos`, `/api/close-approaches`, `/api/cmes` with recorded-response tests
 - [ ] Bundled snapshot + offline fallback verified
 
 ## Phase 3–7
@@ -201,6 +201,17 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
   `import.meta.url`), not the working directory, so the server finds them wherever it is started. Values from the
   environment are used as given. Task 6 ships as two PRs: 6a (config, snapshot reader, dataset requests, upstream
   clients) and 6b (routes, compression, wiring, smoke test).
+- **2026-09-29:** `/api/neos`, `/api/close-approaches?days=` and `/api/cmes?days=` return
+  `{ fetchedAt, origin, data }`; a bad `days` is 400 and no data at all is 503. Responses are gzip-compressed
+  (`@fastify/compress`).
+- **2026-09-29:** TTLs: NEOs 24 h, close approaches and CMEs 1 h. The scheduler keeps the default queries warm every
+  10 minutes. A missing `NASA_API_KEY` falls back to `DEMO_KEY` with a warning at start-up.
+- **2026-09-29:** When upstream is down the snapshot answers for any `days` value, labelled `origin: "snapshot"`.
+- **2026-09-29:** SBDB and CAD share the JPL SSD gate, so a cold `/api/close-approaches` can wait behind an SBDB
+  download (up to its 60 s timeout).
+- **2026-09-29:** Measured: gzipped `/api/neos` on the full recording is 1,425,929 bytes (71% of the 2,000,000-byte
+  budget; 4,264,785 bytes uncompressed), keeping all 42,534 recorded NEOs. Live on 2026-09-29: 1,425,931 bytes,
+  42,534 NEOs.
 
 ## Open questions
 
