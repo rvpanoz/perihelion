@@ -2114,12 +2114,12 @@ Branch: `phase-3/postprocessing`.
 - Consumes: `SUN_GLOW_COLOR`, `BODY_APPEARANCE` (Task 3).
 - Produces: `BLOOM_SETTINGS`, `TONE_MAPPING_MODE`, `relativeLuminance(color: Color): number`, `<Effects />`.
 
-- [ ] **Step 1: Install**
+- [x] **Step 1: Install**
 
 Run: `npm i -w @perihelion/web @react-three/postprocessing@^3.1.3 postprocessing@^6.39.5`
 Expected: no peer-dependency errors (three 0.186 satisfies `>=0.168.0 <0.187.0`).
 
-- [ ] **Step 2: Write the failing test** `apps/web/src/scene/effects/effectsConfig.test.ts`
+- [x] **Step 2: Write the failing test** `apps/web/src/scene/effects/effectsConfig.test.ts`
 
 ```ts
 import { Color } from 'three';
@@ -2142,7 +2142,7 @@ describe('bloom', () => {
 Run: `npx vitest run apps/web/src/scene/effects`
 Expected: FAIL, `./effectsConfig` not found.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 `apps/web/src/scene/effects/effectsConfig.ts`:
 
@@ -2193,12 +2193,12 @@ In `SceneCanvas.tsx`, add the `flat` prop to `<Canvas>` and render `<Effects />`
 Run: `npx vitest run apps/web/src/scene/effects`
 Expected: PASS.
 
-- [ ] **Step 4: Look at it and measure.** `npm run dev`, Chrome in a **focused, foreground** window. Check: the Sun
+- [x] **Step 4: Look at it and measure.** `npm run dev`, Chrome in a **focused, foreground** window. Check: the Sun
       glows, planets and orbit lines do not; colours are not washed out (tone mapping applied once). Read the
       Stats panel at the default view and zoomed onto Earth for 10 s each. Record fps and the machine in PROGRESS.
       Below 58 fps: stop and hand back with the numbers.
 
-- [ ] **Step 5: Finish** (per-task workflow). Checklist item 6. PROGRESS decisions:
+- [x] **Step 5: Finish** (per-task workflow). Checklist item 6. PROGRESS decisions:
   - Bloom threshold 1 (linear), mipmap blur; ACES filmic tone mapping in the composer, none in the renderer.
   - Half-float frame buffers.
   - Measured fps (default view and at Earth) with the machine.

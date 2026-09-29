@@ -65,7 +65,7 @@ and gzipped `/api/neos` is 1,425,929 bytes, inside the 2 MB budget (`neoPayload.
 - [x] Sun, 8 planets from the engine, orbit lines
 - [x] Time controls: play/pause, speed (real time → 10 yr/s), scrub, "now"
 - [x] Camera rig: orbit controls, focus, scripted `flyTo`
-- [ ] Postprocessing: bloom + tone mapping
+- [x] Postprocessing: bloom + tone mapping
 - [ ] Render-loop test: nothing per-frame goes through React state
 
 ## Phase 4–7
@@ -281,6 +281,15 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
   clicks on empty space focus a planet. Only the spheres are clickable. The focus picker sits top-right, clear of the
   FPS panel.
 
+- **2026-09-30:** Bloom threshold 1 in linear light with mipmap blur, so only HDR colours (today just the Sun's glow)
+  bloom; every body colour stays below it (`effectsConfig.test.ts`). ACES filmic tone mapping runs once, at the end of
+  the composer; the renderer does none (`<Canvas flat>`). Frame buffers are half-float so colours above 1 survive
+  until tone mapping.
+- **2026-09-30:** Measured with bloom and tone mapping on (Chrome 153, 1920×809 canvas at DPR 1, Apple M3 with
+  8 CPU / 10 GPU cores, 16 GB, macOS 26.5; tab visible, not focused): 75.0 fps over 10 s at the default view and
+  75.0 fps over 10 s at Earth, median frame 13.3 ms, worst 15.2 ms, no frame over 20 ms. 75 Hz is the display's
+  refresh rate, so this is the vsync cap, not the limit.
+
 ## Open questions
 
 - Retargeting a flight mid-way keeps the camera's position continuous but restarts from zero speed, a visible
@@ -309,6 +318,7 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
   regardless of TLIST order.
 - Node 24 prints `ExperimentalWarning: SQLite is an experimental feature and might change at any time` whenever
   `node:sqlite` loads (tests, server start-up). Harmless; we use only `DatabaseSync` and prepared statements.
+- `postprocessing` 6.39 accepts three `>= 0.168.0 < 0.187.0`, so three.js stays on 0.186.x until it widens the range.
 
 ## Blockers
 
