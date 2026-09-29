@@ -1,20 +1,16 @@
 import { Stats } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { CAMERA_SETTINGS, RENDERER_PARAMETERS, SCENE_BACKGROUND } from './canvasConfig';
-import { SolarSystem } from './bodies/SolarSystem';
-import { SimulationClock } from './SimulationClock';
 import { CameraControls } from './camera/CameraControls';
-import { CameraRigUpdater } from './camera/CameraRigUpdater';
 import { Effects } from './effects/Effects';
+import { SceneContents } from './SceneContents';
 
+/** `CameraControls` mounts after `SceneContents` so the rig's updater runs before drei's controls each frame. */
 export function SceneCanvas() {
   return (
     <Canvas flat gl={RENDERER_PARAMETERS} camera={CAMERA_SETTINGS}>
-      <SimulationClock />
       <color attach="background" args={[SCENE_BACKGROUND]} />
-      <ambientLight intensity={0.03} />
-      <SolarSystem />
-      <CameraRigUpdater />
+      <SceneContents />
       <CameraControls />
       <Effects />
       <Stats />

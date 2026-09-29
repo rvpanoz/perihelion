@@ -2223,7 +2223,7 @@ Branch: `phase-3/render-loop-test`.
 - Produces: `<SceneContents />`: everything inside the canvas except `Effects` and `Stats`, which need a real
   WebGL context.
 
-- [ ] **Step 1: Extract `SceneContents`** `apps/web/src/scene/SceneContents.tsx`
+- [x] **Step 1: Extract `SceneContents`** `apps/web/src/scene/SceneContents.tsx`
 
 ```tsx
 import { CameraRigUpdater } from './camera/CameraRigUpdater';
@@ -2246,7 +2246,7 @@ export function SceneContents() {
 
 In `SceneCanvas.tsx`, replace those four children with `<SceneContents />` (keep `color`, `Effects`, `Stats`).
 
-- [ ] **Step 2: Write the test** `apps/web/src/scene/SceneContents.test.tsx`
+- [x] **Step 2: Write the test** `apps/web/src/scene/SceneContents.test.tsx`
 
 ```tsx
 import ReactThreeTestRenderer from '@react-three/test-renderer';
@@ -2279,7 +2279,7 @@ describe('the render loop', () => {
 });
 ```
 
-- [ ] **Step 3: Run it**
+- [x] **Step 3: Run it**
 
 Run: `npx vitest run apps/web/src/scene/SceneContents.test.tsx`
 Expected: PASS. It passes on the first run because Tasks 2–5 already follow the rule; to prove it can fail,
@@ -2287,10 +2287,19 @@ temporarily add `const [, setTick] = useState(0);` and `useFrame(() => setTick((
 `SimulationClock`, see it fail with a non-zero `commits`, then revert. If OrbitControls cannot attach to the
 test renderer's mock canvas, stop and hand back (guardrails): do not drop the rig from the test silently.
 
-- [ ] **Step 4: Finish** (per-task workflow). Checklist item 7. PROGRESS decisions:
+- [x] **Step 4: Finish** (per-task workflow). Checklist item 7. PROGRESS decisions:
   - `SceneContents.test.tsx` enforces "nothing per-frame through React state": 120 frames, zero commits.
 
 Commit: `Test that the scene runs frames without React commits`.
+
+**As built (approved at the Task 7 review):**
+
+- `SceneCanvas` keeps `<CameraControls />`, mounted right after `<SceneContents />`, so `SceneContents` is everything
+  except `CameraControls`, `Effects` and `Stats`. This plan predates Task 5's split; step 3's OrbitControls fallback
+  no longer applies.
+- The test advances the 120 frames one at a time, each inside `ReactThreeTestRenderer.act`. With the planned single
+  `advanceFrames(120, 1 / 60)` the step-3 sabotage still passed (React committed the batched updates after the
+  count was read); with `act()` per frame it fails with 120 commits.
 
 ---
 
