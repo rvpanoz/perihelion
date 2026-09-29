@@ -60,7 +60,7 @@ and gzipped `/api/neos` is 1,425,929 bytes, inside the 2 MB budget (`neoPayload.
 
 ## Phase 3: Scene foundation
 
-- [ ] Floating origin (float64, focus-relative) + ecliptic → scene axes; logarithmic depth buffer kept
+- [x] Floating origin (float64, focus-relative) + ecliptic → scene axes; logarithmic depth buffer kept
 - [ ] Time store (the single time source) + `jdUtcFromJdTdb`
 - [ ] Sun, 8 planets from the engine, orbit lines
 - [ ] Time controls: play/pause, speed (real time → 10 yr/s), scrub, "now"
@@ -235,6 +235,13 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
   `fresh`; offline with a warm cache after a restart → `stale` (past the 1 h CME TTL; the failed refresh is logged);
   offline with an empty cache → `snapshot` for all three routes, found at the default path from `dist/main.js`; server
   down → `vite preview` serves `/snapshot/*.json`.
+
+- **2026-09-29:** Phase 3 scene origin = the camera focus, kept in float64; objects draw at `position − origin`,
+  subtracted in float64 before three.js sees the value (`apps/web/src/scene/sceneFrame.ts`).
+- **2026-09-29:** Ecliptic (x, y, z) → scene (x, z, −y), and only `sceneFrame.ts` maps axes. The negated axis is written
+  as a subtraction so a zero never becomes −0.
+- **2026-09-29:** `apps/web` declares `fast-check` as a dev dependency; its tests use it, and before only
+  `packages/orbit` declared it.
 
 ## Open questions
 

@@ -140,6 +140,11 @@ git push -u origin phase-3/plan
 
 Branch: `phase-3/floating-origin`.
 
+**Changes agreed in review (2026-09-29):** (1) also add `fast-check@^4.10.2` to `apps/web` devDependencies:
+web tests in Tasks 1–5 import it and only `packages/orbit` declared it; (2) the axis-mapping comment is a module-level
+comment and `SceneVectorTarget` has its own one-line doc. **Found while running:** unary minus turned 0 into −0,
+which failed the axis test's `toEqual`, so the negated axis is written as a subtraction (code below updated).
+
 **Files:**
 
 - Create: `apps/web/src/scene/sceneFrame.ts`
@@ -234,11 +239,12 @@ Expected: FAIL, cannot resolve `./sceneFrame`.
 ```ts
 import type { Vector3 } from '@perihelion/orbit';
 
-/**
- * Scene space is three.js Y-up; the engine's heliocentric ecliptic J2000 is Z-up. Ecliptic (x, y, z) maps to
- * scene (x, z, −y): a rotation of −90° about x, so the frame stays right-handed and ecliptic north is
- * screen-up. `writeSceneOffset` and `sceneAxesFromEcliptic` are the only places that apply it.
- */
+// Scene space is three.js Y-up; the engine's heliocentric ecliptic J2000 is Z-up. Ecliptic (x, y, z) maps to
+// scene (x, z, −y): a rotation of −90° about x, so the frame stays right-handed and ecliptic north is
+// screen-up. `writeSceneOffset` and `sceneAxesFromEcliptic` are the only places that apply it. The negated axis
+// is written as a subtraction because unary minus turns 0 into −0.
+
+/** Anything shaped like three.js `Vector3.set`, so hot paths write straight into an object's position. */
 export interface SceneVectorTarget {
   set(x: number, y: number, z: number): unknown;
 }
@@ -265,12 +271,12 @@ export function writeSceneOffset<T extends SceneVectorTarget>(
   out: T,
 ): T {
   const [originX, originY, originZ] = sceneOriginAu;
-  out.set(positionAu[0] - originX, positionAu[2] - originZ, -(positionAu[1] - originY));
+  out.set(positionAu[0] - originX, positionAu[2] - originZ, originY - positionAu[1]);
   return out;
 }
 
 export function sceneAxesFromEcliptic(eclipticAu: Readonly<Vector3>): Vector3 {
-  return [eclipticAu[0], eclipticAu[2], -eclipticAu[1]];
+  return [eclipticAu[0], eclipticAu[2], 0 - eclipticAu[1]];
 }
 ```
 
