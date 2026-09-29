@@ -5,16 +5,18 @@ import { SolarSystem } from './bodies/SolarSystem';
 import { SimulationClock } from './SimulationClock';
 import { CameraControls } from './camera/CameraControls';
 import { CameraRigUpdater } from './camera/CameraRigUpdater';
+import { Effects } from './effects/Effects';
 
 export function SceneCanvas() {
   return (
-    <Canvas gl={RENDERER_PARAMETERS} camera={CAMERA_SETTINGS}>
+    <Canvas flat gl={RENDERER_PARAMETERS} camera={CAMERA_SETTINGS}>
       <SimulationClock />
       <color attach="background" args={[SCENE_BACKGROUND]} />
       <ambientLight intensity={0.03} />
       <SolarSystem />
       <CameraRigUpdater />
       <CameraControls />
+      <Effects />
       <Stats />
     </Canvas>
   );
