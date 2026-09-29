@@ -197,6 +197,10 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
   failure, the cache's included, is logged) because the scheduler runs it unawaited.
 - **2026-09-29:** The scheduler refreshes the default queries at start-up and every 10 minutes (wired in Task 6),
   skipping anything still fresh.
+- **2026-09-29:** The server's default `DATABASE_PATH` and `SNAPSHOT_DIR` resolve against `apps/server` (via
+  `import.meta.url`), not the working directory, so the server finds them wherever it is started. Values from the
+  environment are used as given. Task 6 ships as two PRs: 6a (config, snapshot reader, dataset requests, upstream
+  clients) and 6b (routes, compression, wiring, smoke test).
 
 ## Open questions
 
