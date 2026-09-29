@@ -1315,7 +1315,7 @@ Branch: `phase-3/time-controls`.
   - `useTimeReadout(): TimeState` (4 Hz poll + notifications)
   - `<TimeControls />`, `<App />` (Task 5 adds the focus picker to `App`)
 
-- [ ] **Step 1: Write the failing test** `apps/web/src/time/timeDisplay.test.ts`
+- [x] **Step 1: Write the failing test** `apps/web/src/time/timeDisplay.test.ts`
 
 ```ts
 import { jdTdbFromJdUtc, julianDateFromCalendar } from '@perihelion/orbit';
@@ -1382,12 +1382,12 @@ describe('speed slider', () => {
 });
 ```
 
-- [ ] **Step 2: Run it to verify it fails**
+- [x] **Step 2: Run it to verify it fails**
 
 Run: `npx vitest run apps/web/src/time/timeDisplay.test.ts`
 Expected: FAIL, `./timeDisplay` not found.
 
-- [ ] **Step 3: Implement** `apps/web/src/time/timeDisplay.ts`
+- [x] **Step 3: Implement** `apps/web/src/time/timeDisplay.ts`
 
 ```ts
 import { calendarFromJulianDate, jdTdbFromJdUtc, jdUtcFromJdTdb } from '@perihelion/orbit';
@@ -1446,7 +1446,7 @@ export function formatRate(rateDaysPerSecond: number): string {
 Run: `npx vitest run apps/web/src/time/timeDisplay.test.ts`
 Expected: PASS.
 
-- [ ] **Step 4: Implement the readout hook and the controls**
+- [x] **Step 4: Implement the readout hook and the controls**
 
 `apps/web/src/time/useTimeReadout.ts`:
 
@@ -1593,11 +1593,11 @@ Append to `apps/web/src/styles.css`:
 }
 ```
 
-- [ ] **Step 5: Look at it.** `npm run dev`. Check: Pause stops the planets and the readout; Play resumes; the
+- [x] **Step 5: Look at it.** `npm run dev`. Check: Pause stops the planets and the readout; Play resumes; the
       speed label moves from "real time" to "10 yr/s"; dragging the scrubber moves planets immediately, including
       before 1972 (readout says TDB); Now jumps to today's date in UTC.
 
-- [ ] **Step 6: Finish** (per-task workflow). Checklist item 4. PROGRESS decisions:
+- [x] **Step 6: Finish** (per-task workflow). Checklist item 4. PROGRESS decisions:
   - Readout in UTC from 1972, TDB before (UTC undefined before leap seconds); updated at 4 Hz.
   - Speed slider is logarithmic over 8 decades.
 

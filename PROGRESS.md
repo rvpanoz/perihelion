@@ -1,7 +1,7 @@
 # PROGRESS
 
 **Current phase:** Phase 3: Scene foundation (in progress)
-**Last updated:** 2026-09-29
+**Last updated:** 2026-09-30
 
 ## Phase status
 
@@ -63,7 +63,7 @@ and gzipped `/api/neos` is 1,425,929 bytes, inside the 2 MB budget (`neoPayload.
 - [x] Floating origin (float64, focus-relative) + ecliptic → scene axes; logarithmic depth buffer kept
 - [x] Time store (the single time source) + `jdUtcFromJdTdb`
 - [x] Sun, 8 planets from the engine, orbit lines
-- [ ] Time controls: play/pause, speed (real time → 10 yr/s), scrub, "now"
+- [x] Time controls: play/pause, speed (real time → 10 yr/s), scrub, "now"
 - [ ] Camera rig: orbit controls, focus, scripted `flyTo`
 - [ ] Postprocessing: bloom + tone mapping
 - [ ] Render-loop test: nothing per-frame goes through React state
@@ -263,6 +263,10 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
   orbits read as ellipses from the first render).
 - **2026-09-29:** drei `OrbitControls` cannot mount under `@react-three/test-renderer` (its mock canvas has no event
   target); the camera rig will split per-frame logic from the controls (Task 5 review).
+
+- **2026-09-30:** The date readout shows UTC from 1972 and TDB before it (UTC has no leap-second definition earlier). It
+  refreshes at 4 Hz and on every user action; the scene never waits on it.
+- **2026-09-30:** The speed slider is logarithmic: the 8 decades from real time to 10 yr/s get equal travel.
 
 ## Open questions
 
