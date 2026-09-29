@@ -36,3 +36,14 @@ body,
   gap: 0.5rem;
   align-items: center;
 }
+
+.focus-picker {
+  top: 1rem;
+  right: 1rem;
+  flex-wrap: wrap;
+  max-width: calc(100vw - 2rem);
+}
+
+.hud button[aria-pressed='true'] {
+  outline: 1px solid currentcolor;
+}

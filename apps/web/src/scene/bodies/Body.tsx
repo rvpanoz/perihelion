@@ -2,6 +2,7 @@ import type { Planet } from '@perihelion/orbit';
 import { useFrame } from '@react-three/fiber';
 import { useRef } from 'react';
 import type { Group } from 'three';
+import { cameraRig } from '../camera/cameraRig';
 import { FRAME_PRIORITY } from '../framePriorities';
 import { writeSceneOffset } from '../sceneFrame';
 import {
@@ -18,6 +19,8 @@ const SPHERE_SEGMENTS = { width: 48, height: 24 } as const;
 /** True radii are sub-pixel from 1 AU; a fixed-size dot keeps every body findable at any zoom. */
 const MARKER_SIZE_PX = 3;
 const MARKER_VERTEX = new Float32Array(3);
+/** three.js hit-tests points within 1 world unit (1 AU here), so markers would steal clicks from empty space. */
+const IGNORE_RAYCAST = () => undefined;
 
 export function Body({ body }: { body: BodyId }) {
   const groupRef = useRef<Group>(null);
@@ -25,7 +28,14 @@ export function Body({ body }: { body: BodyId }) {
     if (groupRef.current) writeSceneOffset(bodyPositions[body], groupRef.current.position);
   }, FRAME_PRIORITY.sceneObjects);
   return (
-    <group ref={groupRef} name={`body-${body}`}>
+    <group
+      ref={groupRef}
+      name={`body-${body}`}
+      onClick={(event) => {
+        event.stopPropagation();
+        cameraRig.flyTo({ focus: body });
+      }}
+    >
       {body === 'sun' ? <SunSurface /> : <PlanetSurface planet={body} />}
       <BodyMarker color={BODY_APPEARANCE[body].color} />
     </group>
@@ -55,7 +65,7 @@ function PlanetSurface({ planet }: { planet: Planet }) {
 
 function BodyMarker({ color }: { color: string }) {
   return (
-    <points>
+    <points raycast={IGNORE_RAYCAST}>
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[MARKER_VERTEX, 3]} />
       </bufferGeometry>

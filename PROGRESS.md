@@ -64,7 +64,7 @@ and gzipped `/api/neos` is 1,425,929 bytes, inside the 2 MB budget (`neoPayload.
 - [x] Time store (the single time source) + `jdUtcFromJdTdb`
 - [x] Sun, 8 planets from the engine, orbit lines
 - [x] Time controls: play/pause, speed (real time → 10 yr/s), scrub, "now"
-- [ ] Camera rig: orbit controls, focus, scripted `flyTo`
+- [x] Camera rig: orbit controls, focus, scripted `flyTo`
 - [ ] Postprocessing: bloom + tone mapping
 - [ ] Render-loop test: nothing per-frame goes through React state
 
@@ -268,8 +268,23 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
   refreshes at 4 Hz and on every user action; the scene never waits on it.
 - **2026-09-30:** The speed slider is logarithmic: the 8 decades from real time to 10 yr/s get equal travel.
 
+- **2026-09-30:** OrbitControls always target (0, 0, 0); the camera rig moves the scene origin to the focus. The
+  controls are switched off during flights.
+- **2026-09-30:** `cameraRig.flyTo` eases the origin toward the target's current position and the distance in log
+  space (cubic in-out, 2.5 s). On the frame a flight lands the camera gets the exact target distance.
+- **2026-09-30:** View distances: min 1.5 radii, default 8 radii (Sun: 3 AU), max 100 AU.
+- **2026-09-30:** The rig is two components: `CameraRigUpdater` (per frame, no drei, so it mounts under the test
+  renderer) and `CameraControls` (drei `OrbitControls`). drei updates its controls at priority −1 like the rig, so
+  the updater is mounted first and switches the controls off before drei looks. It reads the controls from R3F's frame
+  state.
+- **2026-09-30:** Body markers ignore raycasts: three.js hit-tests points within 1 world unit (1 AU here), which let
+  clicks on empty space focus a planet. Only the spheres are clickable. The focus picker sits top-right, clear of the
+  FPS panel.
+
 ## Open questions
 
+- Retargeting a flight mid-way keeps the camera's position continuous but restarts from zero speed, a visible
+  hitch. Carry the velocity over? (Seen in the Task 5 browser check.)
 - Final project name ("Perihelion" is a working name).
 - Hosting targets for web and server.
 - Confirm the opening scene (Swarm vs Eruption).
