@@ -1632,7 +1632,7 @@ Branch: `phase-3/camera-rig`.
   - `class CameraRig` (`focus`, `flying`, `pose`, `flyTo`, `update`, `subscribe`) and the app-wide `cameraRig`.
     `cameraRig.flyTo(...)` is the scripted-move API later shots use.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 `apps/web/src/scene/camera/viewDistances.test.ts`:
 
@@ -1794,12 +1794,12 @@ describe('CameraRig', () => {
 });
 ```
 
-- [ ] **Step 2: Run them to verify they fail**
+- [x] **Step 2: Run them to verify they fail**
 
 Run: `npx vitest run apps/web/src/scene/camera`
 Expected: FAIL, modules not found.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 `apps/web/src/scene/camera/viewDistances.ts`:
 
@@ -1976,7 +1976,7 @@ export const cameraRig = new CameraRig({ initialDistanceAu: defaultViewDistanceA
 Run: `npx vitest run apps/web/src/scene/camera`
 Expected: PASS.
 
-- [ ] **Step 4: Wire it into the scene**
+- [x] **Step 4: Wire it into the scene**
 
 `apps/web/src/scene/camera/CameraRigController.tsx`:
 
@@ -2070,21 +2070,31 @@ export function FocusPicker() {
 }
 ```
 
-- [ ] **Step 5: Run all web tests**
+- [x] **Step 5: Run all web tests**
 
 Run: `npx vitest run apps/web`
 Expected: PASS.
 
-- [ ] **Step 6: Look at it.** `npm run dev`. Check: drag orbits the Sun; scroll zooms; clicking "Earth" flies
+- [x] **Step 6: Look at it.** `npm run dev`. Check: drag orbits the Sun; scroll zooms; clicking "Earth" flies
       there in 2.5 s with no snap and the camera keeps following Earth at 1 d/s; zooming in stops above the surface;
       clicking "Mars" mid-flight turns smoothly; clicking a planet sphere when close focuses it.
 
-- [ ] **Step 7: Finish** (per-task workflow). Checklist item 5. PROGRESS decisions:
+- [x] **Step 7: Finish** (per-task workflow). Checklist item 5. PROGRESS decisions:
   - OrbitControls always target (0, 0, 0); the rig moves the origin. Controls are disabled during flights.
   - `flyTo` eases origin toward the target's current position and distance in log space (cubic in-out, 2.5 s).
   - View distances: min 1.5 radii, default 8 radii (Sun: 3 AU), max 100 AU.
 
 Commit: `Add the camera rig with focus selection and scripted flights`.
+
+**As built (approved at the Task 5 review):**
+
+- `CameraRigController.tsx` became `CameraRigUpdater.tsx` (the `useFrame` logic, no drei; it reads `controls` from
+  the frame state) and `CameraControls.tsx` (`OrbitControls` only), mounted in that order. drei cannot mount under
+  `@react-three/test-renderer`, and equal frame priorities run in mount order.
+- The updater checks `cameraRig.flying` before `update`, so the landing frame sets the exact target distance.
+- `BodyMarker` passes `raycast={IGNORE_RAYCAST}`: points are hit-tested within 1 world unit (1 AU), so markers
+  would focus a planet on clicks in empty space.
+- `.focus-picker` is at `right: 1rem` instead of `left: 1rem`, clear of the Stats panel.
 
 ---
 
@@ -2209,14 +2219,14 @@ Branch: `phase-3/render-loop-test`.
 
 **Interfaces:**
 
-- Consumes: `SimulationClock`, `SolarSystem`, `CameraRigController`, `timeStore`.
+- Consumes: `SimulationClock`, `SolarSystem`, `CameraRigUpdater`, `timeStore`.
 - Produces: `<SceneContents />`: everything inside the canvas except `Effects` and `Stats`, which need a real
   WebGL context.
 
 - [ ] **Step 1: Extract `SceneContents`** `apps/web/src/scene/SceneContents.tsx`
 
 ```tsx
-import { CameraRigController } from './camera/CameraRigController';
+import { CameraRigUpdater } from './camera/CameraRigUpdater';
 import { SolarSystem } from './bodies/SolarSystem';
 import { SimulationClock } from './SimulationClock';
 
@@ -2228,7 +2238,7 @@ export function SceneContents() {
       <SimulationClock />
       <ambientLight intensity={AMBIENT_LIGHT_INTENSITY} />
       <SolarSystem />
-      <CameraRigController />
+      <CameraRigUpdater />
     </>
   );
 }

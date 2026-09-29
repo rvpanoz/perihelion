@@ -3,6 +3,8 @@ import { Canvas } from '@react-three/fiber';
 import { CAMERA_SETTINGS, RENDERER_PARAMETERS, SCENE_BACKGROUND } from './canvasConfig';
 import { SolarSystem } from './bodies/SolarSystem';
 import { SimulationClock } from './SimulationClock';
+import { CameraControls } from './camera/CameraControls';
+import { CameraRigUpdater } from './camera/CameraRigUpdater';
 
 export function SceneCanvas() {
   return (
@@ -11,6 +13,8 @@ export function SceneCanvas() {
       <color attach="background" args={[SCENE_BACKGROUND]} />
       <ambientLight intensity={0.03} />
       <SolarSystem />
+      <CameraRigUpdater />
+      <CameraControls />
       <Stats />
     </Canvas>
   );
