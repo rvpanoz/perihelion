@@ -1,6 +1,6 @@
 # PROGRESS
 
-**Current phase:** Phase 3: Scene foundation (in progress)
+**Current phase:** Phase 4: Shot 1: The Swarm (not started)
 **Last updated:** 2026-09-30
 
 ## Phase status
@@ -10,7 +10,7 @@
 | 0. Foundations                | ✅ Done        |
 | 1. Orbit engine               | ✅ Done        |
 | 2. Data layer                 | ✅ Done        |
-| 3. Scene foundation           | 🟨 In progress |
+| 3. Scene foundation           | ✅ Done        |
 | 4. Shot 1: The Swarm          | ⬜ Not started |
 | 5. Shot 2: The Close Approach | ⬜ Not started |
 | 6. Shot 3: The Eruption       | ⬜ Not started |
@@ -67,6 +67,18 @@ and gzipped `/api/neos` is 1,425,929 bytes, inside the 2 MB budget (`neoPayload.
 - [x] Camera rig: orbit controls, focus, scripted `flyTo`
 - [x] Postprocessing: bloom + tone mapping
 - [x] Render-loop test: nothing per-frame goes through React state
+
+Exit criteria verified on `main` at `cb1f905` (CI green, run 36635761876), in Chrome 153 in a foreground window
+(1920×865 canvas at DPR 1) on an Apple M3 with 16 GB, macOS 26.5:
+
+- Planets match the engine at any scrubbed date: `SolarSystem.test.tsx` (1850, 2003, 2049), and by eye at Mars's
+  2003 closest approach (2003-08-27 09:51 TDB), where the Sun, Earth and Mars line up: heliocentric longitudes
+  333.68° and 334.13°, Earth–Mars 0.373 AU.
+- No visible jitter zoomed to Earth: at the minimum zoom (1.5 radii) Earth sat exactly at the scene origin in 750/750
+  frames at 1 d/s and 750/750 at 10 yr/s (run from 1900 so it does not stop at 2050), with the camera distance
+  constant; the sphere is steady in screenshots.
+- Steady 60 fps: 75.0 fps (the display's refresh cap), median frame 13.3 ms, worst 15.7 ms, no frame over 20 ms,
+  over 10 s each at the default view and at Earth, at 1 d/s and at 10 yr/s.
 
 ## Phase 4–7
 
@@ -298,6 +310,9 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
 - **2026-09-30:** `SceneContents` is everything in the canvas that mounts under the test renderer (clock, ambient light,
   solar system, camera-rig updater). `SceneCanvas` adds the background colour, `CameraControls` (mounted after it, so
   the updater runs first), `Effects` and `Stats`.
+- **2026-09-30:** The Stats panel's 1 FPS in the automated tab (Phase 0) is explained: Chrome stops drawing a hidden
+  or covered window, so requestAnimationFrame stalls. In a visible window the scene runs at the display's 75 Hz
+  (Task 6 and the Phase 3 close-out).
 
 ## Open questions
 
@@ -317,8 +332,6 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
 - `DEMO_KEY` is heavily rate-limited; use a personal `NASA_API_KEY`.
 - R3F 9.8 logs `THREE.Clock: This module has been deprecated` with three 0.186 (upstream; harmless).
 - Vite warns the web bundle is 1.13 MB (310 kB gzipped), mostly three.js. Revisit code-splitting in Phase 7.
-- In the automated Chrome tab the Stats panel read 1 FPS. It was updating, so the render loop runs; likely background-tab
-  throttling, but not confirmed. Check the frame rate in a focused window.
 - `npm ci` warns that esbuild's postinstall script is not covered by npm's `allowScripts` policy (esbuild comes in
   via tsx). It doesn't affect `check`; revisit if `npm run dev` for the server breaks on a fresh install.
 - The leap-second table ends at 2017-01-01 (TAI − UTC = 37 s) and assumes none since. Check it against the

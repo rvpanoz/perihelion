@@ -2307,9 +2307,9 @@ Commit: `Test that the scene runs frames without React commits`.
 
 Branch: `phase-3/close-out`, after Tasks 1–7 are merged.
 
-- [ ] **Step 1: `npm run check` on up-to-date `main`.** Expected: green.
+- [x] **Step 1: `npm run check` on up-to-date `main`.** Expected: green.
 
-- [ ] **Step 2: Verify the exit criteria by hand** (`npm run dev`, Chrome, focused foreground window):
+- [x] **Step 2: Verify the exit criteria by hand** (`npm run dev`, Chrome, focused foreground window):
   - **Planets match the engine at any scrubbed date:** covered by `SolarSystem.test.tsx`. Cross-check by eye:
     scrub to 2003-08-27 (Mars's closest opposition in 60,000 years); Sun, Earth and Mars should line up.
   - **No visible jitter zoomed to Earth at 1 AU:** focus Earth, zoom to the minimum, play at 1 d/s and at
@@ -2317,7 +2317,7 @@ Branch: `phase-3/close-out`, after Tasks 1–7 are merged.
   - **Steady 60 fps on a mid-range laptop:** Stats panel at the default view, zoomed at Earth, and at 10 yr/s.
     Record the numbers and the machine.
 
-- [ ] **Step 3: Update `PROGRESS.md`:** Phase 3 ✅ Done, current phase → Phase 4, an exit-criteria paragraph
+- [x] **Step 3: Update `PROGRESS.md`:** Phase 3 ✅ Done, current phase → Phase 4, an exit-criteria paragraph
       (commit, CI run, fps numbers), and resolve the Known issue "the Stats panel read 1 FPS in the automated tab"
       with the focused-window measurement.
 
@@ -2326,3 +2326,10 @@ Branch: `phase-3/close-out`, after Tasks 1–7 are merged.
       and move all Phase 3 issues and PRs to Done on the board.
 
 Commit: `Mark Phase 3 done in PROGRESS.md and move the current phase to Phase 4`.
+
+**As built (approved at the Task 8 review):**
+
+- The 10 yr/s runs start from 1900: from today the clock reaches 2050 in about 2.4 s and pauses.
+- The eye checks have numbers behind them: Earth's and Mars's heliocentric longitudes at the 2003 closest approach,
+  and, every frame at minimum zoom, Earth exactly at the scene origin with a constant camera distance.
+- The Phase 0 known issue ("the Stats panel read 1 FPS") is closed with its cause: a hidden or covered window.
