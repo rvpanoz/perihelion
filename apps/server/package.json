@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/main.ts",
+    "dev": "tsx watch --env-file-if-exists=../../.env src/main.ts",
     "start": "node dist/main.js",
     "build": "node scripts/build.mjs",
     "typecheck": "tsc --noEmit",
@@ -16,6 +16,7 @@
     "fastify": "^5.12.5"
   },
   "devDependencies": {
+    "@perihelion/fixtures": "^0.0.0",
     "@types/node": "^24.19.0",
     "esbuild": "^0.28.2",
     "tsx": "^4.23.15"

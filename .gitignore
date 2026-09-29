@@ -10,3 +10,6 @@ coverage/
 *.log
 .superpowers/
 .cache/
+
+# Local editor workspace
+perihelion.code-workspace
