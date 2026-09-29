@@ -5,6 +5,7 @@ import {
   calendarFromJulianDate,
   jdTdbFromJdUtc,
   jdTtFromJdUtc,
+  jdUtcFromJdTdb,
   jdUtcFromUnixMs,
   julianDateFromCalendar,
   taiMinusUtcSeconds,
@@ -123,5 +124,37 @@ describe('jdTdbFromJdUtc', () => {
   it('equals TT, which PLAN.md accepts (|TDB − TT| ≤ 1.7 ms)', () => {
     const jdUtc = jdAt({ year: 2026, month: 9, day: 28 });
     expect(jdTdbFromJdUtc(jdUtc)).toBe(jdTtFromJdUtc(jdUtc));
+  });
+});
+
+describe('jdUtcFromJdTdb', () => {
+  // 1e-8 d ≈ 0.9 ms: a few float64 steps at JD 2.4e6 (4.7e-10 d each), far below the 1 s leap-second scale.
+  const ROUND_TRIP_TOLERANCE_DAYS = 1e-8;
+
+  it('undoes the 69.184 s TT − UTC offset in force from 2017-01-01', () => {
+    const jdUtc = jdAt({ year: 2017, month: 1, day: 1 });
+    const back = jdUtcFromJdTdb(jdUtc + 69.184 / SECONDS_PER_DAY);
+    expect(Math.abs(back - jdUtc)).toBeLessThan(ROUND_TRIP_TOLERANCE_DAYS);
+  });
+
+  it('uses the old offset for the last second before a leap second', () => {
+    const jdUtc = jdAt({ year: 2016, month: 12, day: 31, hour: 23, minute: 59, second: 59 });
+    const back = jdUtcFromJdTdb(jdUtc + 68.184 / SECONDS_PER_DAY);
+    expect(Math.abs(back - jdUtc)).toBeLessThan(ROUND_TRIP_TOLERANCE_DAYS);
+  });
+
+  it('round-trips jdTdbFromJdUtc from 1972 to 2100', () => {
+    const unixMs = fc.integer({ min: Date.UTC(1972, 0, 2), max: Date.UTC(2100, 0, 1) });
+    fc.assert(
+      fc.property(unixMs, (ms) => {
+        const jdUtc = jdUtcFromUnixMs(ms);
+        const back = jdUtcFromJdTdb(jdTdbFromJdUtc(jdUtc));
+        expect(Math.abs(back - jdUtc)).toBeLessThan(ROUND_TRIP_TOLERANCE_DAYS);
+      }),
+    );
+  });
+
+  it('refuses TDB before UTC had leap seconds', () => {
+    expect(() => jdUtcFromJdTdb(jdAt({ year: 1971, month: 6, day: 1 }))).toThrow(RangeError);
   });
 });
