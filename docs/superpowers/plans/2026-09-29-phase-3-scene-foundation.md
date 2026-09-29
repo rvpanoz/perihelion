@@ -297,6 +297,11 @@ Commit: `Add the float64 scene origin and the ecliptic to scene axis mapping`.
 
 Branch: `phase-3/time-store`.
 
+**Changes agreed in review (2026-09-29):** (1) `clamp` takes `(value, bounds: { min, max })` instead of three
+arguments; the bounds are module constants, so `advanceTime` still allocates nothing per frame; (2) the new engine
+tests compare with `Math.abs(diff) < 1e-8` days (≈ 0.9 ms) instead of `toBeCloseTo(…, 9)`, whose 5e-10 d bound is
+barely one float64 step at JD 2.4e6. Code below updated.
+
 **Files:**
 
 - Modify: `packages/orbit/src/time.ts` (add `jdUtcFromJdTdb`; share the TT − UTC offset helper)
@@ -326,14 +331,19 @@ Branch: `phase-3/time-store`.
 
 ```ts
 describe('jdUtcFromJdTdb', () => {
+  // 1e-8 d ≈ 0.9 ms: a few float64 steps at JD 2.4e6 (4.7e-10 d each), far below the 1 s leap-second scale.
+  const ROUND_TRIP_TOLERANCE_DAYS = 1e-8;
+
   it('undoes the 69.184 s TT − UTC offset in force from 2017-01-01', () => {
     const jdUtc = jdAt({ year: 2017, month: 1, day: 1 });
-    expect(jdUtcFromJdTdb(jdUtc + 69.184 / SECONDS_PER_DAY)).toBeCloseTo(jdUtc, 9);
+    const back = jdUtcFromJdTdb(jdUtc + 69.184 / SECONDS_PER_DAY);
+    expect(Math.abs(back - jdUtc)).toBeLessThan(ROUND_TRIP_TOLERANCE_DAYS);
   });
 
   it('uses the old offset for the last second before a leap second', () => {
     const jdUtc = jdAt({ year: 2016, month: 12, day: 31, hour: 23, minute: 59, second: 59 });
-    expect(jdUtcFromJdTdb(jdUtc + 68.184 / SECONDS_PER_DAY)).toBeCloseTo(jdUtc, 9);
+    const back = jdUtcFromJdTdb(jdUtc + 68.184 / SECONDS_PER_DAY);
+    expect(Math.abs(back - jdUtc)).toBeLessThan(ROUND_TRIP_TOLERANCE_DAYS);
   });
 
   it('round-trips jdTdbFromJdUtc from 1972 to 2100', () => {
@@ -341,7 +351,8 @@ describe('jdUtcFromJdTdb', () => {
     fc.assert(
       fc.property(unixMs, (ms) => {
         const jdUtc = jdUtcFromUnixMs(ms);
-        expect(Math.abs(jdUtcFromJdTdb(jdTdbFromJdUtc(jdUtc)) - jdUtc)).toBeLessThan(1e-8);
+        const back = jdUtcFromJdTdb(jdTdbFromJdUtc(jdUtc));
+        expect(Math.abs(back - jdUtc)).toBeLessThan(ROUND_TRIP_TOLERANCE_DAYS);
       }),
     );
   });
@@ -562,13 +573,18 @@ import { STANDISH_TABLE_1_VALID_JD_TDB, jdTdbFromJdUtc, jdUtcFromUnixMs } from '
 const SECONDS_PER_DAY = 86_400;
 const DAYS_PER_JULIAN_YEAR = 365.25;
 
+interface Bounds {
+  min: number;
+  max: number;
+}
+
 /** Planet positions come from Standish Table 1, fitted to 1800–2050; outside it they are extrapolations. */
 export const TIME_RANGE_JD_TDB = STANDISH_TABLE_1_VALID_JD_TDB;
 
 export const RATE_LIMITS_DAYS_PER_SECOND = {
   min: 1 / SECONDS_PER_DAY,
   max: 10 * DAYS_PER_JULIAN_YEAR,
-} as const;
+} as const satisfies Bounds;
 
 export const DEFAULT_RATE_DAYS_PER_SECOND = 1;
 
@@ -577,6 +593,12 @@ export const DEFAULT_RATE_DAYS_PER_SECOND = 1;
  * pause as one frame; counting it would jump the simulation by up to years.
  */
 export const MAX_FRAME_SECONDS = 0.1;
+
+const JD_TDB_BOUNDS: Bounds = {
+  min: TIME_RANGE_JD_TDB.startJdTdb,
+  max: TIME_RANGE_JD_TDB.endJdTdb,
+};
+const FRAME_SECONDS_BOUNDS: Bounds = { min: 0, max: MAX_FRAME_SECONDS };
 
 export interface TimeState {
   jdTdb: number;
@@ -589,29 +611,27 @@ export function jdTdbFromUnixMs(unixMs: number): number {
 }
 
 export function clampJdTdb(jdTdb: number): number {
-  return clamp(jdTdb, TIME_RANGE_JD_TDB.startJdTdb, TIME_RANGE_JD_TDB.endJdTdb);
+  return clamp(jdTdb, JD_TDB_BOUNDS);
 }
 
 export function clampRate(rateDaysPerSecond: number): number {
-  return clamp(rateDaysPerSecond, RATE_LIMITS_DAYS_PER_SECOND.min, RATE_LIMITS_DAYS_PER_SECOND.max);
+  return clamp(rateDaysPerSecond, RATE_LIMITS_DAYS_PER_SECOND);
 }
 
 /** Runs every frame, so it mutates in place instead of allocating. Pauses at the end of the range. */
 export function advanceTime(state: TimeState, elapsedSeconds: number): void {
   if (!state.playing) return;
   const frameSeconds = Number.isFinite(elapsedSeconds)
-    ? clamp(elapsedSeconds, 0, MAX_FRAME_SECONDS)
+    ? clamp(elapsedSeconds, FRAME_SECONDS_BOUNDS)
     : 0;
   state.jdTdb = clampJdTdb(state.jdTdb + frameSeconds * state.rateDaysPerSecond);
   if (state.jdTdb === TIME_RANGE_JD_TDB.endJdTdb) state.playing = false;
 }
 
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), max);
+function clamp(value: number, bounds: Readonly<Bounds>): number {
+  return Math.min(Math.max(value, bounds.min), bounds.max);
 }
 ```
-
-(`clamp` has 3 arguments; it is a private math primitive whose argument order is universal, so it is not wrapped.)
 
 `apps/web/src/time/timeStore.ts`:
 

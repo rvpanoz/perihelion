@@ -133,7 +133,7 @@ export function taiMinusUtcSeconds(jdUtc: number): number {
 }
 
 export function jdTtFromJdUtc(jdUtc: number): number {
-  return jdUtc + (taiMinusUtcSeconds(jdUtc) + TT_MINUS_TAI_SECONDS) / SECONDS_PER_DAY;
+  return jdUtc + ttMinusUtcDays(jdUtc);
 }
 
 /**
@@ -142,4 +142,19 @@ export function jdTtFromJdUtc(jdUtc: number): number {
  */
 export function jdTdbFromJdUtc(jdUtc: number): number {
   return jdTtFromJdUtc(jdUtc);
+}
+
+/**
+ * Inverse of `jdTdbFromJdUtc`. TT − UTC depends on UTC, the unknown, so estimate UTC with the offset at the
+ * TDB instant, then correct once. The estimate can only be one leap second off (within ~69 s after a step),
+ * and re-reading the offset at the estimate lands on the correct side of the step in both cases.
+ * Throws a RangeError before 1972-01-01 UTC, like `taiMinusUtcSeconds`.
+ */
+export function jdUtcFromJdTdb(jdTdb: number): number {
+  const estimateJdUtc = jdTdb - ttMinusUtcDays(jdTdb);
+  return jdTdb - ttMinusUtcDays(estimateJdUtc);
+}
+
+function ttMinusUtcDays(jdUtc: number): number {
+  return (taiMinusUtcSeconds(jdUtc) + TT_MINUS_TAI_SECONDS) / SECONDS_PER_DAY;
 }

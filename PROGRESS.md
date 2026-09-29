@@ -61,7 +61,7 @@ and gzipped `/api/neos` is 1,425,929 bytes, inside the 2 MB budget (`neoPayload.
 ## Phase 3: Scene foundation
 
 - [x] Floating origin (float64, focus-relative) + ecliptic → scene axes; logarithmic depth buffer kept
-- [ ] Time store (the single time source) + `jdUtcFromJdTdb`
+- [x] Time store (the single time source) + `jdUtcFromJdTdb`
 - [ ] Sun, 8 planets from the engine, orbit lines
 - [ ] Time controls: play/pause, speed (real time → 10 yr/s), scrub, "now"
 - [ ] Camera rig: orbit controls, focus, scripted `flyTo`
@@ -242,6 +242,15 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
   as a subtraction so a zero never becomes −0.
 - **2026-09-29:** `apps/web` declares `fast-check` as a dev dependency; its tests use it, and before only
   `packages/orbit` declared it.
+
+- **2026-09-29:** One time store (`apps/web/src/time/timeStore.ts`) is the scene's only time source. The frame loop
+  ticks it without notifying React; user actions (play/pause, rate, scrub, now) notify subscribers.
+- **2026-09-29:** Rate runs from 1/86,400 to 3,652.5 d/s (real time → 10 yr/s), default 1 d/s. Time is clamped to
+  Standish Table 1's 1800–2050 range and playback pauses at the end. A frame counts at most 0.1 s of wall time.
+- **2026-09-29:** `jdUtcFromJdTdb` added to the engine: estimate UTC with the offset at the TDB instant, then correct
+  once. It throws before 1972 like the forward conversion; its tests use a 1e-8 d (≈ 0.9 ms) bound.
+- **2026-09-29:** `useFrame` order is fixed by `FRAME_PRIORITY`: clock −3, body positions −2, camera rig −1, scene
+  objects 0. R3F 9.8 sorts ascending and only priorities above 0 take over rendering.
 
 ## Open questions
 
