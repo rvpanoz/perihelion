@@ -1,6 +1,6 @@
 # PROGRESS
 
-**Current phase:** Phase 3: Scene foundation (not started)
+**Current phase:** Phase 3: Scene foundation (in progress)
 **Last updated:** 2026-09-29
 
 ## Phase status
@@ -10,7 +10,7 @@
 | 0. Foundations                | ✅ Done        |
 | 1. Orbit engine               | ✅ Done        |
 | 2. Data layer                 | ✅ Done        |
-| 3. Scene foundation           | ⬜ Not started |
+| 3. Scene foundation           | 🟨 In progress |
 | 4. Shot 1: The Swarm          | ⬜ Not started |
 | 5. Shot 2: The Close Approach | ⬜ Not started |
 | 6. Shot 3: The Eruption       | ⬜ Not started |
@@ -60,12 +60,13 @@ and gzipped `/api/neos` is 1,425,929 bytes, inside the 2 MB budget (`neoPayload.
 
 ## Phase 3: Scene foundation
 
-- [ ] World units in AU, camera-relative rendering, logarithmic depth buffer
-- [ ] Sun (placeholder emissive sphere), 8 planets from the engine, orbit lines
-- [ ] Time controller: play/pause, speed (real time → years per second), scrub, "now"; the single time source
-- [ ] Camera rig: orbit controls + scripted camera moves
+- [ ] Floating origin (float64, focus-relative) + ecliptic → scene axes; logarithmic depth buffer kept
+- [ ] Time store (the single time source) + `jdUtcFromJdTdb`
+- [ ] Sun, 8 planets from the engine, orbit lines
+- [ ] Time controls: play/pause, speed (real time → 10 yr/s), scrub, "now"
+- [ ] Camera rig: orbit controls, focus, scripted `flyTo`
 - [ ] Postprocessing: bloom + tone mapping
-- [ ] Nothing per-frame goes through React state (`useFrame` + refs only)
+- [ ] Render-loop test: nothing per-frame goes through React state
 
 ## Phase 4–7
 
