@@ -2321,7 +2321,7 @@ Branch: `phase-3/close-out`, after Tasks 1–7 are merged.
       (commit, CI run, fps numbers), and resolve the Known issue "the Stats panel read 1 FPS in the automated tab"
       with the focused-window measurement.
 
-- [ ] **Step 4: PR** (`type:docs`, `phase:3`, `area:infra`). After the user merges and CI on `main` is green:
+- [x] **Step 4: PR** (`type:docs`, `phase:3`, `area:infra`). After the user merges and CI on `main` is green:
       close the milestone, tag the merge commit `v0.3.0` (annotated), publish a release summarising the phase,
       and move all Phase 3 issues and PRs to Done on the board.
 

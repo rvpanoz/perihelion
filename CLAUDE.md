@@ -99,7 +99,7 @@ packages/fixtures  Horizons ground-truth fixtures + generator
 
 ## Agent Guardrails & Cost Optimization
 
-- **Maximum 2 Tool Loops:** You are strictly forbidden from executing more than 2 tool loops (e.g., read file -> edit file) in a single turn without pausing to ask for human permission.
+- **Maximum 3 Tool Loops:** You are strictly forbidden from executing more than 3 tool loops (e.g., read file -> edit file) in a single turn without pausing to ask for human permission.
 - **No Autonomous Debugging Loops:** If a terminal command or test fails, do NOT attempt to read more files or fix the error on your own. Stop immediately, output the error log, and hand control back to the user.
 - **No Full File Rewrites:** When editing a file, strictly use precise diff patches. Never output an entire 100+ line file if only 5 lines are changing.
 
