@@ -2765,7 +2765,12 @@ Commit: `git commit -m "Add a SQLite dataset cache with stale-while-revalidate a
 
 ### Task 6: `/api/neos`, `/api/close-approaches`, `/api/cmes` with recorded-response tests
 
-Branch: `phase-2/api-routes`
+Two PRs, each on its own branch off `main`:
+
+- **6a** `phase-2/api-routes-6a` ("Part of #28"): Steps 1–9, config, snapshot reader, dataset requests, upstream
+  clients and test helpers. Nothing is served yet.
+- **6b** `phase-2/api-routes-6b` ("Closes #28"), after 6a merges: Steps 10–15, compression, routes, app and `main`
+  wiring, test server, payload test, smoke test and docs.
 
 **Files (under `apps/server/`):**
 
@@ -2775,8 +2780,9 @@ Branch: `phase-2/api-routes`
 - Create: `src/datasets/datasetRequests.ts` (+ `datasetRequests.test.ts`)
 - Create: `src/datasets/createDatasets.ts`
 - Create: `src/routes/datasetRoutes.ts` (+ `datasetRoutes.test.ts`, `neoPayload.test.ts`)
-- Create: `src/testing/fakeUpstream.ts`, `src/testing/testServer.ts`
-- Modify: `src/app.ts`, `src/app.test.ts`, `src/main.ts`, `package.json`
+- Create: `src/testing/fakeUpstream.ts`, `src/testing/testConstants.ts` (6a), `src/testing/testServer.ts` (6b)
+- Modify: `package.json` (6a: fixtures dev dependency, `dev` script; 6b: `@fastify/compress`), `src/app.ts`,
+  `src/app.test.ts`, `src/main.ts` (6b)
 
 **Interfaces:**
 
@@ -2790,31 +2796,37 @@ Branch: `phase-2/api-routes`
 Record<DatasetName, DatasetRequest>`.
   - `createDatasets(config, logger): { service; requests; close() }`.
   - `registerDatasetRoutes(app, { service, requests })`; `buildApp(options?): Promise<FastifyInstance>`.
-  - Test helpers: `FakeUpstream`, `RECORDED_BODIES`, `createTestServer(options?)`, `TEST_NOW_MS`, `TEST_API_KEY`.
+  - Test helpers: `FakeUpstream`, `RECORDED_BODIES`, `TEST_NOW_MS`, `TEST_API_KEY` (6a); `createTestServer(options?)`
+    (6b).
 
 - [ ] **Step 1: Add dependencies and scripts**
 
 ```bash
-npm i @fastify/compress -w @perihelion/server
 npm i -D @perihelion/fixtures@* -w @perihelion/server
 ```
 
 In `apps/server/package.json` set `"dev": "tsx watch --env-file-if-exists=../../.env src/main.ts"`.
 
+`@fastify/compress` is installed in Step 12, with the code that uses it.
+
 - [ ] **Step 2: Write the failing config test** `apps/server/src/config.test.ts`
 
 ```ts
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { readServerConfig } from './config.js';
 
+/** A path inside apps/server, whatever the working directory. */
+const serverPath = (relative: string) => fileURLToPath(new URL(`../${relative}`, import.meta.url));
+
 describe('readServerConfig', () => {
-  it('uses development defaults', () => {
+  it('uses development defaults inside the server package', () => {
     expect(readServerConfig({})).toEqual({
       port: 8787,
       nasaApiKey: 'DEMO_KEY',
       usingDemoKey: true,
-      databasePath: '.cache/perihelion.sqlite',
-      snapshotDirectory: '../web/public/snapshot',
+      databasePath: serverPath('.cache/perihelion.sqlite'),
+      snapshotDirectory: serverPath('../web/public/snapshot'),
     });
   });
 
@@ -2831,7 +2843,7 @@ describe('readServerConfig', () => {
       usingDemoKey: false,
       snapshotDirectory: '/srv/snap',
     });
-    expect(config.databasePath).toBe('.cache/perihelion.sqlite');
+    expect(config.databasePath).toBe(serverPath('.cache/perihelion.sqlite'));
   });
 
   it('rejects a port that is not a port', () => {
@@ -2845,13 +2857,15 @@ Run: `npx vitest run apps/server/src/config.test.ts` — Expected: FAIL, module 
 - [ ] **Step 3: Implement** `apps/server/src/config.ts`
 
 ```ts
+import { fileURLToPath } from 'node:url';
+
 type Environment = Readonly<Record<string, string | undefined>>;
 
 export interface ServerConfig {
   port: number;
   nasaApiKey: string;
   usingDemoKey: boolean;
-  /** Relative paths resolve against the working directory; `npm run dev|start -w` runs in apps/server. */
+  /** Defaults sit inside apps/server; relative env values resolve against the working directory. */
   databasePath: string;
   snapshotDirectory: string;
 }
@@ -2860,6 +2874,11 @@ const DEFAULT_PORT = 8787;
 const MAX_PORT = 65_535;
 // NASA's public shared key: enough for an hourly cached refresh, but heavily rate-limited (PROGRESS.md).
 const DEMO_API_KEY = 'DEMO_KEY';
+// src/config.ts and the bundled dist/main.js are both one level below the package root, so the defaults
+// don't depend on where the server is started (esbuild keeps import.meta.url in ESM output).
+const SERVER_ROOT = new URL('..', import.meta.url);
+const DEFAULT_DATABASE_PATH = fileURLToPath(new URL('.cache/perihelion.sqlite', SERVER_ROOT));
+const DEFAULT_SNAPSHOT_DIRECTORY = fileURLToPath(new URL('../web/public/snapshot', SERVER_ROOT));
 
 export function readServerConfig(env: Environment): ServerConfig {
   const nasaApiKey = nonBlank(env['NASA_API_KEY']);
@@ -2867,8 +2886,8 @@ export function readServerConfig(env: Environment): ServerConfig {
     port: readPort(nonBlank(env['PORT'])),
     nasaApiKey: nasaApiKey ?? DEMO_API_KEY,
     usingDemoKey: nasaApiKey === undefined,
-    databasePath: nonBlank(env['DATABASE_PATH']) ?? '.cache/perihelion.sqlite',
-    snapshotDirectory: nonBlank(env['SNAPSHOT_DIR']) ?? '../web/public/snapshot',
+    databasePath: nonBlank(env['DATABASE_PATH']) ?? DEFAULT_DATABASE_PATH,
+    snapshotDirectory: nonBlank(env['SNAPSHOT_DIR']) ?? DEFAULT_SNAPSHOT_DIRECTORY,
   };
 }
 
@@ -3010,57 +3029,12 @@ export class FakeUpstream implements HttpClient {
 }
 ```
 
-`apps/server/src/testing/testServer.ts`:
+`apps/server/src/testing/testConstants.ts` (shared by the request tests here and the route tests in 6b):
 
 ```ts
-import { DatabaseSync } from 'node:sqlite';
-import type { FastifyInstance } from 'fastify';
-import { buildApp } from '../app.js';
-import { createDatasetRequests } from '../datasets/datasetRequests.js';
-import { DatasetService } from '../datasets/datasetService.js';
-import { SqliteDatasetCache } from '../datasets/sqliteDatasetCache.js';
-import type { SnapshotReader } from '../datasets/types.js';
-import { registerDatasetRoutes } from '../routes/datasetRoutes.js';
-import { NO_SNAPSHOTS } from './fakeSnapshots.js';
-import { FakeUpstream } from './fakeUpstream.js';
-import { TestClock } from './testClock.js';
-
+/** Noon on the recording day, so the derived CAD and DONKI windows are fixed. */
 export const TEST_NOW_MS = Date.UTC(2026, 8, 28, 12);
 export const TEST_API_KEY = 'TEST-KEY';
-
-interface TestServerOptions {
-  upstream?: FakeUpstream;
-  snapshots?: SnapshotReader;
-}
-
-export interface TestServer {
-  app: FastifyInstance;
-  upstream: FakeUpstream;
-  clock: TestClock;
-  warnings: string[];
-}
-
-/** The real app, routes, service and SQLite cache; only the network, clock and snapshots are fake. */
-export async function createTestServer(options: TestServerOptions = {}): Promise<TestServer> {
-  const upstream = options.upstream ?? new FakeUpstream();
-  const clock = new TestClock(TEST_NOW_MS);
-  const warnings: string[] = [];
-  const service = new DatasetService({
-    cache: new SqliteDatasetCache(new DatabaseSync(':memory:')),
-    snapshots: options.snapshots ?? NO_SNAPSHOTS,
-    clock,
-    logger: { warn: (_details, message) => void warnings.push(message) },
-  });
-  const requests = createDatasetRequests({
-    jpl: upstream,
-    donki: upstream,
-    clock,
-    nasaApiKey: TEST_API_KEY,
-  });
-  const app = await buildApp();
-  registerDatasetRoutes(app, { service, requests });
-  return { app, upstream, clock, warnings };
-}
 ```
 
 - [ ] **Step 7: Write the failing request tests** `apps/server/src/datasets/datasetRequests.test.ts`
@@ -3069,8 +3043,8 @@ export async function createTestServer(options: TestServerOptions = {}): Promise
 import { RECORDED_CAD_EMPTY, RECORDED_DONKI_CME_EMPTY } from '@perihelion/fixtures/upstream';
 import { describe, expect, it } from 'vitest';
 import { FakeUpstream } from '../testing/fakeUpstream.js';
-import { TEST_API_KEY, TEST_NOW_MS } from '../testing/testServer.js';
 import { TestClock } from '../testing/testClock.js';
+import { TEST_API_KEY, TEST_NOW_MS } from '../testing/testConstants.js';
 import {
   DATASET_TTL_MS,
   createDatasetRequests,
@@ -3194,31 +3168,56 @@ interface DatasetRequestDependencies {
 }
 
 export function createDatasetRequests(deps: DatasetRequestDependencies): DatasetRequests {
-  const getJson = (client: HttpClient, query: UpstreamQuery) => client.getJson(upstreamUrl(query));
   return {
-    neos: () =>
-      datasetRequest('neos', 'neos', async () =>
-        toNeoCatalog(jplColumnarResponseSchema.parse(await getJson(deps.jpl, sbdbNeoQuery()))),
-      ),
-    closeApproaches: (days) =>
-      datasetRequest('close-approaches', `close-approaches?days=${days}`, async () => {
-        const query = cadQuery(closeApproachWindow(deps.clock.now(), days));
-        return toCloseApproaches(jplColumnarResponseSchema.parse(await getJson(deps.jpl, query)));
-      }),
-    cmes: (days) =>
-      datasetRequest('cmes', `cmes?days=${days}`, async () => {
-        const query = donkiCmeQuery(cmeWindow(deps.clock.now(), days), deps.nasaApiKey);
-        return toCmes(donkiCmeResponseSchema.parse(await getJson(deps.donki, query)));
-      }),
+    neos: () => neoRequest(deps),
+    closeApproaches: (days) => closeApproachRequest(deps, days),
+    cmes: (days) => cmeRequest(deps, days),
   };
 }
 
+function neoRequest(deps: DatasetRequestDependencies): DatasetRequest {
+  return datasetRequest({
+    name: 'neos',
+    cacheKey: 'neos',
+    fetchData: async () =>
+      toNeoCatalog(jplColumnarResponseSchema.parse(await getJson(deps.jpl, sbdbNeoQuery()))),
+  });
+}
+
+function closeApproachRequest(deps: DatasetRequestDependencies, days: number): DatasetRequest {
+  return datasetRequest({
+    name: 'close-approaches',
+    cacheKey: `close-approaches?days=${days}`,
+    fetchData: async () => {
+      const query = cadQuery(closeApproachWindow(deps.clock.now(), days));
+      return toCloseApproaches(jplColumnarResponseSchema.parse(await getJson(deps.jpl, query)));
+    },
+  });
+}
+
+function cmeRequest(deps: DatasetRequestDependencies, days: number): DatasetRequest {
+  return datasetRequest({
+    name: 'cmes',
+    cacheKey: `cmes?days=${days}`,
+    fetchData: async () => {
+      const query = donkiCmeQuery(cmeWindow(deps.clock.now(), days), deps.nasaApiKey);
+      return toCmes(donkiCmeResponseSchema.parse(await getJson(deps.donki, query)));
+    },
+  });
+}
+
+function getJson(client: HttpClient, query: UpstreamQuery): Promise<unknown> {
+  return client.getJson(upstreamUrl(query));
+}
+
+interface DatasetRequestSpec {
+  name: DatasetName;
+  cacheKey: string;
+  fetchData: () => Promise<unknown>;
+}
+
 /** The final schema check guarantees the cache only ever holds what the API promises. */
-function datasetRequest(
-  name: DatasetName,
-  cacheKey: string,
-  fetchData: () => Promise<unknown>,
-): DatasetRequest {
+function datasetRequest({ name, cacheKey, fetchData }: DatasetRequestSpec): DatasetRequest {
   return {
     cacheKey,
     ttlMs: DATASET_TTL_MS[name],
@@ -3238,9 +3237,6 @@ export function defaultDatasetRequests(
   };
 }
 ```
-
-(`createDatasetRequests` runs past 20 lines because it is three one-line factories; if review objects, split each
-into `neoRequest(deps)`, `closeApproachRequest(deps, days)`, `cmeRequest(deps, days)`.)
 
 Run the test again — Expected: PASS (5 tests).
 
@@ -3305,7 +3301,67 @@ export function createDatasets(config: ServerConfig, logger: DatasetLogger): Dat
 }
 ```
 
-- [ ] **Step 10: Write the failing route tests** `apps/server/src/routes/datasetRoutes.test.ts`
+- [ ] **Step 9b: Finish PR 6a** per the workflow: `npm run check`, then
+      `git commit -m "Add server config, snapshot reader, dataset requests and upstream clients"`; the PR says
+      "Part of #28". PROGRESS decision to add: default `DATABASE_PATH` and `SNAPSHOT_DIR` resolve against `apps/server`,
+      not the working directory.
+
+**PR 6b** starts here, on `phase-2/api-routes-6b` off `main` after 6a merges.
+
+- [ ] **Step 10: Write the test server and the failing route tests**
+
+`apps/server/src/testing/testServer.ts`:
+
+```ts
+import { DatabaseSync } from 'node:sqlite';
+import type { FastifyInstance } from 'fastify';
+import { buildApp } from '../app.js';
+import { createDatasetRequests } from '../datasets/datasetRequests.js';
+import { DatasetService } from '../datasets/datasetService.js';
+import { SqliteDatasetCache } from '../datasets/sqliteDatasetCache.js';
+import type { SnapshotReader } from '../datasets/types.js';
+import { registerDatasetRoutes } from '../routes/datasetRoutes.js';
+import { NO_SNAPSHOTS } from './fakeSnapshots.js';
+import { FakeUpstream } from './fakeUpstream.js';
+import { TestClock } from './testClock.js';
+import { TEST_API_KEY, TEST_NOW_MS } from './testConstants.js';
+
+interface TestServerOptions {
+  upstream?: FakeUpstream;
+  snapshots?: SnapshotReader;
+}
+
+export interface TestServer {
+  app: FastifyInstance;
+  upstream: FakeUpstream;
+  clock: TestClock;
+  warnings: string[];
+}
+
+/** The real app, routes, service and SQLite cache; only the network, clock and snapshots are fake. */
+export async function createTestServer(options: TestServerOptions = {}): Promise<TestServer> {
+  const upstream = options.upstream ?? new FakeUpstream();
+  const clock = new TestClock(TEST_NOW_MS);
+  const warnings: string[] = [];
+  const service = new DatasetService({
+    cache: new SqliteDatasetCache(new DatabaseSync(':memory:')),
+    snapshots: options.snapshots ?? NO_SNAPSHOTS,
+    clock,
+    logger: { warn: (_details, message) => void warnings.push(message) },
+  });
+  const requests = createDatasetRequests({
+    jpl: upstream,
+    donki: upstream,
+    clock,
+    nasaApiKey: TEST_API_KEY,
+  });
+  const app = await buildApp();
+  registerDatasetRoutes(app, { service, requests });
+  return { app, upstream, clock, warnings };
+}
+```
+
+`apps/server/src/routes/datasetRoutes.test.ts`:
 
 ```ts
 import { datasetResponseSchema } from '@perihelion/data';
@@ -3514,7 +3570,11 @@ function sendDataset(reply: FastifyReply, dataset: ServedDataset): FastifyReply 
 }
 ```
 
-- [ ] **Step 12: Update** `apps/server/src/app.ts` and its test
+- [ ] **Step 12: Add compression; update** `apps/server/src/app.ts` and its test
+
+```bash
+npm i @fastify/compress -w @perihelion/server
+```
 
 ```ts
 import compress from '@fastify/compress';
@@ -3583,21 +3643,24 @@ try {
 ```bash
 npm run build -w @perihelion/server
 grep -E "from ['\"]@perihelion/" apps/server/dist/main.js   # expect no output: workspace code is bundled
-(cd apps/server && PORT=8799 DATABASE_PATH=/tmp/perihelion-smoke.sqlite node dist/main.js & echo $! > /tmp/perihelion-server.pid)
-sleep 20
+SMOKE_DIR="<session scratchpad>/perihelion-smoke"; mkdir -p "$SMOKE_DIR"
+(cd apps/server && PORT=8799 DATABASE_PATH="$SMOKE_DIR/cache.sqlite" node --env-file-if-exists=../../.env dist/main.js & echo $! > "$SMOKE_DIR/server.pid")
+curl -s --retry 30 --retry-delay 1 --retry-connrefused localhost:8799/health; echo   # expect {"status":"ok"}
 for d in neos close-approaches cmes; do curl -s "localhost:8799/api/$d" | head -c 120; echo; done
 curl -s -H 'accept-encoding: gzip' -o /dev/null -w '%{size_download}\n' localhost:8799/api/neos
-kill "$(cat /tmp/perihelion-server.pid)"; rm -f /tmp/perihelion-smoke.sqlite
+kill "$(cat "$SMOKE_DIR/server.pid")"; rm -rf "$SMOKE_DIR"
 ```
 
 Expected: three `{"fetchedAt":…,"origin":"fresh",…` lines and a gzipped `/api/neos` size ≤ 2000000. If `node:sqlite`
 prints an ExperimentalWarning, note it in PROGRESS "Known external issues"; anything else unexpected: stop and report.
 
-- [ ] **Step 15: Finish** per the workflow. PROGRESS decisions to add:
+- [ ] **Step 15: Finish PR 6b** per the workflow (the PR says "Closes #28"). PROGRESS decisions to add:
   - `/api/neos`, `/api/close-approaches?days=`, `/api/cmes?days=` return `{ fetchedAt, origin, data }`; bad `days`
     is 400, no data at all is 503. Responses are gzip-compressed (`@fastify/compress`).
   - TTLs: NEOs 24 h, close approaches and CMEs 1 h; the scheduler keeps the default queries warm every 10 minutes.
   - Missing `NASA_API_KEY` falls back to `DEMO_KEY` with a warning at start-up.
+  - SBDB and CAD share the JPL SSD gate, so a cold `/api/close-approaches` can wait behind an SBDB download (up to
+    its 60 s timeout).
   - The snapshot answers for any `days` value when upstream is down (labelled `origin: "snapshot"`).
   - Measured: gzipped `/api/neos` on the full recording is `<N>` bytes (record the number).
 
