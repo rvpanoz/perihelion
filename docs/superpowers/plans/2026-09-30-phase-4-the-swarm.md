@@ -1392,6 +1392,37 @@ Branch: `phase-4/exit-verification`. Closes #62. Labels: `type:chore`, `phase:4`
 **PROGRESS:** an exit-criteria paragraph in the Phase 3 format: commit, CI run, machine, the numbers for each run,
 and the GPU ms or the reason it is missing.
 
+**Agreed at review:**
+
+1. The colour pass deferred from Task 4 happens here, first, because colours can change fill cost: stills, proposed
+   `SWARM_CLASS_COLORS`, user approval, then the measurements. Nothing else in the look changes unless a run misses.
+2. `App` parses `?swarmStress=N` (dev only, clamped to 1–8) and passes `stressCopies` in the swarm prop object.
+   A pure `replicateSwarmAttributes(attributes, copies)` tiles the arrays and offsets copy k's mean anomaly by
+   2π·k/N; `Swarm` applies it in the same `useMemo`. `buildSwarmAttributes` is unchanged.
+3. Run 3 uses a dev-only `OpeningFrameProbe` in `SceneCanvas`: it records frame times while the opening is `playing`
+   and logs the median, the worst and the count over 20 ms when it ends. Runs 1, 2 and 4 use an injected rAF
+   recorder, as in Phase 3.
+4. `gpuTimer.ts` wraps the points and trails draws in `EXT_disjoint_timer_query_webgl2` queries via
+   `onBeforeRender` / `onAfterRender`, polls results on later frames and logs a rolling median every 2 s. Without
+   the extension it logs that once.
+5. The tools live in `apps/web/src/dev/`, each mounted behind `import.meta.env.DEV`. Acceptance: a grep of the
+   production build finds none of them.
+6. Tests: `replicateSwarmAttributes` (count × N, tiled arrays, offsets wrapped into [0, 2π), `copies = 1` returns
+   the input), URL parsing (`4` → 4; missing, `abc`, `0`, `99` fall back to 1 or clamp to 8), geometry draw and
+   trail instance counts × N, and the probe's summary maths as a pure function. The GPU timer stays manual.
+7. PROGRESS records the measured branch commit and its PR CI run; Task 8 adds the `main` merge commit and CI run.
+8. The release GIF of the opening is ~20 frames at 0.6 s intervals; the download is confirmed first.
+
+**During execution:**
+
+9. Colours: candidate A (Atira `#ffd166`, Aten `#ff7a3d`, Apollo `#2f86e0`, Amor `#b45cff`), chosen by the user.
+10. The GPU timer is exposed but not draw-only on ANGLE/Metal (readings exceed the frame time at 4×); its numbers are
+    recorded as upper bounds, and the 4× frame times carry the headroom evidence, as the plan's fallback allows.
+11. The opening probe also logs when each frame over 20 ms happened (`hitchTimesMs`) and stays silent for a skipped
+    opening. The one slow frame is the opening's first, before any motion.
+12. The opening GIF showed Earth leaving the view within ~1 s: `flyTo`'s origin outruns its log-space zoom on long
+    pull-backs. Tracked as #70 rather than fixed in this measurement PR.
+
 Commit: `Add dev-only swarm stress and GPU timing tools and record the Phase 4 measurements`.
 
 ---

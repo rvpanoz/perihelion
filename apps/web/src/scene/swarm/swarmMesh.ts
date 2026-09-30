@@ -9,8 +9,8 @@ import {
 import swarmFragmentShader from './swarm.frag?raw';
 import swarmVertexMain from './swarm.vert?raw';
 import {
+  SWARM_ATTRIBUTE_NAMES,
   SWARM_ATTRIBUTE_SIZES,
-  type SwarmAttributeName,
   type SwarmAttributes,
 } from './swarmAttributes';
 import swarmKeplerGlsl from './swarmKepler.glsl?raw';
@@ -27,8 +27,6 @@ export const SWARM_TRAIL_FRAGMENT_SHADER = swarmTrailFragmentShader;
 
 /** The head plus one vertex per step behind it. */
 export const SWARM_TRAIL_VERTEX_COUNT = SWARM_TRAIL_SAMPLES + 1;
-
-const SWARM_ATTRIBUTE_NAMES = Object.keys(SWARM_ATTRIBUTE_SIZES) as SwarmAttributeName[];
 
 /**
  * One vertex per NEO, drawn as gl.POINTS, so plain vertex attributes do (only trails instance). three.js takes

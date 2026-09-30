@@ -1,5 +1,6 @@
 import { Stats } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
+import { DevProbes } from '../dev/DevProbes';
 import { CAMERA_SETTINGS, RENDERER_PARAMETERS, SCENE_BACKGROUND } from './canvasConfig';
 import { CameraControls } from './camera/CameraControls';
 import { Effects } from './effects/Effects';
@@ -26,6 +27,7 @@ export function SceneCanvas({ swarm, openingCanStart }: SceneCanvasProps) {
       <CameraControls />
       <Effects />
       <Stats />
+      {import.meta.env.DEV && <DevProbes />}
     </Canvas>
   );
 }

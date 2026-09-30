@@ -27,6 +27,8 @@ export const SWARM_ATTRIBUTE_SIZES = {
 
 export type SwarmAttributeName = keyof typeof SWARM_ATTRIBUTE_SIZES;
 
+export const SWARM_ATTRIBUTE_NAMES = Object.keys(SWARM_ATTRIBUTE_SIZES) as SwarmAttributeName[];
+
 export interface SwarmAttributes extends Record<SwarmAttributeName, Float32Array> {
   count: number;
   /** The epoch the stored mean anomalies refer to; the shader gets `jdTdb − referenceJdTdb` each frame. */
