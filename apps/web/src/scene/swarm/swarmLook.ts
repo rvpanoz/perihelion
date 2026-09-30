@@ -10,7 +10,7 @@ export const SWARM_LOOK = {
 } as const;
 
 /** In `NEO_ORBIT_CLASSES` order: Atira, Aten, Apollo, Amor. Starting values, tuned by eye. */
-export const SWARM_CLASS_COLORS = ['#ffcc66', '#ff8a4c', '#4cc3ff', '#9d8cff'] as const;
+export const SWARM_CLASS_COLORS = ['#ffd166', '#ff7a3d', '#2f86e0', '#b45cff'] as const;
 
 /** Opacity at a trail's head, falling with the square of the way back to 0 at the tail. Tuned by eye. */
 export const SWARM_TRAIL_MAX_OPACITY = 0.12;
