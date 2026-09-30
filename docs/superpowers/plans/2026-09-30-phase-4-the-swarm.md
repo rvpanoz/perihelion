@@ -1156,6 +1156,25 @@ fetchedAt }` or `{ status: 'unavailable' }`. `App` passes the catalog down throu
 - A single sprite stays below the bloom threshold.
 - The NEO catalog is loaded in `App`, not inside the canvas.
 
+**Agreed at review (2026-09-30) and found while building:**
+
+1. The Sun's position comes from `bodyPositions.sun` (always [0, 0, 0]), so nothing is allocated per frame.
+2. Loading lives in `loadNeoCatalog(load)`, with `useNeoCatalog` a thin hook around it. The tests call the function
+   and mount one hook probe with the R3F test renderer, so no hook-testing dependency is added.
+3. `SceneContents` takes `neoCatalog: NeoCatalog | undefined` and mounts `<Swarm>` only when it is defined.
+   `THREE_NEO_CATALOG` in `swarmTestSupport.ts` is shared by the scene tests.
+4. The "below the bloom threshold" colour test always passes while colours are LDR; it is kept as a guard against
+   making them HDR, and its comment says so.
+5. `writeSwarmUniforms(uniforms, elapsedDays)` takes elapsed days, not a JD: `Swarm` takes `jdTdb − referenceJdTdb`
+   in float64. `createSwarmUniforms(pixelRatio)` takes the pixel ratio at creation (a change rebuilds the material).
+6. The shader declaration and four-attribute checks live in `swarmMesh.test.ts`. `Swarm.test.tsx` drives the camera
+   rig's flight by faking `performance.now`, since the rig times flights by the wall clock.
+7. Chrome acceptance (2026-09-30, 1920×809 canvas, DPR 1): shaders compile with no console or WebGL errors; 42,535
+   NEOs draw around the Sun; scrubbing moves them; they stay with the focus through Earth and Mars flights (GIF in
+   the PR); the bundled snapshot and "unavailable" cases show the right status and the scene keeps running; 75 fps
+   (the display's cap).
+8. Colour tuning is deferred to Task 7 (user decision).
+
 Commit: `Draw the NEO swarm as additive point sprites coloured by orbit class`.
 
 ---

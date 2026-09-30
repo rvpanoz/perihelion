@@ -47,3 +47,9 @@ body,
 .hud button[aria-pressed='true'] {
   outline: 1px solid currentcolor;
 }
+
+.swarm-status {
+  left: 1rem;
+  bottom: 1rem;
+  margin: 0;
+}

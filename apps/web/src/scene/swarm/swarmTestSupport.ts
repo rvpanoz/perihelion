@@ -31,3 +31,19 @@ export function expectCloseTo(
   expect(actual.length).toBe(expected.length);
   expected.forEach((value, index) => expect(actual[index]).toBeCloseTo(value, digits));
 }
+
+/** Three NEOs, one per class Apollo/Aten/Amor, spread around their orbits: enough to mount the swarm in a scene. */
+export const THREE_NEO_CATALOG = catalogOf({
+  count: 3,
+  designation: ['433', '99942', '3200'],
+  name: ['Eros', 'Apophis', 'Phaethon'],
+  epochJdTdb: [J2000_JD_TDB, J2000_JD_TDB, J2000_JD_TDB],
+  eccentricity: [0.223, 0.191, 0.89],
+  semiMajorAxisAu: [1.458, 0.923, 1.271],
+  inclinationDeg: [10.8, 3.3, 22.3],
+  longitudeOfAscendingNodeDeg: [304, 204, 265],
+  argumentOfPerihelionDeg: [179, 127, 322],
+  meanAnomalyDeg: [0, 120, 240],
+  absoluteMagnitude: [10.4, 19.1, 14.3],
+  orbitClass: ['AMO', 'ATE', 'APO'],
+});
