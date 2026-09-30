@@ -40,8 +40,13 @@ export class TimeStore {
   }
 
   setRate(rateDaysPerSecond: number): void {
-    this.#state.rateDaysPerSecond = clampRate(rateDaysPerSecond);
+    this.setScriptedRate(rateDaysPerSecond);
     this.#notify();
+  }
+
+  /** For scripts that change the rate every frame: like `tick`, it wakes no one; the 4 Hz readout picks it up. */
+  setScriptedRate(rateDaysPerSecond: number): void {
+    this.#state.rateDaysPerSecond = clampRate(rateDaysPerSecond);
   }
 
   scrubTo(jdTdb: number): void {

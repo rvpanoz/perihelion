@@ -87,7 +87,7 @@ Exit criteria verified on `main` at `cb1f905` (CI green, run 36635761876), in Ch
 - [x] GPU vs CPU cross-check test: the JS port matches the engine for sampled NEOs within a visual tolerance
 - [x] Look: additive point sprites, size/brightness by H, colour by orbit class (Apollo/Aten/Amor/Atira)
 - [x] Faint orbit trails
-- [ ] Choreography: scripted opening camera move + time ramp
+- [x] Choreography: scripted opening camera move + time ramp
 - [ ] Exit verification: 40k objects at ≥ 60 fps, smooth opening move (GPU frame timing + 4× stress run)
 
 ## Phase 5–7
@@ -364,6 +364,18 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
 - **2026-09-30:** Points and trails share one attribute build and one set of uniforms, so one per-frame write moves
   both. Trails are on by default; the "Trails" checkbox lives in `App` beside the catalog state and unmounts them when
   off, so they cost nothing on the GPU.
+- **2026-10-01:** The opening is one `flyTo` plus a log-space rate ramp: it snaps to Earth, then flies 12 s to a 4 AU
+  Sun overview while the rate climbs from real time to 30 d/s, eased like the flight and timed by the same wall
+  clock, so both finish together. It waits until the catalog is no longer loading, plays over the planets when the
+  data is unavailable, and plays once per page load.
+- **2026-10-01:** Scripted rate changes don't notify React: `TimeStore.setScriptedRate` clamps like `setRate` but wakes
+  no one, and the director notifies once at the end through `setRate`. It runs at `FRAME_PRIORITY.opening = -4`,
+  before the clock, and mounts in `SceneCanvas` because its defaults read `window`.
+- **2026-10-01:** Shaders are pre-compiled with `gl.compile(scene, camera)` before the move, so the first frames of the
+  flight don't stall.
+- **2026-10-01:** Any `pointerdown`, `wheel` or `keydown` skips the opening to its final state; `prefers-reduced-motion`
+  and the dev-only `?opening=off` start there. The caption gives the NEO count from the data and labels the look
+  illustrative; without the catalog there is no caption.
 
 ## Open questions
 
