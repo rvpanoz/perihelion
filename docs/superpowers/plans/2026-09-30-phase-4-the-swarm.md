@@ -1427,6 +1427,38 @@ Commit: `Add dev-only swarm stress and GPU timing tools and record the Phase 4 m
 
 ---
 
+### Task 7b: Keep the flight target in view on long pull-backs (#70)
+
+Branch: `phase-4/flight-pullback`. Closes #70. Labels: `type:fix`, `phase:4`, `area:web`. Found in Task 7: in the
+opening, `flyTo`'s origin (linear in the eased progress e) outruns its log-space zoom, so Earth leaves the view
+within about a second.
+
+**Fix:** the origin follows the zoom instead of the clock. With d = d₀·rᵉ (r = d₁/d₀), a new pure
+`originProgress(e, r) = (rᵉ − 1)/(r − 1)` is the fraction of the distance change covered; `writeFlightPose` lerps
+the origin by it. It is exact at both ends and falls back to e when r is within 1e-9 of 1. On a pull-back the origin
+offset stays below d·|Δ|/(d₁ − d₀), so the departure point stays in view whenever |Δ| < (d₁ − d₀)·tan(½ fov); on a
+zoom-in the target stays in view under the same condition. The distance maths is unchanged.
+
+**Agreed at review:**
+
+1. `originProgress(eased, distanceRatio)` in `flight.ts`, used by `writeFlightPose`.
+2. Zoom-in flights from the focus buttons change too: the target now stays in view on the way in. Planet-to-planet
+   flights at similar view distances look almost as before.
+3. Tests: `originProgress` exact at the ends, equal to e for r = 1, never decreasing (property); view-cone
+   properties for pull-backs and zoom-ins using `CAMERA_SETTINGS.fov`. Existing flight tests unchanged.
+4. This section, and a PROGRESS decision.
+5. Chrome: a re-recorded opening GIF (the v0.4.0 release GIF) shows Earth receding; a Sun → Earth focus flight
+   keeps Earth in view.
+6. Branched after #71 merged, to keep the PROGRESS decisions from conflicting.
+
+**Result:** in Chrome, Earth stays in view for the first ~3.5 s of the opening, shrinking and drifting toward the edge
+before the Sun comes in; a clean run's frame times match Task 7 (median 13.3 ms, only the first frame over 20 ms).
+The release GIF is exported at close-out.
+
+Commit: `Keep the departure body in view on long camera pull-backs`.
+
+---
+
 ### Task 8: Phase 4 close-out
 
 Branch: `phase-4/close-out`, after Tasks 1–7 are merged.

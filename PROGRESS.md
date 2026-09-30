@@ -403,6 +403,10 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
   hitch times, and a GPU timer that logs rolling medians. A search of the production bundle finds none of them.
 - **2026-10-01:** Chrome on macOS exposes the WebGL2 timer query, but its readings include work beyond the timed draws
   (they exceed the frame time at 4×). GPU cost is judged from frame times under the 4× stress run instead.
+- **2026-10-01:** Flights move the origin with the zoom, not the clock (#70): `originProgress(e, r) = (rᵉ − 1)/(r − 1)`,
+  clamped to [0, 1], is the fraction of the distance change covered. On the opening's pull-back Earth now recedes
+  toward the edge instead of leaving the view within a second, and zoom-ins from the focus buttons keep their target
+  in view. Opening frame times are unchanged: 902 frames, median 13.3 ms, only the first frame (31 ms) over 20 ms.
 
 ## Open questions
 
