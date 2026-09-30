@@ -12,6 +12,9 @@ export const SWARM_LOOK = {
 /** In `NEO_ORBIT_CLASSES` order: Atira, Aten, Apollo, Amor. Starting values, tuned by eye. */
 export const SWARM_CLASS_COLORS = ['#ffcc66', '#ff8a4c', '#4cc3ff', '#9d8cff'] as const;
 
+/** Opacity at a trail's head, falling with the square of the way back to 0 at the tail. Tuned by eye. */
+export const SWARM_TRAIL_MAX_OPACITY = 0.12;
+
 // These mirror swarm.vert, which gets the same constants as uniforms and so holds no numbers of its own.
 
 export function pointSizePx(absoluteMagnitude: number): number {

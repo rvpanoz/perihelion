@@ -1238,6 +1238,32 @@ Branch: `phase-4/swarm-trails`. Closes #60. Labels: `type:feature`, `phase:4`, `
 - They are drawn as an instanced line strip.
 - They are on by default and unmounted when off.
 
+**Agreed at review:**
+
+1. `Swarm` builds the attributes and uniforms once and renders `SwarmPoints` and `SwarmTrails` from them. The trail
+   material reuses the same uniform objects plus `trailMaxOpacity`, so one per-frame write moves both.
+2. Trails turn off frustum culling and ignore raycasts, like the points.
+3. The shader function is `swarmTrailLagDays(meanMotionRadPerDay, trailStep)` (two arguments, not three); the
+   trail shader subtracts it from `elapsedDays`. Mirrored in `swarmKepler.ts`; the planned tests carry over.
+4. The shader guard checks `TRAIL_ORBIT_FRACTION` as well as `TRAIL_SAMPLES`.
+5. `SceneCanvas` and `SceneContents` take one `swarm: { catalog, showTrails } | undefined` prop instead of a
+   second prop beside `neoCatalog`.
+6. "Unchecking unmounts" is split: `Swarm` with `showTrails={false}` renders no trails, and a `SwarmControls`
+   test checks the checkbox calls its change handler.
+7. If three.js does not draw an instanced `Line`, stop and ask before switching to `LineSegments`.
+
+**Deviations:**
+
+- The constants are `SWARM_TRAIL_SAMPLES = 8` and `SWARM_TRAIL_SPANS_PER_ORBIT = 24` (not `TRAIL_ORBIT_FRACTION =
+1/24`), prefixed like the other shader constants, so the guard compares exact literals (`8.0`, `24.0`). The
+  opacity is `SWARM_TRAIL_MAX_OPACITY` in `swarmLook.ts`.
+- The trail geometry tests are in `swarmMesh.test.ts` and the mount / unmount tests in `Swarm.test.tsx`; there is no
+  separate `SwarmTrails.test.tsx`. The web tests have no DOM, so `SwarmControls.test.tsx` renders to static markup
+  and calls the checkbox's change handler directly.
+- The Trails checkbox only shows once the catalog is ready.
+- The Chrome acceptance (look, pause, 10 yr/s, toggle, GPU cost check, instanced `Line` drawing) was not run in this
+  task (user decision); it is still to do.
+
 Commit: `Add faint orbit trails to the swarm`.
 
 ### Task 6: Choreography: scripted opening camera move + time ramp

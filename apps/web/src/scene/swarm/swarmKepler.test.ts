@@ -4,9 +4,12 @@ import { buildSwarmAttributes } from './swarmAttributes';
 import swarmKeplerGlsl from './swarmKepler.glsl?raw';
 import {
   SWARM_NEWTON_STEPS,
+  SWARM_TRAIL_SAMPLES,
+  SWARM_TRAIL_SPANS_PER_ORBIT,
   swarmEccentricAnomaly,
   swarmHeliocentricPosition,
   swarmOrbitAt,
+  swarmTrailLagDays,
 } from './swarmKepler';
 import { J2000_JD_TDB, catalogOf, expectCloseTo } from './swarmTestSupport';
 
@@ -97,9 +100,68 @@ describe('swarmHeliocentricPosition', () => {
   });
 });
 
+describe('swarmTrailLagDays', () => {
+  const meanMotionRadPerDay = Math.fround(GAUSSIAN_K_RAD_PER_DAY / 1.5 ** 1.5);
+  const trailSpanDays = (2 * Math.PI) / meanMotionRadPerDay / SWARM_TRAIL_SPANS_PER_ORBIT;
+  const trailSteps = Array.from({ length: SWARM_TRAIL_SAMPLES + 1 }, (_, step) => step);
+
+  it('puts the head at the current time', () => {
+    expect(swarmTrailLagDays(meanMotionRadPerDay, 0)).toBe(0);
+  });
+
+  it('puts the tail one trail span, 1/24 of the period, behind the head', () => {
+    expect(swarmTrailLagDays(meanMotionRadPerDay, SWARM_TRAIL_SAMPLES)).toBeCloseTo(
+      trailSpanDays,
+      4,
+    );
+  });
+
+  it('spaces consecutive steps equally', () => {
+    const stepDays = trailSpanDays / SWARM_TRAIL_SAMPLES;
+    for (const step of trailSteps.slice(1)) {
+      const gapDays =
+        swarmTrailLagDays(meanMotionRadPerDay, step) -
+        swarmTrailLagDays(meanMotionRadPerDay, step - 1);
+      expect(gapDays).toBeCloseTo(stepDays, 4);
+    }
+  });
+
+  it('keeps every trail sample between perihelion and aphelion distance', () => {
+    fc.assert(
+      fc.property(
+        fc.double({ min: 0, max: 0.99, noNaN: true }),
+        fc.double({ min: 0.5, max: 4, noNaN: true }),
+        fc.double({ min: -90_000, max: 90_000, noNaN: true }),
+        fc.constantFrom(...trailSteps),
+        (eccentricity, semiMajorAxisAu, elapsedDays, trailStep) => {
+          const catalog = catalogOf({
+            eccentricity: [eccentricity],
+            semiMajorAxisAu: [semiMajorAxisAu],
+          });
+          const orbit = swarmOrbitAt(buildSwarmAttributes(catalog, J2000_JD_TDB), 0);
+          const lagDays = swarmTrailLagDays(orbit.motion[2], trailStep);
+          const distanceAu = Math.hypot(...swarmHeliocentricPosition(orbit, elapsedDays - lagDays));
+          const float32SlackAu = 1e-6 * semiMajorAxisAu;
+          expect(distanceAu).toBeGreaterThan(semiMajorAxisAu * (1 - eccentricity) - float32SlackAu);
+          expect(distanceAu).toBeLessThan(semiMajorAxisAu * (1 + eccentricity) + float32SlackAu);
+        },
+      ),
+    );
+  });
+});
+
 describe('swarmKepler.glsl', () => {
   it('takes as many Newton steps as the JS port', () => {
     expect(swarmKeplerGlsl).toContain(`const int SWARM_NEWTON_STEPS = ${SWARM_NEWTON_STEPS};`);
+  });
+
+  it('spaces trails as the JS port does', () => {
+    expect(swarmKeplerGlsl).toContain(
+      `const float SWARM_TRAIL_SAMPLES = ${SWARM_TRAIL_SAMPLES}.0;`,
+    );
+    expect(swarmKeplerGlsl).toContain(
+      `const float SWARM_TRAIL_SPANS_PER_ORBIT = ${SWARM_TRAIL_SPANS_PER_ORBIT}.0;`,
+    );
   });
 
   it.each([
@@ -107,6 +169,7 @@ describe('swarmKepler.glsl', () => {
     'swarmKeplerStart',
     'swarmEccentricAnomaly',
     'swarmHeliocentricPosition',
+    'swarmTrailLagDays',
   ])('defines %s, as the port does', (functionName) => {
     expect(swarmKeplerGlsl).toMatch(new RegExp(`\\b${functionName}\\(`));
   });

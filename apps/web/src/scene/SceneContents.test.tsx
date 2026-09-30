@@ -15,7 +15,7 @@ describe('the render loop', () => {
     timeStore.setPlaying(true);
     const renderer = await ReactThreeTestRenderer.create(
       <Profiler id="scene" onRender={() => (commits += 1)}>
-        <SceneContents neoCatalog={THREE_NEO_CATALOG} />
+        <SceneContents swarm={{ catalog: THREE_NEO_CATALOG, showTrails: true }} />
       </Profiler>,
     );
     // The mount itself commits; seeing it proves the Profiler reports here, so 0 below is meaningful.
