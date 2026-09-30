@@ -1174,6 +1174,9 @@ fetchedAt }` or `{ status: 'unavailable' }`. `App` passes the catalog down throu
    the PR); the bundled snapshot and "unavailable" cases show the right status and the scene keeps running; 75 fps
    (the display's cap).
 8. Colour tuning is deferred to Task 7 (user decision).
+9. Follow-up after CI: the flight test pins the faked clock before `flyTo`. It first read the real clock and then
+   let `flyTo` read it again, so the flight ended a hair short of Earth on a slow runner (5.04e-13 AU against a
+   5e-13 tolerance). The flight now always ends at progress 1.
 
 Commit: `Draw the NEO swarm as additive point sprites coloured by orbit class`.
 

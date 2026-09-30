@@ -10,6 +10,7 @@ import { Swarm } from './Swarm';
 import { J2000_JD_TDB, THREE_NEO_CATALOG, expectCloseTo } from './swarmTestSupport';
 
 const FRAME_SECONDS = 1 / 60;
+const FLIGHT_START_MS = 1_000_000;
 
 type TestRenderer = Awaited<ReturnType<typeof ReactThreeTestRenderer.create>>;
 
@@ -40,10 +41,11 @@ describe('Swarm', () => {
   it('puts the Sun where the focused body sees it, in the same frame', async () => {
     timeStore.setPlaying(false);
     timeStore.scrubTo(J2000_JD_TDB);
-    const flightStartMs = performance.now();
+    // The rig times flights by the wall clock. Pin it before `flyTo` so the flight starts at a known time, then
+    // jump it to the flight's end so the next frame lands exactly on Earth.
+    const clock = vi.spyOn(performance, 'now').mockReturnValue(FLIGHT_START_MS);
     cameraRig.flyTo({ focus: 'earthMoonBarycenter' });
-    // The rig times flights by the wall clock; jump it to the end so the next frame lands on Earth.
-    vi.spyOn(performance, 'now').mockReturnValue(flightStartMs + DEFAULT_FLIGHT_SECONDS * 1000);
+    clock.mockReturnValue(FLIGHT_START_MS + DEFAULT_FLIGHT_SECONDS * 1000);
     const renderer = await ReactThreeTestRenderer.create(
       <SceneContents neoCatalog={THREE_NEO_CATALOG} />,
     );
