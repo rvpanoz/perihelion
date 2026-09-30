@@ -67,7 +67,12 @@ function perifocalState(elements: OrbitalElements, eccentricAnomalyRad: number) 
 }
 
 /** Columns of R_z(Ω)·R_x(i)·R_z(ω) (Murray & Dermott eq. 2.122): perihelion and 90° ahead of it. */
-function perifocalBasis(elements: OrbitalElements) {
+export function perifocalBasis(
+  elements: Pick<
+    OrbitalElements,
+    'inclinationRad' | 'longitudeOfAscendingNodeRad' | 'argumentOfPerihelionRad'
+  >,
+): { towardPerihelion: Vector3; towardQuadrature: Vector3 } {
   const cosNode = Math.cos(elements.longitudeOfAscendingNodeRad);
   const sinNode = Math.sin(elements.longitudeOfAscendingNodeRad);
   const cosPerihelion = Math.cos(elements.argumentOfPerihelionRad);

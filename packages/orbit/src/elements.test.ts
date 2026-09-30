@@ -6,6 +6,7 @@ import {
   GM_SUN_AU3_PER_DAY2,
   createStateVector,
   elementsFromState,
+  perifocalBasis,
   stateFromElements,
 } from './elements';
 import { type Vector3, cross, dot, norm } from './vector3';
@@ -212,5 +213,33 @@ describe('elementsFromState', () => {
     const radial = stateAt([1, 0, 0], [0.001, 0, 0]);
     expect(() => elementsFromState(escaping, J2000_JD_TDB)).toThrow(RangeError);
     expect(() => elementsFromState(radial, J2000_JD_TDB)).toThrow(RangeError);
+  });
+});
+
+describe('perifocalBasis', () => {
+  const orientation = fc.record({
+    inclinationRad: angleRad,
+    longitudeOfAscendingNodeRad: angleRad,
+    argumentOfPerihelionRad: angleRad,
+  });
+
+  it('returns two orthogonal unit vectors for any orientation', () => {
+    fc.assert(
+      fc.property(orientation, (angles) => {
+        const { towardPerihelion, towardQuadrature } = perifocalBasis(angles);
+        expect(norm(towardPerihelion)).toBeCloseTo(1, 12);
+        expect(norm(towardQuadrature)).toBeCloseTo(1, 12);
+        expect(dot(towardPerihelion, towardQuadrature)).toBeCloseTo(0, 12);
+      }),
+    );
+  });
+
+  it('points perihelion to ecliptic north for i = 90°, ω = 90°', () => {
+    const { towardPerihelion } = perifocalBasis({
+      inclinationRad: Math.PI / 2,
+      longitudeOfAscendingNodeRad: 0,
+      argumentOfPerihelionRad: Math.PI / 2,
+    });
+    [0, 0, 1].forEach((expected, axis) => expect(towardPerihelion[axis]).toBeCloseTo(expected, 12));
   });
 });
