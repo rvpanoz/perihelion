@@ -1050,6 +1050,12 @@ it does not ship).
 Run: `npx vitest run apps/web/src/scene/swarm/swarmCrossCheck.test.ts`
 Expected: PASS (3 tests).
 
+**Agreed at review (2026-09-30); the shipped code differs from the snippets above in these points:**
+
+1. The range ends come from `TIME_RANGE_JD_TDB` (`apps/web/src/time/timeController.ts`) instead of repeated JDs.
+2. The tolerances were measured and approved: near 1.37e-5 AU and range ends 3.78e-4 AU, each × 1.25. No rebasing.
+3. `SAMPLED_NEOS` is named `CROSS_CHECKED_NEOS`: it holds the named shapes as well as the seeded sample.
+
 - [ ] **Step 4: Finish** (per-task workflow). Checklist item 3. In `PROGRESS.md`, add two rows to "Calibrated
       tolerances": `Swarm float32 vs engine: within ±10 yr` and `Swarm float32 vs engine: 1800 / 2050`, each with
       its tolerance and "Measured <x> AU × 1.25 (<n> NEOs, seed 20260930); 1 px ≈ 0.002 AU at the overview". PROGRESS

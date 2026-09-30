@@ -84,7 +84,7 @@ Exit criteria verified on `main` at `cb1f905` (CI green, run 36635761876), in Ch
 
 - [x] Swarm data: `/api/neos` columns → typed arrays for instanced attributes, with orbit class
 - [x] GPU Kepler solver in the vertex shader (fixed Newton iterations, good starting guess, high-`e` clamp) + float32 JS port
-- [ ] GPU vs CPU cross-check test: the JS port matches the engine for sampled NEOs within a visual tolerance
+- [x] GPU vs CPU cross-check test: the JS port matches the engine for sampled NEOs within a visual tolerance
 - [ ] Look: additive point sprites, size/brightness by H, colour by orbit class (Apollo/Aten/Amor/Atira)
 - [ ] Faint orbit trails
 - [ ] Choreography: scripted opening camera move + time ramp
@@ -116,6 +116,8 @@ Checklists will be expanded from `PLAN.md` when each phase starts.
 | Asteroids vs Horizons: PLAN target     | 1e-3 AU within ±60 d         | PLAN.md target; worst measured 1.42e-5 AU (Eros), ~70× inside                              |
 | Asteroids: elements → state at epoch   | 1e-12 AU / 1e-12 AU/day      | Fixed bound (15 cm); measured ≤ 3e-15 AU / 6e-14 AU/day                                    |
 | Asteroids: Horizons Keplerian GM vs k² | 1e-11 relative               | Measured 5e-12                                                                             |
+| Swarm float32 vs engine: within ±10 yr | 1.71e-5 AU                   | Measured 1.37e-5 AU × 1.25 (2,006 NEOs, seed 20260930); 1 px ≈ 0.002 AU at the overview    |
+| Swarm float32 vs engine: 1800 / 2050   | 4.73e-4 AU                   | Measured 3.78e-4 AU × 1.25 (2,006 NEOs, seed 20260930); 1 px ≈ 0.002 AU at the overview    |
 
 Planet tolerances are heliocentric longitude / latitude / distance, the units of Standish's accuracy table
 (https://ssd.jpl.nasa.gov/planets/approx_pos.html): the worst case over the 27 fixture dates × 1.25
@@ -337,6 +339,12 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
 - **2026-09-30:** The GLSL (`swarmKepler.glsl`) and its float32 JS port (`swarmKepler.ts`) are kept in step by hand,
   with matching function names. A test checks that they share the step count and names. The port rounds each
   statement to float32, and the cross-check (Task 3) tests the port.
+- **2026-09-30:** The GPU path is cross-checked through its float32 JS port against the float64 engine, on the same
+  elements, over 6 named shapes and 2,000 seeded random NEOs. Horizons is not involved: the engine is already
+  checked against it.
+- **2026-09-30:** Swarm cross-check tolerances approved (user decision): worst 1.37e-5 AU within ±10 yr and 3.78e-4 AU
+  at 1800 / 2050 (0.19 px at the overview), each × 1.25. No reference-epoch rebasing is needed: the range-end error
+  is ~25× below the plan's 1e-2 AU estimate.
 
 ## Open questions
 
