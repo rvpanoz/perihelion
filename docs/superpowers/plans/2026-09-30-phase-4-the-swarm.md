@@ -514,6 +514,16 @@ function scaledVector(vector: Readonly<Vector3>, factor: number): Vector3 {
 Run: `npx vitest run apps/web/src/scene/swarm/swarmAttributes.test.ts`
 Expected: PASS (12 tests).
 
+**Agreed at review (2026-09-30); the shipped code differs from the snippets above in these points:**
+
+1. `perifocalBasis` takes `Pick<OrbitalElements, 'inclinationRad' | 'longitudeOfAscendingNodeRad' |
+'argumentOfPerihelionRad'>` and returns `{ towardPerihelion: Vector3; towardQuadrature: Vector3 }` explicitly,
+   so its engine test passes the angles alone: no `ORBIT_SHAPE`, and it reuses the file's existing `angleRad`
+   arbitrary instead of redefining it.
+2. `elements.test.ts` already imported `fc`, `dot` and `norm`; only `perifocalBasis` was added.
+3. `swarmTestSupport.ts` writes `J2000_JD_TDB = 2_451_545` (repo style).
+4. The PR also gets `area:orbit`.
+
 - [ ] **Step 6: Finish** (per-task workflow). Checklist item 1. PROGRESS decisions:
   - The swarm's attributes are built once per load in float64 through the engine (`propagateElements`,
     `meanMotionRadPerDay`, `perifocalBasis`) and rounded to float32 at the end: per NEO, eccentricity (clamped to

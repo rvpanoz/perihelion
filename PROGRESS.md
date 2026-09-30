@@ -82,7 +82,7 @@ Exit criteria verified on `main` at `cb1f905` (CI green, run 36635761876), in Ch
 
 ## Phase 4: Shot 1: The Swarm
 
-- [ ] Swarm data: `/api/neos` columns → typed arrays for instanced attributes, with orbit class
+- [x] Swarm data: `/api/neos` columns → typed arrays for instanced attributes, with orbit class
 - [ ] GPU Kepler solver in the vertex shader (fixed Newton iterations, good starting guess, high-`e` clamp) + float32 JS port
 - [ ] GPU vs CPU cross-check test: the JS port matches the engine for sampled NEOs within a visual tolerance
 - [ ] Look: additive point sprites, size/brightness by H, colour by orbit class (Apollo/Aten/Amor/Atira)
@@ -325,6 +325,13 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
   (Task 6 and the Phase 3 close-out).
 
 - **2026-09-30:** Faint orbit trails stay in Phase 4 (user decision), not moved to Phase 7 polish.
+- **2026-09-30:** The swarm's attributes are built once per load in float64 through the engine (`propagateElements`,
+  `meanMotionRadPerDay`, `perifocalBasis`) and rounded to float32 at the end: per NEO, eccentricity (clamped to
+  ≤ 0.99), mean anomaly at a shared reference epoch and mean motion, and the two in-plane orbit axes pre-scaled by
+  `a` and `b`, in scene axes.
+- **2026-09-30:** `perifocalBasis` is exported from `packages/orbit` so the swarm reuses the engine's rotation. It
+  takes only the three orientation angles (`Pick<OrbitalElements, …>`) and has an explicit return type.
+- **2026-09-30:** NEOs without an H are drawn as H = 30 (the faintest).
 
 ## Open questions
 
