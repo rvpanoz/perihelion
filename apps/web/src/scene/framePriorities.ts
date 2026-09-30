@@ -3,6 +3,8 @@
  * because R3F hands rendering to any callback with a priority above 0.
  */
 export const FRAME_PRIORITY = {
+  /** Scripts set the rate and request flights before the clock ticks and the rig moves. */
+  opening: -4,
   clock: -3,
   bodyPositions: -2,
   cameraRig: -1,

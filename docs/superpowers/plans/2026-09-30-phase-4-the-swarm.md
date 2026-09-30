@@ -1330,6 +1330,29 @@ tests). Also modify `time/timeStore.ts` (`setScriptedRate`) and `scene/framePrio
 - Shaders are pre-compiled before the move.
 - Any input or reduced motion skips it.
 
+**Agreed at review:**
+
+1. No `jumpTo`: `flyTo` with `durationSeconds: 0` already snaps (`flightProgress` returns 1). `flyTo` reads its
+   start pose when called, so the director jumps to Earth on one frame and requests the Sun flight on the next.
+   Skipping lands on the overview with a zero-length flight too.
+2. The web tests have no DOM, so skip input and reduced motion are injected: `listenForSkip(target, onSkip)` is
+   tested with Node's `EventTarget`; `prefersReducedMotion()` and the dev-only `?opening=off` read `window` only
+   at the boundary; the director takes them as props defaulting to the browser's.
+3. The scene gets `openingCanStart: boolean` (catalog no longer `loading`) through `SceneCanvas` and
+   `SceneContents`, since `swarm | undefined` cannot tell loading from unavailable.
+4. An `openingStore` (phase `waiting` | `playing` | `done`, with `subscribe`) like `cameraRig`: the director drives
+   it and `OpeningCaption` reads it with `useSyncExternalStore`. It notifies on phase changes only.
+5. The ramp is timed by the same wall clock as the flight (`performance.now`), so rate and camera finish together
+   even when frames drop; tests fake `performance.now`.
+6. The director ends with `timeStore.setRate(finalRate)`, which clamps and notifies once; no separate notify API.
+7. At the start the director calls `timeStore.jumpToNow()` and sets real time, so the opening begins at "now".
+8. Split: `openingTimeline.ts` (pure ramp), `openingStore.ts`, `openingSkip.ts` (skip events, reduced motion, URL
+   flag), `OpeningDirector.tsx`, `OpeningCaption.tsx`.
+9. No caption when the catalog is unavailable: the count is its only fact. The opening still plays.
+10. `gl.compile(scene, camera)` covers the swarm and trail shaders; postprocessing is already running.
+11. `OpeningDirector` mounts in `SceneCanvas`, not `SceneContents`: its defaults read `window`, which the DOM-less
+    scene test lacks. Its frame priority, not its mount order, makes it run first.
+
 Commit: `Add the scripted opening: pull back from Earth to the swarm while time speeds up`.
 
 ---

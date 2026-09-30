@@ -32,6 +32,17 @@ describe('TimeStore', () => {
     expect(listener).toHaveBeenCalledTimes(4);
   });
 
+  it('changes a scripted rate without notifying, clamped like any other', () => {
+    const store = createStore();
+    const listener = vi.fn();
+    store.subscribe(listener);
+    store.setScriptedRate(30);
+    expect(store.state.rateDaysPerSecond).toBe(30);
+    store.setScriptedRate(-5);
+    expect(store.state.rateDaysPerSecond).toBe(1 / 86_400);
+    expect(listener).not.toHaveBeenCalled();
+  });
+
   it('clamps scrubbing and rates', () => {
     const store = createStore();
     store.scrubTo(0);

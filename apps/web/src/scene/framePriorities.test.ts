@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { FRAME_PRIORITY } from './framePriorities';
 
 describe('frame priorities', () => {
-  it('run time → body positions → camera rig → scene objects', () => {
-    const { clock, bodyPositions, cameraRig, sceneObjects } = FRAME_PRIORITY;
+  it('run opening → time → body positions → camera rig → scene objects', () => {
+    const { opening, clock, bodyPositions, cameraRig, sceneObjects } = FRAME_PRIORITY;
+    expect(opening).toBeLessThan(clock);
     expect(clock).toBeLessThan(bodyPositions);
     expect(bodyPositions).toBeLessThan(cameraRig);
     expect(cameraRig).toBeLessThan(sceneObjects);
