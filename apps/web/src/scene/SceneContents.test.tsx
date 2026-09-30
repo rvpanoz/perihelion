@@ -3,6 +3,7 @@ import { Profiler } from 'react';
 import { describe, expect, it } from 'vitest';
 import { timeStore } from '../time/timeStore';
 import { SceneContents } from './SceneContents';
+import { THREE_NEO_CATALOG } from './swarm/swarmTestSupport';
 
 const J2000_JD_TDB = 2_451_545;
 
@@ -14,7 +15,7 @@ describe('the render loop', () => {
     timeStore.setPlaying(true);
     const renderer = await ReactThreeTestRenderer.create(
       <Profiler id="scene" onRender={() => (commits += 1)}>
-        <SceneContents />
+        <SceneContents neoCatalog={THREE_NEO_CATALOG} />
       </Profiler>,
     );
     // The mount itself commits; seeing it proves the Profiler reports here, so 0 below is meaningful.

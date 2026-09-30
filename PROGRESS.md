@@ -85,7 +85,7 @@ Exit criteria verified on `main` at `cb1f905` (CI green, run 36635761876), in Ch
 - [x] Swarm data: `/api/neos` columns → typed arrays for instanced attributes, with orbit class
 - [x] GPU Kepler solver in the vertex shader (fixed Newton iterations, good starting guess, high-`e` clamp) + float32 JS port
 - [x] GPU vs CPU cross-check test: the JS port matches the engine for sampled NEOs within a visual tolerance
-- [ ] Look: additive point sprites, size/brightness by H, colour by orbit class (Apollo/Aten/Amor/Atira)
+- [x] Look: additive point sprites, size/brightness by H, colour by orbit class (Apollo/Aten/Amor/Atira)
 - [ ] Faint orbit trails
 - [ ] Choreography: scripted opening camera move + time ramp
 - [ ] Exit verification: 40k objects at ≥ 60 fps, smooth opening move (GPU frame timing + 4× stress run)
@@ -345,6 +345,18 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
 - **2026-09-30:** Swarm cross-check tolerances approved (user decision): worst 1.37e-5 AU within ±10 yr and 3.78e-4 AU
   at 1800 / 2050 (0.19 px at the overview), each × 1.25. No reference-epoch rebasing is needed: the range-end error
   is ~25× below the plan's 1e-2 AU estimate.
+- **2026-09-30:** The swarm is one `Points` with plain vertex attributes (`gl.POINTS` draws one vertex per NEO; only
+  trails instance), with frustum culling off and raycasting ignored. Its shaders include three's log-depth chunks.
+- **2026-09-30:** The Sun's scene offset reaches the swarm shader as a uniform written through `writeSceneOffset`
+  every frame at `sceneObjects` priority, after the camera rig. `elapsedDays = jdTdb − referenceJdTdb` is taken in
+  float64 on the CPU; the reference epoch is the simulation time when the catalog arrives, so a later scrub can be
+  up to ~91,000 days away (Task 3 measured 83,000), still far under a pixel.
+- **2026-09-30:** The NEO catalog is loaded in `App` (`useNeoCatalog`), not inside the canvas. The scene gets it as a
+  prop and runs unchanged without it. The status line gives the count, source and fetch date, and says when the data
+  is the bundled snapshot or unavailable.
+- **2026-09-30:** Swarm size, brightness and colours are illustrative. One sprite at full brightness stays below the
+  bloom threshold, so only dense stacks glow. Colour tuning is deferred to Task 7 (user decision): zoomed out, the
+  Apollo blue dominates and the Amor purple reads almost white.
 
 ## Open questions
 

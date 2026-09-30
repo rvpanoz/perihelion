@@ -25,7 +25,7 @@ export const SWARM_ATTRIBUTE_SIZES = {
   appearance: 2,
 } as const;
 
-type SwarmAttributeName = keyof typeof SWARM_ATTRIBUTE_SIZES;
+export type SwarmAttributeName = keyof typeof SWARM_ATTRIBUTE_SIZES;
 
 export interface SwarmAttributes extends Record<SwarmAttributeName, Float32Array> {
   count: number;
