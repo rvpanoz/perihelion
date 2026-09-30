@@ -1466,13 +1466,33 @@ Branch: `phase-4/close-out`, after Tasks 1–7 are merged.
 - [ ] **Step 1: `npm run check` on up-to-date `main`.** Expected: green, CI green on the same commit.
 - [ ] **Step 2: Check each exit criterion against its evidence:**
   - 40k objects at ≥ 60 fps: Task 7, runs 1–2 and 4.
-  - Smooth opening move: Task 7, run 3, plus the Task 6 recording.
-  - Screenshot-worthy: the stills and GIF.
+  - Smooth opening move: Task 7, run 3, plus the clean run after #72.
+  - Screenshot-worthy: the stills.
   - GPU/CPU agreement: the Task 3 tolerance rows in "Calibrated tolerances".
 - [ ] **Step 3: Update `PROGRESS.md`:** Phase 4 ✅ Done, current phase → Phase 5, and the exit-criteria paragraph
       (from Task 7) with the `main` commit and CI run.
 - [ ] **Step 4: PR** (`type:docs`, `phase:4`, `area:infra`). After the user merges and CI on `main` is green:
       close the milestone, tag the merge commit `v0.4.0` (annotated), publish a release summarising the phase with
-      the stills and GIF, and move all Phase 4 issues and PRs to Done on the board. Update the phase-status memory.
+      the stills, and move all Phase 4 issues and PRs to Done on the board. Update the phase-status memory.
+
+**Agreed at review:**
+
+1. The smooth-opening evidence is Task 7's four loads plus the clean run after #72, not the Task 6 recording, which
+   predates the #70 fix.
+2. New stills for the release (Sun overview, Earth, the opening), taken in Chrome with the window in front.
+3. The exit paragraph cites `main` at `e507be1` (run 36782993883), the Task 7 PR run 36781278993 and its merge
+   `f410175` (run 36781976339).
+4. After the user merges and CI on `main` is green: close the milestone, push the annotated `v0.4.0` tag, and publish
+   the release with the stills (attachments confirmed first).
+5. PROGRESS marks #70 as fixed in #72.
+6. The opening's ~30 ms first frame is recorded as known and accepted.
+
+**During execution:**
+
+7. No opening GIF (user decision): the release carries the stills only. This replaces the GIF in Task 7 decision 8
+   and Task 7b's result.
+8. The stills are 1920×865 `screencapture` PNGs of a Chrome window the browser extension does not drive: in the
+   pages it drives, the extension draws a click marker and an edge glow. The opening still is the move's end frame with
+   its caption (user choice), since timed captures after a reload landed after the move.
 
 Commit: `Mark Phase 4 done in PROGRESS.md and move the current phase to Phase 5`.

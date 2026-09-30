@@ -1,7 +1,7 @@
 # PROGRESS
 
-**Current phase:** Phase 4: Shot 1: The Swarm (in progress)
-**Last updated:** 2026-09-30
+**Current phase:** Phase 5: Shot 2: The Close Approach (not started)
+**Last updated:** 2026-10-01
 
 ## Phase status
 
@@ -11,7 +11,7 @@
 | 1. Orbit engine               | ✅ Done        |
 | 2. Data layer                 | ✅ Done        |
 | 3. Scene foundation           | ✅ Done        |
-| 4. Shot 1: The Swarm          | 🟨 In progress |
+| 4. Shot 1: The Swarm          | ✅ Done        |
 | 5. Shot 2: The Close Approach | ⬜ Not started |
 | 6. Shot 3: The Eruption       | ⬜ Not started |
 | 7. Polish & ship              | ⬜ Not started |
@@ -90,24 +90,29 @@ Exit criteria verified on `main` at `cb1f905` (CI green, run 36635761876), in Ch
 - [x] Choreography: scripted opening camera move + time ramp
 - [x] Exit verification: 40k objects at ≥ 60 fps, smooth opening move (GPU frame timing + 4× stress run)
 
-Exit criteria measured on `phase-4/exit-verification` (on `main` at `a4a910b` plus the Task 7 dev tools), in Chrome
-154 in a foreground window (1920×809 canvas at DPR 1) on an Apple M3 with 16 GB, with the 42,535-NEO catalog and
-trails on; 10 s per run after a 1 s warm-up. The PR CI run and the `main` merge are recorded at close-out (Task 8).
+Exit criteria verified on `main` at `e507be1` (CI green, run 36782993883). The frame times were measured on
+`phase-4/exit-verification` (on `main` at `a4a910b` plus the Task 7 dev tools; PR CI run 36781278993, merged as
+`f410175`, `main` run 36781976339), in Chrome 154 in a foreground window (1920×809 canvas at DPR 1) on an Apple M3
+with 16 GB, with the 42,535-NEO catalog and trails on; 10 s per run after a 1 s warm-up.
 
 - Sun overview: 75.0 fps (the display's cap), median 13.3 ms, worst 14.4 ms, no frame over 20 ms, at 1 d/s and at
   10 yr/s (from 1900, ending ~2010 so the clock never paused at 2050).
 - Earth at minimum zoom (6.39e-5 AU): the same numbers at both rates, with the camera distance constant. Paused, two
   captures of the swarm 1 s apart are identical: no jitter against the planets.
-- The opening, from a fresh load, 4 loads: 901–902 frames, median 13.3 ms. Its only frame over 20 ms (29–32 ms) is
-  the first, ~30 ms in, the frame the catalog arrives and the swarm is built, before any camera motion. The move
-  itself has no hitch.
+- The opening, from a fresh load: 4 loads in Task 7 (901–902 frames, median 13.3 ms) and a clean run after the #70
+  fix in #72 (902 frames, median 13.3 ms). Its only frame over 20 ms (29–32 ms) is the first, ~30 ms in, the frame
+  the catalog arrives and the swarm is built, before any camera motion; it is known and accepted (decisions log).
+  The move itself has no hitch.
 - 4× stress (`?swarmStress=4`, 170,140 objects): 75.0 fps, median 13.3–13.4 ms, worst 14.4 ms, no frame over 20 ms,
   at both rates.
 - GPU timer (`EXT_disjoint_timer_query_webgl2` is exposed): points ≈ 5.3 ms and trails ≈ 6.2 ms at 1×, ≈ 8.4 ms and
   ≈ 11.4 ms at 4×. These are not draw-only: at 4× they sum to ~20 ms while frames take 13.3 ms, so ANGLE's Metal
   timer queries include other work. They are upper bounds; the 4× frame times are the headroom evidence.
-- Follow-up #70: on the opening's long pull-back `flyTo`'s origin outruns the log-space zoom, so Earth leaves
-  the view within ~1 s. Frame times are unaffected.
+- #70, fixed in #72: on the opening's long pull-back `flyTo`'s origin outran the log-space zoom, so Earth left the
+  view within ~1 s. Earth now recedes toward the edge; frame times are unchanged.
+- GPU/CPU agreement: the Task 3 rows in "Calibrated tolerances".
+- Screenshot-worthy: three stills (the Sun overview, Earth in the swarm, the opening's end frame with its caption),
+  attached to the v0.4.0 release.
 
 ## Phase 5–7
 
@@ -407,6 +412,11 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
   clamped to [0, 1], is the fraction of the distance change covered. On the opening's pull-back Earth now recedes
   toward the edge instead of leaving the view within a second, and zoom-ins from the focus buttons keep their target
   in view. Opening frame times are unchanged: 902 frames, median 13.3 ms, only the first frame (31 ms) over 20 ms.
+- **2026-10-01:** The opening's first frame (~30 ms) is accepted for Phase 4: it is the frame the catalog arrives and
+  the swarm's attributes are built on the main thread, before any camera motion, so nothing visible stutters.
+- **2026-10-01:** The v0.4.0 release carries three stills and no opening GIF (user decision). Stills are
+  `screencapture` PNGs of a Chrome window the browser extension does not drive, since it draws a click marker and an
+  edge glow into the pages it controls.
 
 ## Open questions
 
