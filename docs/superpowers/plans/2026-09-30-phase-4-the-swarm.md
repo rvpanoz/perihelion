@@ -569,8 +569,6 @@ The Task 3 tolerance covers that difference. The shader first compiles in Task 4
     `swarmOrbitAt(attributes: SwarmAttributes, index: number): SwarmOrbit`,
     `swarmEccentricAnomaly(meanAnomalyRad: number, eccentricity: number): number`,
     `swarmHeliocentricPosition(orbit: SwarmOrbit, elapsedDays: number, out?: Vector3): Vector3`.
-  - Task 1's `columnValue` becomes exported and takes `ArrayLike<T>`, so attribute reads share its guard (Task 1's
-    code below already reflects this).
 
 - [ ] **Step 1: Write the failing test** `apps/web/src/scene/swarm/swarmKepler.test.ts`
 
@@ -864,6 +862,13 @@ function glslMod(value: number, divisor: number): number {
 Run: `npx vitest run apps/web/src/scene/swarm/swarmKepler.test.ts`
 Expected: PASS (16 tests). If the property test fails, that is the solver not converging: stop and report the
 counterexample fast-check prints. Do not raise the step count or the tolerance without approval.
+
+**Agreed at review (2026-09-30); the shipped code differs from the snippets above in these points:**
+
+1. The Interfaces bullet saying Task 1's `columnValue` becomes exported was dropped: Task 1 already shipped it.
+2. `SWARM_PI` and `SWARM_TWO_PI` are private to `swarmKepler.ts`; only `SWARM_NEWTON_STEPS` is exported.
+3. The port's private helpers are named `swarmCentredAnomaly` and `swarmKeplerStart`, as in the GLSL.
+4. `vectorAt` reads with a named `VECTOR3_LENGTH` instead of a bare `3`.
 
 - [ ] **Step 6: Finish** (per-task workflow). Checklist item 2. PROGRESS decisions:
   - The swarm's Kepler solver starts from Mikkola's cubic approximation and takes a fixed 6 Newton steps. From
