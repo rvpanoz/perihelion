@@ -86,7 +86,7 @@ Exit criteria verified on `main` at `cb1f905` (CI green, run 36635761876), in Ch
 - [x] GPU Kepler solver in the vertex shader (fixed Newton iterations, good starting guess, high-`e` clamp) + float32 JS port
 - [x] GPU vs CPU cross-check test: the JS port matches the engine for sampled NEOs within a visual tolerance
 - [x] Look: additive point sprites, size/brightness by H, colour by orbit class (Apollo/Aten/Amor/Atira)
-- [ ] Faint orbit trails
+- [x] Faint orbit trails
 - [ ] Choreography: scripted opening camera move + time ramp
 - [ ] Exit verification: 40k objects at ≥ 60 fps, smooth opening move (GPU frame timing + 4× stress run)
 
@@ -357,6 +357,13 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
 - **2026-09-30:** Swarm size, brightness and colours are illustrative. One sprite at full brightness stays below the
   bloom threshold, so only dense stacks glow. Colour tuning is deferred to Task 7 (user decision): zoomed out, the
   Apollo blue dominates and the Amor purple reads almost white.
+- **2026-09-30:** Trails span 1/24 of each NEO's own period in 8 steps behind the head, a refinement of decision 5:
+  spacing by orbit fraction, not days, keeps trails the same shape at any time rate and still while paused. They are
+  an instanced line strip (one 9-vertex strip per NEO) that reuses the swarm's Kepler solver via `swarmTrailLagDays`,
+  with opacity 0.12 at the head falling with the square of the distance to 0 at the tail.
+- **2026-09-30:** Points and trails share one attribute build and one set of uniforms, so one per-frame write moves
+  both. Trails are on by default; the "Trails" checkbox lives in `App` beside the catalog state and unmounts them when
+  off, so they cost nothing on the GPU.
 
 ## Open questions
 

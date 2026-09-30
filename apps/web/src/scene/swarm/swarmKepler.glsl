@@ -4,6 +4,10 @@
 const float SWARM_PI = 3.14159265358979;
 const float SWARM_TWO_PI = 6.28318530717959;
 const int SWARM_NEWTON_STEPS = 6;
+// A trail covers 1/24 of its NEO's own period, in 8 steps behind the head. Spacing by orbit fraction, not days,
+// keeps trails the same shape at any time rate and still while paused.
+const float SWARM_TRAIL_SAMPLES = 8.0;
+const float SWARM_TRAIL_SPANS_PER_ORBIT = 24.0;
 
 // One NEO's instanced attributes (built by swarmAttributes.ts).
 struct SwarmOrbit {
@@ -55,4 +59,10 @@ vec3 swarmHeliocentricPosition(SwarmOrbit orbit, float elapsedDays) {
   float alongMajor = cos(eccentricAnomalyRad) - eccentricity;
   float alongMinor = sin(eccentricAnomalyRad);
   return alongMajor * orbit.perihelionAxisAu + alongMinor * orbit.minorAxisAu;
+}
+
+// How many days behind the head a trail vertex sits: trailStep / 8 of a trail span, and the period is 2π / n.
+float swarmTrailLagDays(float meanMotionRadPerDay, float trailStep) {
+  float periodDays = SWARM_TWO_PI / meanMotionRadPerDay;
+  return trailStep / SWARM_TRAIL_SAMPLES * periodDays / SWARM_TRAIL_SPANS_PER_ORBIT;
 }

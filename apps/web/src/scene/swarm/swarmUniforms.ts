@@ -1,9 +1,9 @@
 import { Color, type IUniform, Vector2, Vector3 } from 'three';
 import { bodyPositions } from '../bodies/bodyPositions';
 import { writeSceneOffset } from '../sceneFrame';
-import { SWARM_CLASS_COLORS, SWARM_LOOK } from './swarmLook';
+import { SWARM_CLASS_COLORS, SWARM_LOOK, SWARM_TRAIL_MAX_OPACITY } from './swarmLook';
 
-/** The uniforms swarm.vert declares, one for one. */
+/** The uniforms swarm.vert and swarmTrails.vert declare between them; both materials share one set. */
 export interface SwarmUniforms extends Record<string, IUniform> {
   elapsedDays: IUniform<number>;
   sunSceneOffsetAu: IUniform<Vector3>;
@@ -12,6 +12,7 @@ export interface SwarmUniforms extends Record<string, IUniform> {
   pointSizePx: IUniform<Vector2>;
   brightness: IUniform<Vector2>;
   classColors: IUniform<Color[]>;
+  trailMaxOpacity: IUniform<number>;
 }
 
 export function createSwarmUniforms(pixelRatio: number): SwarmUniforms {
@@ -23,6 +24,7 @@ export function createSwarmUniforms(pixelRatio: number): SwarmUniforms {
     pointSizePx: { value: rangeVector(SWARM_LOOK.pointSizePx) },
     brightness: { value: rangeVector(SWARM_LOOK.brightness) },
     classColors: { value: SWARM_CLASS_COLORS.map((hex) => new Color(hex)) },
+    trailMaxOpacity: { value: SWARM_TRAIL_MAX_OPACITY },
   };
 }
 

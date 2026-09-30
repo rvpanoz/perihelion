@@ -9,6 +9,8 @@ const float32 = Math.fround;
 const SWARM_PI = float32(Math.PI);
 const SWARM_TWO_PI = float32(2 * Math.PI);
 export const SWARM_NEWTON_STEPS = 6;
+export const SWARM_TRAIL_SAMPLES = 8;
+export const SWARM_TRAIL_SPANS_PER_ORBIT = 24;
 
 /** One NEO's instanced attributes, as the vertex shader receives them. */
 export interface SwarmOrbit {
@@ -88,6 +90,14 @@ export function swarmHeliocentricPosition(
     );
   }
   return out;
+}
+
+/** Days behind the head for trail vertex `trailStep` (0 at the head, 8 at the tail); see swarmKepler.glsl. */
+export function swarmTrailLagDays(meanMotionRadPerDay: number, trailStep: number): number {
+  const periodDays = float32(SWARM_TWO_PI / meanMotionRadPerDay);
+  return float32(
+    (float32(trailStep / SWARM_TRAIL_SAMPLES) * periodDays) / SWARM_TRAIL_SPANS_PER_ORBIT,
+  );
 }
 
 /** GLSL's mod(x, y) = x − y·floor(x/y), which unlike `%` is never negative for positive y. */
