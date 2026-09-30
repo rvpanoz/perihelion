@@ -83,7 +83,7 @@ Exit criteria verified on `main` at `cb1f905` (CI green, run 36635761876), in Ch
 ## Phase 4: Shot 1: The Swarm
 
 - [x] Swarm data: `/api/neos` columns → typed arrays for instanced attributes, with orbit class
-- [ ] GPU Kepler solver in the vertex shader (fixed Newton iterations, good starting guess, high-`e` clamp) + float32 JS port
+- [x] GPU Kepler solver in the vertex shader (fixed Newton iterations, good starting guess, high-`e` clamp) + float32 JS port
 - [ ] GPU vs CPU cross-check test: the JS port matches the engine for sampled NEOs within a visual tolerance
 - [ ] Look: additive point sprites, size/brightness by H, colour by orbit class (Apollo/Aten/Amor/Atira)
 - [ ] Faint orbit trails
@@ -332,6 +332,11 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
 - **2026-09-30:** `perifocalBasis` is exported from `packages/orbit` so the swarm reuses the engine's rotation. It
   takes only the three orientation angles (`Pick<OrbitalElements, …>`) and has an explicit return type.
 - **2026-09-30:** NEOs without an H are drawn as H = 30 (the faintest).
+- **2026-09-30:** The swarm's Kepler solver starts from Mikkola's cubic approximation and takes a fixed 6 Newton
+  steps. From E₀ = π, 6 steps left E ~0.1 rad off at e = 0.99 near perihelion.
+- **2026-09-30:** The GLSL (`swarmKepler.glsl`) and its float32 JS port (`swarmKepler.ts`) are kept in step by hand,
+  with matching function names. A test checks that they share the step count and names. The port rounds each
+  statement to float32, and the cross-check (Task 3) tests the port.
 
 ## Open questions
 
