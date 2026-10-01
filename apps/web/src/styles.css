@@ -11,6 +11,7 @@
   --muted: #8a93a8;
   --faint: #787e90;
   --accent: #e8f4ff;
+  --approach-accent: #5ad1ff;
   --status-live: #4be3a0;
   --status-warn: #ffc46b;
   --status-error: #ff7ab8;
@@ -104,12 +105,11 @@ p {
   align-items: center;
 }
 
-/* Until Task 3 fills it, the left column holds only the swarm controls, at its foot. */
+/* The close-approach list on top; the swarm controls sit under it until the Phase 7 legend takes them. */
 .shell-left {
   grid-area: left;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
   min-height: 0;
 }
 
@@ -267,6 +267,115 @@ p {
   padding: 8px 14px;
 }
 
+.approach-list {
+  max-height: min(60vh, 560px);
+  padding: 16px 12px 10px;
+  overflow-y: auto;
+}
+
+.approach-list-heading,
+.approach-group-heading {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 10px;
+  padding: 0 4px;
+  color: var(--muted);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.approach-list-heading span:last-child {
+  color: var(--faint);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.approach-group-heading {
+  margin: 8px 0 6px;
+  color: var(--faint);
+}
+
+.approach-group ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.approach-note {
+  padding: 4px;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.app-shell .approach-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 10px;
+  width: 100%;
+  margin-bottom: 4px;
+  padding: 10px;
+  color: var(--text);
+  text-align: left;
+  border-radius: 10px;
+}
+
+.app-shell .approach-row[aria-pressed='true'] {
+  background: rgb(90 209 255 / 9%);
+  box-shadow: inset 0 0 0 1px rgb(90 209 255 / 28%);
+}
+
+.approach-name {
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.approach-when {
+  color: var(--muted);
+  font-size: 11.5px;
+  text-align: right;
+}
+
+.approach-bar {
+  grid-column: 1 / -1;
+  height: 3px;
+  overflow: hidden;
+  background: rgb(255 255 255 / 6%);
+  border-radius: 2px;
+}
+
+.approach-bar i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--approach-accent), rgb(90 209 255 / 30%));
+  border-radius: 2px;
+}
+
+.approach-meta {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.approach-ld {
+  color: var(--text);
+}
+
+.approach-class {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
 .timeline {
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -331,10 +440,15 @@ p {
   }
 }
 
-/* drei's Stats pins itself to the top-left corner with inline styles, over the brand; move it under the top bar. */
+/*
+ * drei's Stats pins itself to the top-left corner with inline styles, over the brand and the close-approach list;
+ * move it to the bottom-right, above the time bar.
+ */
 .fps-meter {
-  top: 76px !important;
-  left: var(--shell-gutter) !important;
+  top: auto !important;
+  right: var(--shell-gutter);
+  bottom: 104px;
+  left: auto !important;
 }
 
 @media (max-width: 1099.98px) {

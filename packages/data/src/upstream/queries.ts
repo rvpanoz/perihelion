@@ -37,8 +37,11 @@ export type SbdbNeoField = (typeof SBDB_NEO_FIELDS)[number];
 export const DEFAULT_CLOSE_APPROACH_DAYS = 7;
 export const DEFAULT_CME_DAYS = 30;
 
-/** CAD's documented default, sent explicitly so an upstream default change cannot alter the list. */
-const CAD_MAX_DISTANCE_AU = '0.05';
+/**
+ * CAD's documented default, sent explicitly so an upstream default change cannot alter the list. Exported as a
+ * number so the web app's closeness bar and empty state use the same cut.
+ */
+export const CAD_MAX_DISTANCE_AU = 0.05;
 const DAY_MS = 86_400_000;
 
 // Asteroids only: comets are parked (PLAN.md) and the engine rejects e ≥ 1. `full-prec` stops SBDB
@@ -62,7 +65,7 @@ export function cadQuery(window: DateWindow): UpstreamQuery {
     params: {
       'date-min': window.startDate,
       'date-max': window.endDate,
-      'dist-max': CAD_MAX_DISTANCE_AU,
+      'dist-max': String(CAD_MAX_DISTANCE_AU),
       kind: 'a',
       fullname: 'true',
       diameter: 'true',

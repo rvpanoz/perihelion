@@ -1,21 +1,10 @@
-import { isValidElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
+import { findElementProps } from '../../test/elementTree';
 import { SwarmControls } from './SwarmControls';
 
 interface CheckboxProps {
   onChange: (event: { currentTarget: { checked: boolean } }) => void;
-}
-
-/** The web tests have no DOM, so the change handler is read off the rendered element tree. */
-function findCheckbox(node: unknown): CheckboxProps | undefined {
-  if (!isValidElement<{ children?: unknown }>(node)) return undefined;
-  if (node.type === 'input') return node.props as unknown as CheckboxProps;
-  for (const child of [node.props.children].flat()) {
-    const checkbox = findCheckbox(child);
-    if (checkbox) return checkbox;
-  }
-  return undefined;
 }
 
 describe('SwarmControls', () => {
@@ -36,7 +25,10 @@ describe('SwarmControls', () => {
 
   it('reports the box’s new state when the viewer clicks it', () => {
     const onShowTrailsChange = vi.fn();
-    const checkbox = findCheckbox(SwarmControls({ showTrails: true, onShowTrailsChange }));
+    const [checkbox] = findElementProps<CheckboxProps>(
+      SwarmControls({ showTrails: true, onShowTrailsChange }),
+      'input',
+    );
     checkbox?.onChange({ currentTarget: { checked: false } });
     expect(onShowTrailsChange).toHaveBeenCalledWith(false);
   });
