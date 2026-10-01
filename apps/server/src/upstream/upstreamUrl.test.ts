@@ -1,13 +1,17 @@
-import { donkiCmeQuery } from '@perihelion/data';
+import type { UpstreamQuery } from '@perihelion/data';
 import { describe, expect, it } from 'vitest';
 import { redactedUrl, upstreamUrl } from './upstreamUrl.js';
 
-const QUERY = donkiCmeQuery({ startDate: '2026-08-29', endDate: '2026-09-28' }, 'SECRET-KEY');
+// No upstream we call takes a key in the URL any more; redaction stays so none ever gets printed.
+const QUERY: UpstreamQuery = {
+  baseUrl: 'https://ccmc.gsfc.nasa.gov/DONKI-API/get/CME',
+  params: { startDate: '2026-08-29', endDate: '2026-09-28', api_key: 'SECRET-KEY' },
+};
 
 describe('upstreamUrl', () => {
   it('puts every query parameter on the base URL', () => {
     const url = upstreamUrl(QUERY);
-    expect(url.origin + url.pathname).toBe('https://api.nasa.gov/DONKI/CME');
+    expect(url.origin + url.pathname).toBe('https://ccmc.gsfc.nasa.gov/DONKI-API/get/CME');
     expect(url.searchParams.get('startDate')).toBe('2026-08-29');
     expect(url.searchParams.get('api_key')).toBe('SECRET-KEY');
   });

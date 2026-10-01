@@ -7,7 +7,7 @@ const JPL_TIMEOUT_MS = 60_000;
 const DONKI_TIMEOUT_MS = 30_000;
 const MIN_REQUEST_INTERVAL_MS = 1_000;
 
-/** One gate per host: SBDB and CAD share JPL SSD's; DONKI is on api.nasa.gov. */
+/** One gate per host: SBDB and CAD share JPL SSD's; DONKI has CCMC's to itself. */
 export function createUpstreamClients(clock: Clock): { jpl: HttpClient; donki: HttpClient } {
   const gated = (timeoutMs: number) =>
     gatedHttpClient(

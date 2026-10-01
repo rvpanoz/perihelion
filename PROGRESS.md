@@ -620,7 +620,6 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
 
 - Mars Rover Photos API is offline (404), so it is not used.
 - Legacy APOD API archived on 2026-12-01, so it is not used.
-- `DEMO_KEY` is heavily rate-limited; use a personal `NASA_API_KEY`.
 - R3F 9.8 logs `THREE.Clock: This module has been deprecated` with three 0.186 (upstream; harmless).
 - Vite warns the web bundle is 1.13 MB (310 kB gzipped), mostly three.js. Revisit code-splitting in Phase 7.
 - `npm ci` warns that esbuild's postinstall script is not covered by npm's `allowScripts` policy (esbuild comes in
@@ -685,3 +684,6 @@ _None._
 - **2026-10-02:** Ground truth for the CME direction (Task 2, #99) is Hapgood (1992)'s published worked examples.
 - **2026-10-02:** Task 1 (#85) ships as three PRs: 1a DONKI on CCMC, 1b strict times / http(s) links / ENLIL
   arrival, 1c cache validation on first read.
+- **2026-10-02:** Task 1a (#85): the DONKI recordings were re-recorded from CCMC on 2026-10-01 (110 CMEs, 33 left out
+  for no longitude, 6 with two flagged analyses); the recorded-CME count test moved from 86 to 77 (user-approved).
+  `.env.example` now lists only the optional `PORT`, `DATABASE_PATH` and `SNAPSHOT_DIR`.

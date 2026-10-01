@@ -41,7 +41,7 @@ Fastify, zod 4, Vitest 5, fast-check.
 
 | #   | Task                                       | Issue | Format    | Status        |
 | --- | ------------------------------------------ | ----- | --------- | ------------- |
-| 1a  | DONKI on CCMC, key retired, re-recorded    | #85   | light     | ⬜            |
+| 1a  | DONKI on CCMC, key retired, re-recorded    | #85   | light     | 🟨 in review  |
 | 1b  | Strict times, http(s) links, ENLIL arrival | #85   | light     | ⬜            |
 | 1c  | Validate cache entries on first read       | #85   | light     | ⬜            |
 | 2   | Engine: CME direction and Earth-in-cone    | #99   | full code | written later |
@@ -66,32 +66,43 @@ Task 1 is one issue (#85) delivered in three PRs (`phase-6/donki-ccmc`, `phase-6
 - Modify: `packages/data/src/upstream/queries.ts` (+ test): `DONKI_CME_API_URL` →
   `https://ccmc.gsfc.nasa.gov/DONKI-API/get/CME`; `donkiCmeQuery(window)` drops its `apiKey` argument and the
   `api_key` parameter.
-- Modify: `apps/server/src/upstream/upstreamClients.ts`: rename the DONKI client's comment and gate to CCMC; keep
+- Modify: `apps/server/src/upstream/upstreamClients.ts`: the DONKI client's comment names CCMC; keep
   `DONKI_TIMEOUT_MS`.
 - Modify: `apps/server/src/config.ts` (+ test), `apps/server/src/main.ts`: remove `nasaApiKey`, `usingDemoKey`,
-  `DEMO_API_KEY` and the warning; thread the removal through every caller the compiler finds.
+  `DEMO_API_KEY` and the warning.
+- Modify the key's call sites (review item 4): `apps/server/src/datasets/datasetRequests.ts` (`nasaApiKey`
+  dependency), `createDatasets.ts`, `apps/server/scripts/writeSnapshot.ts`, `apps/server/src/testing/testServer.ts`
+  and `testConstants.ts` (`TEST_API_KEY` goes).
+- Modify: `apps/server/src/testing/fakeUpstream.ts`: the DONKI recording is served under `/DONKI-API/get/CME`
+  (review item 1).
 - Modify: `apps/server/scripts/recordUpstream.ts`: no key.
-- Modify: `apps/server/src/upstream/upstreamUrl.test.ts`, `httpClient.test.ts`: new host; the redaction test keeps a
+- Modify: `apps/server/src/upstream/upstreamUrl.test.ts`, `httpClient.test.ts`: new host; the redaction tests keep a
   made-up `api_key` URL (the helper stays generic).
-- Re-record: `npm run record -- donki-cme-window` (and the future-day recording if the script names it separately);
-  commit the new `packages/fixtures/upstream/donki-cme-*.json` and manifest.
-- Modify: `CLAUDE.md` data notes ("DONKI is on CCMC and needs no key") and non-negotiable 6 (keep "never commit
-  secrets"; drop the `NASA_API_KEY` sentence or generalise it). `PROGRESS.md`: remove the `DEMO_KEY` known issue.
+- Re-record: `npm run record -- donki` (the recorder's group; writes `donki-cme-window.json`, `donki-cme-empty.json`
+  and their manifest entries; review item 3).
+- Modify: `CLAUDE.md` (review item 5): non-negotiable 6 reads "**Never commit secrets.** Credentials come from the
+  environment only."; the data note reads "JPL SSD APIs (SBDB query, CAD, Horizons) and DONKI (CCMC `DONKI-API`)
+  need no key." `.env.example` lists the optional server settings instead of `NASA_API_KEY` (review item 6).
+  `PROGRESS.md`: remove the `DEMO_KEY` known issue.
 
-**Tests (existing ones must pass unchanged except for the URL and key arguments):**
+**Tests (agreed changes, review item 2; the rest pass unchanged):**
 
-- `donkiCmeQuery` builds `…/DONKI-API/get/CME?startDate=…&endDate=…` with no `api_key`.
-- `readServerConfig` no longer reads `NASA_API_KEY` (an env that sets it changes nothing).
-- Server tests on the re-recorded DONKI response still pass: the normalizer keeps the same rules (most accurate
-  complete analysis, unplaceable CMEs dropped). If a test fails on the new recording, stop and report it; do not
-  edit the recording.
+- `queries.test.ts`: "asks CCMC for the window, with no key": the base URL is CCMC's and the params are exactly
+  `{ startDate, endDate }`.
+- `config.test.ts`: the defaults lose `nasaApiKey`/`usingDemoKey`; a new test shows a leftover `NASA_API_KEY` changes
+  nothing.
+- `datasetRequests.test.ts`: DONKI is asked on `/DONKI-API/get/CME` with no `api_key`.
+- `donki.test.ts` (approved after the re-record, 2026-10-02): the recorded-CME count is 77 of 110 (33 have no
+  longitude in their flagged analysis), was 86 of 126. Same rule, new recording.
+- If any other test fails on the new recording, stop and report it; never edit the recording.
 
 **Acceptance:**
 
-- [ ] `grep -rn "NASA_API_KEY\|DEMO_KEY\|api.nasa.gov" apps packages CLAUDE.md` finds nothing outside committed
+- [x] `grep -rn "NASA_API_KEY\|DEMO_KEY\|api.nasa.gov" apps packages CLAUDE.md` finds nothing outside committed
       recordings' history.
-- [ ] `npm run dev`: `/api/cmes` answers `origin: "fresh"` and the server logs no DONKI error.
-- [ ] `npm run check` green.
+- [x] `npm run dev`: `/api/cmes` answers `origin: "fresh"` and the server logs no DONKI error (2026-10-01T22:20Z:
+      77 CMEs).
+- [x] `npm run check` green.
 
 ## Task 1b: Strict times, http(s) links, ENLIL arrival
 

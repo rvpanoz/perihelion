@@ -10,7 +10,7 @@ import { NO_SNAPSHOTS } from './fakeSnapshots.js';
 import { FakeUpstream } from './fakeUpstream.js';
 import { RECORDED_CAD_DESIGNATIONS, neoCatalogOf } from './testCatalog.js';
 import { TestClock } from './testClock.js';
-import { TEST_API_KEY, TEST_NOW_MS } from './testConstants.js';
+import { TEST_NOW_MS } from './testConstants.js';
 
 interface TestServerOptions {
   upstream?: FakeUpstream;
@@ -42,7 +42,6 @@ export async function createTestServer(options: TestServerOptions = {}): Promise
     jpl: upstream,
     donki: upstream,
     clock,
-    nasaApiKey: TEST_API_KEY,
     readNeoCatalog: () => Promise.resolve(catalog),
     logger,
   });

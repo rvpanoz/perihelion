@@ -16,7 +16,7 @@ const LOOKUP_PATH = '/sbdb.api';
 export const RECORDED_BODIES: Readonly<Record<string, unknown>> = {
   '/sbdb_query.api': RECORDED_SBDB_NEO_SAMPLE,
   '/cad.api': RECORDED_CAD_WINDOW,
-  '/DONKI/CME': RECORDED_DONKI_CME_WINDOW,
+  '/DONKI-API/get/CME': RECORDED_DONKI_CME_WINDOW,
   ...recordedLookupBodies(),
 };
 

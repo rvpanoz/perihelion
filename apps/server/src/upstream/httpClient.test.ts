@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { UpstreamError, createHttpClient } from './httpClient.js';
 
 const URL_WITH_KEY = new URL(
-  'https://api.nasa.gov/DONKI/CME?startDate=2026-09-01&api_key=SECRET-KEY',
+  'https://ccmc.gsfc.nasa.gov/DONKI-API/get/CME?startDate=2026-09-01&api_key=SECRET-KEY',
 );
 
 function clientAnswering(respond: () => Response | Promise<Response>) {

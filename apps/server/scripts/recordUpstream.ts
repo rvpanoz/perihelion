@@ -62,7 +62,7 @@ function withParams(query: UpstreamQuery, extra: Record<string, string>): Upstre
   return { ...query, params: { ...query.params, ...extra } };
 }
 
-function plannedRecordings(nowMs: number, apiKey: string): Recording[] {
+function plannedRecordings(nowMs: number): Recording[] {
   const futureDay = cmeWindow(nowMs + EMPTY_CME_LEAD_DAYS * DAY_MS, 0);
   const emptyCad = withParams(cadQuery(EMPTY_CAD_WINDOW), {
     'dist-max': EMPTY_CAD_MAX_DISTANCE_AU,
@@ -85,13 +85,13 @@ function plannedRecordings(nowMs: number, apiKey: string): Recording[] {
     {
       group: 'donki',
       fileName: 'donki-cme-window.json',
-      query: donkiCmeQuery(cmeWindow(nowMs, DEFAULT_CME_DAYS), apiKey),
+      query: donkiCmeQuery(cmeWindow(nowMs, DEFAULT_CME_DAYS)),
       gzip: false,
     },
     {
       group: 'donki',
       fileName: 'donki-cme-empty.json',
-      query: donkiCmeQuery(futureDay, apiKey),
+      query: donkiCmeQuery(futureDay),
       gzip: false,
     },
   ];
@@ -203,11 +203,10 @@ async function committedManifestFiles(): Promise<Record<string, UpstreamManifest
 }
 
 async function recordGroups(groups: readonly RecordingGroup[]): Promise<RecordedBody[]> {
-  const apiKey = process.env['NASA_API_KEY'] || 'DEMO_KEY';
   const nowMs = Date.now();
   const recordedAt = new Date(nowMs).toISOString();
   const bodies: RecordedBody[] = [];
-  for (const recording of plannedRecordings(nowMs, apiKey)) {
+  for (const recording of plannedRecordings(nowMs)) {
     if (groups.includes(recording.group)) bodies.push(await record(recording, recordedAt));
   }
   if (groups.includes('sbdb-object')) bodies.push(await recordLookups(bodies, recordedAt));
