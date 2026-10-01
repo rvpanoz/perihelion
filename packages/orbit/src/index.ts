@@ -10,3 +10,4 @@ export * from './propagate';
 export * from './planets';
 export * from './degreeElements';
 export * from './closestApproach';
+export * from './heliographic';
