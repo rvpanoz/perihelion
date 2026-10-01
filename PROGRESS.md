@@ -1,6 +1,6 @@
 # PROGRESS
 
-**Current phase:** Phase 6: Shot 3: The Eruption (not started)
+**Current phase:** Phase 6: Shot 3: The Eruption (in progress)
 **Last updated:** 2026-10-02
 
 ## Phase status
@@ -13,7 +13,7 @@
 | 3. Scene foundation           | ✅ Done        |
 | 4. Shot 1: The Swarm          | ✅ Done        |
 | 5. Shot 2: The Close Approach | ✅ Done        |
-| 6. Shot 3: The Eruption       | ⬜ Not started |
+| 6. Shot 3: The Eruption       | 🟨 In progress |
 | 7. Polish & ship              | ⬜ Not started |
 
 Legend: ⬜ not started · 🟨 in progress · ✅ done (all exit criteria verified)
@@ -272,9 +272,24 @@ still zooms and orbits. The first release stills (1920 × 809) showed the card u
 layout, which added Task 6d; the stills were retaken after it. The offline (snapshot)
 replay of two rows is deferred (user decision, 2026-10-02).
 
-## Phase 6–7
+## Phase 6: Shot 3: The Eruption
 
-Checklists will be expanded from `PLAN.md` when each phase starts.
+Plan: not written yet. Tasks follow `PLAN.md` (split into ten on 2026-10-02, PR #98).
+
+- [ ] DONKI migration: new CME endpoint, validation, re-recorded fixtures and snapshot (#85)
+- [ ] Engine: CME direction from DONKI latitude/longitude, and whether Earth is inside the cone (#99)
+- [ ] Engine: CME kinematics and arrival time at Earth (#100)
+- [ ] CME picker for the last 30 days + selected-CME store (#101)
+- [ ] CME particle shell on the GPU (#102)
+- [ ] Sun look: noise surface, limb darkening, corona (#103)
+- [ ] Earth look: day/night terminator and rim glow (#104)
+- [ ] Earth impact: magnetosphere hint and aurora, labelled illustrative (#105)
+- [ ] Shot choreography: camera and playback synced to the event time (#106)
+- [ ] Exit verification: CME geometry and timing vs DONKI; 60 fps (#107)
+
+## Phase 7
+
+Checklist will be expanded from `PLAN.md` when the phase starts.
 
 ## Calibrated tolerances
 
