@@ -87,28 +87,30 @@ Fastify, zod 4, Vitest 5, fast-check.
 
 ## File structure
 
-| File                                                  | Responsibility                                                   | Task     |
-| ----------------------------------------------------- | ---------------------------------------------------------------- | -------- |
-| `apps/web/src/data/useDataset.ts` (new)               | Generic load-once hook over `loadDataset` (from `useNeoCatalog`) | 0        |
-| `apps/web/src/data/useNeoCatalog.ts`                  | Becomes a thin wrapper over `useDataset('neos')`                 | 0        |
-| `apps/web/src/shell/AppShell.tsx` (new)               | Layout regions around the full-bleed canvas                      | 0        |
-| `apps/web/src/shell/dataStatus.ts` (new)              | Pure: dataset states → pill tone and text                        | 0        |
-| `apps/web/src/shell/DataStatusPill.tsx` (new)         | Renders `dataStatus` output                                      | 0        |
-| `packages/data/src/closeApproach.ts`                  | Adds `diameterKm`, `diameterSigmaKm`, `orbit` to the row schema  | 1        |
-| `packages/data/src/upstream/cad.ts`                   | Reads `diameter`, `diameter_sigma`                               | 1        |
-| `packages/data/src/upstream/queries.ts`               | `cadQuery` sends `diameter=true`; adds `sbdbObjectQuery`         | 1        |
-| `packages/data/src/upstream/sbdbObject.ts` (new)      | Validates one `sbdb.api` response → `ApproachOrbit` or null      | 1        |
-| `packages/data/src/approachOrbits.ts` (new)           | Catalog index by designation; catalog row → `ApproachOrbit`      | 1        |
-| `apps/server/src/datasets/datasetRequests.ts`         | Close-approach fetch joins orbits, looks up misses               | 1        |
-| `apps/server/scripts/recordUpstream.ts`               | Records the CAD (with diameters) and the SBDB lookups it needs   | 1        |
-| `apps/web/src/approaches/diameter.ts` (new)           | JPL or estimated diameter, and its display text                  | 2        |
-| `apps/web/src/approaches/*` (new)                     | List, formatting, selection store, focus card, close-up          | 3, 6, 6b |
-| `packages/data/src/upstream/queries.ts`               | Exports `CAD_MAX_DISTANCE_AU` as a number for the closeness bar  | 3        |
-| `apps/web/src/scene/approach/*` (new)                 | Engine position, trail, follow target                            | 4, 5     |
-| `apps/web/src/scene/camera/cameraRig.ts`, `flight.ts` | Focus becomes "body or approach asteroid"                        | 5        |
-| `apps/web/src/scene/orbitElements.ts` (new)           | Degrees → engine elements, shared by swarm and approach          | 4        |
-| `apps/web/src/scene/swarm/swarmAttributes.ts`         | Uses `elementsFromDegrees`                                       | 4        |
-| `apps/web/src/scene/sceneFrame.ts`                    | Optional `out` on `sceneAxesFromEcliptic`                        | 5        |
+| File                                                    | Responsibility                                                   | Task     |
+| ------------------------------------------------------- | ---------------------------------------------------------------- | -------- |
+| `apps/web/src/data/useDataset.ts` (new)                 | Generic load-once hook over `loadDataset` (from `useNeoCatalog`) | 0        |
+| `apps/web/src/data/useNeoCatalog.ts`                    | Becomes a thin wrapper over `useDataset('neos')`                 | 0        |
+| `apps/web/src/shell/AppShell.tsx` (new)                 | Layout regions around the full-bleed canvas                      | 0        |
+| `apps/web/src/shell/dataStatus.ts` (new)                | Pure: dataset states → pill tone and text                        | 0        |
+| `apps/web/src/shell/DataStatusPill.tsx` (new)           | Renders `dataStatus` output                                      | 0        |
+| `apps/web/src/shell/ShellColumn.tsx`, `Brand.tsx` (new) | Collapsible side column; the mockup's brand mark                 | 0        |
+| `apps/web/src/data/useNowMs.ts` (new)                   | Wall clock refreshed on an interval, for the pill's age          | 0        |
+| `packages/data/src/closeApproach.ts`                    | Adds `diameterKm`, `diameterSigmaKm`, `orbit` to the row schema  | 1        |
+| `packages/data/src/upstream/cad.ts`                     | Reads `diameter`, `diameter_sigma`                               | 1        |
+| `packages/data/src/upstream/queries.ts`                 | `cadQuery` sends `diameter=true`; adds `sbdbObjectQuery`         | 1        |
+| `packages/data/src/upstream/sbdbObject.ts` (new)        | Validates one `sbdb.api` response → `ApproachOrbit` or null      | 1        |
+| `packages/data/src/approachOrbits.ts` (new)             | Catalog index by designation; catalog row → `ApproachOrbit`      | 1        |
+| `apps/server/src/datasets/datasetRequests.ts`           | Close-approach fetch joins orbits, looks up misses               | 1        |
+| `apps/server/scripts/recordUpstream.ts`                 | Records the CAD (with diameters) and the SBDB lookups it needs   | 1        |
+| `apps/web/src/approaches/diameter.ts` (new)             | JPL or estimated diameter, and its display text                  | 2        |
+| `apps/web/src/approaches/*` (new)                       | List, formatting, selection store, focus card, close-up          | 3, 6, 6b |
+| `packages/data/src/upstream/queries.ts`                 | Exports `CAD_MAX_DISTANCE_AU` as a number for the closeness bar  | 3        |
+| `apps/web/src/scene/approach/*` (new)                   | Engine position, trail, follow target                            | 4, 5     |
+| `apps/web/src/scene/camera/cameraRig.ts`, `flight.ts`   | Focus becomes "body or approach asteroid"                        | 5        |
+| `apps/web/src/scene/orbitElements.ts` (new)             | Degrees → engine elements, shared by swarm and approach          | 4        |
+| `apps/web/src/scene/swarm/swarmAttributes.ts`           | Uses `elementsFromDegrees`                                       | 4        |
+| `apps/web/src/scene/sceneFrame.ts`                      | Optional `out` on `sceneAxesFromEcliptic`                        | 5        |
 
 ---
 
@@ -116,11 +118,18 @@ Fastify, zod 4, Vitest 5, fast-check.
 
 UI task: interfaces, test cases and acceptance checks; no full code (see the plan-format decision).
 
+**Review (2026-10-01):** all 11 proposals approved ("include all proposals and go"); they are folded in below.
+
 **Files:**
 
-- Create: `apps/web/src/data/useDataset.ts`, `apps/web/src/shell/AppShell.tsx`, `apps/web/src/shell/dataStatus.ts`,
-  `apps/web/src/shell/DataStatusPill.tsx`, tests beside each pure module
-- Modify: `apps/web/src/data/useNeoCatalog.ts`, `apps/web/src/App.tsx`, the app stylesheet (locate at review)
+- Create: `apps/web/src/data/useDataset.ts`, `apps/web/src/data/useNowMs.ts`, `apps/web/src/shell/AppShell.tsx`,
+  `apps/web/src/shell/ShellColumn.tsx`, `apps/web/src/shell/Brand.tsx`, `apps/web/src/shell/dataStatus.ts`,
+  `apps/web/src/shell/DataStatusPill.tsx`, tests beside `useDataset`, `useNowMs`, `dataStatus` and the pill
+- Modify: `apps/web/src/data/useNeoCatalog.ts`, `apps/web/src/App.tsx`, `apps/web/src/styles.css`,
+  `TimeControls.tsx`, `FocusPicker.tsx`, `SwarmControls.tsx`, `OpeningCaption.tsx` (class names only)
+- Delete: `apps/web/src/scene/swarm/SwarmStatus.tsx`, `swarmStatusText.ts` and its test (the pill replaces them)
+- Found at the browser check: `SceneCanvas.tsx` gives drei's `<Stats />` a `fps-meter` class so the stylesheet can
+  move it off the brand (it pins itself top-left with inline styles).
 
 **Interfaces:**
 
@@ -130,42 +139,64 @@ UI task: interfaces, test cases and acceptance checks; no full code (see the pla
 origin: DatasetOrigin; fetchedAt: string } | { status: 'unavailable' }`
   - `useDataset<N>(name: N, load?: () => Promise<DatasetResponse<N>>): DatasetState<N>` and the pure
     `loadDatasetState<N>(load): Promise<DatasetState<N>>` (the logic `loadNeoCatalog` has today, generalised).
-    `useNeoCatalog` keeps its exported shape (`catalog` field) so `App`, `SwarmStatus` and their tests are unchanged.
+    `useNeoCatalog` becomes `useDataset('neos', load)`, so its state carries `data` instead of `catalog`; `App`
+    and the hook's test follow (nothing else reads it once `SwarmStatus` is gone).
+  - `type NamedDatasetState = { label: string; state: DatasetState<DatasetName>; summary?: string }`. `summary`
+    carries what the dataset's detail line says beyond its age (the NEO count, `40,123 asteroids`), so the count
+    `SwarmStatus` showed moves into the pill.
   - `dataStatus(input: { datasets: readonly NamedDatasetState[]; nowMs: number }): DataStatus` where
     `DataStatus = { tone: 'live' | 'stale' | 'snapshot' | 'loading' | 'unavailable'; text: string; details: string[] }`.
     The pill shows the worst tone across datasets (unavailable > snapshot > stale > loading > live) and one
-    `details` line per dataset for its tooltip / expanded view.
+    `details` line per dataset for its expanded view. One text pattern: `Live · JPL · updated 12 min ago`,
+    `Cached · JPL · updated 3 h ago`, `Offline snapshot · JPL · from 28 Sep 2026`, `Loading JPL data…`,
+    `NEO catalog unavailable`. The age is that of the oldest dataset with the pill's tone.
+  - `useNowMs(intervalMs): number`: wall-clock ms refreshed every `intervalMs`. The pill uses `useNowMs(30_000)`
+    so "updated … ago" stays current without per-frame renders.
+  - `<DataStatusPill datasets={…} />`: a `<details>` whose summary is the pill text (head word bold, tone dot)
+    and whose body lists `details`, so the per-dataset lines are reachable by keyboard, not only by hover.
   - `<AppShell top={…} left={…} right={…} bottom={…}>{canvas}</AppShell>`: named slots; Task 3 fills `left`,
-    Task 6 fills `right`.
-  - Stylesheet tokens as CSS custom properties, taken from the mockup: `--bg`, `--panel` (raised to ~0.85 opacity,
-    no `backdrop-filter`), `--panel-border`, `--text`, `--muted`, `--faint` (lightened to ≥ 4.5:1 on `--panel`),
-    `--accent: #e8f4ff`, `--radius-panel: 14px`, the mockup's type scale and a `.mono` class with tabular numerals.
+    Task 6 fills `right`. One CSS grid laid over the full-bleed canvas with `pointer-events: none`; only panels
+    (`.panel`) take events, so the scene stays draggable between them.
+  - `<ShellColumn side label>`: each column is a `<details>`; at ≥ 1100 px it is forced open with its summary
+    hidden, below that it collapses to a drawer that starts closed (remounted when the breakpoint flips).
+  - `<Brand />`: the mockup's inline SVG mark (gradient id from `useId`), `PERIHELION` and the tagline.
+  - Stylesheet tokens as CSS custom properties, taken from the mockup: `--bg`, `--panel` (raised to 0.85 opacity,
+    no `backdrop-filter`), `--panel-border`, `--text`, `--muted`, `--faint`, `--accent: #e8f4ff`,
+    `--radius-panel: 14px`, the mockup's type scale and a `.mono` class with tabular numerals. The old `.hud`
+    class becomes the mockup's `.panel` on these tokens. `--faint` is lightened from `#5b6378` (3.24:1) to the
+    computed value with ≥ 4.5:1 against `--panel` composited on `--bg`; the ratio goes in the PR.
     Class colours are not tokens here: the UI reads `SWARM_CLASS_COLORS` so the swarm and the UI cannot drift.
 
-- [ ] **Step 1: Write failing tests for `loadDatasetState`** (move the existing `loadNeoCatalog` cases): ready with
-      origin and `fetchedAt` passed through; a rejecting loader → `unavailable` (and a `console.warn`).
-- [ ] **Step 2: Write failing tests for `dataStatus`:**
+- [x] **Step 1: Write failing tests for `loadDatasetState`** (move the existing `loadNeoCatalog` cases): ready with
+      origin and `fetchedAt` passed through; a rejecting loader → `unavailable` (and a `console.warn`). Plus
+      `useNowMs`: the value advances only when the interval elapses (fake timers).
+- [x] **Step 2: Write failing tests for `dataStatus`:**
   - all `fresh`, oldest fetched 12 min before `nowMs` → tone `live`, text `Live · JPL · updated 12 min ago`
     (the mockup's wording)
-  - one `stale` → tone `stale`, text `Cached data, refreshing`
-  - one `snapshot` with `fetchedAt` 2026-09-28T10:00:00Z → tone `snapshot`, text `Offline snapshot from 28 Sep 2026`
+  - one `stale` → tone `stale`, text `Cached · JPL · updated 3 h ago`
+  - one `snapshot` with `fetchedAt` 2026-09-28T10:00:00Z → tone `snapshot`, text
+    `Offline snapshot · JPL · from 28 Sep 2026`
   - one `unavailable` among ready ones → tone `unavailable`, text names that dataset (`Close approaches unavailable`)
-  - any `loading`, none worse → tone `loading`
-  - `details` has one line per dataset with its age, e.g. `NEO catalog: fetched 4 min ago` (from `nowMs`)
-- [ ] **Step 3: Run** `npx vitest run apps/web/src/data apps/web/src/shell`, expect FAIL.
-- [ ] **Step 4: Implement** `useDataset`, `loadDatasetState`, `dataStatus`; rewire `useNeoCatalog` over them.
-- [ ] **Step 5: Run the tests again**, expect PASS.
-- [ ] **Step 6: Build the shell.** `AppShell` + `DataStatusPill`, placed as in the mockup: brand (logo and
-      "PERIHELION · The live solar system · NASA / JPL data") and pill in `top`; today's `TimeControls` restyled inside
-      the mockup's bottom timeline panel; `FocusPicker` in `top`; `left` and `right` empty for now. The pill reads
-      `neos` only in this task; Task 3 adds `close-approaches`. Review checks whether `SwarmStatus` overlaps the pill
-      and proposes keeping only its loading/unavailable message. The opening caption takes the mockup's caption
-      style, with its count still from the catalog.
-- [ ] **Step 7: Browser check** (`npm run dev`): pill reads `Live · JPL · updated … ago` with the server up; stop
-      the server and reload → `Offline snapshot from …`. At 1600 × 1000 the layout matches the mockup's regions; at
-      1024 px wide the columns collapse and nothing overlaps; keyboard Tab reaches every control. Sun overview and
-      Earth zoom still at the Phase 4 frame times (60 fps target). Note the numbers in the PR.
-- [ ] **Step 8: `npm run check`**, then commit: `Add the app shell layout and a data-status pill`.
+  - any `loading`, none worse → tone `loading`, text `Loading JPL data…`
+  - `details` has one line per dataset with its age, e.g. `NEO catalog: 40,123 asteroids · fetched 4 min ago`
+    (from `nowMs`)
+  - and a render test for `DataStatusPill` (the `SwarmControls.test.tsx` static-markup setup): tone attribute,
+    bold head word, one list item per detail line.
+- [x] **Step 3: Run** `npx vitest run apps/web/src/data apps/web/src/shell`, expect FAIL.
+- [x] **Step 4: Implement** `useDataset`, `loadDatasetState`, `useNowMs`, `dataStatus`; rewire `useNeoCatalog`.
+- [x] **Step 5: Run the tests again**, expect PASS.
+- [x] **Step 6: Build the shell.** `AppShell`, `ShellColumn`, `Brand` and `DataStatusPill`, placed as in the
+      mockup: `Brand` left, `FocusPicker` top centre (the mockup's tab position) and the pill right in `top`;
+      `SwarmControls` at the foot of the left column; today's `TimeControls` restyled inside the mockup's bottom
+      timeline panel; `right` empty for now. The pill reads `neos` only in this task; Task 3 adds
+      `close-approaches`. `SwarmStatus` is removed: its loading and unavailable states and the NEO count live in
+      the pill. The opening caption takes the mockup's caption style, with its count still from the catalog.
+- [x] **Step 7: Browser check** (`npm run dev`): pill reads `Live · JPL · updated … ago` with the server up; stop
+      the server and reload → `Offline snapshot · JPL · from …`. At 1600 × 1000 the layout matches the mockup's
+      regions; at 1024 px wide the columns collapse and nothing overlaps; keyboard Tab reaches every control;
+      dragging the scene between panels still orbits the camera. Sun overview and Earth zoom still at the Phase 4
+      frame times (60 fps target). Note the numbers in the PR.
+- [x] **Step 8: `npm run check`**, then commit: `Add the app shell layout and a data-status pill`.
 
 ---
 

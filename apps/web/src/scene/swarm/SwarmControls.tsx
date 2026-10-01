@@ -6,7 +6,7 @@ export interface SwarmControlsProps {
 /** React state is fine here: it changes only when the viewer clicks. Off unmounts the trails entirely. */
 export function SwarmControls({ showTrails, onShowTrailsChange }: SwarmControlsProps) {
   return (
-    <label className="hud swarm-controls">
+    <label className="panel swarm-controls">
       <input
         type="checkbox"
         checked={showTrails}

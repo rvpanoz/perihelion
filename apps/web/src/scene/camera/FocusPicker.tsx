@@ -5,7 +5,7 @@ import { cameraRig } from './cameraRig';
 export function FocusPicker() {
   const focus = useSyncExternalStore(cameraRig.subscribe, () => cameraRig.focus);
   return (
-    <nav className="hud focus-picker" aria-label="Focus">
+    <nav className="panel focus-picker" aria-label="Focus">
       {BODY_IDS.map((body) => (
         <button
           key={body}

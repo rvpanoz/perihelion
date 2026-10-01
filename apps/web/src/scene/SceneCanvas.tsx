@@ -26,7 +26,7 @@ export function SceneCanvas({ swarm, openingCanStart }: SceneCanvasProps) {
       <SceneContents swarm={swarm} />
       <CameraControls />
       <Effects />
-      <Stats />
+      <Stats className="fps-meter" />
       {import.meta.env.DEV && <DevProbes />}
     </Canvas>
   );

@@ -13,14 +13,25 @@ const RATE_SLIDER_STEPS = 1_000;
 export function TimeControls() {
   const readout = useTimeReadout();
   return (
-    <div className="hud time-controls" role="group" aria-label="Simulation time">
-      <button type="button" onClick={() => timeStore.setPlaying(!readout.playing)}>
-        {readout.playing ? 'Pause' : 'Play'}
-      </button>
-      <button type="button" onClick={() => timeStore.jumpToNow()}>
-        Now
-      </button>
-      <output aria-label="Simulation date">{formatSimulationDate(readout.jdTdb)}</output>
+    <div className="panel timeline" role="group" aria-label="Simulation time">
+      <div className="transport">
+        <button
+          type="button"
+          className="play"
+          onClick={() => timeStore.setPlaying(!readout.playing)}
+        >
+          {readout.playing ? 'Pause' : 'Play'}
+        </button>
+        <button type="button" onClick={() => timeStore.jumpToNow()}>
+          Now
+        </button>
+        <div className="clock">
+          <output className="mono" aria-label="Simulation date">
+            {formatSimulationDate(readout.jdTdb)}
+          </output>
+          <span className="clock-note">simulated time</span>
+        </div>
+      </div>
       <DateScrubber jdTdb={readout.jdTdb} />
       <RateSlider rateDaysPerSecond={readout.rateDaysPerSecond} />
     </div>

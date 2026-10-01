@@ -1,75 +1,383 @@
+/*
+ * Tokens from docs/design/perihelion-mockup.html, adapted per Phase 5 decision 7: panels near-opaque with no
+ * backdrop-filter (blur is a Phase 7 quality option), an ice-white accent that matches no orbit class, and
+ * --faint lightened from #5b6378 (3.24:1) to 4.80:1 against --panel composited on --bg.
+ */
+:root {
+  --bg: #03050b;
+  --panel: rgb(10 14 26 / 85%);
+  --panel-border: rgb(255 255 255 / 8%);
+  --text: #e8ecf5;
+  --muted: #8a93a8;
+  --faint: #787e90;
+  --accent: #e8f4ff;
+  --status-live: #4be3a0;
+  --status-warn: #ffc46b;
+  --status-error: #ff7ab8;
+  --radius-panel: 14px;
+  --font-ui: -apple-system, 'SF Pro Text', 'Inter', 'Helvetica Neue', system-ui, sans-serif;
+  --font-mono: 'SF Mono', ui-monospace, 'JetBrains Mono', Menlo, monospace;
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-md: 13px;
+  --text-lg: 15px;
+  --shell-gutter: 24px;
+  --shell-left-width: 300px;
+  --shell-right-width: 340px;
+}
+
 html,
 body,
 #root {
   margin: 0;
   height: 100%;
-  background: #000;
+  background: var(--bg);
 }
 
-.hud {
-  position: fixed;
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  padding: 0.5rem 0.75rem;
-  color: #e8ecf4;
-  font:
-    13px/1.4 system-ui,
-    sans-serif;
-  background: rgb(8 10 16 / 70%);
-  border-radius: 6px;
+body {
+  color: var(--text);
+  font: var(--text-md) / 1.4 var(--font-ui);
+  -webkit-font-smoothing: antialiased;
 }
 
-.time-controls {
-  left: 50%;
-  bottom: 1rem;
-  transform: translateX(-50%);
+p {
+  margin: 0;
 }
 
-.time-controls output {
-  min-width: 13ch;
+.mono {
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-panel);
+  box-shadow: 0 10px 40px rgb(0 0 0 / 35%);
+}
+
+.app-shell button {
+  padding: 6px 10px;
+  color: var(--muted);
+  font: inherit;
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.app-shell button:hover,
+.app-shell button[aria-pressed='true'] {
+  color: var(--text);
+  background: rgb(255 255 255 / 9%);
+}
+
+.app-shell :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Only panels take the pointer; the gaps between them stay part of the scene. */
+.app-shell {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template:
+    'top top top' auto
+    'left . right' 1fr
+    'bottom bottom bottom' auto
+    / var(--shell-left-width) 1fr var(--shell-right-width);
+  gap: 20px;
+  padding: 20px var(--shell-gutter);
+  pointer-events: none;
+}
+
+.app-shell .panel {
+  pointer-events: auto;
+}
+
+.shell-top {
+  grid-area: top;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 16px;
+  align-items: center;
+}
+
+/* Until Task 3 fills it, the left column holds only the swarm controls, at its foot. */
+.shell-left {
+  grid-area: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 0;
+}
+
+.shell-right {
+  grid-area: right;
+  min-height: 0;
+}
+
+.shell-bottom {
+  grid-area: bottom;
+}
+
+.shell-column > summary {
+  width: fit-content;
+  padding: 8px 14px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.shell-column-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 1100px) {
+  .shell-column > summary {
+    display: none;
+  }
+}
+
+/* Below 1100 px the columns become drawers under the top bar, over the scene. */
+@media (max-width: 1099.98px) {
+  .app-shell {
+    grid-template:
+      'top top' auto
+      'left right' auto
+      '. .' 1fr
+      'bottom bottom' auto
+      / 1fr 1fr;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .shell-top {
+    grid-template-columns: 1fr auto;
+  }
+
+  .shell-top .focus-picker {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .shell-right .shell-column {
+    justify-self: end;
+  }
+
+  .shell-column-body {
+    width: min(var(--shell-left-width), calc(100vw - 24px));
+    margin-top: 8px;
+  }
+}
+
+.brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-self: start;
+}
+
+.brand-word {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  letter-spacing: 0.34em;
+}
+
+.brand-tagline {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+}
+
+.focus-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 12px;
+}
+
+.pill {
+  justify-self: end;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  border-radius: 999px;
+}
+
+.pill[open] {
+  border-radius: var(--radius-panel);
+}
+
+.pill > summary {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 14px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.pill > summary::-webkit-details-marker {
+  display: none;
+}
+
+.pill b {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.pill ul {
+  margin: 0;
+  padding: 0 14px 10px 29px;
+  color: var(--faint);
+}
+
+.pill-dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  background: var(--muted);
+  border-radius: 50%;
+}
+
+.pill[data-tone='live'] .pill-dot {
+  background: var(--status-live);
+  box-shadow: 0 0 10px var(--status-live);
+}
+
+.pill:is([data-tone='stale'], [data-tone='snapshot']) .pill-dot {
+  background: var(--status-warn);
+}
+
+.pill[data-tone='unavailable'] .pill-dot {
+  background: var(--status-error);
+}
+
+.swarm-controls {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  width: fit-content;
+  padding: 8px 14px;
+}
+
+.timeline {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 24px;
+  align-items: center;
+  padding: 14px 20px;
+}
+
+.transport {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.app-shell .play {
+  min-width: 64px;
+  height: 44px;
+  color: var(--text);
+  background: rgb(255 255 255 / 10%);
+  border-radius: 22px;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 12%);
+}
+
+.clock {
+  display: flex;
+  flex-direction: column;
+  margin-left: 8px;
+}
+
+.clock output {
+  min-width: 21ch;
+  font-size: var(--text-lg);
+}
+
+.clock-note {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.timeline input[type='range'] {
+  width: 100%;
+  accent-color: var(--accent);
 }
 
 .rate-slider {
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  color: var(--muted);
 }
 
-.focus-picker {
-  top: 1rem;
-  right: 1rem;
-  flex-wrap: wrap;
-  max-width: calc(100vw - 2rem);
+.rate-slider input[type='range'] {
+  width: 140px;
 }
 
-.hud button[aria-pressed='true'] {
-  outline: 1px solid currentcolor;
+@media (max-width: 1099.98px) {
+  .timeline {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 10px 14px;
+  }
 }
 
-.swarm-status {
-  left: 1rem;
-  bottom: 1rem;
-  margin: 0;
+/* drei's Stats pins itself to the top-left corner with inline styles, over the brand; move it under the top bar. */
+.fps-meter {
+  top: 76px !important;
+  left: var(--shell-gutter) !important;
 }
 
-.swarm-controls {
-  left: 1rem;
-  bottom: 3.5rem;
-  display: flex;
-  gap: 0.4rem;
-  align-items: center;
+@media (max-width: 1099.98px) {
+  .fps-meter {
+    top: auto !important;
+    right: 12px;
+    bottom: 200px;
+    left: auto !important;
+  }
 }
 
 /* Holds through the move, then lingers a few seconds after it so the facts can still be read. */
-.opening-caption {
-  left: 50%;
-  bottom: 5rem;
-  margin: 0;
-  transform: translateX(-50%);
-  opacity: 0;
+.caption {
+  position: fixed;
+  left: calc(var(--shell-gutter) + var(--shell-left-width) + 32px);
+  bottom: 132px;
+  max-width: min(560px, calc(100vw - 2 * var(--shell-gutter)));
   pointer-events: none;
+}
+
+.caption-kicker {
+  margin-bottom: 8px;
+  color: var(--accent);
+  font-size: var(--text-xs);
+  letter-spacing: 0.32em;
+}
+
+.caption-text {
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 1099.98px) {
+  .caption {
+    left: var(--shell-gutter);
+    bottom: 180px;
+  }
+}
+
+.opening-caption {
+  opacity: 0;
   transition: opacity 1.5s ease;
 }
 
