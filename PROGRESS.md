@@ -274,7 +274,8 @@ replay of two rows is deferred (user decision, 2026-10-02).
 
 ## Phase 6: Shot 3: The Eruption
 
-Plan: not written yet. Tasks follow `PLAN.md` (split into ten on 2026-10-02, PR #98).
+Plan: `docs/superpowers/plans/2026-10-02-phase-6-the-eruption.md` (part 1: Task 1). Tasks follow `PLAN.md`
+(split into ten on 2026-10-02, PR #98).
 
 - [ ] DONKI migration: new CME endpoint, validation, re-recorded fixtures and snapshot (#85)
 - [ ] Engine: CME direction from DONKI latitude/longitude, and whether Earth is inside the cone (#99)
@@ -675,3 +676,12 @@ _None._
 - **2026-10-02:** Phase 5's offline (snapshot) replay of two approaches is deferred (user decision): it is not a
   `PLAN.md` exit criterion, and its behaviour (snapshot pill, past rows playable) is pinned by the Task 0 and Task 5
   tests and the Phase 2 offline check.
+- **2026-10-02:** DONKI moved to CCMC on 2026-09-30: CMEs come from `https://ccmc.gsfc.nasa.gov/DONKI-API/get/CME`
+  (same parameters and JSON, no key; checked live). `NASA_API_KEY` and `DEMO_KEY` are retired with it, and CCMC gets
+  its own request gate (Task 1a, #85).
+- **2026-10-02:** CMEs keep ENLIL's predicted Earth arrival when DONKI ran one. With it, that is the arrival shown and
+  the time the drawn front reaches Earth; without it, the front moves at the analysis speed from 21.5 R☉ at
+  `time21_5` and the arrival is labelled "est.". The tolerance is measured and proposed at Task 3 (#100).
+- **2026-10-02:** Ground truth for the CME direction (Task 2, #99) is Hapgood (1992)'s published worked examples.
+- **2026-10-02:** Task 1 (#85) ships as three PRs: 1a DONKI on CCMC, 1b strict times / http(s) links / ENLIL
+  arrival, 1c cache validation on first read.
