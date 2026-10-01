@@ -10,7 +10,7 @@ import {
   snapshotFileName,
 } from '@perihelion/data';
 import { systemClock } from '../src/clock.js';
-import { type ServerConfig, readServerConfig } from '../src/config.js';
+import { readServerConfig } from '../src/config.js';
 import { createDatasetRequests, defaultDatasetRequests } from '../src/datasets/datasetRequests.js';
 import { createUpstreamClients } from '../src/upstream/upstreamClients.js';
 
@@ -28,11 +28,8 @@ function selectedNames(args: readonly string[]): readonly DatasetName[] {
 }
 
 /** Same queries, validation and normalization as the live server, so a snapshot is a real answer. */
-async function fetchAll(
-  config: ServerConfig,
-  names: readonly DatasetName[],
-): Promise<SnapshotTexts> {
-  const requests = defaultDatasetRequests(snapshotRequests(config));
+async function fetchAll(names: readonly DatasetName[]): Promise<SnapshotTexts> {
+  const requests = defaultDatasetRequests(snapshotRequests());
   const texts: SnapshotTexts = {};
   for (const name of names) {
     const data = await requests[name].fetchData();
@@ -42,13 +39,12 @@ async function fetchAll(
 }
 
 /** No server here, so the close approaches join a catalog fetched once for this run. */
-function snapshotRequests(config: ServerConfig) {
+function snapshotRequests() {
   const clients = createUpstreamClients(systemClock);
   let catalog: Promise<NeoCatalog> | undefined;
   const requests = createDatasetRequests({
     ...clients,
     clock: systemClock,
-    nasaApiKey: config.nasaApiKey,
     readNeoCatalog: () =>
       (catalog ??= requests
         .neos()
@@ -71,7 +67,7 @@ async function main(): Promise<void> {
   // The directory the server falls back to (apps/web/public/snapshot, which Vite serves as /snapshot/*.json).
   const config = readServerConfig(process.env);
   const names = selectedNames(process.argv.slice(2));
-  const texts = await fetchAll(config, names);
+  const texts = await fetchAll(names);
   if (texts.neos !== undefined) assertNeoBudget(texts.neos);
   await mkdir(config.snapshotDirectory, { recursive: true });
   for (const name of names) {

@@ -47,7 +47,6 @@ export interface DatasetRequestDependencies {
   jpl: HttpClient;
   donki: HttpClient;
   clock: Clock;
-  nasaApiKey: string;
   /** The catalog the close approaches join by designation (the server's cached copy, or a fresh fetch). */
   readNeoCatalog: () => Promise<NeoCatalog>;
   logger: DatasetLogger;
@@ -106,7 +105,7 @@ function cmeRequest(deps: DatasetRequestDependencies, days: number): DatasetRequ
     name: 'cmes',
     cacheKey: `cmes?days=${days}`,
     fetchData: async () => {
-      const query = donkiCmeQuery(cmeWindow(deps.clock.now(), days), deps.nasaApiKey);
+      const query = donkiCmeQuery(cmeWindow(deps.clock.now(), days));
       return toCmes(donkiCmeResponseSchema.parse(await getJson(deps.donki, query)));
     },
   });

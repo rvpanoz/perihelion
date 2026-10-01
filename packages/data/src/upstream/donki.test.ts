@@ -27,9 +27,9 @@ const parse = (body: unknown) => donkiCmeResponseSchema.parse(body);
 describe('toCmes', () => {
   it('keeps recorded CMEs that have a complete most-accurate analysis, in time order', () => {
     const cmes = toCmes(parse(RECORDED_DONKI_CME_WINDOW));
-    // The 2026-09-28 recording has 126 CMEs; 40 have no longitude in their flagged analysis and are left
-    // out. Re-recording changes this number, so revisit it then.
-    expect(cmes).toHaveLength(86);
+    // The 2026-10-01 recording (CCMC) has 110 CMEs; 33 have no longitude in their flagged analysis and are
+    // left out. Re-recording changes this number, so revisit it then.
+    expect(cmes).toHaveLength(77);
     for (const cme of cmes) cmeSchema.parse(cme);
     const starts = cmes.map((cme) => cme.startTime);
     expect(starts).toEqual(starts.toSorted());

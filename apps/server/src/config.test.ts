@@ -9,8 +9,6 @@ describe('readServerConfig', () => {
   it('uses development defaults inside the server package', () => {
     expect(readServerConfig({})).toEqual({
       port: 8787,
-      nasaApiKey: 'DEMO_KEY',
-      usingDemoKey: true,
       databasePath: serverPath('.cache/perihelion.sqlite'),
       snapshotDirectory: serverPath('../web/public/snapshot'),
     });
@@ -19,17 +17,18 @@ describe('readServerConfig', () => {
   it('reads the environment, treating blank values as unset', () => {
     const config = readServerConfig({
       PORT: '9000',
-      NASA_API_KEY: 'abc',
       DATABASE_PATH: '',
       SNAPSHOT_DIR: '/srv/snap',
     });
     expect(config).toMatchObject({
       port: 9000,
-      nasaApiKey: 'abc',
-      usingDemoKey: false,
       snapshotDirectory: '/srv/snap',
     });
     expect(config.databasePath).toBe(serverPath('.cache/perihelion.sqlite'));
+  });
+
+  it('ignores a leftover NASA_API_KEY: DONKI on CCMC needs no key', () => {
+    expect(readServerConfig({ NASA_API_KEY: 'abc' })).toEqual(readServerConfig({}));
   });
 
   it('rejects a port that is not a port', () => {

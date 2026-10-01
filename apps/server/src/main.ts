@@ -9,8 +9,6 @@ const REFRESH_INTERVAL_MS = 10 * 60_000;
 
 const config = readServerConfig(process.env);
 const app = await buildApp({ logger: true });
-if (config.usingDemoKey)
-  app.log.warn('NASA_API_KEY is not set; DONKI uses the rate-limited DEMO_KEY');
 
 const datasets = createDatasets(config, app.log);
 registerDatasetRoutes(app, datasets);

@@ -14,7 +14,7 @@ import { describe, expect, it } from 'vitest';
 import { FakeUpstream, RECORDED_BODIES } from '../testing/fakeUpstream.js';
 import { RECORDED_CAD_DESIGNATIONS, neoCatalogOf } from '../testing/testCatalog.js';
 import { TestClock } from '../testing/testClock.js';
-import { TEST_API_KEY, TEST_NOW_MS } from '../testing/testConstants.js';
+import { TEST_NOW_MS } from '../testing/testConstants.js';
 import {
   DATASET_TTL_MS,
   createDatasetRequests,
@@ -33,7 +33,6 @@ function requestsWith(upstream = new FakeUpstream(), catalog: NeoCatalog = FULL_
       jpl: upstream,
       donki: upstream,
       clock,
-      nasaApiKey: TEST_API_KEY,
       readNeoCatalog: () => Promise.resolve(catalog),
       logger: { warn: (_details, message) => void warnings.push(message) },
     }),
@@ -64,7 +63,7 @@ describe('createDatasetRequests', () => {
     expect(requests.cmes(30)).toMatchObject({ cacheKey: 'cmes?days=30', snapshotName: 'cmes' });
   });
 
-  it('asks CAD for today ± days and DONKI for the last days, with the key', async () => {
+  it('asks CAD for today ± days and DONKI for the last days, with no key', async () => {
     const { upstream, requests } = requestsWith();
     await requests.closeApproaches(7).fetchData();
     await requests.cmes(30).fetchData();
@@ -77,7 +76,8 @@ describe('createDatasetRequests', () => {
       '2026-08-29',
       '2026-09-28',
     ]);
-    expect(donki?.searchParams.get('api_key')).toBe(TEST_API_KEY);
+    expect(donki?.pathname).toBe('/DONKI-API/get/CME');
+    expect(donki?.searchParams.has('api_key')).toBe(false);
   });
 
   it('rejects an upstream body that fails validation, so it never reaches the cache', async () => {
@@ -87,7 +87,10 @@ describe('createDatasetRequests', () => {
 
   it('serves empty upstream windows as empty lists', async () => {
     const { requests } = requestsWith(
-      new FakeUpstream({ '/cad.api': RECORDED_CAD_EMPTY, '/DONKI/CME': RECORDED_DONKI_CME_EMPTY }),
+      new FakeUpstream({
+        '/cad.api': RECORDED_CAD_EMPTY,
+        '/DONKI-API/get/CME': RECORDED_DONKI_CME_EMPTY,
+      }),
     );
     await expect(requests.closeApproaches(7).fetchData()).resolves.toEqual([]);
     await expect(requests.cmes(30).fetchData()).resolves.toEqual([]);

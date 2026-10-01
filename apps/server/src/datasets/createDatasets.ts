@@ -26,7 +26,6 @@ export function createDatasets(config: ServerConfig, logger: DatasetLogger): Dat
   const requests: DatasetRequests = createDatasetRequests({
     ...clients,
     clock: systemClock,
-    nasaApiKey: config.nasaApiKey,
     readNeoCatalog: () => readServedNeoCatalog(service, requests),
     logger,
   });

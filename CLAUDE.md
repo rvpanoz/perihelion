@@ -19,7 +19,7 @@ small TypeScript orbit engine. See `PLAN.md` for scope and phases, `PROGRESS.md`
    Fix the code. If you believe a tolerance is wrong, stop and ask, with evidence.
 4. **`packages/orbit` has zero runtime dependencies** and no DOM or Node APIs. It is pure functions over numbers.
 5. **The web app never calls NASA/JPL directly.** All data goes through `apps/server` (with snapshot fallback).
-6. **Never commit secrets.** `NASA_API_KEY` comes from the environment only.
+6. **Never commit secrets.** Credentials come from the environment only.
 
 ## Commands
 
@@ -64,7 +64,7 @@ packages/fixtures  Horizons ground-truth fixtures + generator
 
 ## Data notes
 
-- JPL SSD APIs (SBDB query, CAD, Horizons) need no key. DONKI needs `NASA_API_KEY`.
+- JPL SSD APIs (SBDB query, CAD, Horizons) and DONKI (CCMC `DONKI-API`) need no key.
 - Do **not** use: Mars Rover Photos API (offline), InSight weather (frozen 2020 data), legacy APOD API (archived 2026-12-01).
 - Validate every upstream response with zod; treat upstream data as untrusted.
 

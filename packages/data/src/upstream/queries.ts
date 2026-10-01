@@ -13,7 +13,9 @@ export interface DateWindow {
 export const SBDB_QUERY_API_URL = 'https://ssd-api.jpl.nasa.gov/sbdb_query.api';
 export const SBDB_OBJECT_API_URL = 'https://ssd-api.jpl.nasa.gov/sbdb.api';
 export const CAD_API_URL = 'https://ssd-api.jpl.nasa.gov/cad.api';
-export const DONKI_CME_API_URL = 'https://api.nasa.gov/DONKI/CME';
+// CCMC's own DONKI API, which replaced the api.nasa.gov proxy on 2026-09-30 (same parameters and JSON, no key).
+// https://ccmc.gsfc.nasa.gov/news/major-updates
+export const DONKI_CME_API_URL = 'https://ccmc.gsfc.nasa.gov/DONKI-API/get/CME';
 
 /**
  * Designation, name, osculating elements (epoch as JD TDB, e, a in AU, i/Ω/ω/M in degrees),
@@ -81,11 +83,10 @@ export function sbdbObjectQuery(designation: string): UpstreamQuery {
   return { baseUrl: SBDB_OBJECT_API_URL, params: { des: designation, 'full-prec': 'true' } };
 }
 
-/** DONKI takes the key in the query string, so any printed URL must go through redaction. */
-export function donkiCmeQuery(window: DateWindow, apiKey: string): UpstreamQuery {
+export function donkiCmeQuery(window: DateWindow): UpstreamQuery {
   return {
     baseUrl: DONKI_CME_API_URL,
-    params: { startDate: window.startDate, endDate: window.endDate, api_key: apiKey },
+    params: { startDate: window.startDate, endDate: window.endDate },
   };
 }
 

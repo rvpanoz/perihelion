@@ -49,14 +49,10 @@ describe('sbdbObjectQuery', () => {
 });
 
 describe('donkiCmeQuery', () => {
-  it('passes the window and the API key', () => {
-    const query = donkiCmeQuery({ startDate: '2026-08-29', endDate: '2026-09-28' }, 'KEY');
-    expect(query.baseUrl).toBe('https://api.nasa.gov/DONKI/CME');
-    expect(query.params).toEqual({
-      startDate: '2026-08-29',
-      endDate: '2026-09-28',
-      api_key: 'KEY',
-    });
+  it('asks CCMC for the window, with no key', () => {
+    const query = donkiCmeQuery({ startDate: '2026-08-29', endDate: '2026-09-28' });
+    expect(query.baseUrl).toBe('https://ccmc.gsfc.nasa.gov/DONKI-API/get/CME');
+    expect(query.params).toEqual({ startDate: '2026-08-29', endDate: '2026-09-28' });
   });
 });
 
