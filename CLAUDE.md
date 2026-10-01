@@ -99,9 +99,19 @@ packages/fixtures  Horizons ground-truth fixtures + generator
 
 ## Agent Guardrails & Cost Optimization
 
-- **Maximum 3 Tool Loops:** You are strictly forbidden from executing more than 3 tool loops (e.g., read file -> edit file) in a single turn without pausing to ask for human permission.
-- **No Autonomous Debugging Loops:** If a terminal command or test fails, do NOT attempt to read more files or fix the error on your own. Stop immediately, output the error log, and hand control back to the user.
-- **No Full File Rewrites:** When editing a file, strictly use precise diff patches. Never output an entire 100+ line file if only 5 lines are changing.
+- **Pause at meaningful points, not after N tool loops.** Work through a plan step without pausing for routine
+  actions (reading, searching, formatting, git, `gh` tracking). Stop and ask before: changing a planned test or any
+  tolerance; touching fixtures or recordings by hand; editing CLAUDE.md or `PLAN.md`; adding a dependency; anything
+  outside the current task. Pause at the end of each plan step.
+- **Limited self-repair.** An expected failure (a test written first and failing as planned, or lint/format/type
+  errors in code just written) may be fixed directly. Any other failure: at most two fix attempts, then stop and
+  report the error. A failing golden/fixture test, an engine-vs-JPL check or a performance regression always stops
+  work immediately.
+- **Visual iteration loops.** For shader and look tasks, up to five change → screenshot → frame-time rounds per step
+  without asking, measured on the main display (Dell S2721HN, 75 Hz; frame time ≤ 16.7 ms). Show the before/after
+  stills at the end.
+- **No full file rewrites.** When editing an existing file, use precise diff patches; never output an entire 100+
+  line file if only a few lines change. New files and generated files (recordings, snapshots) are written whole.
 
 ## Coding Standards (Uncle Bob Clean Code)
 
