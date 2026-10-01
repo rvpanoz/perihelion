@@ -53,7 +53,7 @@ Fastify, zod 4, Vitest 5, fast-check.
 | 4   | CME picker + selected-CME store            | #101  | light     | ✅            |
 | 5   | CME particle shell                         | #102  | full code | ✅            |
 | 6   | Sun look                                   | #103  | full code | ✅            |
-| 7   | Earth look                                 | #104  | full code | written later |
+| 7   | Earth look                                 | #104  | full code | ✅            |
 | 8   | Earth impact (illustrative)                | #105  | light     | written later |
 | 9   | Shot choreography                          | #106  | light     | written later |
 | 10  | Exit verification                          | #107  | light     | written later |
@@ -778,4 +778,81 @@ supplied for both materials; one phase shared; the noise chunk precedes `main`.
 - [x] Close up, the disc shows limb darkening, granulation and a streamered corona; from 3 AU the Sun stays a bright
       point (dev app).
 - [x] Frame time 13.34 ms mean at 0.012 AU from the Sun (disc filling the view) and at 3 AU, 1920 × 809, 75 Hz.
+- [x] `npm run check` green.
+
+## Task 7: Earth look (#104, full code)
+
+Branch `phase-6/earth-look`. Files: `packages/orbit/src/earthOrientation.ts` (+ test; `heliographic.ts` exports
+`OBLIQUITY_J2000_RAD` and `equatorialToEcliptic` for it); `apps/web/public/textures/earth-day-2048.jpg`;
+`apps/web/src/scene/bodies/earth/` `earthLook.ts`, `earthSurface.vert`/`.frag`, `atmosphere.vert`/`.frag`,
+`earthMaterials.ts`, `earthOrientation.ts`, `earthDayMap.ts`, `EarthBody.tsx`; `Body.tsx`, `SceneCanvas.tsx`.
+
+**Decisions:**
+
+1. **Texture.** NASA Visible Earth, Blue Marble Next Generation with topography and bathymetry, July 2004
+   (Reto Stöckli, NASA Earth Observatory; public domain), image record 73751, resized from 5400 × 2700 to
+   2048 × 1024 JPEG (478 KB; cap 600 KB). City lights stay in Phase 7, so the night side is the same map dimmed to
+   4 % of its luminance and tinted blue, blended across a terminator ±0.1 in cos(Sun angle) (about ±6°).
+2. **Orientation is real.** `earthRotationAngleRad` (IAU 2000 B1.8) turns Greenwich from the J2000 equinox about the
+   J2000 celestial pole (tilted by the obliquity from ecliptic north): the continents under the Sun are the right ones.
+   Precession since J2000 (~0.36°) and UT1 − UTC (< 0.9 s) are ignored; it is drawn only. three.js's sphere maps
+   Greenwich to local +x, the pole to +y and 90° E to −z, so the mesh's matrix columns are the body axes in scene
+   axes (x = Greenwich, y = pole, z = −east).
+3. **Loading.** The map loads once from `SceneCanvas` into a small store (`earthDayMap`), not inside the scene, so
+   the scene renders in tests (no DOM) and draws the plain sphere until the map arrives: one React commit.
+4. **Atmosphere.** A rim term on the surface (power 5, strongest on the lit limb) and a back-facing halo shell at
+   1.03 Earth radii, additive. Earth stays LDR: it never blooms.
+
+**Surface (`earthSurface.frag`):**
+
+```glsl
+// Day map lit by the Sun (Lambert), blended across a soft terminator into a dim blue-tinted night side, plus a rim
+// glow strongest on the lit limb (earthLook.ts). Output stays below 1, so Earth never blooms.
+
+#include <common>
+#include <logdepthbuf_pars_fragment>
+
+uniform sampler2D dayMap;
+uniform vec3 sunDirection; // unit, Earth → Sun, scene axes
+uniform float twilightWidth;
+uniform float dayBrightness;
+uniform float nightBrightness;
+uniform vec3 nightTint;
+uniform vec3 rimColor;
+uniform float rimPower;
+
+varying vec2 vUv;
+varying vec3 vWorldNormal;
+varying vec3 vToEye;
+
+void main() {
+  #include <logdepthbuf_fragment>
+  vec3 normal = normalize(vWorldNormal);
+  vec3 toEye = normalize(vToEye);
+  float sunCosine = dot(normal, sunDirection);
+  float daylight = smoothstep(-twilightWidth, twilightWidth, sunCosine);
+
+  vec3 albedo = texture2D(dayMap, vUv).rgb;
+  vec3 day = albedo * dayBrightness * max(sunCosine, 0.0);
+  float luminance = dot(albedo, vec3(0.2126, 0.7152, 0.0722));
+  vec3 night = nightTint * luminance * nightBrightness;
+
+  float rim = pow(1.0 - max(dot(normal, toEye), 0.0), rimPower);
+  float rimLit = 0.15 + 0.85 * smoothstep(-0.25, 0.5, sunCosine);
+  vec3 color = mix(night, day, daylight) + rimColor * rim * rimLit;
+  gl_FragColor = vec4(color, 1.0);
+}
+```
+
+**Tests:** ERA = 280.46061837504° at J2000.0, period one sidereal day, range [0, 2π); body axes orthonormal,
+right-handed, pole at the obliquity; `equatorialToEcliptic` keeps the equinox and tilts the pole; the mesh rotation
+puts the map's Greenwich, 90° E and north pole on the body axes (through three.js's sphere mapping), determinant 1;
+Sun direction unit and Earth → Sun; terminator blend 0 / ½ / 1; uniforms cover the declarations; the map store loads
+once, marks the map sRGB and notifies.
+
+**Acceptance:**
+
+- [x] At 02:33 UTC the day side shows East Asia and Australia (subsolar ≈ 142° E), north up; the night side is dim
+      blue with a lit limb (dev app).
+- [x] Frame time 13.34 ms mean (p95 14.8 ms) with Earth filling the view, 1920 × 809, 75 Hz.
 - [x] `npm run check` green.
