@@ -1587,9 +1587,11 @@ card follows the mockup's right column (decision 7).
 
 **Files:**
 
-- Create: `apps/web/src/approaches/approachCard.ts` (pure model), `apps/web/src/approaches/ApproachCard.tsx`,
-  tests beside each
-- Modify: `apps/web/src/App.tsx` (card in the shell's `right` slot, shown while a row is selected), the stylesheet
+- Create: `apps/web/src/approaches/approachCardModel.ts` (pure model; not `approachCard.ts`, which a
+  case-insensitive file system resolves for `./ApproachCard`), `apps/web/src/approaches/ApproachCard.tsx`,
+  `apps/web/src/approaches/Countdown.tsx`, tests beside each
+- Modify: `apps/web/src/App.tsx` (a `ShellRight` beside `ShellLeft` puts the card in the shell's `right` slot while a
+  row is selected), the stylesheet
 
 **Interfaces:**
 
@@ -1597,40 +1599,66 @@ card follows the mockup's right column (decision 7).
   `orbitClassLabel` (Task 3); `approachDiameter`, `diameterLabel`, `diameterValueText` (Task 2); `approachSelection` (Task 3);
   `followApproach`, `playApproach` (Task 5); `useTimeReadout()` (4 Hz).
 - Produces:
-  - `approachCard(request: { approach: CloseApproach; jdTdb: number }): ApproachCardModel`, where
-    `ApproachCardModel = { title: string; badge: string; countdown: string; stats: CardStat[]; source: string }` and
-    `CardStat = { label: string; value: string; detail: string; tooltip?: string }`
-  - `countdownText(daysFromApproach: number): string`
+  - `approachCard(approach: CloseApproach): ApproachCardModel`, where
+    `ApproachCardModel = { title: string; badge: string; stats: CardStat[]; source: string }` and
+    `CardStat = { label: string; value: string; detail: string; tooltip?: string }`. Time-free: the countdown is the
+    only part that changes with the clock, so it lives in its own component (review 4).
+  - `countdownParts(daysFromApproach: number): CountdownParts`, where `daysFromApproach = jdTdb − approachJdTdb`
+    (negative before the approach) and `CountdownParts = { before: string; duration: string; after: string }`, so
+    the duration can be set in bold as in the mockup (review 8)
+  - `ApproachCard` props: `{ approach: CloseApproach; onFollow: (a) => void; onPlay: (a) => void; closeUp?: ReactNode }`
+    (review 6); `Countdown` props: `{ approach: CloseApproach }`
 
 - [ ] **Step 1: Write failing tests for `approachCard`**, for a row built in code (`fullName: '       (2026 RX7)'`,
       `orbitClass: 'APO'`, `distanceAu: 0.0123456789`, `relativeVelocityKmPerS: 12.345678`,
       `approachJdTdb: 2_461_313.675`, `approachCalendarTdb: '2026-Sep-30 04:12'`, `timeUncertainty: '< 00:01'`,
       `diameterKm: null`, `absoluteMagnitude: 26.1`):
-  - `title` → `(2026 RX7)`; `badge` → `Apollo · NEO` (just `NEO` when `orbitClass` is null)
+  - `title` → `(2026 RX7)`; `badge` → `Apollo · NEO` (just `NEO` when `orbitClass` is null: its own branch, not
+    `orbitClassLabel(null)`, which would give `— · NEO`; review 2)
   - `Miss distance` → value `4.80 LD`, detail `1,846,887 km · 0.0123456789 AU`
   - `Relative speed` → value `12.345678 km/s`, detail `44,444 km/h`
   - label `diameterLabel(diameter)` (`Est. diameter` here) → value `diameterValueText(diameter)`, where
     `diameter = approachDiameter(row)`, detail `H = 26.1` (label `Diameter (JPL)` and detail `JPL` when JPL's
-    diameter is present)
-  - `Closest approach` → value `Sep 30 · 04:11 UTC`, detail `± < 00:01` (empty when `timeUncertainty` is null),
+    diameter is present; value `unknown` and an empty detail when there is neither a JPL diameter nor H, review 3)
+  - `Closest approach` → value `Sep 30 · 04:11 UTC`, detail `3σ < 00:01` (CAD's `t_sigma_f` is a 3-sigma range,
+    printed as CAD gives it; empty when `timeUncertainty` is null; review 9),
     tooltip `2026-Sep-30 04:12 TDB (JPL CAD)`
-  - `countdown` → `countdownText(jdTdb − approachJdTdb)`
   - `source` → `Distances from JPL CAD · drawn positions are a two-body illustration`
-- [ ] **Step 2: Write failing tests for `countdownText`:** `-1.5` → `Closest approach in 1d 12h 00m`;
-      `0.25` → `Closest approach 0d 06h 00m ago`; `|Δ| < 1 min` → `Closest approach now`; minutes round down.
+- [ ] **Step 2: Write failing tests for `countdownParts`** (shown here joined with spaces): `-1.5` →
+      `Closest approach in` + `1d 12h 00m`; `0.25` → `Closest approach` + `0d 06h 00m` + `ago`; `|Δ| < 1 min` →
+      `Closest approach now` with an empty duration; minutes round down.
+      `|Δ|` is rounded to the nearest second before the minutes are floored, so a difference of two JDs near
+      2.46 × 10⁶ (float noise ≈ 40 µs) does not lose a minute: `-1.4999999998` → `Closest approach in 1d 12h 00m`
+      (review 5). `Countdown` renders the duration in `<b>`.
 - [ ] **Step 3: Write the exactness test** (the exit criterion at unit level): for every row of the recorded CAD
-      response, after `toCloseApproaches`, the card's distance detail ends with `${row.distanceAu} AU`, its speed
-      value equals `${row.relativeVelocityKmPerS} km/s` and its date tooltip starts with `row.approachCalendarTdb`.
+      response (`packages/fixtures/upstream/cad-window.json`), after `toCloseApproaches` from `@perihelion/data`,
+      the card built from `approachCard(closeApproachRow(row))` (CAD rows carry no orbit; the helper fills it and
+      keeps every CAD field, review 1) has a distance detail ending with `${row.distanceAu} AU`, a speed value equal
+      to `${row.relativeVelocityKmPerS} km/s` and a date tooltip starting with `row.approachCalendarTdb`.
 - [ ] **Step 4: Run**, expect FAIL; **implement**; run, expect PASS.
-- [ ] **Step 5: `ApproachCard`** renders the model from `useTimeReadout()` (no per-frame React state) in the `right`
-      slot; hidden when nothing is selected. Two real buttons: **Follow** → `followApproach(selected)`, **Play
-      approach** → `playApproach(selected)`. A slot between the countdown and the stats holds Task 6b's close-up.
+- [ ] **Step 5: `ApproachCard`** renders `approachCard(approach)`; only its `Countdown` reads `useTimeReadout()`
+      (4 Hz, no per-frame React state), so the rest of the card does not re-render with the clock (review 4).
+      `App`'s `ShellRight` mirrors `ShellLeft`: `ShellColumn side="right" label="Focus"`, a drawer below 1100 px,
+      rendered only while a row is selected (review 7). Two real buttons: **Follow** → `onFollow(approach)`,
+      **Play approach** → `onPlay(approach)`; `App` passes `followApproach` / `playApproach` (review 6). The
+      `closeUp` slot between the countdown and the stats holds Task 6b's close-up. Render tests: title, badge and
+      four stats shown; each button calls its fake with the row.
 - [ ] **Step 6: Browser check:** for two rows, each card value matches the row in
       `curl -s localhost:<port>/api/close-approaches`; the countdown passes zero at the moment the drawn pass is
       closest (within the Task 4 tolerance's Δt); the layout matches the mockup's right column at 1600 × 1000.
 - [ ] **Step 7: `npm run check`**, then commit: `Add the close-approach focus card`.
 
 ---
+
+Review against `main` (2026-10-01): proposals 1–9 approved and folded in above. Proposal 10 (a `Source:` prefix)
+was dropped: in the mockup that prefix belongs to the Phase 6 DONKI card only.
+
+As built (2026-10-01): the model file is `approachCardModel.ts`, since `./ApproachCard` resolved to `approachCard.ts`
+on the case-insensitive file system; `apps/web` gains `@perihelion/fixtures` as a dev dependency for the exactness
+test. The stats are one column, not the mockup's two: CAD's full-precision figures wrapped mid-number in a 146 px
+half-column (user decision). Below 1100 px the drawers fill the row down to the time bar and scroll
+(`max-height: 100%; overflow-y: auto`): at 1024 × 768 the card is 519 px tall in a 322 px drawer, and without the
+scroll Follow / Play approach ran under the time bar out of reach (user decision).
 
 ### Task 6b: Earth-centred close-up (illustrative)
 

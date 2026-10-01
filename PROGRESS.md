@@ -124,7 +124,7 @@ Plan: `docs/superpowers/plans/2026-10-01-phase-5-the-close-approach.md`. UI refe
 - [x] Close-approach list UI (from `/api/close-approaches`), with an empty state
 - [x] Focused asteroid positioned by the CPU engine (float64) + trail; engine-vs-CAD closest-distance check
 - [x] Selecting an approach: clock to the approach, camera flies to the asteroid and follows it through closest approach
-- [ ] Focus card (HUD): JPL-reported distance (LD/AU/km), relative speed and date, plus diameter and class; Follow / Play approach
+- [x] Focus card (HUD): JPL-reported distance (LD/AU/km), relative speed and date, plus diameter and class; Follow / Play approach
 - [ ] Earth-centred close-up in the focus card (illustrative, no Moon)
 - [ ] Exit verification: every listed approach plays end to end; HUD values match CAD exactly; 60 fps
 
@@ -182,6 +182,29 @@ landing; Earth is in view on every frame through closest approach (863/863 per r
 at 25–26°/s; 75 fps, median 13.3 ms, worst 14.4 ms. Follow leaves the clock untouched; picking another row
 mid-flight starts a new flight from the current pose (at most 1.0° per frame); a drag ends the chase on its first
 frame without a snap; following at 300 km, Earth's screen position moves at most 1.3e-9 per frame (no jitter).
+
+Task 6 (#80, focus card) on `phase-5/focus-card`, PR open (2026-10-01). Review proposals 1–9
+included, 10 dropped (plan Task 6, "Review"): the model is time-free, `approachCard(approach)`, and only a
+`Countdown` component reads `useTimeReadout()`; `countdownParts` returns `before` / `duration` / `after` so the
+duration is bold, and rounds `|Δ|` to the second before flooring minutes (JD float noise); the badge has its own
+no-class branch (`NEO`); an unknown diameter reads `unknown` with no detail; the timing detail is `3σ <CAD t_sigma_f>`;
+`ApproachCard` takes `onFollow` / `onPlay` / `closeUp` props; `ShellRight` mirrors `ShellLeft` (column "Focus").
+Deviations: the model file is `approachCardModel.ts`, since `./ApproachCard` resolved to `approachCard.ts` on the
+case-insensitive file system; `apps/web` gains `@perihelion/fixtures` as a dev dependency for the exactness test,
+which validates the recording with `jplColumnarResponseSchema` first; the stats are one column, not the mockup's two,
+because CAD's full-precision figures wrapped mid-number in a 146 px half-column (user decision). `npm run check`
+green (708 tests) before the one-column CSS change.
+Browser check so far (2026-10-01, Chrome, live data, 19 rows): (2026 RQ34) and (2026 SC) cards match
+`/api/close-approaches` exactly (AU, km/s, TDB tooltip; km, LD, km/h and UTC derived as expected); hidden until a
+row is selected; one column has every value and detail on one line; 75 fps with the card shown.
+Browser check, continued (2026-10-01): at 1024 × 768 (page 1024 × 591) the card ran under the time bar with
+nothing to scroll; the drawers now fill the row down to the bar and scroll (user decision), and Follow / Play
+approach are reachable and clickable. Play approach on (2019 AS2): the countdown steps from `in 0d 03h 48m` to
+`0d 04h 00m ago` across CAD's 19:27 UTC, and paused at 23:51 UTC it reads `0d 04h 24m ago` exactly. At 1.4 d/s it
+steps about 8 h per update, coarser than the 86 min engine-vs-CAD bound, so zero and the drawn closest approach
+coincide on screen. 75 fps (median 13.3 ms, worst 14.4 ms). `npm run check` green (708 tests). Not checked by me:
+wheel scrolling in the drawer (user to confirm). Noted, outside Task 6: during play the time bar's date lags the
+countdown by about 0.15 s; the dev FPS overlay covers the card's speed value.
 
 ## Phase 6–7
 

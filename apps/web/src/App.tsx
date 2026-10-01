@@ -1,7 +1,8 @@
 import { type ReactNode, useState } from 'react';
+import { ApproachCard } from './approaches/ApproachCard';
 import { ApproachList } from './approaches/ApproachList';
 import { useSelectedApproach } from './approaches/approachSelection';
-import { selectApproach } from './approaches/playApproach';
+import { followApproach, playApproach, selectApproach } from './approaches/playApproach';
 import { type DatasetState, useDataset } from './data/useDataset';
 import { type NeoCatalogState, useNeoCatalog } from './data/useNeoCatalog';
 import { useNowMs } from './data/useNowMs';
@@ -41,6 +42,7 @@ export function App() {
     <AppShell
       top={<ShellTop neoCatalog={neoCatalog} closeApproaches={closeApproaches} />}
       left={<ShellLeft closeApproaches={closeApproaches}>{swarmControls}</ShellLeft>}
+      right={<ShellRight />}
       bottom={<TimeControls />}
     >
       <SceneCanvas swarm={swarm} openingCanStart={neoCatalog.status !== 'loading'} />
@@ -91,6 +93,17 @@ function ShellLeft({
         onSelect={selectApproach}
       />
       {children}
+    </ShellColumn>
+  );
+}
+
+/** The focus card for the selected row; with nothing selected the column stays empty so the scene shows through. */
+function ShellRight() {
+  const selected = useSelectedApproach();
+  if (selected === undefined) return null;
+  return (
+    <ShellColumn side="right" label="Focus">
+      <ApproachCard approach={selected} onFollow={followApproach} onPlay={playApproach} />
     </ShellColumn>
   );
 }

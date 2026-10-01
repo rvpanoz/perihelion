@@ -93,6 +93,6 @@ export function groupApproaches<A extends Pick<CloseApproach, 'approachJdTdb'>>(
   };
 }
 
-function twoDigits(value: number): string {
+export function twoDigits(value: number): string {
   return String(value).padStart(2, '0');
 }
