@@ -36,9 +36,10 @@ Fastify, zod 4, Vitest 5, fast-check.
    2026-10-02: no published worked values could be verified). Horizons gives Earth's heliocentric ecliptic J2000
    position and Earth's heliographic latitude B0 (the Sun's sub-observer latitude seen from Earth); with the IAU Sun
    pole these fix the HEEQ frame. Hapgood (1992) stays the cited source of the formulas.
-9. **Arrival timing (Task 3):** with an ENLIL arrival, the drawn front is timed to reach Earth then; without one, it
-   moves at the analysis speed from 21.5 R☉ at `time21_5` (constant speed) and the arrival is labelled "est.". The
-   tolerance for "consistent with DONKI" is measured and proposed with evidence at Task 3, as in earlier phases.
+9. **Arrival timing (Task 3, revised 2026-10-02 from the recorded CMEs):** with an ENLIL arrival, the drawn front
+   moves at the mean transit speed that meets `time21_5` and ENLIL's arrival, and the arrival is shown even if the
+   cone misses Earth; without one, the front moves at the analysis speed and no computed arrival is shown (a
+   constant-speed estimate differs from ENLIL by −39 h to +45 h). Details in Task 3.
 
 ## Tasks
 
@@ -47,8 +48,8 @@ Fastify, zod 4, Vitest 5, fast-check.
 | 1a  | DONKI on CCMC, key retired, re-recorded    | #85   | light     | ✅ #111       |
 | 1c  | Validate cache entries on first read       | #85   | light     | ✅ #112       |
 | 1b  | Strict times, http(s) links, ENLIL arrival | #85   | light     | 🟨 in review  |
-| 2   | Engine: CME direction and Earth-in-cone    | #99   | full code | 🟨 in review  |
-| 3   | Engine: CME kinematics and arrival         | #100  | full code | written later |
+| 2   | Engine: CME direction and Earth-in-cone    | #99   | full code | ✅ #115, #116 |
+| 3   | Engine: CME kinematics and arrival         | #100  | full code | ⬜ planned    |
 | 4   | CME picker + selected-CME store            | #101  | light     | written later |
 | 5   | CME particle shell                         | #102  | full code | written later |
 | 6   | Sun look                                   | #103  | full code | written later |
@@ -379,3 +380,157 @@ so the engine's B0 peaks at 7.2521°. Golden tolerances, measured × 1.25: pole 
 - [x] 2b: tolerances measured, approved and recorded in PROGRESS "Calibrated tolerances" (pole 8.7e-7°,
       end to end 7.3e-4°).
 - [x] `npm run check` green for each PR.
+
+---
+
+## Task 3: Engine: CME kinematics and arrival (#100)
+
+Decisions approved 2026-10-02 (from the recorded CMEs; evidence in PROGRESS.md):
+
+1. **Drawn front.** With an ENLIL Earth arrival, the front moves uniformly at the mean transit speed that puts it at
+   21.5 R☉ at `time21_5` and at Earth's distance at ENLIL's arrival time: both DONKI times are met exactly. DONKI's
+   measured speed stays the speed shown as fact. A drag-based model (Vršnak et al. 2013) is left for Phase 7.
+2. **ENLIL over the cone.** A predicted Earth arrival is shown and drives the impact even when the drawn cone misses
+   Earth (7 of the 13 recorded arrivals): ENLIL models the CME's flank. The geometric cone test (Task 2) only matters
+   for CMEs without one. How the impact looks is Task 8.
+3. **No computed arrival time on screen without ENLIL.** The front is drawn at the measured speed, but no constant-
+   speed arrival is shown (it differs from ENLIL by −39 h to +45 h on the recorded CMEs). The UI says "ENLIL: no Earth
+   arrival predicted" (ENLIL ran) or "no ENLIL run" (it did not), so the analysis gains `enlilRunCount`.
+4. **"Consistent with DONKI", as tests,** for every recorded CME: the front is at 21.5 R☉ at `time21_5`; with an
+   ENLIL arrival it is at Earth's distance at that time; without one it moves at the analysis speed. Tolerances are
+   measured and proposed × 1.25 at Task 3b (expected near zero, since these hold by construction).
+5. **Placement.** The maths lives in `packages/orbit/src/cmeKinematics.ts`; the cross-check against the recording
+   lives in `apps/server`, next to the Phase 5 close-approach cross-check.
+
+Two PRs: **3a** adds `enlilRunCount` to the data (`phase-6/enlil-run-count`), **3b** the engine and the cross-check
+(`phase-6/cme-kinematics`).
+
+### Task 3a: `enlilRunCount` on the analysis (light)
+
+- `packages/data/src/cme.ts`: `enlilRunCount: z.number().int().nonnegative()` on `cmeAnalysisSchema`, documented as
+  the number of ENLIL runs on the chosen analysis, for any target.
+- `packages/data/src/upstream/donki.ts`: `toCmeAnalysis` sets it from `enlilList?.length ?? 0`.
+- Tests (`donki.test.ts`): no list or `null` → 0; three runs, one with an Earth arrival → 3; the recording normalizes
+  and passes `cmeSchema`. Existing expected CMEs (`donki.test.ts`, `apps/web/src/data/loadDataset.test.ts`) gain
+  `enlilRunCount: 0`.
+- Refresh `npm run snapshot -- cmes`; the Task 1c cache check drops older cached CME entries by itself. Log in PROGRESS
+  how many kept CMEs had ENLIL runs but no Earth arrival.
+
+### Task 3b: CME kinematics in the engine (full code)
+
+**Files:** move `KM_PER_AU` from `packages/orbit/src/index.ts` to a new `src/units.ts` (re-exported unchanged, so the
+public API is the same; `cmeKinematics.ts` cannot import from the index it is re-exported by); create
+`src/cmeKinematics.ts` and `src/cmeKinematics.test.ts`; export from the index; create
+`apps/server/src/datasets/cmeCrossCheck.test.ts`.
+
+```ts
+// packages/orbit/src/units.ts
+/** Astronomical unit in kilometres, exact by definition (IAU 2012 Resolution B2). */
+export const KM_PER_AU = 149_597_870.7;
+```
+
+```ts
+// packages/orbit/src/cmeKinematics.ts
+import { KM_PER_AU } from './units';
+
+const SECONDS_PER_DAY = 86_400;
+
+/** Nominal solar radius, 695,700 km (IAU 2015 Resolution B3); Horizons uses the same value. */
+export const SOLAR_RADIUS_AU = 695_700 / KM_PER_AU;
+
+/**
+ * DONKI measures each CME's speed and time as its front passes 21.5 R☉, the inner boundary of the WSA–ENLIL model
+ * (https://ccmc.gsfc.nasa.gov/tools/DONKI/).
+ */
+export const DONKI_MEASUREMENT_DISTANCE_AU = 21.5 * SOLAR_RADIUS_AU;
+
+/** DONKI's timing for one CME analysis, converted to TDB at the boundary. */
+export interface CmeTiming {
+  time21_5JdTdb: number;
+  speedKmPerS: number;
+  /** ENLIL's predicted Earth arrival, or null when there is none. */
+  earthArrivalJdTdb: number | null;
+}
+
+/** The front's uniform motion: r(t) = DONKI_MEASUREMENT_DISTANCE_AU + speed × (t − time21_5). */
+export interface CmeFrontMotion {
+  time21_5JdTdb: number;
+  speedAuPerDay: number;
+}
+
+/** Earth's heliocentric distance at a time: the engine's Earth–Moon barycentre in the app. */
+export type EarthDistanceAt = (jdTdb: number) => number;
+
+/**
+ * With an ENLIL arrival, the mean transit speed that meets both DONKI times; without one, the measured speed
+ * (Task 3 decisions 1 and 3).
+ */
+export function cmeFrontMotion(
+  timing: CmeTiming,
+  earthDistanceAt: EarthDistanceAt,
+): CmeFrontMotion {
+  if (timing.earthArrivalJdTdb === null) {
+    return {
+      time21_5JdTdb: timing.time21_5JdTdb,
+      speedAuPerDay: auPerDayFromKmPerS(timing.speedKmPerS),
+    };
+  }
+  return motionThroughArrival(timing.time21_5JdTdb, timing.earthArrivalJdTdb, earthDistanceAt);
+}
+
+function motionThroughArrival(
+  time21_5JdTdb: number,
+  arrivalJdTdb: number,
+  earthDistanceAt: EarthDistanceAt,
+): CmeFrontMotion {
+  const transitDays = arrivalJdTdb - time21_5JdTdb;
+  if (!(transitDays > 0)) {
+    throw new RangeError(
+      `ENLIL arrival JD ${arrivalJdTdb} is not after time21_5 JD ${time21_5JdTdb}.`,
+    );
+  }
+  const travelAu = earthDistanceAt(arrivalJdTdb) - DONKI_MEASUREMENT_DISTANCE_AU;
+  return { time21_5JdTdb, speedAuPerDay: travelAu / transitDays };
+}
+
+function auPerDayFromKmPerS(speedKmPerS: number): number {
+  return (speedKmPerS * SECONDS_PER_DAY) / KM_PER_AU;
+}
+
+/**
+ * The front's distance from the Sun's centre. Before `time21_5` the same motion is extrapolated back, and the front
+ * is held at the photosphere (1 R☉) before launch, so the shell never starts inside the Sun.
+ */
+export function cmeFrontDistanceAu(motion: CmeFrontMotion, jdTdb: number): number {
+  const distanceAu =
+    DONKI_MEASUREMENT_DISTANCE_AU + motion.speedAuPerDay * (jdTdb - motion.time21_5JdTdb);
+  return Math.max(SOLAR_RADIUS_AU, distanceAu);
+}
+```
+
+**Unit and property tests (`cmeKinematics.test.ts`):**
+
+- `SOLAR_RADIUS_AU × KM_PER_AU` is 695,700 km; `DONKI_MEASUREMENT_DISTANCE_AU` is 21.5 of them (≈ 0.09999 AU).
+- Without an arrival: 1,000 km/s is 1000 × 86400 / `KM_PER_AU` AU/day (exact); the front is at the measurement
+  distance at `time21_5` (exact).
+- With an arrival (fast-check: transits 0.5–6 days, Earth distances 0.98–1.02 AU): the front is at Earth's distance
+  at the arrival time (1e-12 AU) and at the measurement distance at `time21_5`.
+- The front never moves backwards in time (fast-check over pairs of times) and is held at 1 R☉ long before launch.
+- An arrival at or before `time21_5` throws `RangeError`.
+
+**Cross-check (`apps/server/src/datasets/cmeCrossCheck.test.ts`),** over the recorded DONKI window normalized with
+`toCmes`; times go ISO → `jdUtcFromUnixMs` → `jdTdbFromJdUtc`; Earth's distance is
+`norm(planetStateAt('earthMoonBarycenter', jd).positionAu)`:
+
+1. Every CME: `|cmeFrontDistanceAu(motion, time21_5) − DONKI_MEASUREMENT_DISTANCE_AU|`.
+2. ENLIL CMEs: `|cmeFrontDistanceAu(motion, arrival) − earthDistanceAt(arrival)|`.
+3. Other CMEs: relative difference between `motion.speedAuPerDay` and the analysis speed in AU/day.
+
+Each is measured on the first run; Task 3b stops there and proposes `measured × 1.25` (exact equality if a measured
+value is 0) for approval, then records them in PROGRESS "Calibrated tolerances".
+
+**Acceptance:**
+
+- [ ] 3a: `enlilRunCount` in the data, snapshot refreshed; PROGRESS logs the ENLIL-ran-without-arrival count.
+- [ ] 3b: tolerances measured, approved and recorded; `KM_PER_AU` unchanged for every importer.
+- [ ] `npm run check` green for each PR.

@@ -708,3 +708,10 @@ _None._
   the cone in HEEQ, where Earth sits at (B0, 0). The pole reproduces Carrington's tilt and the J2000 node within
   0.002° / 0.006°. B0 matches Horizons to 7e-7° from Horizons' Earth and 6e-4° from the engine's EMB (tolerances
   above, user-approved). The B0 range test bound is 7.25° + 0.01° (the IAU pole's tilt is 7.2517°; user-approved).
+- **2026-10-02:** Task 3 (#100) arrival rules, from the 77 CMEs in the 2026-10-01 recording (user-approved): projecting
+  the 13 ENLIL-arrival CMEs at constant speed from 21.5 R☉ lands −39 h to +45 h from ENLIL (fast CMEs of
+  1,100–1,600 km/s average 555–790 km/s in transit; slow ones of 280 km/s speed up to ~420 km/s); 7 of the 13
+  arrivals have Earth outside DONKI's cone (ENLIL models the flank); of the 64 without an arrival, 1 has Earth inside
+  its cone. So: with an ENLIL arrival the front moves at the mean transit speed that meets both DONKI times and the
+  arrival is shown even if the cone misses; without one the front moves at the measured speed and no computed
+  arrival is shown. The analysis gains `enlilRunCount` to tell "ENLIL: no Earth arrival" from "no ENLIL run".
