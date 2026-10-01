@@ -157,17 +157,27 @@ Earth at 1 AU; steady 60 fps on a mid-range laptop.
 
 **Goal:** a real CME bursts from the Sun and travels to Earth at its real speed and angle.
 
-- Sun shader: animated noise surface, limb darkening, bloom-lit corona
-- Earth shader: day/night textures blended along the terminator, city lights, atmospheric rim glow, cloud layer
-- CME: expanding particle shell (cone from DONKI half-angle, direction from lat/lon, speed from analysis); timeline synced to real event time
-- Earth impact moment: magnetosphere hint + aurora glow on the night side (artistic, clearly labelled as illustrative)
-- CME picker for the last 30 days
+1. DONKI migration (#85): move to DONKI's new CME endpoint, update validation, re-record fixtures, refresh the
+   CME snapshot; settle DONKI time parsing, `link` checks and cache-entry validation on first read
+2. Engine: CME direction — DONKI's Stonyhurst lat/lon (relative to the Sun–Earth line) to a heliocentric ecliptic
+   J2000 unit vector, and whether Earth lies inside the cone; ground-truth source agreed before the task starts
+3. Engine: CME kinematics — leading-edge distance over time from the analysis speed and `time21_5`, and arrival time
+   at Earth; the reference and tolerance for "consistent with DONKI" agreed before the task starts
+4. CME picker for the last 30 days, and the selected-CME store every scene element reads
+5. CME particle shell: an expanding cone shell on the GPU, sized from the half-angle and driven by the time controller
+6. Sun look: animated noise surface, limb darkening, bloom-lit corona
+7. Earth look: day/night textures blended along the terminator, atmospheric rim glow (public-domain NASA textures,
+   with a size limit)
+8. Earth impact moment: magnetosphere hint + aurora glow on the night side (artistic, clearly labelled as illustrative)
+9. Shot choreography: camera moves and playback of a selected CME, synced to the real event time
+10. Exit verification: CME geometry and timing against DONKI, ≥ 60 fps for the full sequence
 
 **Exit criteria:** a selected CME's direction, cone width and arrival timing are consistent with its
 DONKI analysis; full sequence runs at ≥ 60 fps.
 
 ## Phase 7 — Polish & ship
 
+- Earth detail: city lights on the night side and a cloud layer (moved from Phase 6)
 - Performance pass on modest hardware (integrated GPU); quality tiers (particle count, bloom resolution)
 - Loading experience (progressive: planets first, swarm streams in)
 - Graceful fallbacks: WebGL2 missing, data unavailable (snapshot banner)
