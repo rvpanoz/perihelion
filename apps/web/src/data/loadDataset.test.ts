@@ -14,6 +14,7 @@ const CME = {
     halfAngleDeg: 25,
     speedKmPerS: 650,
     type: 'C',
+    earthArrival: null,
   },
 };
 const FETCHED_AT = '2026-09-28T12:00:00.000Z';

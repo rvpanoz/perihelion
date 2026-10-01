@@ -55,6 +55,7 @@ describe('toCmes', () => {
           halfAngleDeg: 25,
           speedKmPerS: 650,
           type: 'C',
+          earthArrival: null,
         },
       },
     ]);
@@ -121,5 +122,102 @@ describe('mostAccurateAnalysis', () => {
     const later = { ...ANALYSIS, time21_5: '2026-09-01T20:00Z', speed: 700 };
     const analyses = parse([{ ...CME, cmeAnalyses: [ANALYSIS, later] }])[0]?.cmeAnalyses ?? [];
     expect(mostAccurateAnalysis(analyses)?.speedKmPerS).toBe(700);
+  });
+});
+
+describe('strict DONKI times', () => {
+  const WITHOUT_ZONE = '2026-09-01T12:00';
+  const RUN = {
+    modelCompletionTime: '2026-09-01T20:00Z',
+    estimatedShockArrivalTime: '2026-09-04T06:00Z',
+  };
+
+  it.each([
+    ['startTime', { ...CME, startTime: WITHOUT_ZONE }],
+    ['time21_5', { ...CME, cmeAnalyses: [{ ...ANALYSIS, time21_5: WITHOUT_ZONE }] }],
+    [
+      'modelCompletionTime',
+      {
+        ...CME,
+        cmeAnalyses: [{ ...ANALYSIS, enlilList: [{ ...RUN, modelCompletionTime: WITHOUT_ZONE }] }],
+      },
+    ],
+    [
+      'estimatedShockArrivalTime',
+      {
+        ...CME,
+        cmeAnalyses: [
+          { ...ANALYSIS, enlilList: [{ ...RUN, estimatedShockArrivalTime: WITHOUT_ZONE }] },
+        ],
+      },
+    ],
+  ])('rejects a %s without an explicit Z, rather than reading it as local time', (_field, cme) => {
+    expect(() => toCmes(parse([cme]))).toThrow(UpstreamFormatError);
+  });
+
+  it('ranks a submission time without Z as unreadable (oldest), not as local time', () => {
+    const zoned = { ...ANALYSIS, speed: 700 };
+    const zoneless = { ...ANALYSIS, submissionTime: '2026-09-05T16:15', speed: 1111 };
+    const analyses = parse([{ ...CME, cmeAnalyses: [zoneless, zoned] }])[0]?.cmeAnalyses ?? [];
+    expect(mostAccurateAnalysis(analyses)?.speedKmPerS).toBe(700);
+  });
+});
+
+describe('CME links', () => {
+  it.each(['javascript:alert(1)', '/DONKI/view/CME/1/-1', 'ftp://ccmc.gsfc.nasa.gov/x'])(
+    'drops a link that is not http(s): %s',
+    (link) => {
+      expect(toCmes(parse([{ ...CME, link }]))[0]?.link).toBeNull();
+    },
+  );
+
+  it('keeps an https link, and the schema refuses anything else', () => {
+    const [cme] = toCmes(parse([CME]));
+    expect(cme?.link).toBe(CME.link);
+    expect(cmeSchema.safeParse({ ...cme, link: 'javascript:alert(1)' }).success).toBe(false);
+  });
+});
+
+describe('ENLIL Earth arrival', () => {
+  const run = (modelCompletionTime: string, estimatedShockArrivalTime: string | null) => ({
+    modelCompletionTime,
+    estimatedShockArrivalTime,
+    isEarthGB: false,
+    isEarthMinorImpact: false,
+  });
+  const arrivalOf = (enlilList: unknown) =>
+    toCmes(parse([{ ...CME, cmeAnalyses: [{ ...ANALYSIS, enlilList }] }]))[0]?.analysis
+      .earthArrival;
+
+  it('is null with no ENLIL runs', () => {
+    expect(arrivalOf(null)).toBeNull();
+    expect(arrivalOf([])).toBeNull();
+  });
+
+  it('takes the latest completed run that predicts an arrival', () => {
+    const earlier = run('2026-09-01T20:00Z', '2026-09-04T06:00Z');
+    const later = run('2026-09-02T08:00Z', '2026-09-04T11:30Z');
+    expect(arrivalOf([later, earlier])).toEqual({
+      predictedTime: '2026-09-04T11:30:00.000Z',
+      isGlancingBlow: false,
+      isMinorImpact: false,
+    });
+  });
+
+  it('skips a run with no Earth arrival even when it is the latest', () => {
+    // The recording has runs like this: ENLIL reached other targets (e.g. Europa Clipper) but not Earth.
+    const earthBound = run('2026-09-01T20:00Z', '2026-09-04T06:00Z');
+    const elsewhere = run('2026-09-02T08:00Z', null);
+    expect(arrivalOf([earthBound, elsewhere])?.predictedTime).toBe('2026-09-04T06:00:00.000Z');
+    expect(arrivalOf([elsewhere])).toBeNull();
+  });
+
+  it("carries ENLIL's glancing-blow and minor-impact flags", () => {
+    const glancing = {
+      ...run('2026-09-01T20:00Z', '2026-09-04T06:00Z'),
+      isEarthGB: true,
+      isEarthMinorImpact: true,
+    };
+    expect(arrivalOf([glancing])).toMatchObject({ isGlancingBlow: true, isMinorImpact: true });
   });
 });

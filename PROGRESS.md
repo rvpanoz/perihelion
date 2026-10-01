@@ -277,7 +277,7 @@ replay of two rows is deferred (user decision, 2026-10-02).
 Plan: `docs/superpowers/plans/2026-10-02-phase-6-the-eruption.md` (part 1: Task 1). Tasks follow `PLAN.md`
 (split into ten on 2026-10-02, PR #98).
 
-- [ ] DONKI migration: new CME endpoint, validation, re-recorded fixtures and snapshot (#85)
+- [x] DONKI migration: new CME endpoint, validation, re-recorded fixtures and snapshot (#85)
 - [ ] Engine: CME direction from DONKI latitude/longitude, and whether Earth is inside the cone (#99)
 - [ ] Engine: CME kinematics and arrival time at Earth (#100)
 - [ ] CME picker for the last 30 days + selected-CME store (#101)
@@ -609,9 +609,6 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
 - Final project name ("Perihelion" is a working name).
 - Hosting targets for web and server.
 - Confirm the opening scene (Swarm vs Eruption).
-- Before Phase 6 shows CME times or renders CME links: DONKI times go through `Date.parse`, which reads a time without
-  `Z` as local time (every recorded time has `Z`), so require an explicit `Z`; and `cmeSchema.link` accepts any string,
-  so restrict it to http(s).
 
 ## Known external issues
 
@@ -690,3 +687,9 @@ _None._
   with this in place.
 - **2026-10-02:** ENLIL's predicted Earth arrival lives on the chosen analysis (`analysis.earthArrival`, with
   `isGlancingBlow` and `isMinorImpact`); ENLIL runs belong to an analysis. Every DONKI time must end in `Z`.
+- **2026-10-02:** DONKI times must be UTC with an explicit `Z` (minute precision allowed) in `startTime`, `time21_5` and
+  ENLIL's two times; a zone-less one fails the list instead of being read as local time, and ranks oldest when only
+  ordering analyses. CME links must be http(s) (`cmeLinkSchema`); any other link becomes `null` (Task 1b, #85).
+- **2026-10-02:** ENLIL arrival sample for Task 3: of the 77 CMEs kept from the 2026-10-01 recording, 13 have an ENLIL
+  Earth arrival (6 glancing blows, none minor); the CME snapshot (fetched 2026-10-01T22:31Z) matches. On the first
+  dev start after the change, Task 1c dropped the pre-change `cmes?days=30` cache entry once and refetched.
