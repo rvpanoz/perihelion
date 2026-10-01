@@ -128,6 +128,22 @@ Plan: `docs/superpowers/plans/2026-10-01-phase-5-the-close-approach.md`. UI refe
 - [ ] Earth-centred close-up in the focus card (illustrative, no Moon)
 - [ ] Exit verification: every listed approach plays end to end; HUD values match CAD exactly; 60 fps
 
+Status (2026-10-01): plan merged in #82 (with the UI mockup applied, decision 7); issues #74–#81 and #83 (Task 6b).
+Next: Task 0 (#74, app shell). Its review against `main` is done and awaits the user's choice of these proposals:
+
+1. Needed: the pill replaces `SwarmStatus` (its loading/unavailable states and the NEO count move into the pill).
+2. Needed: define `NamedDatasetState = { label: string; state: DatasetState<DatasetName> }`.
+3. Needed: the shell is one CSS grid over the canvas with `pointer-events: none`; only panels take events.
+4. Needed: `useNowMs(30_000)` refreshes the pill's "updated … ago" (not per frame).
+5. Recommended: one pill pattern, `Live · JPL · updated 12 min ago` / `Cached · …` / `Offline snapshot · JPL · from …`.
+6. Recommended: interim homes: `FocusPicker` top centre, `SwarmControls` foot of the left column, `TimeControls`
+   in the bottom timeline panel.
+7. Recommended: the `.hud` class becomes the mockup's `.panel` on the shared tokens.
+8. Recommended: below 1100 px the columns become `<details>` panels.
+9. Recommended: `--faint` lightened to a computed ≥ 4.5:1 contrast, recorded in the PR.
+10. Recommended: a `Brand` component with the mockup's inline SVG and tagline.
+11. Optional: a render test for the pill (`SwarmControls.test.tsx` setup).
+
 ## Phase 6–7
 
 Checklists will be expanded from `PLAN.md` when each phase starts.
