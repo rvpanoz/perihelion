@@ -19,8 +19,12 @@ export const EARTH_TAG_TEXT: Record<EarthTag, string> = {
   outsideCone: 'Earth outside cone',
 };
 
-/** Every number is DONKI's; the shell drawn in the scene is our illustration of its cone model. */
-const SOURCE_TEXT = "NASA DONKI (CCMC) · the drawn shell illustrates DONKI's cone model";
+/**
+ * Every number is DONKI's. The shell illustrates DONKI's cone model; the magnetosphere and aurora at Earth are
+ * illustrations (CLAUDE.md: illustrative effects are labelled in the UI).
+ */
+const SOURCE_TEXT =
+  "NASA DONKI (CCMC) · the shell illustrates DONKI's cone model · magnetosphere and aurora are illustrative";
 
 export function cmeCard(cme: Cme): CmeCardModel {
   const { analysis } = cme;

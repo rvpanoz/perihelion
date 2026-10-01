@@ -54,7 +54,7 @@ Fastify, zod 4, Vitest 5, fast-check.
 | 5   | CME particle shell                         | #102  | full code | ✅            |
 | 6   | Sun look                                   | #103  | full code | ✅            |
 | 7   | Earth look                                 | #104  | full code | ✅            |
-| 8   | Earth impact (illustrative)                | #105  | light     | written later |
+| 8   | Earth impact (illustrative)                | #105  | light     | ✅            |
 | 9   | Shot choreography                          | #106  | light     | written later |
 | 10  | Exit verification                          | #107  | light     | written later |
 
@@ -855,4 +855,39 @@ once, marks the map sRGB and notifies.
 - [x] At 02:33 UTC the day side shows East Asia and Australia (subsolar ≈ 142° E), north up; the night side is dim
       blue with a lit limb (dev app).
 - [x] Frame time 13.34 ms mean (p95 14.8 ms) with Earth filling the view, 1920 × 809, 75 Hz.
+- [x] `npm run check` green.
+
+## Task 8: Earth impact, illustrative (#105, light)
+
+Branch `phase-6/earth-impact`. Files in `apps/web/src/scene/eruption/impact/`: `impactLook.ts`, `impactTiming.ts`,
+`magnetopause.ts`, `magnetopause.vert`/`.frag`, `aurora.vert`/`.frag`, `impactMaterials.ts`, `EarthImpact.tsx`
+(mounted by `CmeScene`); tests beside the `.ts` files. `cmeCardModel.ts`: the source line says the magnetosphere and
+aurora are illustrative.
+
+**Decisions:**
+
+1. **Only with ENLIL's arrival** (Task 4 decision 4): the impact follows ENLIL's predicted time; a CME without one
+   shows the shell only. The level eases in over the 3 h before arrival, peaks at the arrival and fades with an
+   18 h e-folding; ENLIL's glancing-blow (× 0.6) and minor-impact (× 0.5) flags soften it.
+2. **Magnetopause hint:** the Shue et al. (1998) surface r = r0 (2 / (1 + cos θ))^0.58 to 115° from the nose,
+   turned onto the Earth → Sun line each frame; r0 runs from 10 R⊕ (quiet) to 6.6 R⊕ (geosynchronous) with the
+   level. Edge-lit, additive, fading toward the open tail; faint (0.08) whenever an Earth-arrival CME is selected,
+   up to 0.4 at the peak (1.0 read as fog in the first look).
+3. **Aurora:** Gaussian ovals (σ 3°) around both poles of the IGRF-14 dipole (epoch 2025: 80.8° N, 72.6° W), at
+   18° colatitude when quiet and 28° at the peak, on the night side only, on a shell 1.5 % above the surface that
+   turns with Earth (same rotation as Task 7). The peak colour just crosses the bloom threshold. Flicker runs on the
+   render clock while the simulation plays, like the Sun's surface.
+4. **Labels:** the CME card's source line reads "… the shell illustrates DONKI's cone model · magnetosphere and
+   aurora are illustrative".
+
+**Tests:** strength from ENLIL's flags; level 0 before the rise, ½ midway, the strength at arrival, e^−1 one
+e-folding later, 0 days later; the Shue radius (1 at the nose, 2^α at 90°, flaring outward) and every vertex of the
+mesh on the surface within 115°; uniforms cover the declarations; the pole at 80.8° N in the mesh frame's western
+hemisphere; at the peak the ovals reach 28° and the magnetopause its peak opacity.
+
+**Acceptance:**
+
+- [x] At ENLIL's arrival (CME 2026-09-05T11:09, arrival Sep 7 20:36 UTC) the magnetopause glows, pushed toward Earth
+      on the sunward side, and green ovals light the night side (dev app).
+- [x] Frame time 13.34 ms mean (p95 13.9 ms) at 9 and 38 R⊕ during the impact, 1920 × 809, 75 Hz.
 - [x] `npm run check` green.
