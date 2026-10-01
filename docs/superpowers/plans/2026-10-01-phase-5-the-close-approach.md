@@ -1816,3 +1816,11 @@ Verification task: no new code unless a check fails (then stop and report, as CL
 - [ ] **Step 5: After the user merges and CI on `main` is green:** close the Phase 5 milestone, tag the merge
       commit `v0.5.0` (annotated) and publish the release with the phase summary and two stills (the list with the
       focus card, and a close pass with Earth in frame).
+
+Review against `main` (2026-10-02): proposals 1–7 approved. The SBDB-lookup rows are found by comparing CAD's
+designations with `/api/neos` (none this week). Step 1 is scripted in the console (dev only, no app code): it imports
+`/src/time/timeStore.ts`, `/src/scene/camera/cameraRig.ts` and R3F's `_roots` to compare each card with its API row,
+play the pass, pause at CAD's time and project Earth into the camera; small screenshots back it up. Frame times as in
+Phase 4. The release stills are attached to the release, not committed. The unvalidated cache entries moved to
+PROGRESS's open questions. The check found Earth sub-pixel beyond ~1 LD, which added Task 6c. The offline replay of
+two rows is deferred (user decision): not a `PLAN.md` exit criterion, and covered by the Task 0 and Task 5 tests.

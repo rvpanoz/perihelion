@@ -232,6 +232,17 @@ data, (2026 SA8) selected): at 1186 × 723 the right column ends above the time 
 buttons and source line in view, scrolling past the end leaves the camera unchanged, and scrolling and dragging
 over empty scene still zoom and orbit; at 1024 × 768 the drawer behaves as before.
 
+Task 7 (#81, exit verification) on `phase-5/exit-verification`, in progress (2026-10-02). Review proposals 1–7
+approved. Done so far (Chrome, live data, origin `fresh`, 19 rows): none needed an SBDB lookup (all 19 designations
+are in the 42,536-object catalog); every card matches its `/api/close-approaches` row exactly (title, CAD's AU and
+km/s strings, day, close-up LD label, 512-point path). Before Task 6c, 10 rows played end to end (flight lands in
+2.5 s, the countdown passes zero, the close-up marker shows), but paused at CAD's time Earth was visible only on
+(2026 SA8): that check added Task 6c. Remaining: the 19-row rerun on `main` after #94 (the first attempt is void:
+a timed-out console script kept running beside the next one), frame times on `main`, the two release stills, and
+your trackpad check of the taller card at 1024 × 768. The offline (snapshot) replay of two rows is deferred (user
+decision, 2026-10-02): not a `PLAN.md` exit criterion, and its behaviour (snapshot pill, past rows playable) is
+pinned by the Task 0 and Task 5 tests and the Phase 2 offline check.
+
 ## Phase 6–7
 
 Checklists will be expanded from `PLAN.md` when each phase starts.
@@ -556,6 +567,9 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
 - Before Phase 6 shows CME times or renders CME links: DONKI times go through `Date.parse`, which reads a time without
   `Z` as local time (every recorded time has `Z`), so require an explicit `Z`; and `cmeSchema.link` accepts any string,
   so restrict it to http(s).
+- The server's SQLite cache is not checked against the schema on read, so an entry cached before a schema change is
+  served until its TTL ends (seen in Phase 5 Task 1). Proposed fix: validate each entry the first time a process reads
+  it and treat a failure as a miss.
 
 ## Known external issues
 
