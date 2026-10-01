@@ -281,7 +281,7 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-6-the-eruption.md` (part 1: Task 
 - [x] Engine: CME direction from DONKI latitude/longitude, and whether Earth is inside the cone (#99)
 - [x] Engine: CME kinematics and arrival time at Earth (#100)
 - [x] CME picker for the last 30 days + selected-CME store (#101)
-- [ ] CME particle shell on the GPU (#102)
+- [x] CME particle shell on the GPU (#102)
 - [ ] Sun look: noise surface, limb darkening, corona (#103)
 - [ ] Earth look: day/night terminator and rim glow (#104)
 - [ ] Earth impact: magnetosphere hint and aurora, labelled illustrative (#105)
@@ -734,3 +734,7 @@ _None._
   (`src/shell/shotSelection.ts`). `ApproachSelection` became a generic `SelectionStore<T>`. Earth tag: ENLIL arrival,
   else DONKI's cone at `time21_5` (inside/outside). The approach list's height drops from min(60vh, 560px) to
   min(42vh, 480px) to share the column.
+- **2026-10-02:** Task 5 (#102): the CME shell is DONKI's cone model drawn literally (cone from the Sun's centre,
+  spherical cap at the front distance) with 24,000 GPU particles: the axis is fixed at `time21_5`, the front distance
+  is float64 on the CPU each frame. Flanks along the cone wall make it read as leaving the Sun (first look was a
+  floating lens). Frame time unchanged at 13.34 ms mean (75 Hz, 1920 × 809).

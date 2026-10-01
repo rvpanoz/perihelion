@@ -51,7 +51,7 @@ Fastify, zod 4, Vitest 5, fast-check.
 | 2   | Engine: CME direction and Earth-in-cone    | #99   | full code | ✅ #115, #116 |
 | 3   | Engine: CME kinematics and arrival         | #100  | full code | ✅ #118, #119 |
 | 4   | CME picker + selected-CME store            | #101  | light     | ✅            |
-| 5   | CME particle shell                         | #102  | full code | written later |
+| 5   | CME particle shell                         | #102  | full code | ✅            |
 | 6   | Sun look                                   | #103  | full code | written later |
 | 7   | Earth look                                 | #104  | full code | written later |
 | 8   | Earth impact (illustrative)                | #105  | light     | written later |
@@ -580,4 +580,82 @@ choice clears the other).
 **Acceptance:**
 
 - [x] Picking a CME shows its card; picking an approach replaces it; the scene runs as before.
+- [x] `npm run check` green.
+
+## Task 5: CME particle shell (#102, full code)
+
+Branch `phase-6/cme-shell`. Files in `apps/web/src/scene/eruption/`: `cmeShellLook.ts` (illustrative constants),
+`cmeShellSeeds.ts`, `cmeShellGeometry.ts` (the shader's CPU mirror), `cmeShellTiming.ts`, `cmeShellMesh.ts`,
+`cmeShell.vert`, `cmeShell.frag`, `CmeShell.tsx`, `CmeScene.tsx` (mounted in `SceneContents` after
+`ApproachScene`); a test beside each `.ts`.
+
+**Decisions:**
+
+1. **DONKI's cone model, drawn literally:** a cone from the Sun's centre along the CME axis, capped by a sphere about
+   the Sun of radius R(t), the front distance from `cmeFrontDistanceAu` (float64, CPU, once per frame). Every particle
+   lies inside the half-angle and no farther out than R: the geometry is DONKI's; brightness, sheath, flanks and
+   colour are illustrative (`CME_SHELL_LOOK`).
+2. **Axis.** `heliographicToEcliptic(axis, Earth at time21_5)`: DONKI's HEEQ frame is fixed when it measured the CME.
+3. **One particle layout** (24,000 seeds, mulberry32 with a fixed seed), so a new CME only rebuilds uniforms.
+   Seeds: cap-area fraction u (cos θ = 1 − u (1 − cos α), even over the cap), azimuth, distance as a fraction of R,
+   brightness. 25 % flank particles along the cone wall from 0.1 R to the sheath (dim), 25 % on the rim's loop
+   (u ≥ 0.85, brightest), 50 % over the cap; the sheath is the outer 12 % of R with squared depth (crowds the front).
+4. **Visibility.** Opacity eases in while the front goes from 1 R☉ to 5 R☉ (it is held at 1 R☉ before launch) and
+   out between 1.4 and 2 AU.
+5. **GPU work is the spread only** (PLAN.md: "an expanding cone shell on the GPU"): the basis (columns x, y, axis in
+   scene axes) and cos α are set per CME, R, opacity and the Sun's camera-relative offset per frame. Additive,
+   depth-tested, no depth writes, log-depth chunks, as the swarm.
+
+**Vertex shader (`cmeShell.vert`):**
+
+```glsl
+// The CME shell's vertex shader: DONKI's cone model, a cone from the Sun's centre capped by a sphere about the Sun.
+// cmeShellGeometry.ts mirrors this for the tests; the look constants arrive as uniforms from cmeShellLook.ts.
+
+#include <common>
+#include <logdepthbuf_pars_vertex>
+
+attribute vec4 shellSeed; // cap-area fraction, azimuth (rad), distance as a fraction of the front's, brightness
+
+uniform vec3 sunSceneOffsetAu;
+uniform mat3 coneBasis;      // columns: x, y, axis (scene axes)
+uniform float cosHalfAngle;
+uniform float frontDistanceAu;
+uniform float sheathFraction;
+uniform float sheathBrightness;
+uniform float pointSizePx;
+uniform float pixelRatio;
+uniform vec3 shellColor;
+
+varying vec3 vColor;
+
+void main() {
+  // Even over the cap's area: cos θ = 1 − u (1 − cos α).
+  float cosTheta = 1.0 - shellSeed.x * (1.0 - cosHalfAngle);
+  float sinTheta = sqrt(max(0.0, 1.0 - cosTheta * cosTheta));
+  vec3 along = vec3(sinTheta * cos(shellSeed.y), sinTheta * sin(shellSeed.y), cosTheta);
+  float radiusAu = frontDistanceAu * shellSeed.z;
+  vec3 sceneAu = sunSceneOffsetAu + coneBasis * along * radiusAu;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(sceneAu, 1.0);
+  gl_PointSize = pointSizePx * pixelRatio;
+  // Brightest at the leading edge, fading to `sheathBrightness` at the back of the sheath; the flanks' own dim
+  // brightness (seed w) carries on behind it.
+  float depthInSheath = clamp((1.0 - shellSeed.z) / sheathFraction, 0.0, 1.0);
+  vColor = shellColor * shellSeed.w * mix(1.0, sheathBrightness, depthInSheath);
+
+  // The logarithmic depth buffer is always on; without this, points depth-test against the wrong values.
+  #include <logdepthbuf_vertex>
+}
+```
+
+**Tests:** seeds deterministic and in range, kind shares and front crowding; `coneBasis` orthonormal, right-handed,
+z on the axis (fast-check over all directions); every particle of the real layout inside α and within
+[0.1 R, R], the widest within 1 % of α, the leading edge exactly R along the axis; the front at 21.5 R☉ at
+`time21_5` and at Earth at ENLIL's arrival, measured speed without one, opacity 0 / 1 / 0 before launch, in flight
+and far out; the axis at DONKI's angle from Earth (`angleFromEarthRad`); every declared uniform supplied.
+
+**Acceptance:**
+
+- [x] The shell leaves the Sun along the selected CME's direction and expands with the clock (dev app).
+- [x] Frame time unchanged: 13.34 ms mean with and without the shell (p95 13.8 / 14.0 ms), 1920 × 809, 75 Hz.
 - [x] `npm run check` green.
