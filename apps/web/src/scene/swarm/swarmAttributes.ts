@@ -2,14 +2,12 @@ import { NEO_ORBIT_CLASSES, type NeoCatalog } from '@perihelion/data';
 import {
   type OrbitalElements,
   type Vector3,
+  elementsFromDegrees,
   meanMotionRadPerDay,
   perifocalBasis,
   propagateElements,
 } from '@perihelion/orbit';
 import { sceneAxesFromEcliptic } from '../sceneFrame';
-
-/** SBDB gives angles in degrees; the engine works in radians. Converted here, at the I/O boundary. */
-const RAD_PER_DEG = Math.PI / 180;
 
 /** Highest eccentricity the GPU solver is given: 6 Newton steps are not enough closer to 1 (plan decision 2). */
 export const MAX_SWARM_ECCENTRICITY = 0.99;
@@ -56,16 +54,15 @@ export function buildSwarmAttributes(catalog: NeoCatalog, referenceJdTdb: number
 }
 
 export function neoElementsAt(catalog: NeoCatalog, index: number): OrbitalElements {
-  return {
-    semiMajorAxisAu: columnValue(catalog.semiMajorAxisAu, index),
-    eccentricity: columnValue(catalog.eccentricity, index),
-    inclinationRad: columnValue(catalog.inclinationDeg, index) * RAD_PER_DEG,
-    longitudeOfAscendingNodeRad:
-      columnValue(catalog.longitudeOfAscendingNodeDeg, index) * RAD_PER_DEG,
-    argumentOfPerihelionRad: columnValue(catalog.argumentOfPerihelionDeg, index) * RAD_PER_DEG,
-    meanAnomalyRad: columnValue(catalog.meanAnomalyDeg, index) * RAD_PER_DEG,
+  return elementsFromDegrees({
     epochJdTdb: columnValue(catalog.epochJdTdb, index),
-  };
+    eccentricity: columnValue(catalog.eccentricity, index),
+    semiMajorAxisAu: columnValue(catalog.semiMajorAxisAu, index),
+    inclinationDeg: columnValue(catalog.inclinationDeg, index),
+    longitudeOfAscendingNodeDeg: columnValue(catalog.longitudeOfAscendingNodeDeg, index),
+    argumentOfPerihelionDeg: columnValue(catalog.argumentOfPerihelionDeg, index),
+    meanAnomalyDeg: columnValue(catalog.meanAnomalyDeg, index),
+  });
 }
 
 /**

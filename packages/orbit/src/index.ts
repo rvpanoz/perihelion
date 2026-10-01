@@ -8,3 +8,5 @@ export * from './elements';
 export * from './angles';
 export * from './propagate';
 export * from './planets';
+export * from './degreeElements';
+export * from './closestApproach';
