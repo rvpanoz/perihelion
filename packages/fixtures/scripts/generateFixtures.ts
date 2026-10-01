@@ -1,12 +1,16 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+// Imports skip the package index on purpose: it re-exports the loaders, which import the very data files this
+// script writes, so a new fixture set could never be generated for the first time.
+import { type FixtureSet, selectFixtureSets } from '../src/fixtureSets';
 import {
   type HorizonsClient,
   generateAsteroidFixtures,
   generatePlanetFixtures,
-  horizonsUrl,
-  readHorizonsResponse,
-} from '../src/index';
+  generateSunOrientationFixtures,
+} from '../src/generate';
+import { horizonsUrl } from '../src/horizonsQuery';
+import { readHorizonsResponse } from '../src/horizonsResponse';
 
 // Horizons asks API users to send one query at a time; a pause keeps us well inside that.
 const PAUSE_BETWEEN_QUERIES_MS = 1_000;
@@ -27,13 +31,27 @@ async function writeFixture(fileName: string, data: unknown): Promise<void> {
   console.log(`wrote ${fileURLToPath(target)}`);
 }
 
-/** Both sets are fetched before either is written, so a failure never leaves a mismatched pair. */
+const GENERATORS: Readonly<
+  Record<FixtureSet, { fileName: string; generate: (client: HorizonsClient) => Promise<unknown> }>
+> = {
+  planets: { fileName: 'planets.json', generate: generatePlanetFixtures },
+  asteroids: { fileName: 'asteroids.json', generate: generateAsteroidFixtures },
+  sun: { fileName: 'sun-orientation.json', generate: generateSunOrientationFixtures },
+};
+
+/**
+ * Every selected set is fetched before any is written, so a failure never leaves a mismatched pair. Naming sets
+ * (`npm run fixtures -- sun`) leaves the others' ground truth, and their calibrated tolerances, untouched.
+ */
 async function main(): Promise<void> {
-  const planets = await generatePlanetFixtures(horizonsClient);
-  const asteroids = await generateAsteroidFixtures(horizonsClient);
+  const sets = selectFixtureSets(process.argv.slice(2));
+  const generated: [string, unknown][] = [];
+  for (const set of sets) {
+    const { fileName, generate } = GENERATORS[set];
+    generated.push([fileName, await generate(horizonsClient)]);
+  }
   await mkdir(DATA_DIR, { recursive: true });
-  await writeFixture('planets.json', planets);
-  await writeFixture('asteroids.json', asteroids);
+  for (const [fileName, data] of generated) await writeFixture(fileName, data);
 }
 
 main().catch((error: unknown) => {

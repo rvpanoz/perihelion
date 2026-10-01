@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import elementsResponse from './recorded/elements-eros.json' with { type: 'json' };
+import observerResponse from './recorded/observer-sun.json' with { type: 'json' };
 import vectorsResponse from './recorded/vectors-emb.json' with { type: 'json' };
-import { toElementsRecord, toStateRecord } from './horizonsRecords';
+import { toElementsRecord, toStateRecord, toSunObserverRecord } from './horizonsRecords';
 import { HorizonsError } from './horizonsResponse';
 import { parseHorizonsTable } from './horizonsTable';
 
@@ -40,5 +41,20 @@ describe('toElementsRecord', () => {
     expect(elements.semiMajorAxisAu).toBeLessThan(1.47);
     expect(elements.inclinationDeg).toBeGreaterThan(10);
     expect(elements.inclinationDeg).toBeLessThan(11.5);
+  });
+});
+
+describe('toSunObserverRecord', () => {
+  it("reads the JD (TT) and Earth's heliographic latitude from a recorded Horizons observer table", () => {
+    const records = parseHorizonsTable(observerResponse.result).map(toSunObserverRecord);
+    expect(records).toEqual([
+      { jdTt: 2461041.5, earthHeliographicLatitudeDeg: -2.997476 },
+      { jdTt: 2461222.5, earthHeliographicLatitudeDeg: 2.838567 },
+    ]);
+  });
+
+  it('rejects a latitude Horizons could not compute', () => {
+    const row = { Date_________JDTT: '2461041.5', 'ObsSub-LAT': 'n.a.' };
+    expect(() => toSunObserverRecord(row)).toThrow('Column ObsSub-LAT is not a number');
   });
 });

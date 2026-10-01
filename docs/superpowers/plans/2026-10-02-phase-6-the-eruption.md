@@ -47,7 +47,7 @@ Fastify, zod 4, Vitest 5, fast-check.
 | 1a  | DONKI on CCMC, key retired, re-recorded    | #85   | light     | ✅ #111       |
 | 1c  | Validate cache entries on first read       | #85   | light     | ✅ #112       |
 | 1b  | Strict times, http(s) links, ENLIL arrival | #85   | light     | 🟨 in review  |
-| 2   | Engine: CME direction and Earth-in-cone    | #99   | full code | ⬜ planned    |
+| 2   | Engine: CME direction and Earth-in-cone    | #99   | full code | 🟨 2a review  |
 | 3   | Engine: CME kinematics and arrival         | #100  | full code | written later |
 | 4   | CME picker + selected-CME store            | #101  | light     | written later |
 | 5   | CME particle shell                         | #102  | full code | written later |
@@ -208,6 +208,11 @@ samples: [{ jdTdb, earthPositionAu: vector3, earthHeliographicLatitudeDeg }] }`.
   (`npm run fixtures -- sun`; no names = all, unknown name = error), so adding the Sun set never regenerates the
   planet and asteroid ground truth. Write `data/sun-orientation.json` and commit it.
 
+**Deviation found while building (2026-10-02):** the CLI imported the package index, which re-exports the loaders,
+which import the data files the CLI writes, so a new set could not be generated the first time. The CLI now imports
+the generator modules directly. A real Horizons observer response is recorded in `src/recorded/observer-sun.json` for
+the parser test, like the existing vector and elements recordings.
+
 **Tests (in `generate.test.ts` style, fake client, no network):** the observer query carries the params above; a
 fake observer table parses to records; the generator joins vectors and B0 by JD and rejects a missing date or a
 mixed ephemeris; the loader validates the committed file; the CLI's name parsing rejects an unknown set.
@@ -365,7 +370,7 @@ stops there to propose `measured × 1.25` with that evidence (the PROGRESS "Cali
 
 **Acceptance:**
 
-- [ ] 2a: `npm run fixtures -- sun` writes `sun-orientation.json` and leaves `planets.json` and `asteroids.json`
+- [x] 2a: `npm run fixtures -- sun` writes `sun-orientation.json` and leaves `planets.json` and `asteroids.json`
       untouched; committed with its provenance.
 - [ ] 2b: tolerances measured, approved and recorded in PROGRESS "Calibrated tolerances".
 - [ ] `npm run check` green for each PR.

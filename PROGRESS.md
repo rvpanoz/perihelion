@@ -697,3 +697,7 @@ _None._
   (no published values could be verified; user-approved). Horizons gives Earth's heliocentric ecliptic J2000 position
   and Earth's heliographic latitude B0 (observer table, quantity 14, TT only); with the IAU Sun pole (α 286.13°,
   δ 63.87°) these fix the HEEQ frame. Plan part 2 adds a `sun` fixture set, generated on its own.
+- **2026-10-02:** Task 2a (#99): `npm run fixtures` takes set names (`planets`, `asteroids`, `sun`); naming one leaves the
+  other sets' ground truth and calibrated tolerances untouched. `data/sun-orientation.json` (DE441, Horizons API 1.2,
+  generated Thu Oct 1 15:42:27 2026 Pasadena) holds Earth's position and B0 on the 1st of each month of 2026; B0 runs
+  from −7.216° to +7.189°. The CLI imports generator modules directly, since the package index pulls in the loaders.
