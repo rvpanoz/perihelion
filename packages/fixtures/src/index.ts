@@ -5,5 +5,6 @@ export * from './horizonsTable';
 export * from './horizonsRecords';
 export * from './fixtureSchema';
 export * from './fixtureSpec';
+export * from './fixtureSets';
 export * from './generate';
 export * from './loaders';

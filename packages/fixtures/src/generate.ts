@@ -7,8 +7,11 @@ import {
   type PlanetFixture,
   type PlanetFixtures,
   type StateRecord,
+  type SunOrientationFixtures,
+  type SunSample,
   asteroidFixturesSchema,
   planetFixturesSchema,
+  sunOrientationFixturesSchema,
 } from './fixtureSchema';
 import {
   ASTEROID_EPOCH_JD_TDB,
@@ -16,16 +19,20 @@ import {
   ASTEROID_NAMES,
   ASTEROID_SAMPLE_JD_TDB,
   type AsteroidName,
+  EARTH_HORIZONS_ID,
   PLANET_HORIZONS_IDS,
   PLANET_NAMES,
   PLANET_SAMPLE_JD_TDB,
   type PlanetName,
+  SUN_SAMPLE_JD_TDB,
 } from './fixtureSpec';
 import {
   type BodyQuery,
   HORIZONS_API_URL,
   HORIZONS_FRAME_PARAMS,
+  SUN_OBSERVER_PARAMS,
   buildElementsQuery,
+  buildSunObserverQuery,
   buildVectorsQuery,
 } from './horizonsQuery';
 import {
@@ -33,7 +40,12 @@ import {
   readElementsProvenance,
   readHeaderProvenance,
 } from './horizonsProvenance';
-import { toElementsRecord, toStateRecord } from './horizonsRecords';
+import {
+  type SunObserverRecord,
+  toElementsRecord,
+  toStateRecord,
+  toSunObserverRecord,
+} from './horizonsRecords';
 import { HorizonsError, type HorizonsResponse } from './horizonsResponse';
 import { parseHorizonsTable } from './horizonsTable';
 
@@ -109,6 +121,49 @@ export async function generateAsteroidFixtures(client: HorizonsClient): Promise<
   });
 }
 
+/** Earth's states and B0 on the same dates; together with the IAU Sun pole they fix the HEEQ frame. */
+export async function generateSunOrientationFixtures(
+  client: HorizonsClient,
+): Promise<SunOrientationFixtures> {
+  const recorder = new ProvenanceRecordingClient(client);
+  const earth = await fetchStates(recorder, {
+    command: EARTH_HORIZONS_ID,
+    jdTdbList: SUN_SAMPLE_JD_TDB,
+  });
+  const observer = await fetchSunObserver(recorder, SUN_SAMPLE_JD_TDB);
+  return sunOrientationFixturesSchema.parse({
+    source: recorder.source(),
+    observerSettings: SUN_OBSERVER_PARAMS,
+    ephemeris: commonEphemeris([earth.header.ephemeris, observer.header.ephemeris]),
+    samples: earth.states.map((state, index) => toSunSample(state, observer.records[index])),
+  });
+}
+
+async function fetchSunObserver(
+  recorder: ProvenanceRecordingClient,
+  jdTtList: readonly number[],
+): Promise<{ records: SunObserverRecord[]; header: HeaderProvenance }> {
+  const { resultText, header } = await recorder.fetch(buildSunObserverQuery(jdTtList));
+  const records = parseHorizonsTable(resultText).map(toSunObserverRecord);
+  assertCoversRequestedDates(
+    jdTtList,
+    records.map((record) => record.jdTt),
+  );
+  return { records, header };
+}
+
+/** Both tables cover exactly the requested dates in time order, so rows pair up by index (TT = TDB here). */
+function toSunSample(state: StateRecord, record: SunObserverRecord | undefined): SunSample {
+  if (record === undefined || record.jdTt !== state.jdTdb) {
+    throw new HorizonsError(`No B0 for JD ${state.jdTdb}`);
+  }
+  return {
+    jdTdb: state.jdTdb,
+    earthPositionAu: state.positionAu,
+    earthHeliographicLatitudeDeg: record.earthHeliographicLatitudeDeg,
+  };
+}
+
 async function fetchAsteroid(
   recorder: ProvenanceRecordingClient,
   horizonsCommand: string,
@@ -128,7 +183,10 @@ async function fetchStates(
 ): Promise<{ states: StateRecord[]; header: HeaderProvenance }> {
   const { resultText, header } = await recorder.fetch(buildVectorsQuery(query));
   const states = parseHorizonsTable(resultText).map(toStateRecord);
-  assertCoversRequestedDates(query.jdTdbList, states);
+  assertCoversRequestedDates(
+    query.jdTdbList,
+    states.map((state) => state.jdTdb),
+  );
   return { states, header };
 }
 
@@ -173,12 +231,12 @@ function assertOneApiVersion(
   }
 }
 
-/** Standish Table 1 is checked against one planetary ephemeris, so every planet must share it. */
+/** A golden test compares against one planetary ephemeris, so every response in a set must share it. */
 function commonEphemeris(ephemerides: readonly string[]): string {
   const [first] = ephemerides;
   if (first === undefined || ephemerides.some((ephemeris) => ephemeris !== first)) {
     const found = [...new Set(ephemerides)].join(', ');
-    throw new HorizonsError(`Planets came from mixed ephemerides: ${found}`);
+    throw new HorizonsError(`Responses came from mixed ephemerides: ${found}`);
   }
   return first;
 }
@@ -195,10 +253,9 @@ function assertSameOrbitSolution(elementsSolution: string, statesSolution: strin
 /** Horizons returns rows in time order whatever the TLIST order, so compare against the sorted request. */
 function assertCoversRequestedDates(
   requested: readonly number[],
-  states: readonly StateRecord[],
+  received: readonly number[],
 ): void {
   const expected = requested.toSorted((a, b) => a - b);
-  const received = states.map((state) => state.jdTdb);
   if (
     received.length !== expected.length ||
     expected.some((jdTdb, index) => jdTdb !== received[index])

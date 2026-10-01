@@ -12,4 +12,6 @@ export type {
   AsteroidFixtures,
   PlanetFixture,
   AsteroidFixture,
+  SunOrientationFixtures,
+  SunSample,
 } from './fixtureSchema';

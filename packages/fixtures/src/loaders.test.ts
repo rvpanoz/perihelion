@@ -6,12 +6,13 @@ import {
   ASTEROID_SAMPLE_JD_TDB,
   PLANET_NAMES,
   PLANET_SAMPLE_JD_TDB,
+  SUN_SAMPLE_JD_TDB,
 } from './fixtureSpec';
 import { asteroidFixturesSchema, planetFixturesSchema } from './fixtureSchema';
 import { toStateRecord } from './horizonsRecords';
 import { HORIZONS_FRAME_PARAMS } from './horizonsQuery';
 import { parseHorizonsTable } from './horizonsTable';
-import { loadAsteroidFixtures, loadPlanetFixtures } from './loaders';
+import { loadAsteroidFixtures, loadPlanetFixtures, loadSunOrientationFixtures } from './loaders';
 
 /** A fixture record with one field dropped, as a hand edit or an older generator would leave it. */
 function withoutField(record: object, field: string): Record<string, unknown> {
@@ -72,5 +73,20 @@ describe('committed Horizons fixtures', () => {
     const eros = withoutField(asteroids.asteroids.eros, 'provenance');
     const noProvenance = { ...asteroids, asteroids: { ...asteroids.asteroids, eros } };
     expect(asteroidFixturesSchema.safeParse(noProvenance).success).toBe(false);
+  });
+});
+
+describe('committed Sun-orientation fixture', () => {
+  // The solar equator is tilted 7.25° to the ecliptic (Carrington), so B0 can never exceed it.
+  const SOLAR_EQUATOR_TILT_DEG = 7.25;
+
+  it("has Earth's position and B0 at every sample date, within the solar equator's tilt", () => {
+    const { samples } = loadSunOrientationFixtures();
+    expect(samples.map((sample) => sample.jdTdb)).toEqual(SUN_SAMPLE_JD_TDB);
+    for (const sample of samples) {
+      expect(Math.abs(sample.earthHeliographicLatitudeDeg)).toBeLessThanOrEqual(
+        SOLAR_EQUATOR_TILT_DEG,
+      );
+    }
   });
 });

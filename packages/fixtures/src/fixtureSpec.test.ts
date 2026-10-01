@@ -6,6 +6,7 @@ import {
   PLANET_HORIZONS_IDS,
   PLANET_SAMPLE_JD_TDB,
   julianDateOfNewYear,
+  SUN_SAMPLE_JD_TDB,
 } from './fixtureSpec';
 
 describe('julianDateOfNewYear', () => {
@@ -36,5 +37,14 @@ describe('fixture spec', () => {
     expect(ASTEROID_SAMPLE_JD_TDB).toContain(ASTEROID_EPOCH_JD_TDB);
     expect(ASTEROID_SAMPLE_JD_TDB[0]).toBe(ASTEROID_EPOCH_JD_TDB - 120);
     expect(ASTEROID_SAMPLE_JD_TDB.at(-1)).toBe(ASTEROID_EPOCH_JD_TDB + 120);
+  });
+});
+
+describe('SUN_SAMPLE_JD_TDB', () => {
+  it('is 0h on the 1st of every month of 2026, a full yearly cycle of B0', () => {
+    expect(SUN_SAMPLE_JD_TDB).toHaveLength(12);
+    expect(SUN_SAMPLE_JD_TDB[0]).toBe(2461041.5);
+    expect(SUN_SAMPLE_JD_TDB.at(-1)).toBe(2461375.5);
+    expect(SUN_SAMPLE_JD_TDB).toEqual(SUN_SAMPLE_JD_TDB.toSorted((a, b) => a - b));
   });
 });

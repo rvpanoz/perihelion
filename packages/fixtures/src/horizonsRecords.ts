@@ -27,6 +27,20 @@ export function toElementsRecord(row: HorizonsRow): ElementsRecord {
   };
 }
 
+/** One row of the Sun-as-seen-from-Earth observer table. */
+export interface SunObserverRecord {
+  jdTt: number;
+  earthHeliographicLatitudeDeg: number;
+}
+
+/** Column names from the observer table header with CAL_FORMAT=JD and quantity 14. */
+export function toSunObserverRecord(row: HorizonsRow): SunObserverRecord {
+  return {
+    jdTt: readNumber(row, 'Date_________JDTT'),
+    earthHeliographicLatitudeDeg: readNumber(row, 'ObsSub-LAT'),
+  };
+}
+
 /** Number('') is 0, so empty fields are rejected explicitly rather than read as zero. */
 function readNumber(row: HorizonsRow, column: string): number {
   const field = row[column];

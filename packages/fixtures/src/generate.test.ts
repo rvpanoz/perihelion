@@ -5,11 +5,18 @@ import {
   ASTEROID_SAMPLE_JD_TDB,
   PLANET_NAMES,
   PLANET_SAMPLE_JD_TDB,
+  SUN_SAMPLE_JD_TDB,
 } from './fixtureSpec';
-import { type HorizonsClient, generateAsteroidFixtures, generatePlanetFixtures } from './generate';
+import {
+  type HorizonsClient,
+  generateAsteroidFixtures,
+  generatePlanetFixtures,
+  generateSunOrientationFixtures,
+} from './generate';
 import { HorizonsError } from './horizonsResponse';
 
 const VECTOR_HEADER = 'JDTDB, Calendar Date (TDB), X, Y, Z, VX, VY, VZ,';
+const OBSERVER_HEADER = 'Date_________JDTT, , , ObsSub-LON, ObsSub-LAT,';
 const ELEMENTS_HEADER = 'JDTDB, Calendar Date (TDB), EC, QR, IN, OM, W, Tp, N, MA, TA, A, AD, PR,';
 const PROVENANCE_HEADER = [
   'Ephemeris / API_USER Sun Sep 27 15:54:02 2026 Pasadena, USA      / Horizons',
@@ -29,6 +36,12 @@ function requestedJds(params: URLSearchParams): number[] {
 
 function fakeResult(params: URLSearchParams): string {
   const jds = requestedJds(params);
+  if (params.get('EPHEM_TYPE') === 'OBSERVER') {
+    return table(
+      OBSERVER_HEADER,
+      jds.map((jd) => `${jd}, , , 120.5, -2.5,`),
+    );
+  }
   if (params.get('EPHEM_TYPE') === 'ELEMENTS') {
     return table(ELEMENTS_HEADER, [
       `${jds[0]}, A.D., 0.2, 1.1, 10, 300, 170, 2461100, 0.5, 300, 280, 1.4, 1.7, 700,`,
@@ -172,5 +185,46 @@ describe('generateAsteroidFixtures', () => {
     await expect(generateAsteroidFixtures(recordingClient(wrongEpoch).client)).rejects.toThrow(
       /epoch/,
     );
+  });
+});
+
+describe('generateSunOrientationFixtures', () => {
+  it("asks for Earth's states, then the Sun seen from Earth, and joins them by date", async () => {
+    const { client, commands } = recordingClient();
+    const fixtures = await generateSunOrientationFixtures(client);
+    expect(commands).toEqual(["'399'", "'10'"]);
+    expect(fixtures.samples.map((sample) => sample.jdTdb)).toEqual(SUN_SAMPLE_JD_TDB);
+    expect(fixtures.samples[0]).toEqual({
+      jdTdb: SUN_SAMPLE_JD_TDB[0],
+      earthPositionAu: [1, 2, 3],
+      earthHeliographicLatitudeDeg: -2.5,
+    });
+    expect(fixtures.observerSettings).toMatchObject({ CENTER: "'500@399'", TIME_TYPE: 'TT' });
+    expect(fixtures.ephemeris).toBe('DE441');
+  });
+
+  it('rejects an observer table that is missing a requested date', async () => {
+    const dropLastObserverRow = (params: URLSearchParams) =>
+      params.get('EPHEM_TYPE') === 'OBSERVER'
+        ? table(
+            OBSERVER_HEADER,
+            requestedJds(params)
+              .slice(0, -1)
+              .map((jd) => `${jd}, , , 120.5, -2.5,`),
+          )
+        : fakeResult(params);
+    await expect(
+      generateSunOrientationFixtures(recordingClient(dropLastObserverRow).client),
+    ).rejects.toThrow(/Requested JDs/);
+  });
+
+  it('rejects states and B0 from different ephemerides', async () => {
+    const observerOnDe440 = (params: URLSearchParams) =>
+      params.get('EPHEM_TYPE') === 'OBSERVER'
+        ? fakeResult(params).replace('{source: DE441}', '{source: DE440}')
+        : fakeResult(params);
+    await expect(
+      generateSunOrientationFixtures(recordingClient(observerOnDe440).client),
+    ).rejects.toThrow(/mixed ephemerides/);
   });
 });

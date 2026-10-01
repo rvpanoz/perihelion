@@ -1,0 +1,145 @@
+{
+  "source": {
+    "api": "https://ssd.jpl.nasa.gov/api/horizons.api",
+    "apiVersion": "1.2",
+    "generatedAt": "Thu Oct  1 15:42:27 2026 Pasadena, USA",
+    "settings": {
+      "format": "json",
+      "CENTER": "'500@10'",
+      "REF_PLANE": "ECLIPTIC",
+      "REF_SYSTEM": "ICRF",
+      "OUT_UNITS": "AU-D",
+      "TIME_TYPE": "TDB",
+      "TLIST_TYPE": "JD",
+      "CSV_FORMAT": "YES",
+      "OBJ_DATA": "NO",
+      "MAKE_EPHEM": "YES"
+    }
+  },
+  "observerSettings": {
+    "format": "json",
+    "COMMAND": "'10'",
+    "CENTER": "'500@399'",
+    "EPHEM_TYPE": "OBSERVER",
+    "QUANTITIES": "'14'",
+    "TIME_TYPE": "TT",
+    "TLIST_TYPE": "JD",
+    "CAL_FORMAT": "JD",
+    "ANG_FORMAT": "DEG",
+    "EXTRA_PREC": "YES",
+    "CSV_FORMAT": "YES",
+    "OBJ_DATA": "NO",
+    "MAKE_EPHEM": "YES"
+  },
+  "ephemeris": "DE441",
+  "samples": [
+    {
+      "jdTdb": 2461041.5,
+      "earthPositionAu": [
+        -0.1742814809205833,
+        0.9677589202546031,
+        -0.00005944511017526243
+      ],
+      "earthHeliographicLatitudeDeg": -2.997476
+    },
+    {
+      "jdTdb": 2461072.5,
+      "earthPositionAu": [
+        -0.6562593473625881,
+        0.734934661496331,
+        -0.00004210605593107611
+      ],
+      "earthHeliographicLatitudeDeg": -6.009173
+    },
+    {
+      "jdTdb": 2461100.5,
+      "earthPositionAu": [
+        -0.9312237096909018,
+        0.3381383727287537,
+        -0.00001650714168735233
+      ],
+      "earthHeliographicLatitudeDeg": -7.216351
+    },
+    {
+      "jdTdb": 2461131.5,
+      "earthPositionAu": [
+        -0.9810226182523754,
+        -0.1891362528692298,
+        0.00001777342966292327
+      ],
+      "earthHeliographicLatitudeDeg": -6.560233
+    },
+    {
+      "jdTdb": 2461161.5,
+      "earthPositionAu": [
+        -0.7685321414051183,
+        -0.6512956051397056,
+        0.00004574633357861646
+      ],
+      "earthHeliographicLatitudeDeg": -4.199613
+    },
+    {
+      "jdTdb": 2461192.5,
+      "earthPositionAu": [
+        -0.3439010113660863,
+        -0.9537778941446137,
+        0.0000619709191892232
+      ],
+      "earthHeliographicLatitudeDeg": -0.701478
+    },
+    {
+      "jdTdb": 2461222.5,
+      "earthPositionAu": [
+        0.1561399658143803,
+        -1.004515630606645,
+        0.00006124719003139202
+      ],
+      "earthHeliographicLatitudeDeg": 2.838567
+    },
+    {
+      "jdTdb": 2461253.5,
+      "earthPositionAu": [
+        0.6307189330803126,
+        -0.7952013625186592,
+        0.00004366682930385191
+      ],
+      "earthHeliographicLatitudeDeg": 5.761806
+    },
+    {
+      "jdTdb": 2461284.5,
+      "earthPositionAu": [
+        0.9372686089335429,
+        -0.3744424965376977,
+        0.00001456661259025469
+      ],
+      "earthHeliographicLatitudeDeg": 7.189473
+    },
+    {
+      "jdTdb": 2461314.5,
+      "earthPositionAu": [
+        0.9928330925227925,
+        0.1301395837862564,
+        -0.00001660225162581074
+      ],
+      "earthHeliographicLatitudeDeg": 6.734306
+    },
+    {
+      "jdTdb": 2461345.5,
+      "earthPositionAu": [
+        0.7800575661095446,
+        0.6139481405084657,
+        -0.00004376899957206111
+      ],
+      "earthHeliographicLatitudeDeg": 4.410763
+    },
+    {
+      "jdTdb": 2461375.5,
+      "earthPositionAu": [
+        0.3627484543184942,
+        0.9170492501902439,
+        -0.00005872401395930605
+      ],
+      "earthHeliographicLatitudeDeg": 0.921596
+    }
+  ]
+}

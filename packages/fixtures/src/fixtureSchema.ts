@@ -69,9 +69,26 @@ export const asteroidFixturesSchema = z.object({
   ),
 });
 
+/** Earth's position (Horizons body 399) and heliographic latitude B0 at one date. */
+const sunSampleSchema = z.object({
+  jdTdb: z.number(),
+  earthPositionAu: vector3Schema,
+  earthHeliographicLatitudeDeg: z.number(),
+});
+
+export const sunOrientationFixturesSchema = z.object({
+  source: sourceSchema,
+  /** The observer table's own settings; `source.settings` are the vector table's. */
+  observerSettings: z.record(z.string(), z.string()),
+  ephemeris: z.string().min(1),
+  samples: z.array(sunSampleSchema),
+});
+
 export type FixtureSource = z.infer<typeof sourceSchema>;
 export type AsteroidProvenance = z.infer<typeof asteroidProvenanceSchema>;
 export type PlanetFixtures = z.infer<typeof planetFixturesSchema>;
 export type AsteroidFixtures = z.infer<typeof asteroidFixturesSchema>;
+export type SunOrientationFixtures = z.infer<typeof sunOrientationFixturesSchema>;
+export type SunSample = z.infer<typeof sunSampleSchema>;
 export type PlanetFixture = PlanetFixtures['planets'][PlanetName];
 export type AsteroidFixture = AsteroidFixtures['asteroids'][AsteroidName];
