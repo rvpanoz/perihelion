@@ -2,8 +2,8 @@ import { ToneMappingMode } from 'postprocessing';
 import type { Color } from 'three';
 
 /**
- * Threshold 1 in linear light: only HDR colours bloom, which today means the Sun (`SUN_GLOW_COLOR`). Planets and
- * lines are LDR and stay crisp.
+ * Threshold 1 in linear light: only HDR colours bloom, which means the Sun's photosphere (`SUN_LOOK`) and dense
+ * stacks of additive particles. Planets and lines are LDR and stay crisp.
  */
 export const BLOOM_SETTINGS = {
   luminanceThreshold: 1,

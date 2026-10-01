@@ -52,7 +52,7 @@ Fastify, zod 4, Vitest 5, fast-check.
 | 3   | Engine: CME kinematics and arrival         | #100  | full code | ✅ #118, #119 |
 | 4   | CME picker + selected-CME store            | #101  | light     | ✅            |
 | 5   | CME particle shell                         | #102  | full code | ✅            |
-| 6   | Sun look                                   | #103  | full code | written later |
+| 6   | Sun look                                   | #103  | full code | ✅            |
 | 7   | Earth look                                 | #104  | full code | written later |
 | 8   | Earth impact (illustrative)                | #105  | light     | written later |
 | 9   | Shot choreography                          | #106  | light     | written later |
@@ -658,4 +658,124 @@ and far out; the axis at DONKI's angle from Earth (`angleFromEarthRad`); every d
 
 - [x] The shell leaves the Sun along the selected CME's direction and expands with the clock (dev app).
 - [x] Frame time unchanged: 13.34 ms mean with and without the shell (p95 13.8 / 14.0 ms), 1920 × 809, 75 Hz.
+- [x] `npm run check` green.
+
+## Task 6: Sun look (#103, full code)
+
+Branch `phase-6/sun-look`. Files: `apps/web/src/scene/shaders/simplexNoise3d.glsl` (Ashima/Gustavson simplex noise,
+MIT, copied with its notice; no npm dependency), `apps/web/src/scene/bodies/sun/` `sunLook.ts` (constants and CPU
+mirrors), `sunSurface.vert`/`.frag`, `corona.vert`/`.frag`, `sunMaterials.ts`, `SunBody.tsx` (replaces `Body`'s
+`SunSurface`; keeps the point light); tests beside the `.ts` files.
+
+**Decisions:**
+
+1. **Limb darkening** is the linear law I(μ)/I(1) = 1 − u (1 − μ) per channel, u = 0.50 / 0.62 / 0.75 for R/G/B:
+   u ≈ 0.6 in visible light and grows toward the blue, so the limb reddens (the per-channel values are illustrative).
+2. **Granulation and streamers are illustrative**: three octaves of 3D simplex noise on the unit sphere (surface) and
+   angular noise around the limb (streamers). Their motion follows the render clock while the simulation clock plays
+   and freezes when it pauses: following the simulated rate would boil the surface at a month per second. This is
+   the only scene motion not driven by simulated time, and it carries no data.
+3. **Brightness.** The photosphere's centre is (1.5, 1.0, 0.5) linear, mean luminance just above the bloom threshold:
+   the first try at the old `SUN_GLOW_COLOR` (4, 3.4, 2.6) washed the close-up to a white blob with no limb or
+   granulation. The corona is a camera-facing quad out to 4 R☉ with brightness ∝ r^−2.5 from the limb, below 1, so it
+   adds a haze that bloom only lifts near the disc. `SUN_GLOW_COLOR` goes; the Phase 3 bloom test now reads the
+   photosphere colour (same assertion: the Sun crosses the threshold).
+
+**Photosphere (`sunSurface.frag`, with the noise chunk prepended):**
+
+```glsl
+// The photosphere: linear-law limb darkening per channel (sunLook.ts) times an illustrative granulation from
+// three octaves of simplex noise (simplexNoise3d.glsl, prepended). The colour stays above 1 so the disc blooms.
+
+#include <common>
+#include <logdepthbuf_pars_fragment>
+
+uniform vec3 surfaceColor;
+uniform vec3 limbDarkening;
+uniform float granulationScale;
+uniform float granulationContrast;
+uniform float surfacePhase;
+
+varying vec3 vSurfacePoint;
+varying vec3 vViewNormal;
+varying vec3 vToEye;
+
+float granulation(vec3 point) {
+  vec3 flow = vec3(surfacePhase, -0.7 * surfacePhase, 0.4 * surfacePhase);
+  float coarse = snoise(point * granulationScale + flow);
+  float fine = snoise(point * granulationScale * 2.3 - 1.6 * flow);
+  float finest = snoise(point * granulationScale * 5.1 + 2.4 * flow);
+  return 0.55 * coarse + 0.3 * fine + 0.15 * finest;
+}
+
+void main() {
+  #include <logdepthbuf_fragment>
+  float mu = clamp(dot(normalize(vViewNormal), normalize(vToEye)), 0.0, 1.0);
+  vec3 limb = 1.0 - limbDarkening * (1.0 - mu);
+  float mottle = 1.0 + granulationContrast * granulation(vSurfacePoint);
+  gl_FragColor = vec4(surfaceColor * limb * mottle, 1.0);
+}
+```
+
+**Corona (`corona.vert`, `corona.frag`):**
+
+```glsl
+// A camera-facing square around the Sun: the corner offset is added in view space, so the quad always faces the
+// camera whatever the Sun's orientation. vOffsetRadii is the offset from the Sun's centre in solar radii.
+
+#include <common>
+#include <logdepthbuf_pars_vertex>
+
+uniform float sunRadiusAu;
+uniform float coronaExtentRadii;
+
+varying vec2 vOffsetRadii;
+
+void main() {
+  vOffsetRadii = position.xy * coronaExtentRadii;
+  vec4 viewPosition = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0);
+  viewPosition.xy += vOffsetRadii * sunRadiusAu;
+  gl_Position = projectionMatrix * viewPosition;
+
+  #include <logdepthbuf_vertex>
+}
+```
+
+```glsl
+// The corona: brightness falls as r^-falloff from the limb (sunLook.ts), broken into streamers by angular simplex
+// noise (simplexNoise3d.glsl, prepended), and faded to nothing at the quad's edge. Additive and HDR, so bloom
+// spreads it. Inside the limb the disc, nearer the camera, hides it.
+
+#include <common>
+#include <logdepthbuf_pars_fragment>
+
+uniform vec3 coronaColor;
+uniform float coronaFalloff;
+uniform float coronaExtentRadii;
+uniform float streamerContrast;
+uniform float surfacePhase;
+
+varying vec2 vOffsetRadii;
+
+void main() {
+  #include <logdepthbuf_fragment>
+  float radius = length(vOffsetRadii);
+  if (radius < 1.0 || radius > coronaExtentRadii) discard;
+  vec2 direction = vOffsetRadii / radius;
+  float streamers = snoise(vec3(direction * 2.5, 0.15 * surfacePhase));
+  float falloff = pow(radius, -coronaFalloff) * (1.0 + streamerContrast * streamers);
+  float edgeFade = 1.0 - smoothstep(0.6 * coronaExtentRadii, coronaExtentRadii, radius);
+  gl_FragColor = vec4(coronaColor * max(falloff, 0.0) * edgeFade, 1.0);
+}
+```
+
+**Tests:** limb factor 1 at centre, 1 − u at the limb, coefficients rising to the blue; the centre blooms on average
+and a dark granule does not; corona falloff 1 at the limb, 0 inside, falling outward; every declared uniform
+supplied for both materials; one phase shared; the noise chunk precedes `main`.
+
+**Acceptance:**
+
+- [x] Close up, the disc shows limb darkening, granulation and a streamered corona; from 3 AU the Sun stays a bright
+      point (dev app).
+- [x] Frame time 13.34 ms mean at 0.012 AU from the Sun (disc filling the view) and at 3 AU, 1920 × 809, 75 Hz.
 - [x] `npm run check` green.

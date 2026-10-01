@@ -282,7 +282,7 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-6-the-eruption.md` (part 1: Task 
 - [x] Engine: CME kinematics and arrival time at Earth (#100)
 - [x] CME picker for the last 30 days + selected-CME store (#101)
 - [x] CME particle shell on the GPU (#102)
-- [ ] Sun look: noise surface, limb darkening, corona (#103)
+- [x] Sun look: noise surface, limb darkening, corona (#103)
 - [ ] Earth look: day/night terminator and rim glow (#104)
 - [ ] Earth impact: magnetosphere hint and aurora, labelled illustrative (#105)
 - [ ] Shot choreography: camera and playback synced to the event time (#106)
@@ -738,3 +738,8 @@ _None._
   spherical cap at the front distance) with 24,000 GPU particles: the axis is fixed at `time21_5`, the front distance
   is float64 on the CPU each frame. Flanks along the cone wall make it read as leaving the Sun (first look was a
   floating lens). Frame time unchanged at 13.34 ms mean (75 Hz, 1920 × 809).
+- **2026-10-02:** Task 6 (#103): the Sun gets per-channel linear limb darkening, simplex-noise granulation and a
+  streamered corona quad (Ashima/Gustavson noise, MIT, vendored as a GLSL chunk). The illustrative surface motion runs
+  on the render clock while the simulation plays and freezes when paused. The photosphere drops from (4, 3.4, 2.6) to
+  (1.5, 1.0, 0.5) linear so the close-up is not a white blob; `SUN_GLOW_COLOR` is removed and the Phase 3 bloom test
+  now checks the photosphere colour. Frame time 13.34 ms mean close up and from 3 AU.
