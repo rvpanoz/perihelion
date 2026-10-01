@@ -279,7 +279,7 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-6-the-eruption.md` (part 1: Task 
 
 - [x] DONKI migration: new CME endpoint, validation, re-recorded fixtures and snapshot (#85)
 - [x] Engine: CME direction from DONKI latitude/longitude, and whether Earth is inside the cone (#99)
-- [ ] Engine: CME kinematics and arrival time at Earth (#100)
+- [x] Engine: CME kinematics and arrival time at Earth (#100)
 - [ ] CME picker for the last 30 days + selected-CME store (#101)
 - [ ] CME particle shell on the GPU (#102)
 - [ ] Sun look: noise surface, limb darkening, corona (#103)
@@ -294,31 +294,34 @@ Checklist will be expanded from `PLAN.md` when the phase starts.
 
 ## Calibrated tolerances
 
-| Test                                   | Tolerance                    | Rationale                                                                                    |
-| -------------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------- |
-| Planets vs Horizons: Mercury           | 31.4″ / 2.91″ / 2,250 km     | Measured 25.1″ / 2.33″ / 1,800 km × 1.25; Standish nominal 15″ / 1″ / 1,000 km               |
-| Planets vs Horizons: Venus             | 31.5″ / 1.88″ / 7,000 km     | Measured 25.2″ / 1.50″ / 5,600 km × 1.25; Standish nominal 20″ / 1″ / 4,000 km               |
-| Planets vs Horizons: EM barycentre     | 24.6″ / 2.03″ / 8,875 km     | Measured 19.7″ / 1.62″ / 7,100 km × 1.25; Standish nominal 20″ / 8″ / 6,000 km               |
-| Planets vs Horizons: Mars              | 73.5″ / 1.71″ / 30,125 km    | Measured 58.8″ / 1.37″ / 24,100 km × 1.25; Standish nominal 40″ / 2″ / 25,000 km             |
-| Planets vs Horizons: Jupiter           | 568″ / 8.88″ / 711,125 km    | Measured 454.6″ / 7.10″ / 568,900 km × 1.25; Standish nominal 400″ / 10″ / 600,000 km        |
-| Planets vs Horizons: Saturn            | 891″ / 28.7″ / 3,502,375 km  | Measured 712.7″ / 22.95″ / 2,801,900 km × 1.25; Standish nominal 600″ / 25″ / 1,500,000 km   |
-| Planets vs Horizons: Uranus            | 127″ / 4.39″ / 1,676,875 km  | Measured 101.9″ / 3.51″ / 1,341,500 km × 1.25; Standish nominal 50″ / 2″ / 1,000,000 km      |
-| Planets vs Horizons: Neptune           | 73.9″ / 2.09″ / 1,571,375 km | Measured 59.1″ / 1.67″ / 1,257,100 km × 1.25; Standish nominal 10″ / 1″ / 200,000 km         |
-| Asteroids vs Horizons: Eros            | 7.06e-5 AU over ±120 d       | Measured 5.65e-5 AU × 1.25 (JPL#659)                                                         |
-| Asteroids vs Horizons: Apophis         | 2.44e-5 AU over ±120 d       | Measured 1.95e-5 AU × 1.25 (JPL#220)                                                         |
-| Asteroids vs Horizons: Bennu           | 4.31e-5 AU over ±120 d       | Measured 3.45e-5 AU × 1.25 (ORX_merged_DE424)                                                |
-| Asteroids vs Horizons: Ryugu           | 2.95e-5 AU over ±120 d       | Measured 2.36e-5 AU × 1.25 (JPL#270)                                                         |
-| Asteroids vs Horizons: Phaethon        | 6.15e-5 AU over ±120 d       | Measured 4.92e-5 AU × 1.25 (JPL#1003; e = 0.89, q = 0.14 AU)                                 |
-| Asteroids vs Horizons: Aten            | 2.15e-5 AU over ±120 d       | Measured 1.72e-5 AU × 1.25 (JPL#149)                                                         |
-| Asteroids vs Horizons: Atira           | 4.18e-5 AU over ±120 d       | Measured 3.34e-5 AU × 1.25 (JPL#225)                                                         |
-| Asteroids vs Horizons: PLAN target     | 1e-3 AU within ±60 d         | PLAN.md target; worst measured 1.42e-5 AU (Eros), ~70× inside                                |
-| Asteroids: elements → state at epoch   | 1e-12 AU / 1e-12 AU/day      | Fixed bound (15 cm); measured ≤ 3e-15 AU / 6e-14 AU/day                                      |
-| Asteroids: Horizons Keplerian GM vs k² | 1e-11 relative               | Measured 5e-12                                                                               |
-| Swarm float32 vs engine: within ±10 yr | 1.71e-5 AU                   | Measured 1.37e-5 AU × 1.25 (2,006 NEOs, seed 20260930); 1 px ≈ 0.002 AU at the overview      |
-| Swarm float32 vs engine: 1800 / 2050   | 4.73e-4 AU                   | Measured 3.78e-4 AU × 1.25 (2,006 NEOs, seed 20260930); 1 px ≈ 0.002 AU at the overview      |
-| Close approach: engine vs CAD          | 15,700 km / 86 min           | Measured 12,509 km (2026 RN15) / 68.8 min (2026 SA8) × 1.25 over 19 recorded rows; absolute  |
-| B0 vs Horizons: pole (Horizons Earth)  | 8.7e-7°                      | Measured 6.96e-7° (2026-07-01) × 1.25 over 12 monthly 2026 dates; Horizons prints 6 decimals |
-| B0 vs Horizons: engine EMB end to end  | 7.3e-4°                      | Measured 5.84e-4° (2026-10-01) × 1.25 over 12 monthly 2026 dates                             |
+| Test                                    | Tolerance                    | Rationale                                                                                    |
+| --------------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------- |
+| Planets vs Horizons: Mercury            | 31.4″ / 2.91″ / 2,250 km     | Measured 25.1″ / 2.33″ / 1,800 km × 1.25; Standish nominal 15″ / 1″ / 1,000 km               |
+| Planets vs Horizons: Venus              | 31.5″ / 1.88″ / 7,000 km     | Measured 25.2″ / 1.50″ / 5,600 km × 1.25; Standish nominal 20″ / 1″ / 4,000 km               |
+| Planets vs Horizons: EM barycentre      | 24.6″ / 2.03″ / 8,875 km     | Measured 19.7″ / 1.62″ / 7,100 km × 1.25; Standish nominal 20″ / 8″ / 6,000 km               |
+| Planets vs Horizons: Mars               | 73.5″ / 1.71″ / 30,125 km    | Measured 58.8″ / 1.37″ / 24,100 km × 1.25; Standish nominal 40″ / 2″ / 25,000 km             |
+| Planets vs Horizons: Jupiter            | 568″ / 8.88″ / 711,125 km    | Measured 454.6″ / 7.10″ / 568,900 km × 1.25; Standish nominal 400″ / 10″ / 600,000 km        |
+| Planets vs Horizons: Saturn             | 891″ / 28.7″ / 3,502,375 km  | Measured 712.7″ / 22.95″ / 2,801,900 km × 1.25; Standish nominal 600″ / 25″ / 1,500,000 km   |
+| Planets vs Horizons: Uranus             | 127″ / 4.39″ / 1,676,875 km  | Measured 101.9″ / 3.51″ / 1,341,500 km × 1.25; Standish nominal 50″ / 2″ / 1,000,000 km      |
+| Planets vs Horizons: Neptune            | 73.9″ / 2.09″ / 1,571,375 km | Measured 59.1″ / 1.67″ / 1,257,100 km × 1.25; Standish nominal 10″ / 1″ / 200,000 km         |
+| Asteroids vs Horizons: Eros             | 7.06e-5 AU over ±120 d       | Measured 5.65e-5 AU × 1.25 (JPL#659)                                                         |
+| Asteroids vs Horizons: Apophis          | 2.44e-5 AU over ±120 d       | Measured 1.95e-5 AU × 1.25 (JPL#220)                                                         |
+| Asteroids vs Horizons: Bennu            | 4.31e-5 AU over ±120 d       | Measured 3.45e-5 AU × 1.25 (ORX_merged_DE424)                                                |
+| Asteroids vs Horizons: Ryugu            | 2.95e-5 AU over ±120 d       | Measured 2.36e-5 AU × 1.25 (JPL#270)                                                         |
+| Asteroids vs Horizons: Phaethon         | 6.15e-5 AU over ±120 d       | Measured 4.92e-5 AU × 1.25 (JPL#1003; e = 0.89, q = 0.14 AU)                                 |
+| Asteroids vs Horizons: Aten             | 2.15e-5 AU over ±120 d       | Measured 1.72e-5 AU × 1.25 (JPL#149)                                                         |
+| Asteroids vs Horizons: Atira            | 4.18e-5 AU over ±120 d       | Measured 3.34e-5 AU × 1.25 (JPL#225)                                                         |
+| Asteroids vs Horizons: PLAN target      | 1e-3 AU within ±60 d         | PLAN.md target; worst measured 1.42e-5 AU (Eros), ~70× inside                                |
+| Asteroids: elements → state at epoch    | 1e-12 AU / 1e-12 AU/day      | Fixed bound (15 cm); measured ≤ 3e-15 AU / 6e-14 AU/day                                      |
+| Asteroids: Horizons Keplerian GM vs k²  | 1e-11 relative               | Measured 5e-12                                                                               |
+| Swarm float32 vs engine: within ±10 yr  | 1.71e-5 AU                   | Measured 1.37e-5 AU × 1.25 (2,006 NEOs, seed 20260930); 1 px ≈ 0.002 AU at the overview      |
+| Swarm float32 vs engine: 1800 / 2050    | 4.73e-4 AU                   | Measured 3.78e-4 AU × 1.25 (2,006 NEOs, seed 20260930); 1 px ≈ 0.002 AU at the overview      |
+| Close approach: engine vs CAD           | 15,700 km / 86 min           | Measured 12,509 km (2026 RN15) / 68.8 min (2026 SA8) × 1.25 over 19 recorded rows; absolute  |
+| B0 vs Horizons: pole (Horizons Earth)   | 8.7e-7°                      | Measured 6.96e-7° (2026-07-01) × 1.25 over 12 monthly 2026 dates; Horizons prints 6 decimals |
+| B0 vs Horizons: engine EMB end to end   | 7.3e-4°                      | Measured 5.84e-4° (2026-10-01) × 1.25 over 12 monthly 2026 dates                             |
+| CME front vs DONKI: 21.5 R☉ at time21_5 | exact                        | Measured 0 over 77 recorded CMEs (2026-10-01); holds by construction                         |
+| CME front vs DONKI: Earth at ENLIL time | exact                        | Measured 0 over the 13 CMEs with an ENLIL Earth arrival; mean transit speed meets both times |
+| CME front vs DONKI: measured speed      | exact                        | Measured 0 over the 64 CMEs without an ENLIL Earth arrival                                   |
 
 Planet tolerances are heliocentric longitude / latitude / distance, the units of Standish's accuracy table
 (https://ssd.jpl.nasa.gov/planets/approx_pos.html): the worst case over the 27 fixture dates × 1.25
@@ -718,3 +721,8 @@ _None._
 - **2026-10-02:** Task 3a (#100): each CME analysis carries `enlilRunCount`. Of the 77 kept CMEs in the 2026-10-01
   recording, 13 have an ENLIL Earth arrival, 39 had ENLIL runs that predicted none, and 25 had no ENLIL run; the CME
   snapshot (fetched 2026-10-01T22:53Z) matches.
+- **2026-10-02:** Task 3b (#100): `packages/orbit/src/cmeKinematics.ts` gives the CME front's uniform motion from
+  21.5 R☉ (nominal R☉ 695,700 km, IAU 2015 B3) and its distance at any time, held at 1 R☉ before launch;
+  `KM_PER_AU` moved to `src/units.ts`, re-exported unchanged. The cross-check against the recording
+  (`apps/server/src/datasets/cmeCrossCheck.test.ts`) measured 0 on all three checks, so all three assert exact
+  equality (user-approved). The 13 ENLIL CMEs travel 1.99–3.77 days at a mean 417–790 km/s.
