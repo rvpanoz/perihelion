@@ -10,3 +10,4 @@ export * from './degreeElements';
 export * from './closestApproach';
 export * from './heliographic';
 export * from './cmeKinematics';
+export * from './earthOrientation';

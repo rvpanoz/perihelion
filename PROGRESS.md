@@ -283,7 +283,7 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-6-the-eruption.md` (part 1: Task 
 - [x] CME picker for the last 30 days + selected-CME store (#101)
 - [x] CME particle shell on the GPU (#102)
 - [x] Sun look: noise surface, limb darkening, corona (#103)
-- [ ] Earth look: day/night terminator and rim glow (#104)
+- [x] Earth look: day/night terminator and rim glow (#104)
 - [ ] Earth impact: magnetosphere hint and aurora, labelled illustrative (#105)
 - [ ] Shot choreography: camera and playback synced to the event time (#106)
 - [ ] Exit verification: CME geometry and timing vs DONKI; 60 fps (#107)
@@ -743,3 +743,8 @@ _None._
   on the render clock while the simulation plays and freezes when paused. The photosphere drops from (4, 3.4, 2.6) to
   (1.5, 1.0, 0.5) linear so the close-up is not a white blob; `SUN_GLOW_COLOR` is removed and the Phase 3 bloom test
   now checks the photosphere colour. Frame time 13.34 ms mean close up and from 3 AU.
+- **2026-10-02:** Task 7 (#104): Earth uses NASA's Blue Marble NG (July 2004, topo-bathy, public domain) at
+  2048 × 1024 (478 KB), turned by the IAU 2000 Earth Rotation Angle about the J2000 pole
+  (`packages/orbit/src/earthOrientation.ts`), so the right continents face the Sun. Night side: the same map dimmed
+  and tinted blue (city lights stay in Phase 7). The map loads from `SceneCanvas` into a store, so scene tests need no
+  DOM. Frame time 13.34 ms mean at Earth.

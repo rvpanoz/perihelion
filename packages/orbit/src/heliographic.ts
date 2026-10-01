@@ -11,7 +11,7 @@ const SUN_POLE_RIGHT_ASCENSION_RAD = 286.13 * RAD_PER_DEG;
 const SUN_POLE_DECLINATION_RAD = 63.87 * RAD_PER_DEG;
 
 /** Obliquity of the ecliptic at J2000, 84381.448″ (IAU 1976): the value of Horizons' ecliptic J2000 frame. */
-const OBLIQUITY_J2000_RAD = (84_381.448 / 3600) * RAD_PER_DEG;
+export const OBLIQUITY_J2000_RAD = (84_381.448 / 3600) * RAD_PER_DEG;
 
 /** A direction from the Sun's centre in HEEQ/Stonyhurst coordinates; longitude is positive toward solar west. */
 export interface HeliographicDirection {
@@ -36,7 +36,7 @@ function unitFromSpherical(latitudeRad: number, longitudeRad: number): Vector3 {
 }
 
 /** Equatorial → ecliptic J2000: a rotation about x by the obliquity (Meeus, Astronomical Algorithms, eq. 13.5–13.6). */
-function equatorialToEcliptic(vector: Readonly<Vector3>): Vector3 {
+export function equatorialToEcliptic(vector: Readonly<Vector3>): Vector3 {
   const cosObliquity = Math.cos(OBLIQUITY_J2000_RAD);
   const sinObliquity = Math.sin(OBLIQUITY_J2000_RAD);
   return [

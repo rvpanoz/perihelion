@@ -7,6 +7,8 @@ import { FRAME_PRIORITY } from '../framePriorities';
 import { writeSceneOffset } from '../sceneFrame';
 import { BODY_APPEARANCE, type BodyId, radiusAu } from './bodyCatalog';
 import { bodyPositions } from './bodyPositions';
+import { EarthBody } from './earth/EarthBody';
+import { useEarthDayMap } from './earth/earthDayMap';
 import { SunBody } from './sun/SunBody';
 
 const SPHERE_SEGMENTS = { width: 48, height: 24 } as const;
@@ -31,10 +33,22 @@ export function Body({ body }: { body: BodyId }) {
         cameraRig.flyTo({ focus: body });
       }}
     >
-      {body === 'sun' ? <SunBody /> : <PlanetSurface planet={body} />}
+      <BodySurface body={body} />
       <BodyMarker color={BODY_APPEARANCE[body].color} />
     </group>
   );
+}
+
+function BodySurface({ body }: { body: BodyId }) {
+  if (body === 'sun') return <SunBody />;
+  if (body === 'earthMoonBarycenter') return <EarthSurface />;
+  return <PlanetSurface planet={body} />;
+}
+
+/** The plain sphere until the day map has loaded. */
+function EarthSurface() {
+  const dayMap = useEarthDayMap();
+  return dayMap ? <EarthBody dayMap={dayMap} /> : <PlanetSurface planet="earthMoonBarycenter" />;
 }
 
 function PlanetSurface({ planet }: { planet: Planet }) {
