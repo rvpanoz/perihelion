@@ -86,6 +86,9 @@ Fastify, zod 4, Vitest 5, fast-check.
 | `apps/web/src/approaches/*` (new)                     | List, formatting, selection store, HUD                           | 3, 6 |
 | `apps/web/src/scene/approach/*` (new)                 | Engine position, trail, follow target                            | 4, 5 |
 | `apps/web/src/scene/camera/cameraRig.ts`, `flight.ts` | Focus becomes "body or approach asteroid"                        | 5    |
+| `apps/web/src/scene/orbitElements.ts` (new)           | Degrees → engine elements, shared by swarm and approach          | 4    |
+| `apps/web/src/scene/swarm/swarmAttributes.ts`         | Uses `elementsFromDegrees`                                       | 4    |
+| `apps/web/src/scene/sceneFrame.ts`                    | Optional `out` on `sceneAxesFromEcliptic`                        | 5    |
 
 ---
 
@@ -366,17 +369,828 @@ function significant(value: number): string {
 
 ---
 
-### Tasks 3–7
+### Task 3: Close-approach list
 
-Written in Part 2, after reading `stateAtTime`, the time store, `CameraRigUpdater`, `bodyCatalog` and the
-stylesheet:
+UI task with one fact-critical formatter (full code for `approachFormat.ts` only).
 
-- **Task 3: Close-approach list.** `useDataset('close-approaches')` in the shell's side panel; rows show name, CAD
-  date, distance (LD), relative speed and diameter text; empty state; the pill gains this dataset.
-- **Task 4: The asteroid on the engine.** Full code: CAD row orbit → `OrbitalElements` (radians) → float64 position
-  each frame; trail samples; the engine-vs-CAD closest-distance measurement and proposed tolerance (decision 5).
-- **Task 5: Fly and follow.** The camera rig's focus widens from `BodyId` to body-or-approach; selecting a row sets
-  the clock to just before the approach and flies in; follow framing keeps Earth in view and never inside it.
-- **Task 6: HUD.** Distance in LD / AU / km, relative speed, CAD date (TDB) and diameter, all from the row.
-- **Task 7: Exit verification and close-out.** Every listed approach played end to end in the browser; HUD values
-  checked against `/api/close-approaches`; frame times; `PROGRESS.md`; release `v0.5.0`.
+**Files:**
+
+- Create: `apps/web/src/approaches/approachFormat.ts`, `apps/web/src/approaches/approachSelection.ts`,
+  `apps/web/src/approaches/ApproachList.tsx`, tests beside each
+- Modify: `apps/web/src/App.tsx` (side slot, pill datasets), the app stylesheet
+
+**Interfaces:**
+
+- Consumes: `useDataset('close-approaches')` and `DatasetState` (Task 0); `diameterText`/`approachDiameter`
+  (Task 2); `KM_PER_AU` from `@perihelion/orbit`.
+- Produces:
+  - `KM_PER_LUNAR_DISTANCE = 384_398`; `distanceTexts(distanceAu): { au: string; km: string; lunar: string }`;
+    `speedText(kmPerS): string`; `approachDateText(approach): string`; `approachLabel(approach): string`
+  - `approachSelection`: `selected: CloseApproach | undefined`, `select(approach)`, `clear()`, `subscribe`
+    (an external store like `timeStore`: notifies on user actions only)
+  - `<ApproachList state={DatasetState<'close-approaches'>} onSelect={(approach) => void} />`. Until Task 5,
+    `App` passes `approachSelection.select`; Task 5 swaps in `playApproach`.
+
+- [ ] **Step 1: Confirm the LD constant** against the CNEOS site (cneos.jpl.nasa.gov, "LD" definition). If CNEOS
+      uses another value, use theirs and fix the expected strings below before writing the test.
+- [ ] **Step 2: Write the failing formatter tests**
+
+```ts
+import { describe, expect, it } from 'vitest';
+import { approachLabel, distanceTexts, speedText } from './approachFormat';
+
+describe('distanceTexts', () => {
+  it("keeps CAD's AU exactly and converts with exact constants", () => {
+    // 0.05 × 149,597,870.7 = 7,479,893.535 km; ÷ 384,398 = 19.4587… LD.
+    expect(distanceTexts(0.05)).toEqual({
+      au: '0.05 AU',
+      km: '7,479,894 km',
+      lunar: '19.46 LD',
+    });
+  });
+
+  it('never rounds the AU figure', () => {
+    // 0.0123456789 AU = 1,846,887.276 km = 4.8046 LD.
+    expect(distanceTexts(0.0123456789)).toEqual({
+      au: '0.0123456789 AU',
+      km: '1,846,887 km',
+      lunar: '4.80 LD',
+    });
+  });
+});
+
+describe('speedText', () => {
+  it("prints CAD's value as given", () => {
+    expect(speedText(12.345678)).toBe('12.345678 km/s');
+  });
+});
+
+describe('approachLabel', () => {
+  it("trims CAD's padded full name", () => {
+    expect(approachLabel({ fullName: '       (2024 XY1)' })).toBe('(2024 XY1)');
+  });
+});
+```
+
+- [ ] **Step 3: Run** `npx vitest run apps/web/src/approaches`, expect FAIL.
+- [ ] **Step 4: Implement**
+
+```ts
+import type { CloseApproach } from '@perihelion/data';
+import { KM_PER_AU } from '@perihelion/orbit';
+
+/** JPL CNEOS's lunar distance. CAD reports AU only; LD and km are exact conversions of CAD's figure. */
+export const KM_PER_LUNAR_DISTANCE = 384_398;
+const LUNAR_DECIMALS = 2;
+const GROUPED_KM = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
+
+export interface DistanceTexts {
+  au: string;
+  km: string;
+  lunar: string;
+}
+
+/** AU is CAD's own number, printed in full; km and LD are rounded for reading, never re-derived. */
+export function distanceTexts(distanceAu: number): DistanceTexts {
+  const distanceKm = distanceAu * KM_PER_AU;
+  return {
+    au: `${distanceAu} AU`,
+    km: `${GROUPED_KM.format(distanceKm)} km`,
+    lunar: `${(distanceKm / KM_PER_LUNAR_DISTANCE).toFixed(LUNAR_DECIMALS)} LD`,
+  };
+}
+
+export function speedText(kmPerS: number): string {
+  return `${kmPerS} km/s`;
+}
+
+/** CAD's calendar date is TDB, not UTC (they differ by ~69 s); the label says so. */
+export function approachDateText(approach: Pick<CloseApproach, 'approachCalendarTdb'>): string {
+  return `${approach.approachCalendarTdb} TDB`;
+}
+
+export function approachLabel(approach: Pick<CloseApproach, 'fullName'>): string {
+  return approach.fullName.trim();
+}
+```
+
+- [ ] **Step 5: Write failing tests for `approachSelection`:** `select` stores the same object and notifies once;
+      `clear` empties it and notifies; an unsubscribed listener is not called.
+- [ ] **Step 6: Write failing tests for `ApproachList`** (use the same component-test setup as `SwarmStatus`'s
+      test; locate it at review):
+  - `loading` → `Loading close approaches…`
+  - `unavailable` → `Close approaches unavailable`
+  - ready with `[]` → `No asteroid passes within 0.05 AU (19.46 LD) of Earth in this window.` (Review Focus 2)
+  - ready with 3 rows → 3 buttons in CAD order, each showing label, date text, `lunar` distance, speed and
+    diameter text; the selected row has `aria-pressed="true"`; clicking calls `onSelect` with that row object
+- [ ] **Step 7: Run the tests**, expect FAIL; **implement** `approachSelection` and `ApproachList`; run, expect PASS.
+- [ ] **Step 8: Wire up.** `App` loads `useDataset('close-approaches')`, renders `ApproachList` in the shell's
+      `side` slot and adds the dataset to the pill (labelled `Close approaches`).
+- [ ] **Step 9: Browser check:** the list matches `curl -s localhost:<port>/api/close-approaches | jq '.data'` row
+      for row; the pill reflects both datasets; frame times unchanged.
+- [ ] **Step 10: `npm run check`**, then commit: `Add the close-approach list`.
+
+---
+
+### Task 4: The asteroid on the engine
+
+Maths task: full code. The cross-check tolerance is measured, not chosen (decision 5).
+
+**Files:**
+
+- Create: `apps/web/src/scene/orbitElements.ts`, `apps/web/src/scene/approach/approachTiming.ts`,
+  `apps/web/src/scene/approach/approachGeometry.ts`, `apps/web/src/scene/approach/approachTrail.ts`,
+  `apps/web/src/scene/approach/asteroidPosition.ts`, `apps/web/src/scene/approach/ApproachScene.tsx`
+  (marker, trail line and the per-frame updater), tests beside each pure module, and
+  `apps/web/src/scene/approach/approachCrossCheck.test.ts`
+- Modify: `apps/web/src/scene/swarm/swarmAttributes.ts` (use `elementsFromDegrees`),
+  `apps/web/src/scene/SceneContents.tsx` (mount `ApproachScene`)
+
+**Interfaces:**
+
+- Consumes: `stateAtTime(elements, jdTdb, out)`, `planetStateAt(planet, jdTdb, out)`, `createStateVector()`,
+  `norm`, `KM_PER_AU`, `OrbitalElements`, `Vector3` from `@perihelion/orbit`; `ApproachOrbit`, `CloseApproach`
+  (Task 1); `approachSelection` (Task 3); `sceneAxesFromEcliptic`, `writeSceneOffset`, `FRAME_PRIORITY`,
+  `bodyPositions`.
+- Produces:
+  - `elementsFromDegrees(orbit: DegreeElements): OrbitalElements` (shared with the swarm)
+  - `crossingDays(approach): number` (τ = d / v, used by the trail here and by playback in Task 5)
+  - `writeGeocentricOffset(request: { elements; jdTdb }, out: Vector3): Vector3`
+  - `findClosestApproach(search: { distanceAtJd; aroundJdTdb }): ClosestApproach` and
+    `closestApproach(elements, aroundJdTdb): ClosestApproach`, where `ClosestApproach = { jdTdb; distanceAu }`
+  - `TRAIL_POINTS`, `trailOffsetDays(index, halfWindowDays)`, `trailIndexAt(offsetDays, halfWindowDays)`,
+    `writeTrail(request: { elements; approachJdTdb; halfWindowDays }, out: Float32Array)`
+  - `asteroidPositionAu: Vector3` (float64, heliocentric) and `elementsForApproach(approach)` (memoised by object
+    identity, so selection and the frame loop share one conversion, synchronously)
+
+- [ ] **Step 1: Write the failing tests for the shared conversion and timing**
+
+```ts
+// orbitElements.test.ts
+import { describe, expect, it } from 'vitest';
+import { elementsFromDegrees } from './orbitElements';
+
+describe('elementsFromDegrees', () => {
+  it('converts the four angles to radians and passes the rest through', () => {
+    const elements = elementsFromDegrees({
+      epochJdTdb: 2_461_000.5,
+      eccentricity: 0.2,
+      semiMajorAxisAu: 1.1,
+      inclinationDeg: 90,
+      longitudeOfAscendingNodeDeg: 180,
+      argumentOfPerihelionDeg: 45,
+      meanAnomalyDeg: 360,
+    });
+    expect(elements).toEqual({
+      epochJdTdb: 2_461_000.5,
+      eccentricity: 0.2,
+      semiMajorAxisAu: 1.1,
+      inclinationRad: Math.PI / 2,
+      longitudeOfAscendingNodeRad: Math.PI,
+      argumentOfPerihelionRad: Math.PI / 4,
+      meanAnomalyRad: 2 * Math.PI,
+    });
+  });
+});
+```
+
+```ts
+// approachTiming.test.ts
+import { describe, expect, it } from 'vitest';
+import { crossingDays } from './approachTiming';
+
+describe('crossingDays', () => {
+  it('is the time to cover the miss distance at the relative speed', () => {
+    // 0.01 AU = 1,495,978.707 km; at 10 km/s that is 149,597.87 s = 1.731457 d.
+    expect(crossingDays({ distanceAu: 0.01, relativeVelocityKmPerS: 10 })).toBeCloseTo(1.731457, 6);
+  });
+
+  it('guards a zero speed and caps very slow passes at 10 days', () => {
+    expect(crossingDays({ distanceAu: 1e-4, relativeVelocityKmPerS: 0 })).toBeCloseTo(
+      (1e-4 * 149_597_870.7) / 0.1 / 86_400,
+      9,
+    );
+    expect(crossingDays({ distanceAu: 0.05, relativeVelocityKmPerS: 0.5 })).toBe(10);
+  });
+});
+```
+
+- [ ] **Step 2: Write the failing geometry and trail tests**
+
+```ts
+// approachGeometry.test.ts
+import { norm, planetElementsAt } from '@perihelion/orbit';
+import { describe, expect, it } from 'vitest';
+import { findClosestApproach, writeGeocentricOffset } from './approachGeometry';
+
+const JD_TDB = 2_461_000.5;
+
+describe('writeGeocentricOffset', () => {
+  it("is zero for an object on the Earth–Moon barycentre's own orbit", () => {
+    const elements = planetElementsAt('earthMoonBarycenter', JD_TDB);
+    const offset = writeGeocentricOffset({ elements, jdTdb: JD_TDB }, [0, 0, 0]);
+    expect(norm(offset)).toBeLessThan(1e-12);
+  });
+});
+
+describe('findClosestApproach', () => {
+  // A straight-line flyby, |r(t)| = √(d² + v²(t − t₀)²): the shape of every CAD pass near closest approach.
+  const flyby = (closestJdTdb: number) => (jdTdb: number) =>
+    Math.hypot(2.5e-4, 0.004 * (jdTdb - closestJdTdb));
+
+  it('finds a minimum between hourly samples to well under a second', () => {
+    const closestJdTdb = JD_TDB + 1.3712345;
+    const found = findClosestApproach({ distanceAtJd: flyby(closestJdTdb), aroundJdTdb: JD_TDB });
+    expect(Math.abs(found.jdTdb - closestJdTdb)).toBeLessThan(1e-6);
+    expect(found.distanceAu).toBeCloseTo(2.5e-4, 12);
+  });
+
+  it('finds a minimum before the guess too', () => {
+    const closestJdTdb = JD_TDB - 2.04;
+    const found = findClosestApproach({ distanceAtJd: flyby(closestJdTdb), aroundJdTdb: JD_TDB });
+    expect(Math.abs(found.jdTdb - closestJdTdb)).toBeLessThan(1e-6);
+  });
+});
+```
+
+```ts
+// approachTrail.test.ts
+import { planetElementsAt } from '@perihelion/orbit';
+import { describe, expect, it } from 'vitest';
+import { writeGeocentricOffset } from './approachGeometry';
+import { TRAIL_POINTS, trailIndexAt, trailOffsetDays, writeTrail } from './approachTrail';
+
+const HALF_WINDOW_DAYS = 5;
+
+describe('trailOffsetDays', () => {
+  it('spans the window, symmetric and increasing', () => {
+    expect(trailOffsetDays(0, HALF_WINDOW_DAYS)).toBe(-HALF_WINDOW_DAYS);
+    expect(trailOffsetDays(TRAIL_POINTS - 1, HALF_WINDOW_DAYS)).toBe(HALF_WINDOW_DAYS);
+    for (let index = 1; index < TRAIL_POINTS; index += 1) {
+      const offset = trailOffsetDays(index, HALF_WINDOW_DAYS);
+      expect(offset).toBeGreaterThan(trailOffsetDays(index - 1, HALF_WINDOW_DAYS));
+      expect(offset).toBeCloseTo(-trailOffsetDays(TRAIL_POINTS - 1 - index, HALF_WINDOW_DAYS), 12);
+    }
+  });
+
+  it('is densest at closest approach', () => {
+    const middle = TRAIL_POINTS / 2;
+    const centreStep = trailOffsetDays(middle, 1) - trailOffsetDays(middle - 1, 1);
+    const edgeStep = trailOffsetDays(TRAIL_POINTS - 1, 1) - trailOffsetDays(TRAIL_POINTS - 2, 1);
+    expect(centreStep).toBeLessThan(edgeStep / 1000);
+  });
+});
+
+describe('trailIndexAt', () => {
+  it('inverts trailOffsetDays and clamps outside the window', () => {
+    for (let index = 0; index < TRAIL_POINTS; index += 1) {
+      expect(trailIndexAt(trailOffsetDays(index, HALF_WINDOW_DAYS), HALF_WINDOW_DAYS)).toBe(index);
+    }
+    expect(trailIndexAt(-99, HALF_WINDOW_DAYS)).toBe(0);
+    expect(trailIndexAt(99, HALF_WINDOW_DAYS)).toBe(TRAIL_POINTS - 1);
+  });
+});
+
+describe('writeTrail', () => {
+  it('writes each sample as the geocentric offset at its time, in scene axes', () => {
+    const elements = { ...planetElementsAt('mars', 2_461_000.5) };
+    const request = { elements, approachJdTdb: 2_461_000.5, halfWindowDays: HALF_WINDOW_DAYS };
+    const trail = writeTrail(request, new Float32Array(TRAIL_POINTS * 3));
+    for (const index of [0, 100, TRAIL_POINTS - 1]) {
+      const jdTdb = request.approachJdTdb + trailOffsetDays(index, HALF_WINDOW_DAYS);
+      const [x, y, z] = writeGeocentricOffset({ elements, jdTdb }, [0, 0, 0]);
+      // Scene axes are ecliptic (x, z, −y); float32 keeps ~7 significant figures.
+      expect(trail[index * 3]).toBeCloseTo(x, 6);
+      expect(trail[index * 3 + 1]).toBeCloseTo(z, 6);
+      expect(trail[index * 3 + 2]).toBeCloseTo(-y, 6);
+    }
+  });
+});
+```
+
+- [ ] **Step 3: Run** `npx vitest run apps/web/src/scene/orbitElements.test.ts apps/web/src/scene/approach`,
+      expect FAIL.
+- [ ] **Step 4: Implement**
+
+```ts
+// apps/web/src/scene/orbitElements.ts
+import type { ApproachOrbit } from '@perihelion/data';
+import type { OrbitalElements } from '@perihelion/orbit';
+
+/** SBDB gives angles in degrees; the engine works in radians. Converted here, at the I/O boundary. */
+const RAD_PER_DEG = Math.PI / 180;
+
+/** The NEO catalog's column names; a catalog row and an approach orbit both have this shape. */
+export type DegreeElements = ApproachOrbit;
+
+export function elementsFromDegrees(orbit: DegreeElements): OrbitalElements {
+  return {
+    epochJdTdb: orbit.epochJdTdb,
+    eccentricity: orbit.eccentricity,
+    semiMajorAxisAu: orbit.semiMajorAxisAu,
+    inclinationRad: orbit.inclinationDeg * RAD_PER_DEG,
+    longitudeOfAscendingNodeRad: orbit.longitudeOfAscendingNodeDeg * RAD_PER_DEG,
+    argumentOfPerihelionRad: orbit.argumentOfPerihelionDeg * RAD_PER_DEG,
+    meanAnomalyRad: orbit.meanAnomalyDeg * RAD_PER_DEG,
+  };
+}
+```
+
+`swarmAttributes.ts` then builds a `DegreeElements` row from the columns and calls `elementsFromDegrees` instead of
+its own `RAD_PER_DEG` lines; its tests must pass unchanged.
+
+```ts
+// apps/web/src/scene/approach/approachTiming.ts
+import type { CloseApproach } from '@perihelion/data';
+import { KM_PER_AU } from '@perihelion/orbit';
+
+const SECONDS_PER_DAY = 86_400;
+/** CAD's schema allows 0; 0.1 km/s is far below any real Earth encounter, so it only guards the division. */
+const MIN_RELATIVE_SPEED_KM_PER_S = 0.1;
+/** A very slow, distant pass would otherwise play over months; ten days keeps the shot one sweep. */
+const MAX_CROSSING_DAYS = 10;
+
+/** τ = d / v: how long the asteroid takes to cover its own miss distance, the natural clock of a flyby. */
+export function crossingDays(
+  approach: Pick<CloseApproach, 'distanceAu' | 'relativeVelocityKmPerS'>,
+): number {
+  const distanceKm = approach.distanceAu * KM_PER_AU;
+  const speedKmPerS = Math.max(approach.relativeVelocityKmPerS, MIN_RELATIVE_SPEED_KM_PER_S);
+  return Math.min(distanceKm / speedKmPerS / SECONDS_PER_DAY, MAX_CROSSING_DAYS);
+}
+```
+
+```ts
+// apps/web/src/scene/approach/approachGeometry.ts
+import {
+  type OrbitalElements,
+  type Vector3,
+  createStateVector,
+  norm,
+  planetStateAt,
+  stateAtTime,
+} from '@perihelion/orbit';
+
+export interface ClosestApproach {
+  jdTdb: number;
+  distanceAu: number;
+}
+
+export interface MinimumSearch {
+  distanceAtJd: (jdTdb: number) => number;
+  aroundJdTdb: number;
+}
+
+/** CAD's t_sigma can be days; ±3 d at hourly steps brackets the engine's minimum even when it drifts from CAD's. */
+const SEARCH_HALF_WINDOW_DAYS = 3;
+const SEARCH_STEP_DAYS = 1 / 24;
+/** ≈ 9 ms. JD near 2.46e6 resolves to ~4e-10 d in float64, so this is well above rounding. */
+const REFINE_TOLERANCE_DAYS = 1e-7;
+const INVERSE_GOLDEN_RATIO = (Math.sqrt(5) - 1) / 2;
+
+const scratchAsteroid = createStateVector();
+const scratchEarth = createStateVector();
+const scratchOffset: Vector3 = [0, 0, 0];
+
+/** Asteroid minus the Earth–Moon barycentre: Standish has no Earth, so this is ≈ 4,670 km from geocentric. */
+export function writeGeocentricOffset(
+  request: { elements: OrbitalElements; jdTdb: number },
+  out: Vector3,
+): Vector3 {
+  const asteroid = stateAtTime(request.elements, request.jdTdb, scratchAsteroid).positionAu;
+  const earth = planetStateAt('earthMoonBarycenter', request.jdTdb, scratchEarth).positionAu;
+  for (const axis of [0, 1, 2] as const) out[axis] = asteroid[axis] - earth[axis];
+  return out;
+}
+
+export function closestApproach(elements: OrbitalElements, aroundJdTdb: number): ClosestApproach {
+  const distanceAtJd = (jdTdb: number) =>
+    norm(writeGeocentricOffset({ elements, jdTdb }, scratchOffset));
+  return findClosestApproach({ distanceAtJd, aroundJdTdb });
+}
+
+/** Hourly scan for the bracket, then golden-section search inside it (Press et al., Numerical Recipes §10.2). */
+export function findClosestApproach(search: MinimumSearch): ClosestApproach {
+  const coarseJdTdb = coarseMinimumJdTdb(search);
+  const jdTdb = goldenSectionMinimum(search.distanceAtJd, {
+    lowJdTdb: coarseJdTdb - SEARCH_STEP_DAYS,
+    highJdTdb: coarseJdTdb + SEARCH_STEP_DAYS,
+  });
+  return { jdTdb, distanceAu: search.distanceAtJd(jdTdb) };
+}
+
+/** Steps counted in integers so the samples land exactly on the grid instead of accumulating rounding. */
+function coarseMinimumJdTdb({ distanceAtJd, aroundJdTdb }: MinimumSearch): number {
+  const steps = Math.round((2 * SEARCH_HALF_WINDOW_DAYS) / SEARCH_STEP_DAYS);
+  let bestJdTdb = aroundJdTdb;
+  let bestDistanceAu = Number.POSITIVE_INFINITY;
+  for (let step = 0; step <= steps; step += 1) {
+    const jdTdb = aroundJdTdb - SEARCH_HALF_WINDOW_DAYS + step * SEARCH_STEP_DAYS;
+    const distanceAu = distanceAtJd(jdTdb);
+    if (distanceAu < bestDistanceAu) [bestJdTdb, bestDistanceAu] = [jdTdb, distanceAu];
+  }
+  return bestJdTdb;
+}
+
+function goldenSectionMinimum(
+  distanceAtJd: (jdTdb: number) => number,
+  bracket: { lowJdTdb: number; highJdTdb: number },
+): number {
+  let { lowJdTdb, highJdTdb } = bracket;
+  while (highJdTdb - lowJdTdb > REFINE_TOLERANCE_DAYS) {
+    const span = INVERSE_GOLDEN_RATIO * (highJdTdb - lowJdTdb);
+    const leftJdTdb = highJdTdb - span;
+    const rightJdTdb = lowJdTdb + span;
+    if (distanceAtJd(leftJdTdb) < distanceAtJd(rightJdTdb)) highJdTdb = rightJdTdb;
+    else lowJdTdb = leftJdTdb;
+  }
+  return (lowJdTdb + highJdTdb) / 2;
+}
+```
+
+```ts
+// apps/web/src/scene/approach/approachTrail.ts
+import type { OrbitalElements, Vector3 } from '@perihelion/orbit';
+import { sceneAxesFromEcliptic } from '../sceneFrame';
+import { writeGeocentricOffset } from './approachGeometry';
+
+export const TRAIL_POINTS = 512;
+/** The trail covers ±8 crossing times: the bend of the pass and the straight run-in either side of it. */
+export const TRAIL_HALF_WINDOW_CROSSINGS = 8;
+
+const scratchOffset: Vector3 = [0, 0, 0];
+
+export interface TrailRequest {
+  elements: OrbitalElements;
+  approachJdTdb: number;
+  halfWindowDays: number;
+}
+
+/**
+ * Offsets go as u³ for u evenly spaced in [−1, 1]: dense at closest approach, where a grazing pass bends within
+ * minutes, and sparse days away, where the path is nearly straight.
+ */
+export function trailOffsetDays(index: number, halfWindowDays: number): number {
+  const u = (2 * index) / (TRAIL_POINTS - 1) - 1;
+  return halfWindowDays * u ** 3;
+}
+
+/** The sample nearest a time offset, so the bright "past" part of the trail ends at the asteroid. */
+export function trailIndexAt(offsetDays: number, halfWindowDays: number): number {
+  const u = Math.cbrt(offsetDays / halfWindowDays);
+  const index = Math.round(((u + 1) * (TRAIL_POINTS - 1)) / 2);
+  return Math.min(Math.max(index, 0), TRAIL_POINTS - 1);
+}
+
+/**
+ * The path relative to Earth, not the Sun: drawn anchored at Earth it is the flyby's bend, and the asteroid's
+ * current position always lies on it. Float32 relative to Earth keeps ~1e-7 of the offset, metres for a close pass.
+ */
+export function writeTrail(request: TrailRequest, out: Float32Array): Float32Array {
+  for (let index = 0; index < TRAIL_POINTS; index += 1) {
+    const jdTdb = request.approachJdTdb + trailOffsetDays(index, request.halfWindowDays);
+    writeGeocentricOffset({ elements: request.elements, jdTdb }, scratchOffset);
+    out.set(sceneAxesFromEcliptic(scratchOffset), index * 3);
+  }
+  return out;
+}
+```
+
+```ts
+// apps/web/src/scene/approach/asteroidPosition.ts
+import type { CloseApproach } from '@perihelion/data';
+import {
+  type OrbitalElements,
+  type Vector3,
+  createStateVector,
+  stateAtTime,
+} from '@perihelion/orbit';
+import { elementsFromDegrees } from '../orbitElements';
+
+/** Heliocentric ecliptic J2000, float64: written at `FRAME_PRIORITY.bodyPositions`, read by the rig and marker. */
+export const asteroidPositionAu: Vector3 = [0, 0, 0];
+
+const elementsCache = new WeakMap<CloseApproach, OrbitalElements>();
+const scratchState = createStateVector();
+
+/** Memoised by row identity, so a click and the next frame see the same elements without waiting on React. */
+export function elementsForApproach(approach: CloseApproach): OrbitalElements {
+  const cached = elementsCache.get(approach);
+  if (cached !== undefined) return cached;
+  const elements = elementsFromDegrees(approach.orbit);
+  elementsCache.set(approach, elements);
+  return elements;
+}
+
+export function updateAsteroidPosition(approach: CloseApproach, jdTdb: number): void {
+  const [x, y, z] = stateAtTime(elementsForApproach(approach), jdTdb, scratchState).positionAu;
+  asteroidPositionAu[0] = x;
+  asteroidPositionAu[1] = y;
+  asteroidPositionAu[2] = z;
+}
+```
+
+- [ ] **Step 5: Run the tests again**, expect PASS, including the swarm's unchanged tests.
+- [ ] **Step 6: Measure engine vs CAD.** Write `approachCrossCheck.test.ts` over the recorded CAD rows joined to
+      their recorded orbits (Task 1's normalisers on the recorded files; check at review that `apps/web` may import
+      `packages/fixtures`, else place the test in `apps/server`). For each row it computes
+      `closestApproach(elements, row.approachJdTdb)` and records `|Δd|`, `|Δd| / d` and `|Δt|` in minutes. First run
+      it as a measurement that prints a table (designation, CAD d, engine d, Δd in km, relative Δd, Δt); add the table
+      to the PR.
+- [ ] **Step 7: Stop and propose a tolerance** with that evidence (measured worst × 1.25, as in Phases 1 and 4;
+      likely an absolute km term for the barycentre offset plus a relative term for Earth's gravity). Wait for the
+      user's approval, then write the assertions and record the row in `PROGRESS.md` "Calibrated tolerances".
+- [ ] **Step 8: Draw it.** `ApproachScene` (mounted in `SceneContents` when `approachSelection.selected` is set):
+  - an updater at `FRAME_PRIORITY.bodyPositions`, mounted after `BodyPositionsUpdater`, calls
+    `updateAsteroidPosition(selected, timeStore.state.jdTdb)`
+  - a marker: one `Points` vertex with `sizeAttenuation={false}`, placed with `writeSceneOffset(asteroidPositionAu)`
+    at `sceneObjects` priority (illustrative size; the real body is metres to kilometres)
+  - the trail: `writeTrail` once per selection with `halfWindowDays = TRAIL_HALF_WINDOW_CROSSINGS ×
+crossingDays(selected)`, anchored with `writeSceneOffset(bodyPositions.earthMoonBarycenter)` each frame; a faint
+    full line plus a brighter line sharing the buffer with `setDrawRange(0, trailIndexAt(now − approach) + 1)`
+- [ ] **Step 9: Browser check:** select a row; time-scrub through its approach: the marker stays on the trail, the
+      bright part ends at the marker, nothing jitters at Earth zoom. Frame times unchanged within noise.
+- [ ] **Step 10: `npm run check`**, then commit: `Position the selected asteroid with the engine and draw its trail`.
+
+---
+
+### Task 5: Fly and follow
+
+Maths parts full code (`approachPlayback`, `followDistanceAu`, `writeChaseDirection`); rig and wiring as
+interfaces and tests.
+
+**Files:**
+
+- Create: `apps/web/src/scene/approach/approachCamera.ts`, `apps/web/src/approaches/playApproach.ts`, tests beside
+  each
+- Modify: `apps/web/src/scene/camera/cameraRig.ts`, `flight.ts`, `viewDistances.ts`, `CameraRigUpdater.tsx`,
+  `CameraControls.tsx`, `FocusPicker.tsx`, `apps/web/src/scene/sceneFrame.ts` (optional `out` on
+  `sceneAxesFromEcliptic`), `apps/web/src/App.tsx` (list `onSelect` → `playApproach`), their tests
+
+**Interfaces:**
+
+- Consumes: `crossingDays`, `asteroidPositionAu`, `writeGeocentricOffset` (Task 4); `approachSelection` (Task 3);
+  `timeStore.scrubTo/setRate/setPlaying`; `cameraRig.flyTo`; `dot`, `norm` from `@perihelion/orbit`.
+- Produces:
+  - `approachPlayback(approach): { startJdTdb: number; rateDaysPerSecond: number }`
+  - `followDistanceAu(approach): number`
+  - `writeChaseDirection(geocentricOffsetAu: Readonly<Vector3>, out: Vector3): Vector3` (ecliptic, unit)
+  - `type FocusId = BodyId | 'asteroid'`; `type FocusPositions = Readonly<Record<FocusId, Readonly<Vector3>>>`;
+    `focusPositions = { ...bodyPositions, asteroid: asteroidPositionAu }` (the spread copies references, so it reads
+    the same arrays the updaters write)
+  - `CameraRig`: `focus: FocusId`; `update({ positions: FocusPositions; cameraDistanceAu })`;
+    `FlightRequest.chase?: boolean`; `chasing: boolean`; `stopChase()`. `flyTo` without `chase` ends any chase.
+  - `playApproach(approach, targets?)` where `targets` defaults to `{ selection: approachSelection, time: timeStore,
+camera: cameraRig }`
+
+- [ ] **Step 1: Write the failing camera-maths tests**
+
+```ts
+import fc from 'fast-check';
+import { dot, norm, type Vector3 } from '@perihelion/orbit';
+import { describe, expect, it } from 'vitest';
+import {
+  CHASE_ELEVATION_RAD,
+  approachPlayback,
+  followDistanceAu,
+  writeChaseDirection,
+} from './approachCamera';
+import { crossingDays } from './approachTiming';
+
+const APOPHIS_LIKE = {
+  approachJdTdb: 2_462_240.4,
+  distanceAu: 2.5e-4,
+  relativeVelocityKmPerS: 7.42,
+};
+const nonZeroOffset = fc
+  .tuple(
+    fc.double({ min: -1, max: 1, noNaN: true }),
+    fc.double({ min: -1, max: 1, noNaN: true }),
+    fc.double({ min: -1, max: 1, noNaN: true }),
+  )
+  .filter((vector) => norm(vector) > 1e-6);
+
+describe('approachPlayback', () => {
+  it('starts three crossing times early and plays six of them in 12 s', () => {
+    const tau = crossingDays(APOPHIS_LIKE);
+    const playback = approachPlayback(APOPHIS_LIKE);
+    expect(playback.startJdTdb).toBeCloseTo(APOPHIS_LIKE.approachJdTdb - 3 * tau, 9);
+    expect(playback.rateDaysPerSecond).toBeCloseTo((6 * tau) / 12, 12);
+  });
+
+  it('works the same for an approach in the past', () => {
+    const past = { ...APOPHIS_LIKE, approachJdTdb: 2_461_000.5 };
+    expect(approachPlayback(past).startJdTdb).toBeLessThan(past.approachJdTdb);
+  });
+});
+
+describe('followDistanceAu', () => {
+  it('is a fixed fraction of the miss distance', () => {
+    expect(followDistanceAu(APOPHIS_LIKE)).toBeCloseTo(0.6 * 2.5e-4, 15);
+  });
+});
+
+describe('writeChaseDirection', () => {
+  it('is a unit vector 20° from the Earth→asteroid line, tilted north', () => {
+    fc.assert(
+      fc.property(nonZeroOffset, (offset) => {
+        const away: Vector3 = [
+          offset[0] / norm(offset),
+          offset[1] / norm(offset),
+          offset[2] / norm(offset),
+        ];
+        // Below 70° elevation, so the 20° tilt cannot pass the pole.
+        fc.pre(Math.abs(away[2]) < 0.9);
+        const direction = writeChaseDirection(offset, [0, 0, 0]);
+        expect(norm(direction)).toBeCloseTo(1, 12);
+        expect(dot(direction, away)).toBeCloseTo(Math.cos(CHASE_ELEVATION_RAD), 12);
+        expect(direction[2]).toBeGreaterThan(away[2]);
+      }),
+    );
+  });
+
+  it('never puts the camera nearer Earth than the asteroid (Review Focus 5)', () => {
+    fc.assert(
+      fc.property(
+        nonZeroOffset,
+        fc.double({ min: 1e-9, max: 1, noNaN: true }),
+        (offset, distanceAu) => {
+          const direction = writeChaseDirection(offset, [0, 0, 0]);
+          const camera: Vector3 = [
+            offset[0] + distanceAu * direction[0],
+            offset[1] + distanceAu * direction[1],
+            offset[2] + distanceAu * direction[2],
+          ];
+          expect(norm(camera)).toBeGreaterThan(norm(offset));
+        },
+      ),
+    );
+  });
+
+  it('looks straight along the line when the asteroid is over the pole', () => {
+    expect(writeChaseDirection([0, 0, 1e-3], [0, 0, 0])).toEqual([0, 0, 1]);
+  });
+});
+```
+
+- [ ] **Step 2: Run** `npx vitest run apps/web/src/scene/approach/approachCamera.test.ts`, expect FAIL.
+- [ ] **Step 3: Implement**
+
+```ts
+// apps/web/src/scene/approach/approachCamera.ts
+import type { CloseApproach } from '@perihelion/data';
+import { type Vector3, norm } from '@perihelion/orbit';
+import { crossingDays } from './approachTiming';
+
+/** The clock starts 3τ before closest approach and ±3τ plays in 12 s: grazing and distant passes read alike. */
+export const LEAD_CROSSINGS = 3;
+export const PASS_SECONDS = 12;
+/** Close enough that the asteroid's motion against Earth is obvious, far enough to see Earth beside it. */
+export const FOLLOW_DISTANCE_FRACTION = 0.6;
+/** Looking straight down the Earth→asteroid line would hide Earth behind the asteroid; 20° shows both. */
+export const CHASE_ELEVATION_RAD = (20 * Math.PI) / 180;
+/** Below this the line is within ~0.06° of ecliptic north, and "north of it" has no direction. */
+const MIN_NORTH_PERPENDICULAR = 1e-3;
+
+const scratchAway: Vector3 = [0, 0, 0];
+const scratchNorth: Vector3 = [0, 0, 0];
+
+type Pass = Pick<CloseApproach, 'approachJdTdb' | 'distanceAu' | 'relativeVelocityKmPerS'>;
+
+export interface ApproachPlayback {
+  startJdTdb: number;
+  rateDaysPerSecond: number;
+}
+
+export function approachPlayback(approach: Pass): ApproachPlayback {
+  const tau = crossingDays(approach);
+  return {
+    startJdTdb: approach.approachJdTdb - LEAD_CROSSINGS * tau,
+    rateDaysPerSecond: (2 * LEAD_CROSSINGS * tau) / PASS_SECONDS,
+  };
+}
+
+export function followDistanceAu(approach: Pick<CloseApproach, 'distanceAu'>): number {
+  return approach.distanceAu * FOLLOW_DISTANCE_FRACTION;
+}
+
+/**
+ * From the asteroid toward the camera: away from Earth, rotated toward ecliptic north. Its component along the
+ * Earth→asteroid line is cos 20° > 0, so the camera is always farther from Earth than the asteroid is.
+ */
+export function writeChaseDirection(geocentricOffsetAu: Readonly<Vector3>, out: Vector3): Vector3 {
+  writeUnit(geocentricOffsetAu, scratchAway);
+  writeNorthPerpendicular(scratchAway, scratchNorth);
+  const northLength = norm(scratchNorth);
+  const canTilt = northLength >= MIN_NORTH_PERPENDICULAR;
+  const awayWeight = canTilt ? Math.cos(CHASE_ELEVATION_RAD) : 1;
+  const northWeight = canTilt ? Math.sin(CHASE_ELEVATION_RAD) / northLength : 0;
+  for (const axis of [0, 1, 2] as const) {
+    out[axis] = awayWeight * scratchAway[axis] + northWeight * scratchNorth[axis];
+  }
+  return out;
+}
+
+function writeUnit(vector: Readonly<Vector3>, out: Vector3): Vector3 {
+  const length = norm(vector);
+  for (const axis of [0, 1, 2] as const) out[axis] = vector[axis] / length;
+  return out;
+}
+
+/** n − (n·û)û with n = ecliptic north (0, 0, 1): the part of north perpendicular to the line of sight. */
+function writeNorthPerpendicular(unit: Readonly<Vector3>, out: Vector3): Vector3 {
+  const northAlong = unit[2];
+  out[0] = -northAlong * unit[0];
+  out[1] = -northAlong * unit[1];
+  out[2] = 1 - northAlong * unit[2];
+  return out;
+}
+```
+
+- [ ] **Step 4: Run the tests again**, expect PASS.
+- [ ] **Step 5: Write failing rig tests** (extend `cameraRig.test.ts`):
+  - `update({ positions: focusPositions, … })` with focus `'asteroid'` puts the origin at `asteroidPositionAu`
+  - `flyTo({ focus: 'asteroid', distanceAu, chase: true })` → `chasing` true; `flyTo({ focus: 'mars' })` → false;
+    `stopChase()` → false and notifies once
+  - retarget mid-flight (Review Focus 3): a second `flyTo` halfway through the first starts from the pose at that
+    moment (origin and distance continuous: equal to the last `update`'s pose)
+  - `minViewDistanceAu('asteroid')` is `1e-7` AU (15 km); `defaultViewDistanceAu('asteroid')` is `1e-3` AU
+- [ ] **Step 6: Write failing `playApproach` tests** with fake targets: selection set first; clock scrubbed to
+      `approachPlayback(row).startJdTdb`, rate set, playing; then `flyTo({ focus: 'asteroid', distanceAu:
+followDistanceAu(row), chase: true })`. A row whose approach is in the past still scrubs to before it (Review
+      Focus 4).
+- [ ] **Step 7: Run**, expect FAIL; **implement** the rig changes, `focusPositions` and `playApproach`; run, PASS.
+- [ ] **Step 8: Wire up.** `CameraRigUpdater` passes `focusPositions`; while `cameraRig.chasing`, it computes
+      `writeGeocentricOffset` from `asteroidPositionAu − bodyPositions.earthMoonBarycenter`, then
+      `writeChaseDirection`, maps it with `sceneAxesFromEcliptic(…, out)` and sets
+      `camera.position = direction × distance` (the pose's distance in flight, the camera's current length after).
+      `CameraControls` passes `onStart={() => cameraRig.stopChase()}` so a drag hands the view back; `minDistance`
+      takes `FocusId`. `FocusPicker` shows bodies only (the list is the asteroid's control). `App` passes
+      `playApproach` to `ApproachList`.
+- [ ] **Step 9: Browser check:** play three rows (the closest, the farthest, one in the past): the flight lands on
+      the asteroid, Earth stays in view through closest approach, a drag ends the chase without a jump, choosing
+      another row mid-flight retargets smoothly (note any hitch against the open question on carried velocity).
+- [ ] **Step 10: `npm run check`**, then commit: `Fly to the selected asteroid and follow it past Earth`.
+
+---
+
+### Task 6: HUD
+
+UI task: interfaces, test cases and acceptance checks; the exactness check runs over every recorded CAD row.
+
+**Files:**
+
+- Create: `apps/web/src/approaches/approachHud.ts` (pure lines), `apps/web/src/approaches/ApproachHud.tsx`,
+  tests beside each
+- Modify: `apps/web/src/App.tsx` (HUD in the shell, shown while a row is selected), the app stylesheet
+
+**Interfaces:**
+
+- Consumes: `distanceTexts`, `speedText`, `approachDateText`, `approachLabel` (Task 3); `approachDiameter`,
+  `diameterText` (Task 2); `approachSelection` (Task 3); `useTimeReadout()` (4 Hz).
+- Produces:
+  - `approachHudLines(request: { approach: CloseApproach; jdTdb: number }): HudLine[]`, where
+    `HudLine = { label: string; value: string }`
+  - `countdownText(daysFromApproach: number): string`
+
+- [ ] **Step 1: Write failing tests for `approachHudLines`**, for a row built in code (`distanceAu: 0.0123456789`,
+      `relativeVelocityKmPerS: 12.345678`, `approachCalendarTdb: '2026-Oct-03 14:22'`, `timeUncertainty: '< 00:01'`,
+      `diameterKm: null`, `absoluteMagnitude: 25.1`):
+  - `Closest approach` → `2026-Oct-03 14:22 TDB (± < 00:01)`; with `timeUncertainty: null`, no bracket
+  - `Distance` → `0.0123456789 AU · 1,846,887 km · 4.80 LD`
+  - `Relative speed` → `12.345678 km/s`
+  - `Diameter` → `diameterText(approachDiameter(row))`
+  - `Countdown` → `countdownText(jdTdb − approachJdTdb)`
+  - a final note line: `Figures: JPL CAD. Drawn path and marker: two-body illustration.`
+- [ ] **Step 2: Write failing tests for `countdownText`:** `-1.5` → `T−1 d 12 h 00 m`; `0.25` → `T+0 d 06 h 00 m`;
+      `|Δ| < 1 min` → `Closest approach now`; minutes round down, not to nearest.
+- [ ] **Step 3: Write the exactness test** (the exit criterion at unit level): for every row of the recorded CAD
+      response, after `toCloseApproaches`, the HUD's distance value starts with `String(row.distanceAu)`, its speed
+      equals `${row.relativeVelocityKmPerS} km/s` and its date starts with `row.approachCalendarTdb`.
+- [ ] **Step 4: Run**, expect FAIL; **implement**; run, expect PASS.
+- [ ] **Step 5: `ApproachHud`** renders the lines from `useTimeReadout()` (no per-frame React state) inside the
+      shell; hidden when nothing is selected.
+- [ ] **Step 6: Browser check:** for two rows, each HUD value matches the row in
+      `curl -s localhost:<port>/api/close-approaches`; the countdown passes zero at the moment the drawn pass is
+      closest (within the Task 4 tolerance's Δt).
+- [ ] **Step 7: `npm run check`**, then commit: `Add the close-approach HUD`.
+
+---
+
+### Task 7: Exit verification and close-out
+
+Verification task: no new code unless a check fails (then stop and report, as CLAUDE.md requires).
+
+- [ ] **Step 1: Every listed approach plays end to end.** With live data: play each row in the list. For each,
+      record: flight lands, asteroid on its trail, Earth in view through closest approach, HUD matches the
+      `/api/close-approaches` row. Include the rows that needed an SBDB lookup in Task 1 (Review Focus 1). Repeat
+      for two rows with the server stopped (snapshot origin; Review Focus 4).
+- [ ] **Step 2: Frame times** as in Phase 4 (same machine and method): following the closest-approach row through
+      its pass and the Sun overview with an approach selected. Target ≥ 60 fps, no frame over 20 ms apart from known
+      ones.
+- [ ] **Step 3: `PROGRESS.md`:** tick the Phase 5 items, add the evidence block (commit, CI run, browser, machine),
+      decisions made during the phase and the cross-check tolerance row; mark Phase 5 done and Phase 6 current.
+- [ ] **Step 4: `npm run check`**, commit, push, open the PR (`Closes #N` for the close-out issue).
+- [ ] **Step 5: After the user merges and CI on `main` is green:** close the Phase 5 milestone, tag the merge
+      commit `v0.5.0` (annotated) and publish the release with the phase summary and two stills (the list with the
+      HUD, and a close pass with Earth in frame).
