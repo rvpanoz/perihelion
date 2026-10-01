@@ -143,7 +143,15 @@ Task 1 (#75, orbits on close-approach rows) on `phase-5/approach-orbits`, all 12
 check (2026-10-01): 19 rows, all with an orbit (15 APO, 2 AMO, 2 ATE), none dropped, no lookups needed (the fresh
 catalog had every row); CAD reported no diameters this week. Known issue: a dataset cached before a schema change is
 served as-is until its TTL ends (seen live: old rows without `orbit`). Cleared the dev cache for now (user decision);
-validating cache entries on first read is the proposed fix. DONKI moved (#85, Phase 6). Next: Task 2 (#76).
+validating cache entries on first read is the proposed fix. DONKI moved (#85, Phase 6). Task 1 merged in #86.
+
+Task 2 (#76, diameter) on `phase-5/diameter`. Its review against `main` checked out (imports exist; the formula
+gives 2.658 / 5.9434687 km at H = 15). The user approved proposals 1–3 (2026-10-01), folded into the plan's
+Task 2: the estimate's unit is picked after rounding (0.9996 km reads `1 km`, not `1000 m`); JPL diameters below
+1 km are shown in metres by an exact ×1000 (`0.0071` → `7.1 m`, `0.37 ± 0.02` → `370 ± 20 m`); `diameterLabel` /
+`diameterValueText` split label from value for the card, and `diameterText` stays combined for the list.
+Proposal 4 (a test comment) was not taken. The plan's Task 6 card now takes `diameterLabel` /
+`diameterValueText`, so an estimate doesn't read "est." twice.
 
 ## Phase 6–7
 
