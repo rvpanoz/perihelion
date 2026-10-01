@@ -533,5 +533,6 @@ value is 0) for approval, then records them in PROGRESS "Calibrated tolerances".
 
 - [x] 3a: `enlilRunCount` in the data, snapshot refreshed; PROGRESS logs the ENLIL-ran-without-arrival count
       (39 of 77).
-- [ ] 3b: tolerances measured, approved and recorded; `KM_PER_AU` unchanged for every importer.
+- [x] 3b: tolerances measured, approved and recorded (exact, all three measured 0); `KM_PER_AU` unchanged for every
+      importer.
 - [ ] `npm run check` green for each PR.
