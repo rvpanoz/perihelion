@@ -120,8 +120,8 @@ Plan: `docs/superpowers/plans/2026-10-01-phase-5-the-close-approach.md`. UI refe
 
 - [x] App shell: layout regions around the canvas + data-status pill (fresh / stale / snapshot)
 - [x] Close-approach rows carry an orbit (NEO catalog join, SBDB lookup for misses), orbit class and JPL's diameter
-- [ ] Diameter: JPL's when known, else a range estimated from H (albedo 0.25–0.05) and labelled "est."
-- [ ] Close-approach list UI (from `/api/close-approaches`), with an empty state
+- [x] Diameter: JPL's when known, else a range estimated from H (albedo 0.25–0.05) and labelled "est."
+- [x] Close-approach list UI (from `/api/close-approaches`), with an empty state
 - [ ] Focused asteroid positioned by the CPU engine (float64) + trail; engine-vs-CAD closest-distance check
 - [ ] Selecting an approach: clock to the approach, camera flies to the asteroid and follows it through closest approach
 - [ ] Focus card (HUD): JPL-reported distance (LD/AU/km), relative speed and date, plus diameter and class; Follow / Play approach
@@ -152,6 +152,18 @@ Task 2: the estimate's unit is picked after rounding (0.9996 km reads `1 km`, no
 `diameterValueText` split label from value for the card, and `diameterText` stays combined for the list.
 Proposal 4 (a test comment) was not taken. The plan's Task 6 card now takes `diameterLabel` /
 `diameterValueText`, so an estimate doesn't read "est." twice.
+
+Task 2 merged in #87.
+
+Task 3 (#77, close-approach list) on `phase-5/approach-list`, review proposals 1–5 included (6–7 optional, not
+taken): the left column always renders, with the list above the swarm controls; `ApproachList` takes `selected`
+from `approachSelection` (built like `timeStore`); the row click is tested without a DOM through a shared
+`findElementProps`; the empty state is built from `CAD_MAX_DISTANCE_AU` (now an exported number); Passed / Coming
+split on the wall clock every 30 s. CNEOS's LD is 384,400 km, not the plan's 384,398 (expected strings unchanged).
+Browser check (2026-10-01, Chrome, live data): 19 rows with the same names and order as `/api/close-approaches`
+(5 coming, 14 passed); the first row's UTC time, LD, closeness bar, estimated diameter and class match CAD; the pill
+reports both datasets. From that check (user decisions): Coming is listed before Passed, and the dev FPS overlay
+moved out of the list's corner.
 
 ## Phase 6–7
 

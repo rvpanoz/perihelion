@@ -1,5 +1,6 @@
 import type { DatasetName } from '@perihelion/data';
 import type { DatasetState } from '../data/useDataset';
+import { SHORT_MONTHS } from '../time/shortMonths';
 
 export type DataTone = 'live' | 'stale' | 'snapshot' | 'loading' | 'unavailable';
 
@@ -23,7 +24,6 @@ export interface DataStatusInput {
 
 /** Least to most severe: the pill reports the worst dataset, so a problem is never hidden behind a good one. */
 const TONE_SEVERITY: readonly DataTone[] = ['live', 'loading', 'stale', 'snapshot', 'unavailable'];
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const MINUTE_MS = 60_000;
 const HOUR_MS = 60 * MINUTE_MS;
 const DAY_MS = 24 * HOUR_MS;
@@ -79,8 +79,7 @@ function ageLabel(ageMs: number): string {
   return `${Math.floor(ageMs / DAY_MS)} days ago`;
 }
 
-/** Built by hand: Intl's short month varies by ICU version ("Sep" vs "Sept"). */
 function utcDateLabel(timeMs: number): string {
   const date = new Date(timeMs);
-  return `${date.getUTCDate()} ${MONTHS[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
+  return `${date.getUTCDate()} ${SHORT_MONTHS[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
 }

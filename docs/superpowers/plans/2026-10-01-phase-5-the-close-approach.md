@@ -590,6 +590,23 @@ function significant(value: number, figures: number): number {
 
 UI task with one fact-critical formatter (full code for `approachFormat.ts` only).
 
+Review (2026-10-01): proposals 1–5 approved (6–7 were optional and not taken); the code blocks below are the
+final files.
+
+1. The left column always renders: `ApproachList` above `SwarmControls`, their interim home until the Phase 7
+   legend.
+2. `ApproachList` takes `selected`; `approachSelection` is built like `timeStore` and read through
+   `useSelectedApproach()`.
+3. The web tests have no DOM: `test/elementTree.ts`'s `findElementProps` (now shared with `SwarmControls`) reads
+   the row's click handler; rows are an exported `ApproachRow`.
+4. `NO_APPROACHES_TEXT` is built from `CAD_MAX_DISTANCE_AU` and `distanceTexts`.
+5. Passed / Coming split on the wall clock (`useNowMs(30_000)`), not the scrubbed time.
+
+Step 1 found CNEOS defines 1 LD as 384,400 km (cneos.jpl.nasa.gov/glossary/LD.html), not 384,398; the expected
+strings are unchanged (19.46 and 4.80 LD). From the browser check (user decisions): Coming is listed before
+Passed, so the next passes show without scrolling, and the dev FPS overlay moved out of the list's corner.
+`SHORT_MONTHS` moved to `time/shortMonths.ts`, shared with `dataStatus`.
+
 **Files:**
 
 - Create: `apps/web/src/approaches/approachFormat.ts`, `apps/web/src/approaches/approachSelection.ts`,
@@ -603,7 +620,7 @@ UI task with one fact-critical formatter (full code for `approachFormat.ts` only
   from `@perihelion/orbit`; `jdTdbFromUnixMs`; `NEO_ORBIT_CLASSES`, `NeoOrbitClass`, `CAD_MAX_DISTANCE_AU` from
   `@perihelion/data`; `SWARM_CLASS_COLORS` (check at review that its order is `NEO_ORBIT_CLASSES`'s).
 - Produces:
-  - `KM_PER_LUNAR_DISTANCE = 384_398`; `distanceTexts(distanceAu): { au: string; km: string; lunar: string }`;
+  - `KM_PER_LUNAR_DISTANCE = 384_400`; `distanceTexts(distanceAu): { au: string; km: string; lunar: string }`;
     `speedText(kmPerS): string`; `approachDateText(approach): string` (CAD's TDB string, for tooltips);
     `approachLabel(approach): string`
   - `approachUtcText(approach): string`: `approachJdTdb` → UTC with `jdUtcFromJdTdb`, rounded to the nearest
@@ -616,7 +633,9 @@ UI task with one fact-critical formatter (full code for `approachFormat.ts` only
     each in CAD order
   - `approachSelection`: `selected: CloseApproach | undefined`, `select(approach)`, `clear()`, `subscribe`
     (an external store like `timeStore`: notifies on user actions only)
-  - `<ApproachList state={DatasetState<'close-approaches'>} onSelect={(approach) => void} />`. `App` passes
+  - `<ApproachList state={DatasetState<'close-approaches'>} selected={CloseApproach | undefined}
+nowJdTdb={number} onSelect={(approach) => void} />`, rows as `ApproachRow`; `NO_APPROACHES_TEXT`;
+    `useSelectedApproach()`. `App` passes
     `approachSelection.select`: selecting only selects and opens the card (decision 7); Task 6's card holds
     **Follow** and **Play approach**.
 
@@ -625,12 +644,23 @@ UI task with one fact-critical formatter (full code for `approachFormat.ts` only
 - [ ] **Step 2: Write the failing formatter tests**
 
 ```ts
+import type { NeoOrbitClass } from '@perihelion/data';
 import { describe, expect, it } from 'vitest';
-import { approachLabel, distanceTexts, speedText } from './approachFormat';
+import {
+  NO_APPROACHES_TEXT,
+  approachDateText,
+  approachLabel,
+  approachUtcText,
+  closenessFraction,
+  distanceTexts,
+  groupApproaches,
+  orbitClassLabel,
+  speedText,
+} from './approachFormat';
 
 describe('distanceTexts', () => {
   it("keeps CAD's AU exactly and converts with exact constants", () => {
-    // 0.05 × 149,597,870.7 = 7,479,893.535 km; ÷ 384,398 = 19.4587… LD.
+    // 0.05 × 149,597,870.7 = 7,479,893.535 km; ÷ 384,400 = 19.4586… LD.
     expect(distanceTexts(0.05)).toEqual({
       au: '0.05 AU',
       km: '7,479,894 km',
@@ -648,9 +678,25 @@ describe('distanceTexts', () => {
   });
 });
 
+describe('NO_APPROACHES_TEXT', () => {
+  it("states CAD's 0.05 AU cut in AU and LD", () => {
+    expect(NO_APPROACHES_TEXT).toBe(
+      'No asteroid passes within 0.05 AU (19.46 LD) of Earth in this window.',
+    );
+  });
+});
+
 describe('speedText', () => {
   it("prints CAD's value as given", () => {
     expect(speedText(12.345678)).toBe('12.345678 km/s');
+  });
+});
+
+describe('approachDateText', () => {
+  it("labels CAD's calendar string as TDB", () => {
+    expect(approachDateText({ approachCalendarTdb: '2026-Sep-30 04:12' })).toBe(
+      '2026-Sep-30 04:12 TDB',
+    );
   });
 });
 
@@ -664,6 +710,13 @@ describe('approachUtcText', () => {
   it('converts CAD’s TDB to UTC and rounds to the minute', () => {
     // 2026-Sep-30 04:12:00 TDB = JD 2461313.675; UTC = TDB − 69.184 s = 04:10:50.8 → 04:11.
     expect(approachUtcText({ approachJdTdb: 2_461_313.675 })).toBe('Sep 30 · 04:11 UTC');
+  });
+
+  it('carries a rounded minute into the next day', () => {
+    // 2026-Oct-01 00:00:49.184 TDB = 2026-Sep-30 23:59:40 UTC, which rounds up to midnight.
+    expect(approachUtcText({ approachJdTdb: 2_461_314.5 + 49.184 / 86_400 })).toBe(
+      'Oct 1 · 00:00 UTC',
+    );
   });
 });
 
@@ -684,27 +737,59 @@ describe('orbitClassLabel', () => {
     expect(orbitClassLabel(null)).toBe('—');
   });
 });
+
+describe('groupApproaches', () => {
+  it('splits at now, keeping CAD order in each group', () => {
+    const early = { approachJdTdb: 1 };
+    const late = { approachJdTdb: 3 };
+    const atNow = { approachJdTdb: 2 };
+    expect(groupApproaches({ approaches: [early, late, atNow], nowJdTdb: 2 })).toEqual({
+      passed: [early],
+      coming: [late, atNow],
+    });
+  });
+});
 ```
 
-`approachUtcText`, `closenessFraction`, `orbitClassLabel` and `groupApproaches` are implemented after reading
-`CalendarDateTime`; the import line of this test file then also takes them and `type NeoOrbitClass`.
+Both blocks are the final files (see the review note above).
 
 - [ ] **Step 3: Run** `npx vitest run apps/web/src/approaches`, expect FAIL.
 - [ ] **Step 4: Implement**
 
 ```ts
-import type { CloseApproach } from '@perihelion/data';
-import { KM_PER_AU } from '@perihelion/orbit';
+import { CAD_MAX_DISTANCE_AU, type CloseApproach, type NeoOrbitClass } from '@perihelion/data';
+import { KM_PER_AU, calendarFromJulianDate, jdUtcFromJdTdb } from '@perihelion/orbit';
+import { SHORT_MONTHS } from '../time/shortMonths';
 
-/** JPL CNEOS's lunar distance. CAD reports AU only; LD and km are exact conversions of CAD's figure. */
-export const KM_PER_LUNAR_DISTANCE = 384_398;
+/**
+ * One lunar distance as CNEOS defines it: "a mean semimajor axis for the moon of 384400 km"
+ * (cneos.jpl.nasa.gov/glossary/LD.html). CAD reports AU only; LD and km are exact conversions of CAD's figure.
+ */
+export const KM_PER_LUNAR_DISTANCE = 384_400;
 const LUNAR_DECIMALS = 2;
 const GROUPED_KM = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
+const MINUTES_PER_DAY = 1440;
+const ORBIT_CLASS_NAMES: Record<NeoOrbitClass, string> = {
+  IEO: 'Atira',
+  ATE: 'Aten',
+  APO: 'Apollo',
+  AMO: 'Amor',
+};
 
 export interface DistanceTexts {
   au: string;
   km: string;
   lunar: string;
+}
+
+export interface ApproachGroupsRequest<A> {
+  approaches: readonly A[];
+  nowJdTdb: number;
+}
+
+export interface ApproachGroups<A> {
+  passed: A[];
+  coming: A[];
 }
 
 /** AU is CAD's own number, printed in full; km and LD are rounded for reading, never re-derived. */
@@ -715,6 +800,14 @@ export function distanceTexts(distanceAu: number): DistanceTexts {
     km: `${GROUPED_KM.format(distanceKm)} km`,
     lunar: `${(distanceKm / KM_PER_LUNAR_DISTANCE).toFixed(LUNAR_DECIMALS)} LD`,
   };
+}
+
+/** Built from the query's own cut, so the empty state cannot drift from what the server asked CAD for. */
+export const NO_APPROACHES_TEXT = noApproachesText();
+
+function noApproachesText(): string {
+  const { au, lunar } = distanceTexts(CAD_MAX_DISTANCE_AU);
+  return `No asteroid passes within ${au} (${lunar}) of Earth in this window.`;
 }
 
 export function speedText(kmPerS: number): string {
@@ -729,23 +822,57 @@ export function approachDateText(approach: Pick<CloseApproach, 'approachCalendar
 export function approachLabel(approach: Pick<CloseApproach, 'fullName'>): string {
   return approach.fullName.trim();
 }
+
+/** Rounded to the minute before the calendar split, so 04:10:59.5 carries into 04:11 (and 23:59:40 into tomorrow). */
+export function approachUtcText(approach: Pick<CloseApproach, 'approachJdTdb'>): string {
+  const jdUtc = jdUtcFromJdTdb(approach.approachJdTdb);
+  const { month, day, hour, minute } = calendarFromJulianDate(
+    Math.round(jdUtc * MINUTES_PER_DAY) / MINUTES_PER_DAY,
+  );
+  return `${SHORT_MONTHS[month - 1]} ${day} · ${twoDigits(hour)}:${twoDigits(minute)} UTC`;
+}
+
+/** Linear, so the bar reads as "how far inside CAD's 0.05 AU cut". */
+export function closenessFraction(distanceAu: number): number {
+  return Math.min(1, Math.max(0, 1 - distanceAu / CAD_MAX_DISTANCE_AU));
+}
+
+export function orbitClassLabel(orbitClass: NeoOrbitClass | null): string {
+  return orbitClass === null ? '—' : ORBIT_CLASS_NAMES[orbitClass];
+}
+
+/** Both groups keep CAD's order, which is by approach time. */
+export function groupApproaches<A extends Pick<CloseApproach, 'approachJdTdb'>>({
+  approaches,
+  nowJdTdb,
+}: ApproachGroupsRequest<A>): ApproachGroups<A> {
+  return {
+    passed: approaches.filter((approach) => approach.approachJdTdb < nowJdTdb),
+    coming: approaches.filter((approach) => approach.approachJdTdb >= nowJdTdb),
+  };
+}
+
+function twoDigits(value: number): string {
+  return String(value).padStart(2, '0');
+}
 ```
 
 - [ ] **Step 5: Write failing tests for `approachSelection`:** `select` stores the same object and notifies once;
       `clear` empties it and notifies; an unsubscribed listener is not called.
-- [ ] **Step 6: Write failing tests for `ApproachList`** (use the same component-test setup as `SwarmStatus`'s
-      test; locate it at review):
+- [ ] **Step 6: Write failing tests for `ApproachList`** (no DOM: `renderToStaticMarkup`, with the row's click
+      handler read off the element tree by `test/elementTree.ts`'s `findElementProps`):
   - `loading` → `Loading close approaches…`
   - `unavailable` → `Close approaches unavailable`
   - ready with `[]` → `No asteroid passes within 0.05 AU (19.46 LD) of Earth in this window.` (Review Focus 2)
-  - ready with 3 rows (one before `nowJdTdb`) → a `Passing Earth · ±7 days` header, a `Passed` group with 1 button
-    and a `Coming` group with 2, in CAD order; each row shows label, `approachUtcText`, a closeness bar at
+  - ready with 3 rows (one before `nowJdTdb`) → a `Passing Earth · ±7 days` header, a `Coming` group with 2
+    buttons above a `Passed` group with 1, each in CAD order; each row shows label, `approachUtcText`, a closeness bar at
     `closenessFraction`, the `lunar` distance, diameter text and the class label with its `SWARM_CLASS_COLORS`
     swatch; the CAD TDB string is the row's tooltip; the selected row has `aria-pressed="true"`; clicking calls
     `onSelect` with that row object
 - [ ] **Step 7: Run the tests**, expect FAIL; **implement** `approachSelection` and `ApproachList`; run, expect PASS.
 - [ ] **Step 8: Wire up.** `App` loads `useDataset('close-approaches')`, renders `ApproachList` in the shell's
-      `left` slot and adds the dataset to the pill (labelled `Close approaches`). `queries.ts` exports
+      `left` column (always, above `SwarmControls`; Passed / Coming split on `useNowMs(30_000)`) and adds the
+      dataset to the pill (labelled `Close approaches`). `packages/data/src/upstream/queries.ts` exports
       `CAD_MAX_DISTANCE_AU = 0.05` as a number, and `cadQuery` sends `String(CAD_MAX_DISTANCE_AU)`, so the bar and the
       query cannot drift.
 - [ ] **Step 9: Browser check:** the list matches `curl -s localhost:<port>/api/close-approaches | jq '.data'` row
