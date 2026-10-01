@@ -1,5 +1,4 @@
 import { KM_PER_AU, PLANETS, type Planet } from '@perihelion/orbit';
-import { Color } from 'three';
 
 export type BodyId = 'sun' | Planet;
 
@@ -27,9 +26,6 @@ export const BODY_APPEARANCE: Record<BodyId, BodyAppearance> = {
   uranus: { label: 'Uranus', radiusKm: 25_362, color: '#9fd8e0' },
   neptune: { label: 'Neptune', radiusKm: 24_622, color: '#4a6fe3' },
 };
-
-/** Linear RGB above 1, so the Sun is the only thing that crosses the bloom threshold (Task 6). */
-export const SUN_GLOW_COLOR = new Color(4, 3.4, 2.6);
 
 /**
  * No distance falloff (decay 0): inverse-square would leave Neptune 900× darker than Earth. Illustrative.

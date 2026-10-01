@@ -5,14 +5,9 @@ import type { Group } from 'three';
 import { cameraRig } from '../camera/cameraRig';
 import { FRAME_PRIORITY } from '../framePriorities';
 import { writeSceneOffset } from '../sceneFrame';
-import {
-  BODY_APPEARANCE,
-  type BodyId,
-  SUN_GLOW_COLOR,
-  SUN_LIGHT_INTENSITY,
-  radiusAu,
-} from './bodyCatalog';
+import { BODY_APPEARANCE, type BodyId, radiusAu } from './bodyCatalog';
 import { bodyPositions } from './bodyPositions';
+import { SunBody } from './sun/SunBody';
 
 const SPHERE_SEGMENTS = { width: 48, height: 24 } as const;
 
@@ -36,21 +31,9 @@ export function Body({ body }: { body: BodyId }) {
         cameraRig.flyTo({ focus: body });
       }}
     >
-      {body === 'sun' ? <SunSurface /> : <PlanetSurface planet={body} />}
+      {body === 'sun' ? <SunBody /> : <PlanetSurface planet={body} />}
       <BodyMarker color={BODY_APPEARANCE[body].color} />
     </group>
-  );
-}
-
-function SunSurface() {
-  return (
-    <>
-      <mesh>
-        <sphereGeometry args={[radiusAu('sun'), SPHERE_SEGMENTS.width, SPHERE_SEGMENTS.height]} />
-        <meshBasicMaterial color={SUN_GLOW_COLOR} toneMapped={false} />
-      </mesh>
-      <pointLight intensity={SUN_LIGHT_INTENSITY} decay={0} />
-    </>
   );
 }
 
