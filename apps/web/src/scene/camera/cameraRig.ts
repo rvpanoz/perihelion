@@ -1,12 +1,19 @@
-import type { BodyId } from '../bodies/bodyCatalog';
-import type { BodyPositions } from '../bodies/bodyPositions';
-import { type CameraPose, type Flight, flightProgress, writeFlightPose } from './flight';
+import {
+  type CameraPose,
+  type Flight,
+  easeInOutCubic,
+  flightProgress,
+  writeFlightPose,
+} from './flight';
+import type { FocusId, FocusPositions } from './focusPositions';
 import { defaultViewDistanceAu } from './viewDistances';
 
 export interface FlightRequest {
-  focus: BodyId;
+  focus: FocusId;
   distanceAu?: number;
   durationSeconds?: number;
+  /** Hold the camera on the chase line (`writeChaseDirection`) until the user takes the view or another flight. */
+  chase?: boolean;
 }
 
 export interface CameraRigOptions {
@@ -21,8 +28,11 @@ export const DEFAULT_FLIGHT_SECONDS = 2.5;
  * user or script action and notifies, so the focus list re-renders once per change.
  */
 export class CameraRig {
-  #focus: BodyId = 'sun';
+  #focus: FocusId = 'sun';
   #flight: Flight | undefined;
+  #flightSerial = 0;
+  #flightEasedProgress = 1;
+  #chasing = false;
   readonly #pose: CameraPose;
   readonly #nowSeconds: () => number;
   readonly #listeners = new Set<() => void>();
@@ -32,12 +42,26 @@ export class CameraRig {
     this.#nowSeconds = options.nowSeconds ?? (() => performance.now() / 1000);
   }
 
-  get focus(): BodyId {
+  get focus(): FocusId {
     return this.#focus;
   }
 
   get flying(): boolean {
     return this.#flight !== undefined;
+  }
+
+  get chasing(): boolean {
+    return this.#chasing;
+  }
+
+  /** Changes on every `flyTo`, so a per-frame reader can tell a new flight from the one it last saw. */
+  get flightSerial(): number {
+    return this.#flightSerial;
+  }
+
+  /** The running flight's eased progress, 0 → 1; 1 when not flying. */
+  get flightEasedProgress(): number {
+    return this.#flight ? this.#flightEasedProgress : 1;
   }
 
   get pose(): Readonly<CameraPose> {
@@ -53,13 +77,23 @@ export class CameraRig {
       durationSeconds: request.durationSeconds ?? DEFAULT_FLIGHT_SECONDS,
     };
     this.#focus = request.focus;
+    this.#chasing = request.chase ?? false;
+    this.#flightSerial += 1;
+    this.#flightEasedProgress = 0;
     this.#notify();
   }
 
-  /** Call once per frame after body positions are updated; returns the pose to render. */
-  update(frame: { bodyPositions: BodyPositions; cameraDistanceAu: number }): Readonly<CameraPose> {
-    if (this.#flight) return this.#advanceFlight(this.#flight, frame.bodyPositions);
-    const [x, y, z] = frame.bodyPositions[this.#focus];
+  /** The user took the view (drei's `onStart`): the focus stays, only the camera's direction is freed. */
+  stopChase(): void {
+    if (!this.#chasing) return;
+    this.#chasing = false;
+    this.#notify();
+  }
+
+  /** Call once per frame after body and asteroid positions are updated; returns the pose to render. */
+  update(frame: { positions: FocusPositions; cameraDistanceAu: number }): Readonly<CameraPose> {
+    if (this.#flight) return this.#advanceFlight(this.#flight, frame.positions);
+    const [x, y, z] = frame.positions[this.#focus];
     this.#pose.originAu[0] = x;
     this.#pose.originAu[1] = y;
     this.#pose.originAu[2] = z;
@@ -72,9 +106,10 @@ export class CameraRig {
     return () => this.#listeners.delete(listener);
   };
 
-  #advanceFlight(flight: Flight, bodyPositions: BodyPositions): Readonly<CameraPose> {
+  #advanceFlight(flight: Flight, positions: FocusPositions): Readonly<CameraPose> {
     const progress = flightProgress(flight, this.#nowSeconds());
-    writeFlightPose({ flight, targetAu: bodyPositions[flight.to], progress }, this.#pose);
+    this.#flightEasedProgress = easeInOutCubic(progress);
+    writeFlightPose({ flight, targetAu: positions[flight.to], progress }, this.#pose);
     if (progress === 1) this.#flight = undefined;
     return this.#pose;
   }

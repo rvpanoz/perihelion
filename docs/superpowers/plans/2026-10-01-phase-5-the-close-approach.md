@@ -1329,6 +1329,38 @@ crossingDays(selected)`, anchored with `writeSceneOffset(bodyPositions.earthMoon
 Maths parts full code (`approachPlayback`, `followDistanceAu`, `writeChaseDirection`); rig and wiring as
 interfaces and tests.
 
+Review (2026-10-01): proposals 1–9 approved ("Include all and start"); they take precedence over the steps below.
+
+1. Selecting a row while the camera is on the asteroid goes through a flight: `selectApproach(row, targets?)` is the
+   list's `onSelect`; it follows the new row when the focus is `'asteroid'` and only selects otherwise.
+   `clearApproach(targets?)` clears the selection and, from the asteroid, flies back to Earth.
+2. The chase direction is blended in during the flight instead of applied on its first frame. The rig counts
+   flights (`flightSerial`) and exposes `flightEasedProgress` (1 when not flying); `ChaseAim`
+   (`scene/approach/chaseAim.ts`) captures the camera's direction when a new chase flight starts and blends it to
+   the chase direction with `writeDirectionBlend` (normalised lerp; the target direction if the two are opposite).
+3. The updater takes the Earth→asteroid offset as `asteroidPositionAu − bodyPositions.earthMoonBarycenter`
+   (`writeDifference`), both already updated this frame, rather than propagating again. `writeGeocentricOffset`
+   lives in `@perihelion/orbit` since Task 4.
+4. `stopChase()` notifies only when a chase was running (drei's `onStart` fires on every interaction).
+5. No dev-only `F` / `P` keys: the browser check calls `playApproach` / `followApproach` through Vite module imports.
+6. The mid-flight retarget test extends the existing one in `cameraRig.test.ts` (to `'asteroid'` with `chase`).
+7. `FocusId`, `FocusPositions` and `focusPositions` live in `scene/camera/focusPositions.ts`, tested to share the
+   updaters' arrays.
+8. A wheel zoom also ends the chase (drei's `start` event does not say which gesture began); the focus stays on the
+   asteroid, so only the view direction is freed. Accepted.
+9. `sceneAxesFromEcliptic` takes an optional `out`; `writeTrail` and the chase use it instead of allocating.
+10. As built: the asteroid's closest zoom is `2e-6` AU (~300 km), not `1e-7` AU (15 km). The near plane sits at
+    `1e-6` AU (~150 km), so the marker would be clipped at 15 km; the marker has no physical size, so nothing is lost.
+11. As built: `writeDirectionBlend` slerps. The browser check found the normalised lerp turning ~22° in one frame
+    midway between nearly opposite directions (playing 2026 SL7 while chasing 2026 SA8).
+12. As built: the chase tilts 20° toward the pass's plane normal, not ecliptic north. `passNormalForApproach`
+    (`scene/approach/passNormal.ts`) takes the cross product of the geocentric offsets a crossing time either side
+    of closest approach, signed toward ecliptic north. 2026 SA8's line passes within 4° of the south ecliptic pole,
+    where a tilt toward north swung the camera at ~100°/s; the pass normal is fixed through a flyby.
+13. As built: the chase turns the camera to face the focus (`camera.lookAt`) every frame. The controls do that
+    outside a flight but are off during one, and a chase flight, unlike a plain flight, moves the camera around the
+    focus: the browser check saw the view keep its take-off facing and snap at landing.
+
 **Files:**
 
 - Create: `apps/web/src/scene/approach/approachCamera.ts`, `apps/web/src/approaches/playApproach.ts`, tests beside
@@ -1526,7 +1558,7 @@ function writeNorthPerpendicular(unit: Readonly<Vector3>, out: Vector3): Vector3
     `stopChase()` → false and notifies once
   - retarget mid-flight (Review Focus 3): a second `flyTo` halfway through the first starts from the pose at that
     moment (origin and distance continuous: equal to the last `update`'s pose)
-  - `minViewDistanceAu('asteroid')` is `1e-7` AU (15 km); `defaultViewDistanceAu('asteroid')` is `1e-3` AU
+  - `minViewDistanceAu('asteroid')` is `2e-6` AU (300 km); `defaultViewDistanceAu('asteroid')` is `1e-3` AU
 - [ ] **Step 6: Write failing action tests** with fake targets:
   - `followApproach`: selection set; the clock untouched (no scrub, rate or play calls); then
     `flyTo({ focus: 'asteroid', distanceAu: followDistanceAu(row), chase: true })`

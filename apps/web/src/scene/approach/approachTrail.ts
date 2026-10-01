@@ -37,7 +37,7 @@ export function writeTrail(request: TrailRequest, out: Float32Array): Float32Arr
   for (let index = 0; index < TRAIL_POINTS; index += 1) {
     const jdTdb = request.approachJdTdb + trailOffsetDays(index, request.halfWindowDays);
     writeGeocentricOffset({ elements: request.elements, jdTdb }, scratchOffset);
-    out.set(sceneAxesFromEcliptic(scratchOffset), index * 3);
+    out.set(sceneAxesFromEcliptic(scratchOffset, scratchOffset), index * 3);
   }
   return out;
 }

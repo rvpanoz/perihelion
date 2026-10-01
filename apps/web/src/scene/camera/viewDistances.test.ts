@@ -14,6 +14,12 @@ describe('view distances', () => {
     expect(CAMERA_SETTINGS.near).toBeLessThan(closestSurfaceGapAu);
   });
 
+  it('lets the camera within 300 km of an asteroid and starts it 1e-3 AU away', () => {
+    expect(minViewDistanceAu('asteroid')).toBe(2e-6);
+    expect(defaultViewDistanceAu('asteroid')).toBe(1e-3);
+    expect(CAMERA_SETTINGS.near).toBeLessThan(minViewDistanceAu('asteroid'));
+  });
+
   it('starts the camera at the Sun’s default view distance', () => {
     expect(Math.hypot(...CAMERA_SETTINGS.position)).toBeCloseTo(defaultViewDistanceAu('sun'), 3);
   });

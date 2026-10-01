@@ -18,6 +18,12 @@ describe('scene frame', () => {
     expect(sceneAxesFromEcliptic([1, 0, 0])).toEqual([1, 0, 0]);
   });
 
+  it('writes into `out` when given one, even when `out` is the input', () => {
+    const vector: [number, number, number] = [1, 2, 3];
+    expect(sceneAxesFromEcliptic(vector, vector)).toBe(vector);
+    expect(vector).toEqual([1, 3, -2]);
+  });
+
   it('draws the origin body at exactly (0, 0, 0)', () => {
     const earthAu: [number, number, number] = [0.9833, 0.1734, -0.0000123];
     setSceneOrigin(earthAu);
