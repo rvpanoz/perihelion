@@ -306,6 +306,11 @@ inclinationDeg, longitudeOfAscendingNodeDeg, argumentOfPerihelionDeg, meanAnomal
 
 Maths task: full code.
 
+Review (2026-10-01): proposals 1–3 approved and applied below. The estimate is rounded once and its unit picked
+from the rounded value (0.9996 km reads `1 km`, not `1000 m`); JPL diameters below 1 km are shown in metres by an
+exact ×1000 (`0.0071` → `7.1 m`, `0.37 ± 0.02` → `370 ± 20 m`); `diameterLabel` and `diameterValueText` split
+label from value for the card, and `diameterText` stays combined for the list.
+
 **Files:**
 
 - Create: `apps/web/src/approaches/diameter.ts`, `apps/web/src/approaches/diameter.test.ts`
@@ -321,7 +326,10 @@ Maths task: full code.
   - `type ApproachDiameter = { kind: 'jpl'; diameterKm: number; sigmaKm: number | null } | ({ kind: 'estimated' } &
 DiameterRangeKm) | { kind: 'unknown' }`
   - `approachDiameter(approach: DiameterFields): ApproachDiameter`
-  - `diameterText(diameter: ApproachDiameter): string` (used by the list in Task 3 and the card in Task 6)
+  - `diameterLabel(diameter: ApproachDiameter): string` and `diameterValueText(diameter: ApproachDiameter): string`
+    (the card in Task 6, split as the mockup does: `Est. diameter` / `16–36 m`)
+  - `diameterText(diameter: ApproachDiameter): string` (label and value combined, for the list in Task 3:
+    `est. 16–36 m`)
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -332,7 +340,9 @@ import {
   ALBEDO_RANGE,
   approachDiameter,
   diameterAtAlbedoKm,
+  diameterLabel,
   diameterText,
+  diameterValueText,
   estimatedDiameterRangeKm,
 } from './diameter';
 
@@ -392,23 +402,52 @@ describe('approachDiameter', () => {
   });
 });
 
-describe('diameterText', () => {
-  it("prints JPL's value as given, in km", () => {
-    expect(diameterText({ kind: 'jpl', diameterKm: 0.37, sigmaKm: 0.02 })).toBe('0.37 ± 0.02 km');
-    expect(diameterText({ kind: 'jpl', diameterKm: 1.1, sigmaKm: null })).toBe('1.1 km');
+describe('diameterValueText', () => {
+  it("shows JPL's value unrounded, in metres below 1 km", () => {
+    expect(diameterValueText({ kind: 'jpl', diameterKm: 0.37, sigmaKm: 0.02 })).toBe('370 ± 20 m');
+    expect(diameterValueText({ kind: 'jpl', diameterKm: 0.0071, sigmaKm: null })).toBe('7.1 m');
+    expect(diameterValueText({ kind: 'jpl', diameterKm: 1.1, sigmaKm: null })).toBe('1.1 km');
   });
 
-  it('labels estimates as a two-significant-figure range', () => {
-    expect(diameterText({ kind: 'estimated', minKm: 2.658, maxKm: 5.943469 })).toBe(
-      'est. 2.7–5.9 km',
+  it('rounds estimates to two significant figures', () => {
+    expect(diameterValueText({ kind: 'estimated', minKm: 2.658, maxKm: 5.943469 })).toBe(
+      '2.7–5.9 km',
     );
-    expect(diameterText({ kind: 'estimated', minKm: 0.016016, maxKm: 0.035813 })).toBe(
-      'est. 16–36 m',
+    expect(diameterValueText({ kind: 'estimated', minKm: 0.016016, maxKm: 0.035813 })).toBe(
+      '16–36 m',
     );
-    expect(diameterText({ kind: 'estimated', minKm: 0.7, maxKm: 1.56 })).toBe('est. 700 m–1.6 km');
+    expect(diameterValueText({ kind: 'estimated', minKm: 0.7, maxKm: 1.56 })).toBe('700 m–1.6 km');
+  });
+
+  it('picks the unit after rounding, at either end of the range', () => {
+    expect(diameterValueText({ kind: 'estimated', minKm: 0.9996, maxKm: 2.235 })).toBe('1–2.2 km');
+    expect(diameterValueText({ kind: 'estimated', minKm: 0.447, maxKm: 0.9996 })).toBe(
+      '450 m–1 km',
+    );
   });
 
   it('says unknown', () => {
+    expect(diameterValueText({ kind: 'unknown' })).toBe('unknown');
+  });
+});
+
+describe('diameterLabel', () => {
+  it('names the source of the figure', () => {
+    expect(diameterLabel({ kind: 'jpl', diameterKm: 1.1, sigmaKm: null })).toBe('Diameter (JPL)');
+    expect(diameterLabel({ kind: 'estimated', minKm: 0.016, maxKm: 0.036 })).toBe('Est. diameter');
+    expect(diameterLabel({ kind: 'unknown' })).toBe('Diameter');
+  });
+});
+
+describe('diameterText', () => {
+  it('marks estimates "est." inline for the list', () => {
+    expect(diameterText({ kind: 'estimated', minKm: 0.016016, maxKm: 0.035813 })).toBe(
+      'est. 16–36 m',
+    );
+  });
+
+  it("leaves JPL's value and unknown as they are", () => {
+    expect(diameterText({ kind: 'jpl', diameterKm: 0.37, sigmaKm: 0.02 })).toBe('370 ± 20 m');
     expect(diameterText({ kind: 'unknown' })).toBe('unknown');
   });
 });
@@ -429,6 +468,8 @@ export const ALBEDO_RANGE = { bright: 0.25, dark: 0.05 } as const;
 /** D = 1329 km / √p · 10^(−H/5) (Fowler & Chillemi 1992; Pravec & Harris 2007, Icarus 190, 250). */
 const DIAMETER_AT_H0_UNIT_ALBEDO_KM = 1329;
 const ESTIMATE_SIGNIFICANT_FIGURES = 2;
+/** Enough to clear ×1000 float noise (0.0071 × 1000 = 7.1000000000000005) without rounding JPL's figure. */
+const EXACT_SIGNIFICANT_FIGURES = 15;
 const METRES_PER_KM = 1000;
 
 export type DiameterFields = Pick<
@@ -445,6 +486,12 @@ export type ApproachDiameter =
   | { kind: 'jpl'; diameterKm: number; sigmaKm: number | null }
   | ({ kind: 'estimated' } & DiameterRangeKm)
   | { kind: 'unknown' };
+
+/** A length as printed: the number shown and its unit. */
+interface Length {
+  value: number;
+  unit: 'm' | 'km';
+}
 
 export function diameterAtAlbedoKm(absoluteMagnitude: number, albedo: number): number {
   return (DIAMETER_AT_H0_UNIT_ALBEDO_KM / Math.sqrt(albedo)) * 10 ** (-absoluteMagnitude / 5);
@@ -466,36 +513,71 @@ export function approachDiameter(approach: DiameterFields): ApproachDiameter {
   return { kind: 'estimated', ...estimatedDiameterRangeKm(approach.absoluteMagnitude) };
 }
 
-export function diameterText(diameter: ApproachDiameter): string {
+/** The card's label says where the figure comes from, so an estimate is never read as a measurement. */
+export function diameterLabel(diameter: ApproachDiameter): string {
+  switch (diameter.kind) {
+    case 'jpl':
+      return 'Diameter (JPL)';
+    case 'estimated':
+      return 'Est. diameter';
+    case 'unknown':
+      return 'Diameter';
+  }
+}
+
+/** The value alone, for the card, whose label already carries the source. */
+export function diameterValueText(diameter: ApproachDiameter): string {
   switch (diameter.kind) {
     case 'jpl':
       return jplDiameterText(diameter.diameterKm, diameter.sigmaKm);
     case 'estimated':
-      return `est. ${rangeText(diameter)}`;
+      return rangeText(diameter);
     case 'unknown':
       return 'unknown';
   }
 }
 
-/** JPL's figures are facts (CLAUDE.md): printed as given, in JPL's unit, never rescaled or rounded. */
+/** The list has no label column, so an estimate carries its "est." inline. */
+export function diameterText(diameter: ApproachDiameter): string {
+  const value = diameterValueText(diameter);
+  return diameter.kind === 'estimated' ? `est. ${value}` : value;
+}
+
+/**
+ * JPL's figures are facts (CLAUDE.md), so never rounded: below 1 km they are rescaled exactly to metres, like the
+ * estimates, and the sigma follows the value's unit so "370 ± 20 m" reads as one quantity.
+ */
 function jplDiameterText(diameterKm: number, sigmaKm: number | null): string {
-  return sigmaKm === null ? `${diameterKm} km` : `${diameterKm} ± ${sigmaKm} km`;
+  const unit = diameterKm < 1 ? 'm' : 'km';
+  const value = exactlyIn(unit, diameterKm);
+  return sigmaKm === null ? `${value} ${unit}` : `${value} ± ${exactlyIn(unit, sigmaKm)} ${unit}`;
 }
 
-/** Metres below 1 km, as CNEOS prints small objects; a range straddling 1 km gives each end its own unit. */
+/** Ends sharing a unit name it once ("16–36 m"); a range straddling 1 km names both ("700 m–1.6 km"). */
 function rangeText({ minKm, maxKm }: DiameterRangeKm): string {
-  if (maxKm < 1) return `${metres(minKm)}–${metres(maxKm)} m`;
-  if (minKm >= 1) return `${significant(minKm)}–${significant(maxKm)} km`;
-  return `${metres(minKm)} m–${significant(maxKm)} km`;
+  const min = estimatedLength(minKm);
+  const max = estimatedLength(maxKm);
+  if (min.unit === max.unit) return `${min.value}–${max.value} ${max.unit}`;
+  return `${min.value} ${min.unit}–${max.value} ${max.unit}`;
 }
 
-function metres(km: number): string {
-  return significant(km * METRES_PER_KM);
+/**
+ * Metres below 1 km, as CNEOS prints small objects. Rounded once, then the unit picked from the rounded value, so
+ * 0.9996 km reads "1 km" rather than "1000 m".
+ */
+function estimatedLength(km: number): Length {
+  const metres = significant(km * METRES_PER_KM, ESTIMATE_SIGNIFICANT_FIGURES);
+  if (metres < METRES_PER_KM) return { value: metres, unit: 'm' };
+  return { value: metres / METRES_PER_KM, unit: 'km' };
+}
+
+function exactlyIn(unit: Length['unit'], km: number): number {
+  return unit === 'km' ? km : significant(km * METRES_PER_KM, EXACT_SIGNIFICANT_FIGURES);
 }
 
 /** Through Number, so 700 prints as "700" rather than toPrecision's "7.0e+2". */
-function significant(value: number): string {
-  return String(Number(value.toPrecision(ESTIMATE_SIGNIFICANT_FIGURES)));
+function significant(value: number, figures: number): number {
+  return Number(value.toPrecision(figures));
 }
 ```
 
@@ -1332,7 +1414,7 @@ card follows the mockup's right column (decision 7).
 **Interfaces:**
 
 - Consumes: `distanceTexts`, `speedText`, `approachDateText`, `approachUtcText`, `approachLabel`,
-  `orbitClassLabel` (Task 3); `approachDiameter`, `diameterText` (Task 2); `approachSelection` (Task 3);
+  `orbitClassLabel` (Task 3); `approachDiameter`, `diameterLabel`, `diameterValueText` (Task 2); `approachSelection` (Task 3);
   `followApproach`, `playApproach` (Task 5); `useTimeReadout()` (4 Hz).
 - Produces:
   - `approachCard(request: { approach: CloseApproach; jdTdb: number }): ApproachCardModel`, where
@@ -1347,8 +1429,9 @@ card follows the mockup's right column (decision 7).
   - `title` → `(2026 RX7)`; `badge` → `Apollo · NEO` (just `NEO` when `orbitClass` is null)
   - `Miss distance` → value `4.80 LD`, detail `1,846,887 km · 0.0123456789 AU`
   - `Relative speed` → value `12.345678 km/s`, detail `44,444 km/h`
-  - `Est. diameter` → value `diameterText(approachDiameter(row))`, detail `H = 26.1` (label `Diameter` and detail
-    `JPL` when JPL's diameter is present)
+  - label `diameterLabel(diameter)` (`Est. diameter` here) → value `diameterValueText(diameter)`, where
+    `diameter = approachDiameter(row)`, detail `H = 26.1` (label `Diameter (JPL)` and detail `JPL` when JPL's
+    diameter is present)
   - `Closest approach` → value `Sep 30 · 04:11 UTC`, detail `± < 00:01` (empty when `timeUncertainty` is null),
     tooltip `2026-Sep-30 04:12 TDB (JPL CAD)`
   - `countdown` → `countdownText(jdTdb − approachJdTdb)`

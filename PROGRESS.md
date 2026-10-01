@@ -145,15 +145,13 @@ catalog had every row); CAD reported no diameters this week. Known issue: a data
 served as-is until its TTL ends (seen live: old rows without `orbit`). Cleared the dev cache for now (user decision);
 validating cache entries on first read is the proposed fix. DONKI moved (#85, Phase 6). Task 1 merged in #86.
 
-Next: Task 2 (#76, diameter). Its review against `main` is done (the plan's full code checks out: imports exist, the
-formula gives 2.658 / 5.9434687 km at H = 15, all text examples match) and awaits the user's choice of:
-
-1. Recommended: choose the unit after rounding, so 0.9996 km reads "1 km", not "1000 m" (tests for both ends).
-2. Recommended: JPL diameters below 1 km in metres like the estimates, by exact ×1000 cleaned with
-   `Number(x.toPrecision(15))` (`0.0071` → `7.1 m`); tests for `0.0071`, `0.37 ± 0.02`, `1.1`.
-3. Recommended: split label from value as the mockup's card does: `diameterLabel` (`Diameter (JPL)` /
-   `Est. diameter` / `Diameter`) and `diameterValueText` (`16–36 m`); `diameterText` stays combined for the list.
-4. Optional: fix the test comment that calls 2658 "km" (it is before the 10^(−H/5) factor).
+Task 2 (#76, diameter) on `phase-5/diameter`. Its review against `main` checked out (imports exist; the formula
+gives 2.658 / 5.9434687 km at H = 15). The user approved proposals 1–3 (2026-10-01), folded into the plan's
+Task 2: the estimate's unit is picked after rounding (0.9996 km reads `1 km`, not `1000 m`); JPL diameters below
+1 km are shown in metres by an exact ×1000 (`0.0071` → `7.1 m`, `0.37 ± 0.02` → `370 ± 20 m`); `diameterLabel` /
+`diameterValueText` split label from value for the card, and `diameterText` stays combined for the list.
+Proposal 4 (a test comment) was not taken. The plan's Task 6 card now takes `diameterLabel` /
+`diameterValueText`, so an estimate doesn't read "est." twice.
 
 ## Phase 6–7
 
