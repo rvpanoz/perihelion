@@ -284,7 +284,7 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-6-the-eruption.md` (part 1: Task 
 - [x] CME particle shell on the GPU (#102)
 - [x] Sun look: noise surface, limb darkening, corona (#103)
 - [x] Earth look: day/night terminator and rim glow (#104)
-- [ ] Earth impact: magnetosphere hint and aurora, labelled illustrative (#105)
+- [x] Earth impact: magnetosphere hint and aurora, labelled illustrative (#105)
 - [ ] Shot choreography: camera and playback synced to the event time (#106)
 - [ ] Exit verification: CME geometry and timing vs DONKI; 60 fps (#107)
 
@@ -748,3 +748,7 @@ _None._
   (`packages/orbit/src/earthOrientation.ts`), so the right continents face the Sun. Night side: the same map dimmed
   and tinted blue (city lights stay in Phase 7). The map loads from `SceneCanvas` into a store, so scene tests need no
   DOM. Frame time 13.34 ms mean at Earth.
+- **2026-10-02:** Task 8 (#105): the impact shows only for CMEs with an ENLIL arrival and follows its time (3 h rise,
+  18 h fade, softened by the glancing-blow/minor-impact flags). Magnetopause: Shue et al. (1998) surface, standoff
+  10 → 6.6 R⊕; aurora: ovals around the IGRF-14 dipole poles, 18° → 28° colatitude, night side only. Both are
+  labelled illustrative on the CME card. Frame time 13.34 ms mean during the impact.
