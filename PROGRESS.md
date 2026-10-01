@@ -143,7 +143,17 @@ Task 1 (#75, orbits on close-approach rows) on `phase-5/approach-orbits`, all 12
 check (2026-10-01): 19 rows, all with an orbit (15 APO, 2 AMO, 2 ATE), none dropped, no lookups needed (the fresh
 catalog had every row); CAD reported no diameters this week. Known issue: a dataset cached before a schema change is
 served as-is until its TTL ends (seen live: old rows without `orbit`). Cleared the dev cache for now (user decision);
-validating cache entries on first read is the proposed fix. DONKI moved (#85, Phase 6). Next: Task 2 (#76).
+validating cache entries on first read is the proposed fix. DONKI moved (#85, Phase 6). Task 1 merged in #86.
+
+Next: Task 2 (#76, diameter). Its review against `main` is done (the plan's full code checks out: imports exist, the
+formula gives 2.658 / 5.9434687 km at H = 15, all text examples match) and awaits the user's choice of:
+
+1. Recommended: choose the unit after rounding, so 0.9996 km reads "1 km", not "1000 m" (tests for both ends).
+2. Recommended: JPL diameters below 1 km in metres like the estimates, by exact ×1000 cleaned with
+   `Number(x.toPrecision(15))` (`0.0071` → `7.1 m`); tests for `0.0071`, `0.37 ± 0.02`, `1.1`.
+3. Recommended: split label from value as the mockup's card does: `diameterLabel` (`Diameter (JPL)` /
+   `Est. diameter` / `Diameter`) and `diameterValueText` (`16–36 m`); `diameterText` stays combined for the list.
+4. Optional: fix the test comment that calls 2658 "km" (it is before the 10^(−H/5) factor).
 
 ## Phase 6–7
 
