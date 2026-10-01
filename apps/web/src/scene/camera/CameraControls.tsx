@@ -13,6 +13,7 @@ export function CameraControls() {
       target={[0, 0, 0]}
       minDistance={minViewDistanceAu(focus)}
       maxDistance={MAX_VIEW_DISTANCE_AU}
+      onStart={() => cameraRig.stopChase()}
     />
   );
 }

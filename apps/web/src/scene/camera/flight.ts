@@ -1,5 +1,5 @@
 import type { Vector3 } from '@perihelion/orbit';
-import type { BodyId } from '../bodies/bodyCatalog';
+import type { FocusId } from './focusPositions';
 
 /** Where the scene origin is (float64, heliocentric ecliptic) and how far the camera is from it. */
 export interface CameraPose {
@@ -9,7 +9,7 @@ export interface CameraPose {
 
 export interface Flight {
   from: CameraPose;
-  to: BodyId;
+  to: FocusId;
   toDistanceAu: number;
   startSeconds: number;
   durationSeconds: number;

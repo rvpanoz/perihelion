@@ -1,6 +1,7 @@
 import { type ReactNode, useState } from 'react';
 import { ApproachList } from './approaches/ApproachList';
-import { approachSelection, useSelectedApproach } from './approaches/approachSelection';
+import { useSelectedApproach } from './approaches/approachSelection';
+import { selectApproach } from './approaches/playApproach';
 import { type DatasetState, useDataset } from './data/useDataset';
 import { type NeoCatalogState, useNeoCatalog } from './data/useNeoCatalog';
 import { useNowMs } from './data/useNowMs';
@@ -87,7 +88,7 @@ function ShellLeft({
         state={closeApproaches}
         selected={selected}
         nowJdTdb={jdTdbFromUnixMs(nowMs)}
-        onSelect={approachSelection.select}
+        onSelect={selectApproach}
       />
       {children}
     </ShellColumn>

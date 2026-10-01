@@ -123,7 +123,7 @@ Plan: `docs/superpowers/plans/2026-10-01-phase-5-the-close-approach.md`. UI refe
 - [x] Diameter: JPL's when known, else a range estimated from H (albedo 0.25–0.05) and labelled "est."
 - [x] Close-approach list UI (from `/api/close-approaches`), with an empty state
 - [x] Focused asteroid positioned by the CPU engine (float64) + trail; engine-vs-CAD closest-distance check
-- [ ] Selecting an approach: clock to the approach, camera flies to the asteroid and follows it through closest approach
+- [x] Selecting an approach: clock to the approach, camera flies to the asteroid and follows it through closest approach
 - [ ] Focus card (HUD): JPL-reported distance (LD/AU/km), relative speed and date, plus diameter and class; Follow / Play approach
 - [ ] Earth-centred close-up in the focus card (illustrative, no Moon)
 - [ ] Exit verification: every listed approach plays end to end; HUD values match CAD exactly; 60 fps
@@ -171,6 +171,17 @@ Task 4, "As built"). Tolerance 15,700 km / 86 min approved (2026-10-01). Browser
 data, 2019 AS2 at 4.48 LD): at the approach and ±1 d the marker sits on the trail and the bright part ends at it;
 75.0 fps, median 13.3 ms, worst 14.4 ms, no frame over 20 ms over 10 s at 1 d/s through the approach, camera on
 Earth at 0.025 AU. Jitter at close zoom is checked in Task 5, which follows the asteroid.
+
+Task 5 (#79, fly and follow) on `phase-5/fly-and-follow`, review proposals 1–9 included, plus four changes from the
+checks (plan Task 5, "Review", points 10–13): the closest asteroid zoom is 2e-6 AU, outside the near plane; the view
+blend slerps; the chase tilts toward the pass's plane normal, not ecliptic north; a chase faces the asteroid during
+its flight. Browser check (2026-10-01, Chrome, live data), Play approach on 2026 SA8 (closest, 379,868 km, past),
+2026 SL7 (farthest, 6,760,624 km, past, started while chasing SA8) and 2019 AS2 (coming): each flight lands chasing
+in 2.48 s, turns at most 2.4° per frame, faces the asteroid throughout and leaves Earth where it was on screen at
+landing; Earth is in view on every frame through closest approach (863/863 per row); the turn through the pass peaks
+at 25–26°/s; 75 fps, median 13.3 ms, worst 14.4 ms. Follow leaves the clock untouched; picking another row
+mid-flight starts a new flight from the current pose (at most 1.0° per frame); a drag ends the chase on its first
+frame without a snap; following at 300 km, Earth's screen position moves at most 1.3e-9 per frame (no jitter).
 
 ## Phase 6–7
 
@@ -476,6 +487,15 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
 - **2026-10-01:** The v0.4.0 release carries three stills and no opening GIF (user decision). Stills are
   `screencapture` PNGs of a Chrome window the browser extension does not drive, since it draws a click marker and an
   edge glow into the pages it controls.
+- **2026-10-01:** The chase camera sits beyond the asteroid, 20° off the Earth→asteroid line, tilted toward the
+  pass's plane normal (signed toward ecliptic north). The normal is fixed through a flyby; a tilt toward ecliptic
+  north swung the view at ~100°/s where 2026 SA8's line passed within 4° of the south ecliptic pole.
+- **2026-10-01:** Chase flights turn the view by slerp on the flight's eased progress. A normalised lerp turned 21.7°
+  in one frame between nearly opposite directions.
+- **2026-10-01:** The closest zoom on an asteroid is 2e-6 AU (~300 km), outside the camera's 1e-6 AU near plane. The
+  marker has no physical size, so nothing closer would show more.
+- **2026-10-01:** A chase turns the camera to face its focus every frame, because the controls that otherwise do it
+  are off during flights; without it the view kept its take-off facing and snapped at landing.
 
 ## Open questions
 

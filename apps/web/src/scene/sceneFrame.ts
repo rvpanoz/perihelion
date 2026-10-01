@@ -36,6 +36,14 @@ export function writeSceneOffset<T extends SceneVectorTarget>(
   return out;
 }
 
-export function sceneAxesFromEcliptic(eclipticAu: Readonly<Vector3>): Vector3 {
-  return [eclipticAu[0], eclipticAu[2], 0 - eclipticAu[1]];
+/** `out` may be the input: every component is read before any is written. */
+export function sceneAxesFromEcliptic(
+  eclipticAu: Readonly<Vector3>,
+  out: Vector3 = [0, 0, 0],
+): Vector3 {
+  const [x, y, z] = eclipticAu;
+  out[0] = x;
+  out[1] = z;
+  out[2] = 0 - y;
+  return out;
 }
