@@ -49,7 +49,7 @@ Fastify, zod 4, Vitest 5, fast-check.
 | 1c  | Validate cache entries on first read       | #85   | light     | ✅ #112       |
 | 1b  | Strict times, http(s) links, ENLIL arrival | #85   | light     | 🟨 in review  |
 | 2   | Engine: CME direction and Earth-in-cone    | #99   | full code | ✅ #115, #116 |
-| 3   | Engine: CME kinematics and arrival         | #100  | full code | ⬜ planned    |
+| 3   | Engine: CME kinematics and arrival         | #100  | full code | 🟨 3a review  |
 | 4   | CME picker + selected-CME store            | #101  | light     | written later |
 | 5   | CME particle shell                         | #102  | full code | written later |
 | 6   | Sun look                                   | #103  | full code | written later |
@@ -531,6 +531,7 @@ value is 0) for approval, then records them in PROGRESS "Calibrated tolerances".
 
 **Acceptance:**
 
-- [ ] 3a: `enlilRunCount` in the data, snapshot refreshed; PROGRESS logs the ENLIL-ran-without-arrival count.
+- [x] 3a: `enlilRunCount` in the data, snapshot refreshed; PROGRESS logs the ENLIL-ran-without-arrival count
+      (39 of 77).
 - [ ] 3b: tolerances measured, approved and recorded; `KM_PER_AU` unchanged for every importer.
 - [ ] `npm run check` green for each PR.

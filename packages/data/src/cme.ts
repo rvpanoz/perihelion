@@ -27,6 +27,11 @@ export const cmeAnalysisSchema = z.object({
   speedKmPerS: z.number().positive(),
   type: z.string().nullable(),
   earthArrival: cmeEarthArrivalSchema.nullable(),
+  /**
+   * ENLIL runs on this analysis, for any target. With no Earth arrival, 0 means ENLIL never ran and more means it
+   * ran and predicted none, which the UI says differently (Task 3 decision 3).
+   */
+  enlilRunCount: z.number().int().nonnegative(),
 });
 export type CmeAnalysis = z.infer<typeof cmeAnalysisSchema>;
 

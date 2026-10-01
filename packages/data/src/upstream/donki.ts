@@ -118,6 +118,7 @@ function toCmeAnalysis(analysis: DonkiCmeAnalysis): CmeAnalysis[] {
       speedKmPerS: analysis.speed,
       type: analysis.type ?? null,
       earthArrival: latestEarthArrival(analysis.enlilList ?? []),
+      enlilRunCount: analysis.enlilList?.length ?? 0,
     },
   ];
 }

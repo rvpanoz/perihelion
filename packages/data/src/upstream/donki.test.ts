@@ -56,6 +56,7 @@ describe('toCmes', () => {
           speedKmPerS: 650,
           type: 'C',
           earthArrival: null,
+          enlilRunCount: 0,
         },
       },
     ]);
@@ -219,5 +220,25 @@ describe('ENLIL Earth arrival', () => {
       isEarthMinorImpact: true,
     };
     expect(arrivalOf([glancing])).toMatchObject({ isGlancingBlow: true, isMinorImpact: true });
+  });
+});
+
+describe('ENLIL run count', () => {
+  const runCountOf = (enlilList: unknown) =>
+    toCmes(parse([{ ...CME, cmeAnalyses: [{ ...ANALYSIS, enlilList }] }]))[0]?.analysis
+      .enlilRunCount;
+  const run = (estimatedShockArrivalTime: string | null) => ({
+    modelCompletionTime: '2026-09-01T20:00Z',
+    estimatedShockArrivalTime,
+  });
+
+  it('is 0 when ENLIL never ran on the analysis', () => {
+    expect(runCountOf(undefined)).toBe(0);
+    expect(runCountOf(null)).toBe(0);
+    expect(runCountOf([])).toBe(0);
+  });
+
+  it('counts every run, whatever its target, so "no Earth arrival" differs from "no run"', () => {
+    expect(runCountOf([run(null), run(null), run('2026-09-04T06:00Z')])).toBe(3);
   });
 });

@@ -715,3 +715,6 @@ _None._
   its cone. So: with an ENLIL arrival the front moves at the mean transit speed that meets both DONKI times and the
   arrival is shown even if the cone misses; without one the front moves at the measured speed and no computed
   arrival is shown. The analysis gains `enlilRunCount` to tell "ENLIL: no Earth arrival" from "no ENLIL run".
+- **2026-10-02:** Task 3a (#100): each CME analysis carries `enlilRunCount`. Of the 77 kept CMEs in the 2026-10-01
+  recording, 13 have an ENLIL Earth arrival, 39 had ENLIL runs that predicted none, and 25 had no ENLIL run; the CME
+  snapshot (fetched 2026-10-01T22:53Z) matches.
