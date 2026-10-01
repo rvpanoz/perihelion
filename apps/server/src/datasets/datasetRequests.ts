@@ -123,12 +123,23 @@ interface DatasetRequestSpec {
 
 /** The final schema check guarantees the cache only ever holds what the API promises. */
 function datasetRequest({ name, cacheKey, fetchData }: DatasetRequestSpec): DatasetRequest {
+  const schema = DATASET_DATA_SCHEMAS[name];
   return {
     cacheKey,
     ttlMs: DATASET_TTL_MS[name],
     snapshotName: name,
-    fetchData: async () => DATASET_DATA_SCHEMAS[name].parse(await fetchData()),
+    fetchData: async () => schema.parse(await fetchData()),
+    accepts: (dataJson) => schema.safeParse(parsedJsonOrUndefined(dataJson)).success,
   };
+}
+
+/** A cache row that is not JSON is just as unusable as one that fails the schema; neither may throw. */
+function parsedJsonOrUndefined(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return undefined;
+  }
 }
 
 /** What the scheduler keeps warm and what `npm run snapshot` writes. */

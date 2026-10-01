@@ -7,6 +7,7 @@ const request = (cacheKey: string): DatasetRequest => ({
   ttlMs: 1,
   snapshotName: 'neos',
   fetchData: async () => [],
+  accepts: () => true,
 });
 
 afterEach(() => vi.useRealTimers());

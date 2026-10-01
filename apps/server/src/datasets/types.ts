@@ -13,6 +13,7 @@ export interface ServedDataset extends CachedDataset {
 export interface DatasetCache {
   read(cacheKey: string): CachedDataset | undefined;
   write(cacheKey: string, dataset: CachedDataset): void;
+  delete(cacheKey: string): void;
 }
 
 export interface SnapshotReader {
@@ -25,6 +26,8 @@ export interface DatasetRequest {
   ttlMs: number;
   snapshotName: DatasetName;
   fetchData(): Promise<unknown>;
+  /** Whether a cached entry still fits the schema, e.g. one written before a schema change. */
+  accepts(dataJson: string): boolean;
 }
 
 /** The slice of Fastify's pino logger the service needs, so tests can pass a plain recorder. */

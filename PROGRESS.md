@@ -612,9 +612,6 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
 - Before Phase 6 shows CME times or renders CME links: DONKI times go through `Date.parse`, which reads a time without
   `Z` as local time (every recorded time has `Z`), so require an explicit `Z`; and `cmeSchema.link` accepts any string,
   so restrict it to http(s).
-- The server's SQLite cache is not checked against the schema on read, so an entry cached before a schema change is
-  served until its TTL ends (seen in Phase 5 Task 1). Proposed fix: validate each entry the first time a process reads
-  it and treat a failure as a miss.
 
 ## Known external issues
 
@@ -687,3 +684,9 @@ _None._
 - **2026-10-02:** Task 1a (#85): the DONKI recordings were re-recorded from CCMC on 2026-10-01 (110 CMEs, 33 left out
   for no longitude, 6 with two flagged analyses); the recorded-CME count test moved from 86 to 77 (user-approved).
   `.env.example` now lists only the optional `PORT`, `DATABASE_PATH` and `SNAPSHOT_DIR`.
+- **2026-10-02:** Cache entries are validated on first read (Task 1c, #85): each `DatasetRequest` has `accepts`, built
+  from its dataset schema; the service checks an entry once per process (entries it wrote count as checked), and one
+  that fails is deleted, logged once and treated as a miss. Task 1c runs before 1b so the CME schema change lands
+  with this in place.
+- **2026-10-02:** ENLIL's predicted Earth arrival lives on the chosen analysis (`analysis.earthArrival`, with
+  `isGlancingBlow` and `isMinorImpact`); ENLIL runs belong to an analysis. Every DONKI time must end in `Z`.

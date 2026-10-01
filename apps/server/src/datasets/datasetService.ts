@@ -28,13 +28,15 @@ export class DatasetService {
   readonly #deps: DatasetServiceDependencies;
   readonly #inFlight = new Map<string, Promise<CachedDataset>>();
   readonly #lastFailureAtMs = new Map<string, number>();
+  /** Cache keys whose entry this process has validated or written itself. */
+  readonly #checkedKeys = new Set<string>();
 
   constructor(dependencies: DatasetServiceDependencies) {
     this.#deps = dependencies;
   }
 
   async read(request: DatasetRequest): Promise<ServedDataset> {
-    const cached = this.#deps.cache.read(request.cacheKey);
+    const cached = this.#readValid(request);
     if (cached === undefined) return this.#fetchOrFallBack(request);
     if (this.#isFresh(cached, request)) return { ...cached, origin: 'fresh' };
     // Without this, a failing upstream would be called (and logged) once per visitor request.
@@ -50,9 +52,30 @@ export class DatasetService {
   }
 
   async #refreshUnlessFresh(request: DatasetRequest): Promise<void> {
-    const cached = this.#deps.cache.read(request.cacheKey);
+    const cached = this.#readValid(request);
     if (cached !== undefined && this.#isFresh(cached, request)) return;
     await this.#refresh(request);
+  }
+
+  /**
+   * The cache outlives schema changes, so each entry is checked once per process before it is served; one
+   * that no longer fits is deleted and treated as a miss (PROGRESS.md, 2026-10-01).
+   */
+  #readValid(request: DatasetRequest): CachedDataset | undefined {
+    const cached = this.#deps.cache.read(request.cacheKey);
+    if (cached === undefined || this.#checkedKeys.has(request.cacheKey)) return cached;
+    if (!request.accepts(cached.dataJson)) return this.#dropInvalid(request);
+    this.#checkedKeys.add(request.cacheKey);
+    return cached;
+  }
+
+  #dropInvalid(request: DatasetRequest): undefined {
+    this.#deps.cache.delete(request.cacheKey);
+    this.#deps.logger.warn(
+      { cacheKey: request.cacheKey },
+      'Dropped a cached dataset that fails its schema',
+    );
+    return undefined;
   }
 
   #refreshInBackground(request: DatasetRequest): void {
@@ -106,6 +129,7 @@ export class DatasetService {
       fetchedAtMs: this.#deps.clock.now(),
     };
     this.#deps.cache.write(request.cacheKey, dataset);
+    this.#checkedKeys.add(request.cacheKey);
     this.#lastFailureAtMs.delete(request.cacheKey);
     return dataset;
   }
