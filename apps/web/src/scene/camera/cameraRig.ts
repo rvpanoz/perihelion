@@ -1,3 +1,4 @@
+import type { Vector3 } from '@perihelion/orbit';
 import {
   type CameraPose,
   type Flight,
@@ -14,6 +15,11 @@ export interface FlightRequest {
   durationSeconds?: number;
   /** Hold the camera on the chase line (`writeChaseDirection`) until the user takes the view or another flight. */
   chase?: boolean;
+  /**
+   * Where to leave the camera: unit, from the focus toward the camera, scene axes. Blended in over the flight
+   * (`DirectedAim`); without it the camera keeps its direction and only the focus and distance change.
+   */
+  direction?: Readonly<Vector3>;
 }
 
 export interface CameraRigOptions {
@@ -33,6 +39,7 @@ export class CameraRig {
   #flightSerial = 0;
   #flightEasedProgress = 1;
   #chasing = false;
+  #flightDirection: Readonly<Vector3> | undefined;
   readonly #pose: CameraPose;
   readonly #nowSeconds: () => number;
   readonly #listeners = new Set<() => void>();
@@ -59,6 +66,11 @@ export class CameraRig {
     return this.#flightSerial;
   }
 
+  /** The last flight's requested direction; read while that flight runs, including its final frame. */
+  get flightDirection(): Readonly<Vector3> | undefined {
+    return this.#flightDirection;
+  }
+
   /** The running flight's eased progress, 0 → 1; 1 when not flying. */
   get flightEasedProgress(): number {
     return this.#flight ? this.#flightEasedProgress : 1;
@@ -78,6 +90,7 @@ export class CameraRig {
     };
     this.#focus = request.focus;
     this.#chasing = request.chase ?? false;
+    this.#flightDirection = request.direction;
     this.#flightSerial += 1;
     this.#flightEasedProgress = 0;
     this.#notify();

@@ -285,7 +285,7 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-6-the-eruption.md` (part 1: Task 
 - [x] Sun look: noise surface, limb darkening, corona (#103)
 - [x] Earth look: day/night terminator and rim glow (#104)
 - [x] Earth impact: magnetosphere hint and aurora, labelled illustrative (#105)
-- [ ] Shot choreography: camera and playback synced to the event time (#106)
+- [x] Shot choreography: camera and playback synced to the event time (#106)
 - [ ] Exit verification: CME geometry and timing vs DONKI; 60 fps (#107)
 
 ## Phase 7
@@ -752,3 +752,7 @@ _None._
   18 h fade, softened by the glancing-blow/minor-impact flags). Magnetopause: Shue et al. (1998) surface, standoff
   10 → 6.6 R⊕; aurora: ovals around the IGRF-14 dipole poles, 18° → 28° colatitude, night side only. Both are
   labelled illustrative on the CME card. Frame time 13.34 ms mean during the impact.
+- **2026-10-02:** Task 9 (#106): Watch eruption plays three beats on the simulation clock (burst 8 s, cruise 12 s,
+  impact 10 s around ENLIL's arrival; no impact beat without one), each with a side-on camera. Flights gained an
+  optional end `direction` (`DirectedAim`, shared with the chase). The fixed-size Earth marker moved to
+  `scene/markers/` and shows during eruptions. Whole shot: 13.34 ms mean, p99 14.3 ms.

@@ -55,7 +55,7 @@ Fastify, zod 4, Vitest 5, fast-check.
 | 6   | Sun look                                   | #103  | full code | ✅            |
 | 7   | Earth look                                 | #104  | full code | ✅            |
 | 8   | Earth impact (illustrative)                | #105  | light     | ✅            |
-| 9   | Shot choreography                          | #106  | light     | written later |
+| 9   | Shot choreography                          | #106  | light     | ✅            |
 | 10  | Exit verification                          | #107  | light     | written later |
 
 Task 1 is one issue (#85) delivered in three PRs, in the order 1a → 1c → 1b (`phase-6/donki-ccmc`,
@@ -890,4 +890,45 @@ hemisphere; at the peak the ovals reach 28° and the magnetopause its peak opaci
 - [x] At ENLIL's arrival (CME 2026-09-05T11:09, arrival Sep 7 20:36 UTC) the magnetopause glows, pushed toward Earth
       on the sunward side, and green ovals light the night side (dev app).
 - [x] Frame time 13.34 ms mean (p95 13.9 ms) at 9 and 38 R⊕ during the impact, 1920 × 809, 75 Hz.
+- [x] `npm run check` green.
+
+## Task 9: Shot choreography (#106, light)
+
+Branch `phase-6/eruption-shot`. Files: `apps/web/src/scene/camera/cameraRig.ts` (flight `direction`),
+`directedAim.ts` (+ test; `ChaseAim` now delegates to it), `CameraRigUpdater.tsx`;
+`apps/web/src/scene/eruption/eruptionShot.ts` (+ test), `eruptionPlayback.ts` (+ test), `eruptionSequence.ts`,
+`EruptionDirector.tsx` (mounted first in `SceneContents`); `apps/web/src/eruptions/watchEruption.ts` (+ test),
+`CmeCard.tsx` (Watch eruption); `apps/web/src/scene/markers/FixedSizeMarker.tsx` (moved out of `ApproachScene`).
+
+**Decisions:**
+
+1. **Three beats on the simulation clock**, each a span of DONKI/ENLIL time played in fixed real seconds, so every
+   CME plays in about the same time whatever its speed: _burst_ from an hour before the front leaves the
+   photosphere until it is at 0.15 AU (8 s; camera on the Sun at 0.3 AU, side-on to the CME axis, 25° up);
+   _cruise_ until 4 h before ENLIL's arrival (12 s; Sun at 2.6 AU, side-on to the Sun–Earth line, 35° up);
+   _impact_ from 4 h before to 14 h after the arrival (10 s; Earth at 30 R⊕, side-on to the Sun line so the
+   terminator, magnetopause and night side all show, 20° up). Without ENLIL's arrival the cruise runs until the
+   front is 0.2 AU past Earth's distance and there is no impact beat.
+2. **Directed flights.** `FlightRequest.direction` (unit, focus → camera, scene axes) is blended in over the flight
+   by `DirectedAim`, the start-capture-and-slerp that `ChaseAim` already did; without it flights keep the camera's
+   direction as before. "Side-on" views are exactly perpendicular to their line, raised toward ecliptic north
+   (scene x for a near-polar line).
+3. **The director** (`EruptionSequence`) runs before the clock each frame: entering a beat sets its rate and flies its
+   camera once. At the end the clock pauses on the last frame; pausing, scrubbing before the shot or picking
+   something else hands control back. Rates change at beat edges without easing.
+4. **Earth marker.** The approach shot's fixed-size Earth marker moves to `scene/markers/` and is drawn while a CME is
+   selected: from the cruise's 2.6 AU, Earth is otherwise a pixel lost in the swarm.
+
+**Tests:** the rig keeps a flight's direction until the next flight; `DirectedAim` starts at the camera, ends on the
+direction and recaptures per flight; the shot's beats are contiguous from an hour before launch, the impact beat
+brackets ENLIL's arrival at Earth, each beat lasts its real seconds, the burst ends with the front at 0.15 AU (to
+1e-9 AU: JD resolution), no-arrival shots end 0.2 AU past Earth; `beatIndexAt` and −1 outside; `sideView` is unit
+and perpendicular (fast-check); the sequence flies once per beat, pauses at the end and hands back on pause, scrub
+or another selection; Watch eruption selects, sets the clock and starts the shot; the card's button watches its CME.
+
+**Acceptance:**
+
+- [x] Watch eruption on CME 2026-09-05T11:09 plays burst → cruise → impact and pauses at arrival + 14 h (dev app).
+- [x] Frame time over the whole 30 s shot (44 s recorded): 13.34 ms mean, p95 13.9 ms, p99 14.3 ms, one frame of
+      26.5 ms (during a screenshot capture), 1920 × 809, 75 Hz.
 - [x] `npm run check` green.

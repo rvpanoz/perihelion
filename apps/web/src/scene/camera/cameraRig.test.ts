@@ -87,6 +87,15 @@ describe('CameraRig', () => {
     expect(listener).toHaveBeenCalledOnce();
   });
 
+  it('keeps a flight’s requested direction until the next flight', () => {
+    const { rig } = setup();
+    const direction: Vector3 = [0, 1, 0];
+    rig.flyTo({ focus: 'sun', direction });
+    expect(rig.flightDirection).toBe(direction);
+    rig.flyTo({ focus: 'mars' });
+    expect(rig.flightDirection).toBeUndefined();
+  });
+
   it('counts flights and reports their eased progress, 1 when not flying', () => {
     const { rig, frame, setNow } = setup();
     expect(rig.flightEasedProgress).toBe(1);
