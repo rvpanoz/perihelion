@@ -1,0 +1,1511 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Perihelion Mockup</title>
+    <style>
+      :root {
+        --bg: #03050b;
+        --panel: rgba(10, 14, 26, 0.58);
+        --panel-border: rgba(255, 255, 255, 0.08);
+        --text: #e8ecf5;
+        --muted: #8a93a8;
+        --faint: #5b6378;
+        --cyan: #5ad1ff;
+        --violet: #9b8cff;
+        --amber: #ffc46b;
+        --pink: #ff7ab8;
+        --orange: #ff8a4c;
+        --green: #4be3a0;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        width: 1600px;
+        height: 1000px;
+        overflow: hidden;
+        background: var(--bg);
+      }
+      body {
+        font-family: -apple-system, 'SF Pro Text', 'Inter', 'Helvetica Neue', sans-serif;
+        color: var(--text);
+        -webkit-font-smoothing: antialiased;
+      }
+      .mono {
+        font-family: 'SF Mono', ui-monospace, 'JetBrains Mono', Menlo, monospace;
+        font-variant-numeric: tabular-nums;
+      }
+      #scene {
+        position: absolute;
+        inset: 0;
+        width: 1600px;
+        height: 1000px;
+      }
+
+      .panel {
+        position: absolute;
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: 14px;
+        backdrop-filter: blur(18px) saturate(140%);
+        -webkit-backdrop-filter: blur(18px) saturate(140%);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+      }
+
+      /* Top bar */
+      .topbar {
+        position: absolute;
+        top: 20px;
+        left: 24px;
+        right: 24px;
+        height: 52px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .brand .word {
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0.34em;
+      }
+      .brand .sub {
+        font-size: 11.5px;
+        color: var(--muted);
+        letter-spacing: 0.02em;
+        margin-top: 2px;
+      }
+      .tabs {
+        display: flex;
+        gap: 4px;
+        padding: 4px;
+        border-radius: 12px;
+      }
+      .tab {
+        font-size: 13px;
+        padding: 8px 16px;
+        border-radius: 9px;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .tab.active {
+        background: rgba(255, 255, 255, 0.09);
+        color: var(--text);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+      }
+      .tab .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+      }
+      .right-tools {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .pill {
+        font-size: 12px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--muted);
+      }
+      .pill b {
+        color: var(--text);
+        font-weight: 500;
+      }
+      .live {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 10px var(--green);
+      }
+      .icon-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+      }
+      .icon-btn svg {
+        width: 16px;
+        height: 16px;
+        stroke: var(--muted);
+        fill: none;
+        stroke-width: 1.6;
+      }
+
+      /* Left column */
+      .left {
+        top: 92px;
+        left: 24px;
+        width: 300px;
+        padding: 18px 16px 12px;
+      }
+      .h {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--muted);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding: 0 4px;
+      }
+      .h span:last-child {
+        text-transform: none;
+        letter-spacing: 0;
+        color: var(--faint);
+      }
+      .item {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 4px 10px;
+        padding: 10px 10px;
+        border-radius: 10px;
+        margin-bottom: 4px;
+      }
+      .item.sel {
+        background: rgba(90, 209, 255, 0.09);
+        box-shadow: inset 0 0 0 1px rgba(90, 209, 255, 0.28);
+      }
+      .item .name {
+        font-size: 13.5px;
+        font-weight: 500;
+      }
+      .item .when {
+        font-size: 11.5px;
+        color: var(--muted);
+        text-align: right;
+      }
+      .item .bar {
+        grid-column: 1 / -1;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .item .bar i {
+        display: block;
+        height: 100%;
+        border-radius: 2px;
+        background: linear-gradient(90deg, var(--cyan), rgba(90, 209, 255, 0.3));
+      }
+      .item .meta {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: space-between;
+        font-size: 11.5px;
+        color: var(--muted);
+      }
+      .item .meta .ld {
+        color: var(--text);
+      }
+
+      .legend {
+        top: 520px;
+        left: 24px;
+        width: 300px;
+        padding: 16px 16px 12px;
+      }
+      .leg-row {
+        display: grid;
+        grid-template-columns: 16px 1fr auto 28px;
+        align-items: center;
+        gap: 10px;
+        padding: 7px 4px;
+        font-size: 12.5px;
+      }
+      .swatch {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+      .leg-row .count {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .toggle {
+        width: 28px;
+        height: 16px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.14);
+        position: relative;
+      }
+      .toggle::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 14px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #fff;
+      }
+      .toggle.off {
+        background: rgba(255, 255, 255, 0.06);
+      }
+      .toggle.off::after {
+        left: 2px;
+        background: #6b7388;
+      }
+      .leg-note {
+        font-size: 11px;
+        color: var(--faint);
+        padding: 8px 4px 2px;
+        border-top: 1px solid var(--panel-border);
+        margin-top: 6px;
+      }
+
+      /* Right column */
+      .focus {
+        top: 92px;
+        right: 24px;
+        width: 330px;
+        padding: 18px;
+      }
+      .focus-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 4px;
+      }
+      .focus-title {
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      .badge {
+        font-size: 11px;
+        padding: 4px 9px;
+        border-radius: 999px;
+        color: var(--cyan);
+        background: rgba(90, 209, 255, 0.1);
+        box-shadow: inset 0 0 0 1px rgba(90, 209, 255, 0.3);
+      }
+      .countdown {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 14px;
+      }
+      .countdown b {
+        color: var(--text);
+        font-weight: 500;
+      }
+      #lens {
+        width: 294px;
+        height: 172px;
+        border-radius: 10px;
+        display: block;
+        background: #02040a;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px 12px;
+        margin: 16px 0 14px;
+      }
+      .stat .k {
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+        margin-bottom: 4px;
+      }
+      .stat .v {
+        font-size: 17px;
+        font-weight: 500;
+      }
+      .stat .v small {
+        font-size: 11.5px;
+        color: var(--muted);
+        font-weight: 400;
+        display: block;
+        margin-top: 2px;
+      }
+      .btns {
+        display: flex;
+        gap: 8px;
+      }
+      .btn {
+        flex: 1;
+        font-size: 13px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.07);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+      }
+      .btn.primary {
+        background: linear-gradient(180deg, #6ad7ff, #3bb4ea);
+        color: #03121c;
+        font-weight: 600;
+        box-shadow: 0 6px 20px rgba(90, 209, 255, 0.25);
+      }
+      .src {
+        font-size: 10.5px;
+        color: var(--faint);
+        margin-top: 12px;
+      }
+
+      .wx {
+        top: 640px;
+        right: 24px;
+        width: 330px;
+        padding: 16px 18px;
+      }
+      .wx-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .wx-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+        background: radial-gradient(circle at 40% 40%, #ffd08a, #ff7a3c 60%, #b33a1a);
+        box-shadow: 0 0 18px rgba(255, 138, 76, 0.5);
+      }
+      .wx-title {
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .wx-sub {
+        font-size: 11.5px;
+        color: var(--muted);
+      }
+      .wx-alert {
+        margin-left: auto;
+        font-size: 11px;
+        padding: 4px 9px;
+        border-radius: 999px;
+        color: var(--orange);
+        background: rgba(255, 138, 76, 0.12);
+        box-shadow: inset 0 0 0 1px rgba(255, 138, 76, 0.35);
+      }
+      .wx-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .wx-grid .v {
+        font-size: 15px;
+      }
+      .arrival {
+        font-size: 12px;
+        color: var(--muted);
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: rgba(255, 138, 76, 0.07);
+        margin-bottom: 12px;
+      }
+      .arrival b {
+        color: var(--text);
+        font-weight: 500;
+      }
+
+      /* Caption */
+      .caption {
+        position: absolute;
+        left: 356px;
+        bottom: 132px;
+      }
+      .caption .k {
+        font-size: 11px;
+        letter-spacing: 0.32em;
+        color: var(--cyan);
+        margin-bottom: 8px;
+      }
+      .caption .t {
+        font-size: 26px;
+        font-weight: 300;
+        letter-spacing: -0.01em;
+        line-height: 1.25;
+      }
+      .caption .t b {
+        font-weight: 600;
+      }
+
+      /* Timeline */
+      .timeline {
+        left: 24px;
+        right: 24px;
+        bottom: 20px;
+        height: 88px;
+        padding: 14px 20px;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 24px;
+        align-items: center;
+      }
+      .transport {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .play {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+      }
+      .play svg,
+      .skip svg {
+        fill: var(--text);
+      }
+      .skip {
+        width: 32px;
+        height: 32px;
+        display: grid;
+        place-items: center;
+        opacity: 0.7;
+      }
+      .clock {
+        margin-left: 8px;
+      }
+      .clock .d {
+        font-size: 15px;
+      }
+      .clock .s {
+        font-size: 11.5px;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+      .speeds {
+        display: flex;
+        gap: 4px;
+        margin-left: 14px;
+        padding: 3px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .speed {
+        font-size: 12px;
+        padding: 6px 10px;
+        border-radius: 7px;
+        color: var(--muted);
+      }
+      .speed.on {
+        background: rgba(90, 209, 255, 0.14);
+        color: var(--cyan);
+      }
+      .track-wrap {
+        position: relative;
+        height: 52px;
+      }
+      .ticks {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        display: flex;
+        justify-content: space-between;
+        font-size: 10.5px;
+        color: var(--faint);
+        letter-spacing: 0.08em;
+      }
+      .track {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 26px;
+        height: 4px;
+        border-radius: 2px;
+        background: rgba(255, 255, 255, 0.08);
+      }
+      .track .done {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 49%;
+        border-radius: 2px;
+        background: linear-gradient(90deg, rgba(90, 209, 255, 0.1), rgba(90, 209, 255, 0.7));
+      }
+      .mk {
+        position: absolute;
+        top: 21px;
+      }
+      .mk.cme {
+        width: 10px;
+        height: 10px;
+        transform: rotate(45deg);
+        background: var(--orange);
+        box-shadow: 0 0 8px rgba(255, 138, 76, 0.8);
+        top: 23px;
+      }
+      .mk.ca {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--cyan);
+        box-shadow: 0 0 8px rgba(90, 209, 255, 0.8);
+        top: 24.5px;
+      }
+      .head {
+        position: absolute;
+        top: 12px;
+        width: 2px;
+        height: 30px;
+        background: #fff;
+        box-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
+        left: 49%;
+      }
+      .head::before {
+        content: '';
+        position: absolute;
+        top: -4px;
+        left: -5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #fff;
+      }
+      .track-legend {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        font-size: 10.5px;
+        color: var(--faint);
+        display: flex;
+        gap: 16px;
+      }
+      .track-legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .tl-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .now {
+        font-size: 12.5px;
+        padding: 9px 14px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.07);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+      }
+      .fps {
+        font-size: 11.5px;
+        color: var(--muted);
+        text-align: right;
+        line-height: 1.5;
+      }
+      .fps b {
+        color: var(--green);
+        font-weight: 500;
+      }
+
+      .label {
+        position: absolute;
+        font-size: 11px;
+        color: rgba(232, 236, 245, 0.7);
+        letter-spacing: 0.06em;
+        pointer-events: none;
+      }
+      .callout {
+        position: absolute;
+        font-size: 12px;
+        pointer-events: none;
+      }
+      .callout .n {
+        font-weight: 600;
+        font-size: 12.5px;
+      }
+      .callout .d {
+        color: var(--muted);
+        font-size: 11.5px;
+        margin-top: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="scene" width="3200" height="2000"></canvas>
+    <div id="labels"></div>
+
+    <!-- Top bar -->
+    <div class="topbar">
+      <div class="brand">
+        <svg width="34" height="34" viewBox="0 0 34 34">
+          <defs>
+            <radialGradient id="sg">
+              <stop offset="0" stop-color="#fff" />
+              <stop offset=".45" stop-color="#ffd27a" />
+              <stop offset="1" stop-color="#ff8a4c" stop-opacity="0" />
+            </radialGradient>
+          </defs>
+          <ellipse
+            cx="17"
+            cy="17"
+            rx="15"
+            ry="7.5"
+            fill="none"
+            stroke="#5ad1ff"
+            stroke-opacity=".7"
+            stroke-width="1.2"
+            transform="rotate(-22 17 17)"
+          />
+          <circle cx="13" cy="18" r="6" fill="url(#sg)" />
+          <circle cx="30" cy="11.5" r="2.2" fill="#5ad1ff" />
+        </svg>
+        <div>
+          <div class="word">PERIHELION</div>
+          <div class="sub">The live solar system · NASA / JPL data</div>
+        </div>
+      </div>
+      <div class="tabs panel" style="position: static">
+        <div class="tab active">
+          <span class="dot" style="background: var(--cyan); box-shadow: 0 0 8px var(--cyan)"></span
+          >The Swarm
+        </div>
+        <div class="tab">
+          <span class="dot" style="background: var(--violet)"></span>Close Approach
+        </div>
+        <div class="tab"><span class="dot" style="background: var(--orange)"></span>Eruption</div>
+      </div>
+      <div class="right-tools">
+        <div class="pill panel" style="position: static">
+          <span class="live"></span><b>Live</b> · JPL SBDB · updated 12 min ago
+        </div>
+        <div class="icon-btn panel" style="position: static">
+          <svg viewBox="0 0 16 16">
+            <path d="M8 1.5 14.5 5 8 8.5 1.5 5Z" />
+            <path d="M1.5 8 8 11.5 14.5 8" />
+            <path d="M1.5 11 8 14.5 14.5 11" />
+          </svg>
+        </div>
+        <div class="icon-btn panel" style="position: static">
+          <svg viewBox="0 0 16 16">
+            <circle cx="8" cy="8" r="2.2" />
+            <path
+              d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4"
+            />
+          </svg>
+        </div>
+        <div class="icon-btn panel" style="position: static">
+          <svg viewBox="0 0 16 16"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" /></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Close approaches -->
+    <div class="panel left">
+      <div class="h"><span>Passing Earth</span><span>next 7 days</span></div>
+      <div class="item sel">
+        <div class="name">2026 RX7</div>
+        <div class="when mono">Sep 30 · 04:12</div>
+        <div class="bar"><i style="width: 94%"></i></div>
+        <div class="meta">
+          <span><span class="ld mono">0.82 LD</span> · 18–40 m</span><span>Apollo</span>
+        </div>
+      </div>
+      <div class="item">
+        <div class="name">2026 SB2</div>
+        <div class="when mono">Oct 1 · 19:47</div>
+        <div class="bar"><i style="width: 78%"></i></div>
+        <div class="meta">
+          <span><span class="ld mono">2.41 LD</span> · 9–20 m</span><span>Aten</span>
+        </div>
+      </div>
+      <div class="item">
+        <div class="name">2024 PT9</div>
+        <div class="when mono">Oct 2 · 08:03</div>
+        <div class="bar"><i style="width: 58%"></i></div>
+        <div class="meta">
+          <span><span class="ld mono">5.07 LD</span> · 60–130 m</span><span>Apollo</span>
+        </div>
+      </div>
+      <div class="item">
+        <div class="name">2026 QD11</div>
+        <div class="when mono">Oct 3 · 22:31</div>
+        <div class="bar"><i style="width: 40%"></i></div>
+        <div class="meta">
+          <span><span class="ld mono">7.93 LD</span> · 25–55 m</span><span>Amor</span>
+        </div>
+      </div>
+      <div class="item">
+        <div class="name">2025 LM4</div>
+        <div class="when mono">Oct 4 · 11:15</div>
+        <div class="bar"><i style="width: 22%"></i></div>
+        <div class="meta">
+          <span><span class="ld mono">11.2 LD</span> · 22–49 m</span><span>Apollo</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="panel legend">
+      <div class="h"><span>Orbit class</span><span class="mono">38,412 objects</span></div>
+      <div class="leg-row">
+        <span class="swatch" style="background: var(--cyan); box-shadow: 0 0 8px var(--cyan)"></span
+        ><span>Apollo</span><span class="count mono">23,910</span><span class="toggle"></span>
+      </div>
+      <div class="leg-row">
+        <span
+          class="swatch"
+          style="background: var(--violet); box-shadow: 0 0 8px var(--violet)"
+        ></span
+        ><span>Amor</span><span class="count mono">11,607</span><span class="toggle"></span>
+      </div>
+      <div class="leg-row">
+        <span
+          class="swatch"
+          style="background: var(--amber); box-shadow: 0 0 8px var(--amber)"
+        ></span
+        ><span>Aten</span><span class="count mono">2,861</span><span class="toggle"></span>
+      </div>
+      <div class="leg-row">
+        <span class="swatch" style="background: var(--pink); box-shadow: 0 0 8px var(--pink)"></span
+        ><span>Atira</span><span class="count mono">34</span><span class="toggle"></span>
+      </div>
+      <div class="leg-row">
+        <span
+          class="swatch"
+          style="background: transparent; box-shadow: inset 0 0 0 1px var(--muted)"
+        ></span
+        ><span>Orbit trails</span><span class="count"></span><span class="toggle off"></span>
+      </div>
+      <div class="leg-note">Brightness ∝ estimated size · orbital elements from JPL SBDB</div>
+    </div>
+
+    <!-- Focus card -->
+    <div class="panel focus">
+      <div class="focus-head">
+        <div class="focus-title">2026 RX7</div>
+        <span class="badge">Apollo · NEO</span>
+      </div>
+      <div class="countdown">Closest approach in <b class="mono">1d 13h 40m</b></div>
+      <canvas id="lens" width="588" height="344"></canvas>
+      <div class="stats">
+        <div class="stat">
+          <div class="k">Miss distance</div>
+          <div class="v mono">0.82 LD<small>315,200 km</small></div>
+        </div>
+        <div class="stat">
+          <div class="k">Relative speed</div>
+          <div class="v mono">11.4 km/s<small>41,040 km/h</small></div>
+        </div>
+        <div class="stat">
+          <div class="k">Est. diameter</div>
+          <div class="v mono">18–40 m<small>H = 26.1</small></div>
+        </div>
+        <div class="stat">
+          <div class="k">Closest approach</div>
+          <div class="v mono">Sep 30<small>04:12 UTC ± 2 min</small></div>
+        </div>
+      </div>
+      <div class="btns">
+        <div class="btn primary">Follow</div>
+        <div class="btn">▶ Play approach</div>
+      </div>
+      <div class="src">Distances from JPL CAD · positions from the Perihelion engine</div>
+    </div>
+
+    <!-- Space weather -->
+    <div class="panel wx">
+      <div class="wx-head">
+        <div class="wx-icon"></div>
+        <div>
+          <div class="wx-title">Coronal mass ejection</div>
+          <div class="wx-sub mono">2026-09-26 · 09:24 UTC</div>
+        </div>
+        <span class="wx-alert">Earth-directed</span>
+      </div>
+      <div class="wx-grid">
+        <div class="stat">
+          <div class="k">Speed</div>
+          <div class="v mono">1,240<small>km/s</small></div>
+        </div>
+        <div class="stat">
+          <div class="k">Half-angle</div>
+          <div class="v mono">38°<small>cone</small></div>
+        </div>
+        <div class="stat">
+          <div class="k">Direction</div>
+          <div class="v mono">S12 W07<small>lat / lon</small></div>
+        </div>
+      </div>
+      <div class="arrival">
+        Estimated Earth arrival <b class="mono">Sep 29 · ~18:00 UTC</b> ± 7 h
+      </div>
+      <div class="btns"><div class="btn" style="color: var(--orange)">Watch eruption</div></div>
+      <div class="src">Source: NASA DONKI · aurora visuals are illustrative</div>
+    </div>
+
+    <!-- Caption -->
+    <div class="caption">
+      <div class="k">THE SWARM</div>
+      <div class="t">
+        <b>38,412</b> known near-Earth asteroids,<br />placed where they are today.
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="panel timeline">
+      <div class="transport">
+        <div class="skip">
+          <svg width="16" height="16" viewBox="0 0 16 16">
+            <path d="M3 2h2v12H3zM14 2v12L6 8z" />
+          </svg>
+        </div>
+        <div class="play">
+          <svg width="16" height="16" viewBox="0 0 16 16">
+            <path d="M4 2h3v12H4zM9 2h3v12H9z" />
+          </svg>
+        </div>
+        <div class="skip">
+          <svg width="16" height="16" viewBox="0 0 16 16">
+            <path d="M11 2h2v12h-2zM2 2v12l8-6z" />
+          </svg>
+        </div>
+        <div class="clock">
+          <div class="d mono">Sun 28 Sep 2026 · 14:32:07</div>
+          <div class="s">UTC · simulated time</div>
+        </div>
+        <div class="speeds">
+          <span class="speed">1×</span><span class="speed">1 day/s</span
+          ><span class="speed on">1 month/s</span><span class="speed">1 yr/s</span>
+        </div>
+      </div>
+      <div class="track-wrap">
+        <div class="ticks mono">
+          <span>JUL</span><span>AUG</span><span>SEP</span><span>OCT</span><span>NOV</span
+          ><span>DEC</span>
+        </div>
+        <div class="track"><div class="done"></div></div>
+        <div class="mk cme" style="left: 18%"></div>
+        <div class="mk cme" style="left: 33%"></div>
+        <div class="mk cme" style="left: 47.4%"></div>
+        <div class="mk ca" style="left: 12%"></div>
+        <div class="mk ca" style="left: 26%"></div>
+        <div class="mk ca" style="left: 39%"></div>
+        <div class="mk ca" style="left: 50.6%"></div>
+        <div class="mk ca" style="left: 51.8%"></div>
+        <div class="mk ca" style="left: 64%"></div>
+        <div class="mk ca" style="left: 81%"></div>
+        <div class="head"></div>
+        <div class="track-legend">
+          <span
+            ><i
+              class="mk cme"
+              style="position: static; width: 7px; height: 7px; box-shadow: none"
+            ></i
+            >CME</span
+          ><span
+            ><i
+              class="mk ca"
+              style="position: static; width: 6px; height: 6px; box-shadow: none"
+            ></i
+            >Close approach</span
+          >
+        </div>
+      </div>
+      <div class="tl-right">
+        <div class="now">● Now</div>
+        <div class="fps mono"><b>60 fps</b><br />Quality: High</div>
+      </div>
+    </div>
+
+    <script>
+      // Seeded PRNG so the mockup renders identically every time
+      function mulberry32(a) {
+        return function () {
+          a |= 0;
+          a = (a + 0x6d2b79f5) | 0;
+          let t = Math.imul(a ^ (a >>> 15), 1 | a);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+      const rnd = mulberry32(20260928);
+      const gauss = () => {
+        let u = 0,
+          v = 0;
+        while (!u) u = rnd();
+        while (!v) v = rnd();
+        return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+      };
+
+      const W = 1600,
+        H = 1000,
+        DPR = 2;
+      const cv = document.getElementById('scene');
+      const ctx = cv.getContext('2d');
+      ctx.scale(DPR, DPR);
+
+      // Camera
+      const CX = 800,
+        CY = 470,
+        CAM = 6.2,
+        F = 1500;
+      const EL = (27 * Math.PI) / 180,
+        AZ = (18 * Math.PI) / 180;
+      const cE = Math.cos(EL),
+        sE = Math.sin(EL),
+        cA = Math.cos(AZ),
+        sA = Math.sin(AZ);
+      function proj(x, y, z) {
+        const rx = x * cA - y * sA,
+          ry = x * sA + y * cA;
+        const up = z * cE + ry * sE;
+        const depth = CAM + (ry * cE - z * sE);
+        return [CX + (F * rx) / depth, CY - (F * up) / depth, depth];
+      }
+
+      // Kepler: elements -> heliocentric ecliptic position (AU)
+      function pos(a, e, i, O, w, M) {
+        let E = e < 0.8 ? M : Math.PI;
+        for (let k = 0; k < 12; k++) E -= (E - e * Math.sin(E) - M) / (1 - e * Math.cos(E));
+        const xp = a * (Math.cos(E) - e),
+          yp = a * Math.sqrt(1 - e * e) * Math.sin(E);
+        const cO = Math.cos(O),
+          sO = Math.sin(O),
+          cw = Math.cos(w),
+          sw = Math.sin(w),
+          ci = Math.cos(i),
+          si = Math.sin(i);
+        return [
+          (cO * cw - sO * sw * ci) * xp + (-cO * sw - sO * cw * ci) * yp,
+          (sO * cw + cO * sw * ci) * xp + (-sO * sw + cO * cw * ci) * yp,
+          sw * si * xp + cw * si * yp,
+        ];
+      }
+
+      // ---- Background ----
+      const bg = ctx.createRadialGradient(CX, CY, 50, CX, CY, 1100);
+      bg.addColorStop(0, '#0a0f1f');
+      bg.addColorStop(0.5, '#05070f');
+      bg.addColorStop(1, '#020308');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+      // faint milky-way band
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (let k = 0; k < 60; k++) {
+        const t = rnd(),
+          x = t * W,
+          y = 120 + t * 380 + gauss() * 60,
+          r = 80 + rnd() * 160;
+        const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+        g.addColorStop(
+          0,
+          `rgba(${(90 + rnd() * 40) | 0},${(90 + rnd() * 30) | 0},${(140 + rnd() * 40) | 0},0.035)`,
+        );
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(x - r, y - r, 2 * r, 2 * r);
+      }
+      for (let k = 0; k < 2200; k++) {
+        const x = rnd() * W,
+          y = rnd() * H,
+          b = rnd();
+        ctx.fillStyle = `rgba(${(200 + 55 * rnd()) | 0},${(210 + 45 * rnd()) | 0},255,${0.08 + b * b * 0.55})`;
+        const s = b > 0.985 ? 1.6 : b > 0.9 ? 1.1 : 0.7;
+        ctx.fillRect(x, y, s, s);
+      }
+      ctx.restore();
+
+      // ---- Ecliptic grid ----
+      ctx.save();
+      ctx.lineWidth = 0.6;
+      for (let r = 0.5; r <= 4.01; r += 0.5) {
+        ctx.beginPath();
+        for (let k = 0; k <= 180; k++) {
+          const t = (k / 180) * 2 * Math.PI;
+          const p = proj(r * Math.cos(t), r * Math.sin(t), 0);
+          k ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]);
+        }
+        ctx.strokeStyle = `rgba(120,150,210,${r % 1 === 0 ? 0.07 : 0.035})`;
+        ctx.stroke();
+      }
+      for (let k = 0; k < 12; k++) {
+        const t = (k / 12) * 2 * Math.PI,
+          a = proj(0.3 * Math.cos(t), 0.3 * Math.sin(t), 0),
+          b = proj(4 * Math.cos(t), 4 * Math.sin(t), 0);
+        ctx.beginPath();
+        ctx.moveTo(a[0], a[1]);
+        ctx.lineTo(b[0], b[1]);
+        ctx.strokeStyle = 'rgba(120,150,210,0.035)';
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // ---- Asteroid population ----
+      const COLORS = {
+        apollo: [90, 209, 255],
+        amor: [155, 140, 255],
+        aten: [255, 196, 107],
+        atira: [255, 122, 184],
+      };
+      const asts = [];
+      function sampleAst() {
+        const u = rnd();
+        let cls, a, e;
+        const i = Math.min(Math.abs(gauss()) * 0.2, 1.1);
+        if (u < 0.62) {
+          cls = 'apollo';
+          a = Math.min(Math.max(1.02, Math.exp(0.55 + gauss() * 0.28)), 3.6);
+          const q = 0.25 + rnd() * 0.767;
+          e = 1 - q / a;
+        } else if (u < 0.925) {
+          cls = 'amor';
+          a = Math.min(Math.max(1.12, Math.exp(0.7 + gauss() * 0.22)), 3.8);
+          const q = 1.017 + rnd() * 0.283;
+          e = Math.max(0.02, 1 - q / a);
+        } else if (u < 0.999) {
+          cls = 'aten';
+          a = 0.65 + rnd() * 0.35;
+          e = Math.min(0.85, Math.max(0.983 / a - 1, 0) + rnd() * 0.4);
+        } else {
+          cls = 'atira';
+          a = 0.55 + rnd() * 0.4;
+          e = rnd() * Math.max(0.01, 0.983 / a - 1);
+        }
+        return {
+          cls,
+          a,
+          e,
+          i,
+          O: rnd() * 2 * Math.PI,
+          w: rnd() * 2 * Math.PI,
+          M: rnd() * 2 * Math.PI,
+          H: 18 + rnd() * 10,
+        };
+      }
+      for (let k = 0; k < 38412; k++) asts.push(sampleAst());
+
+      // faint orbit trails for a subset
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.lineWidth = 0.6;
+      for (let k = 0; k < 420; k++) {
+        const o = asts[(k * 37) % asts.length],
+          c = COLORS[o.cls];
+        ctx.beginPath();
+        for (let s = 0; s <= 160; s++) {
+          const p = proj(...pos(o.a, o.e, o.i, o.O, o.w, (s / 160) * 2 * Math.PI));
+          s ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]);
+        }
+        ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},0.045)`;
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // points (depth-sorted, additive)
+      const pts = asts
+        .map((o) => {
+          const p = proj(...pos(o.a, o.e, o.i, o.O, o.w, o.M));
+          return [p[0], p[1], p[2], o];
+        })
+        .filter((p) => p[2] > 1)
+        .sort((a, b) => b[2] - a[2]);
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (const [x, y, d, o] of pts) {
+        const c = COLORS[o.cls];
+        const size = (0.5 + ((28 - o.H) / 10) * 1.3) * (CAM / d);
+        const alpha = 0.35 + ((28 - o.H) / 10) * 0.5;
+        if (size > 1.2) {
+          const g = ctx.createRadialGradient(x, y, 0, x, y, size * 2.2);
+          g.addColorStop(0, `rgba(${c[0]},${c[1]},${c[2]},${alpha * 0.5})`);
+          g.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = g;
+          ctx.fillRect(x - size * 2.2, y - size * 2.2, size * 4.4, size * 4.4);
+        }
+        ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${alpha})`;
+        ctx.fillRect(x - size / 2, y - size / 2, Math.max(size, 0.7), Math.max(size, 0.7));
+      }
+      ctx.restore();
+
+      // ---- Planet orbits + planets ----
+      const planets = [
+        { n: 'Mercury', a: 0.387, t: 2.3, r: 2.4, c: '#b9b2a8' },
+        { n: 'Venus', a: 0.723, t: 4.1, r: 4, c: '#f1d9a8' },
+        { n: 'Earth', a: 1.0, t: -1.05, r: 5.2, c: '#6fb6ff' },
+        { n: 'Mars', a: 1.524, t: 0.55, r: 3.4, c: '#ff8c64' },
+      ];
+      ctx.save();
+      for (const p of planets) {
+        ctx.beginPath();
+        for (let k = 0; k <= 240; k++) {
+          const t = (k / 240) * 2 * Math.PI;
+          const q = proj(p.a * Math.cos(t), p.a * Math.sin(t), 0);
+          k ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]);
+        }
+        ctx.strokeStyle = p.n === 'Earth' ? 'rgba(111,182,255,0.55)' : 'rgba(220,225,240,0.22)';
+        ctx.lineWidth = p.n === 'Earth' ? 1.2 : 0.9;
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // ---- CME shell (from Sun toward Earth) ----
+      const earth = planets[2];
+      const eDir = [Math.cos(earth.t), Math.sin(earth.t), 0];
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      const cmeR = 0.52,
+        half = (38 * Math.PI) / 180;
+      // build orthonormal basis around direction (slightly off Earth line)
+      const dir = (() => {
+        const a = earth.t + 0.12,
+          d = [Math.cos(a), Math.sin(a), -0.08];
+        const n = Math.hypot(...d);
+        return d.map((v) => v / n);
+      })();
+      const up0 = [0, 0, 1];
+      const u1 = (() => {
+        const c = [
+          dir[1] * up0[2] - dir[2] * up0[1],
+          dir[2] * up0[0] - dir[0] * up0[2],
+          dir[0] * up0[1] - dir[1] * up0[0],
+        ];
+        const n = Math.hypot(...c);
+        return c.map((v) => v / n);
+      })();
+      const u2 = [
+        dir[1] * u1[2] - dir[2] * u1[1],
+        dir[2] * u1[0] - dir[0] * u1[2],
+        dir[0] * u1[1] - dir[1] * u1[0],
+      ];
+      // streamers
+      for (let k = 0; k < 90; k++) {
+        const th = Math.sqrt(rnd()) * half,
+          ph = rnd() * 2 * Math.PI;
+        const v = dir.map(
+          (d, j) => d * Math.cos(th) + (u1[j] * Math.cos(ph) + u2[j] * Math.sin(ph)) * Math.sin(th),
+        );
+        const a = proj(v[0] * 0.03, v[1] * 0.03, v[2] * 0.03),
+          b = proj(...v.map((x) => x * cmeR * (0.85 + rnd() * 0.12)));
+        const g = ctx.createLinearGradient(a[0], a[1], b[0], b[1]);
+        g.addColorStop(0, 'rgba(255,160,90,0.0)');
+        g.addColorStop(0.6, 'rgba(255,130,70,0.05)');
+        g.addColorStop(1, 'rgba(255,120,90,0.16)');
+        ctx.strokeStyle = g;
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(a[0], a[1]);
+        ctx.lineTo(b[0], b[1]);
+        ctx.stroke();
+      }
+      // shell particles
+      for (let k = 0; k < 6500; k++) {
+        const th = Math.pow(rnd(), 0.8) * half,
+          ph = rnd() * 2 * Math.PI;
+        const edge = th / half;
+        const r = cmeR * (1 + gauss() * 0.035 - edge * edge * 0.12);
+        const v = dir.map(
+          (d, j) =>
+            (d * Math.cos(th) + (u1[j] * Math.cos(ph) + u2[j] * Math.sin(ph)) * Math.sin(th)) * r,
+        );
+        const p = proj(...v);
+        const hot = 0.4 + 0.6 * edge;
+        ctx.fillStyle = `rgba(255,${(110 + 80 * (1 - hot)) | 0},${(70 + 90 * hot) | 0},${0.06 + 0.22 * hot * rnd()})`;
+        const s = 0.6 + rnd() * 1.3;
+        ctx.fillRect(p[0], p[1], s, s);
+      }
+      ctx.restore();
+
+      // ---- Sun ----
+      const S = proj(0, 0, 0);
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      [
+        [360, 'rgba(255,140,60,0.10)'],
+        [170, 'rgba(255,170,80,0.22)'],
+        [80, 'rgba(255,200,120,0.45)'],
+        [34, 'rgba(255,235,190,0.9)'],
+      ].forEach(([r, c]) => {
+        const g = ctx.createRadialGradient(S[0], S[1], 0, S[0], S[1], r);
+        g.addColorStop(0, c);
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(S[0] - r, S[1] - r, 2 * r, 2 * r);
+      });
+      for (let k = 0; k < 70; k++) {
+        // corona rays
+        const a = rnd() * 2 * Math.PI,
+          l = 30 + Math.pow(rnd(), 2) * 120;
+        const g = ctx.createLinearGradient(
+          S[0],
+          S[1],
+          S[0] + Math.cos(a) * l,
+          S[1] + Math.sin(a) * l,
+        );
+        g.addColorStop(0, 'rgba(255,220,160,0.18)');
+        g.addColorStop(1, 'rgba(255,160,80,0)');
+        ctx.strokeStyle = g;
+        ctx.lineWidth = 0.8 + rnd() * 1.4;
+        ctx.beginPath();
+        ctx.moveTo(S[0], S[1]);
+        ctx.lineTo(S[0] + Math.cos(a) * l, S[1] + Math.sin(a) * l);
+        ctx.stroke();
+      }
+      ctx.restore();
+      ctx.save();
+      const core = ctx.createRadialGradient(S[0] - 3, S[1] - 3, 0, S[0], S[1], 13);
+      core.addColorStop(0, '#ffffff');
+      core.addColorStop(0.6, '#fff1cf');
+      core.addColorStop(1, '#ffc86b');
+      ctx.fillStyle = core;
+      ctx.beginPath();
+      ctx.arc(S[0], S[1], 12, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.restore();
+
+      // ---- Planets ----
+      const labels = document.getElementById('labels');
+      function label(txt, x, y, style = '') {
+        const d = document.createElement('div');
+        d.className = 'label';
+        d.textContent = txt;
+        d.style.cssText = `left:${x}px;top:${y}px;${style}`;
+        labels.appendChild(d);
+      }
+      for (const p of planets) {
+        const q = proj(p.a * Math.cos(p.t), p.a * Math.sin(p.t), 0);
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        const g = ctx.createRadialGradient(q[0], q[1], 0, q[0], q[1], p.r * 4);
+        g.addColorStop(0, p.c + '88');
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(q[0] - p.r * 4, q[1] - p.r * 4, p.r * 8, p.r * 8);
+        ctx.restore();
+        const b = ctx.createRadialGradient(q[0] - p.r * 0.4, q[1] - p.r * 0.4, 0, q[0], q[1], p.r);
+        b.addColorStop(0, '#ffffff');
+        b.addColorStop(0.35, p.c);
+        b.addColorStop(1, '#111a2a');
+        ctx.fillStyle = b;
+        ctx.beginPath();
+        ctx.arc(q[0], q[1], p.r, 0, 2 * Math.PI);
+        ctx.fill();
+        p.sx = q[0];
+        p.sy = q[1];
+        if (p.n !== 'Earth') label(p.n.toUpperCase(), q[0] + p.r + 7, q[1] - 7);
+      }
+
+      // ---- Earth focus: rings, approach trail, callout ----
+      const E = planets[2];
+      ctx.save();
+      ctx.strokeStyle = 'rgba(111,182,255,0.9)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(E.sx, E.sy, 13, 0, 2 * Math.PI);
+      ctx.stroke();
+      ctx.setLineDash([2, 4]);
+      ctx.strokeStyle = 'rgba(111,182,255,0.4)';
+      ctx.beginPath();
+      ctx.arc(E.sx, E.sy, 22, 0, 2 * Math.PI);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // approach trail (curved path passing Earth)
+      const t0 = [E.sx - 150, E.sy - 95],
+        t1 = [E.sx - 40, E.sy - 10],
+        t2 = [E.sx + 6, E.sy + 14];
+      const tg = ctx.createLinearGradient(t0[0], t0[1], t2[0], t2[1]);
+      tg.addColorStop(0, 'rgba(90,209,255,0)');
+      tg.addColorStop(1, 'rgba(160,230,255,0.95)');
+      ctx.strokeStyle = tg;
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(...t0);
+      ctx.quadraticCurveTo(...t1, ...t2);
+      ctx.stroke();
+      ctx.setLineDash([3, 5]);
+      ctx.strokeStyle = 'rgba(160,230,255,0.35)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(...t2);
+      ctx.quadraticCurveTo(E.sx + 40, E.sy + 32, E.sx + 110, E.sy + 44);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalCompositeOperation = 'lighter';
+      const ag = ctx.createRadialGradient(t2[0], t2[1], 0, t2[0], t2[1], 12);
+      ag.addColorStop(0, 'rgba(200,240,255,0.95)');
+      ag.addColorStop(1, 'rgba(90,209,255,0)');
+      ctx.fillStyle = ag;
+      ctx.fillRect(t2[0] - 12, t2[1] - 12, 24, 24);
+      ctx.restore();
+      // callout leader
+      ctx.save();
+      ctx.strokeStyle = 'rgba(232,236,245,0.35)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(E.sx + 16, E.sy - 10);
+      ctx.lineTo(E.sx + 58, E.sy - 52);
+      ctx.lineTo(E.sx + 120, E.sy - 52);
+      ctx.stroke();
+      ctx.restore();
+      const co = document.createElement('div');
+      co.className = 'callout';
+      co.style.cssText = `left:${E.sx + 126}px;top:${E.sy - 70}px`;
+      co.innerHTML =
+        '<div class="n">EARTH <span style="color:var(--cyan);font-weight:500">+ 2026 RX7</span></div><div class="d mono">0.82 LD · Sep 30 04:12 UTC</div>';
+      labels.appendChild(co);
+      // CME label
+      const cm = proj(...dir.map((v) => v * cmeR * 1.06));
+      const cl = document.createElement('div');
+      cl.className = 'callout';
+      cl.style.cssText = `left:${cm[0] + 12}px;top:${cm[1] - 36}px`;
+      cl.innerHTML =
+        '<div class="n" style="color:var(--orange)">CME · 1,240 km/s</div><div class="d mono">launched Sep 26 · 38° cone</div>';
+      labels.appendChild(cl);
+
+      // vignette
+      const vg = ctx.createRadialGradient(CX, CY, 380, CX, CY, 1050);
+      vg.addColorStop(0, 'rgba(0,0,0,0)');
+      vg.addColorStop(1, 'rgba(0,0,0,0.6)');
+      ctx.fillStyle = vg;
+      ctx.fillRect(0, 0, W, H);
+
+      // ---- Lens (focus close-up) ----
+      const lc = document.getElementById('lens'),
+        lx = lc.getContext('2d');
+      lx.scale(2, 2);
+      const LW = 294,
+        LH = 172,
+        ex = 118,
+        ey = 88;
+      const lbg = lx.createRadialGradient(ex, ey, 10, ex, ey, 260);
+      lbg.addColorStop(0, '#0a1224');
+      lbg.addColorStop(1, '#02040a');
+      lx.fillStyle = lbg;
+      lx.fillRect(0, 0, LW, LH);
+      for (let k = 0; k < 160; k++) {
+        lx.fillStyle = `rgba(220,230,255,${0.05 + rnd() * 0.35})`;
+        lx.fillRect(rnd() * LW, rnd() * LH, 0.8, 0.8);
+      }
+      // lunar distance ring
+      lx.setLineDash([2, 4]);
+      lx.strokeStyle = 'rgba(200,210,235,0.35)';
+      lx.lineWidth = 1;
+      lx.beginPath();
+      lx.ellipse(ex, ey, 70, 62, 0, 0, 2 * Math.PI);
+      lx.stroke();
+      lx.setLineDash([]);
+      // moon
+      lx.fillStyle = '#c9ccd6';
+      lx.beginPath();
+      lx.arc(ex - 58, ey - 35, 3.2, 0, 2 * Math.PI);
+      lx.fill();
+      lx.fillStyle = 'rgba(200,210,235,0.6)';
+      lx.font = '9.5px -apple-system, sans-serif';
+      lx.fillText('MOON', ex - 88, ey - 42);
+      // earth with day/night
+      lx.save();
+      lx.globalCompositeOperation = 'lighter';
+      const atm = lx.createRadialGradient(ex, ey, 18, ex, ey, 34);
+      atm.addColorStop(0, 'rgba(90,170,255,0.5)');
+      atm.addColorStop(1, 'rgba(0,0,0,0)');
+      lx.fillStyle = atm;
+      lx.fillRect(ex - 40, ey - 40, 80, 80);
+      lx.restore();
+      const eg = lx.createLinearGradient(ex - 20, ey - 10, ex + 20, ey + 10);
+      eg.addColorStop(0, '#9fd2ff');
+      eg.addColorStop(0.45, '#2f74c9');
+      eg.addColorStop(0.62, '#0c1d3d');
+      eg.addColorStop(1, '#050b18');
+      lx.fillStyle = eg;
+      lx.beginPath();
+      lx.arc(ex, ey, 20, 0, 2 * Math.PI);
+      lx.fill();
+      // city lights on night side
+      lx.save();
+      lx.beginPath();
+      lx.arc(ex, ey, 20, 0, 2 * Math.PI);
+      lx.clip();
+      for (let k = 0; k < 70; k++) {
+        const a = rnd() * 2 * Math.PI,
+          r = Math.sqrt(rnd()) * 19,
+          x = ex + Math.cos(a) * r,
+          y = ey + Math.sin(a) * r;
+        if (x - ex + (y - ey) * 0.5 > 5) {
+          lx.fillStyle = `rgba(255,200,120,${0.3 + rnd() * 0.6})`;
+          lx.fillRect(x, y, 0.8, 0.8);
+        }
+      }
+      // aurora hint
+      lx.globalCompositeOperation = 'lighter';
+      const au = lx.createRadialGradient(ex + 6, ey - 18, 0, ex + 6, ey - 18, 12);
+      au.addColorStop(0, 'rgba(75,227,160,0.55)');
+      au.addColorStop(1, 'rgba(0,0,0,0)');
+      lx.fillStyle = au;
+      lx.fillRect(ex - 10, ey - 32, 32, 28);
+      lx.restore();
+      // asteroid path
+      const p0 = [LW + 10, 10],
+        pc = [ex + 40, ey + 58],
+        p2 = [-10, LH - 6];
+      const pg = lx.createLinearGradient(p0[0], p0[1], p2[0], p2[1]);
+      pg.addColorStop(0, 'rgba(90,209,255,0.15)');
+      pg.addColorStop(0.55, 'rgba(140,225,255,0.95)');
+      pg.addColorStop(0.56, 'rgba(140,225,255,0.3)');
+      pg.addColorStop(1, 'rgba(140,225,255,0.05)');
+      lx.strokeStyle = pg;
+      lx.lineWidth = 1.4;
+      lx.beginPath();
+      lx.moveTo(...p0);
+      lx.quadraticCurveTo(...pc, ...p2);
+      lx.stroke();
+      // closest approach marker (t≈0.5 of the curve)
+      const qt = 0.5,
+        qx = (1 - qt) ** 2 * p0[0] + 2 * (1 - qt) * qt * pc[0] + qt * qt * p2[0],
+        qy = (1 - qt) ** 2 * p0[1] + 2 * (1 - qt) * qt * pc[1] + qt * qt * p2[1];
+      lx.setLineDash([2, 3]);
+      lx.strokeStyle = 'rgba(232,236,245,0.45)';
+      lx.beginPath();
+      lx.moveTo(ex, ey);
+      lx.lineTo(qx, qy);
+      lx.stroke();
+      lx.setLineDash([]);
+      lx.fillStyle = 'rgba(232,236,245,0.85)';
+      lx.font = '600 10px ui-monospace, Menlo, monospace';
+      lx.fillText('0.82 LD', (ex + qx) / 2 + 8, (ey + qy) / 2 + 4);
+      // asteroid current position (before closest approach)
+      const ct = 0.36,
+        cx2 = (1 - ct) ** 2 * p0[0] + 2 * (1 - ct) * ct * pc[0] + ct * ct * p2[0],
+        cy2 = (1 - ct) ** 2 * p0[1] + 2 * (1 - ct) * ct * pc[1] + ct * ct * p2[1];
+      lx.save();
+      lx.globalCompositeOperation = 'lighter';
+      const ag2 = lx.createRadialGradient(cx2, cy2, 0, cx2, cy2, 10);
+      ag2.addColorStop(0, 'rgba(210,245,255,1)');
+      ag2.addColorStop(1, 'rgba(90,209,255,0)');
+      lx.fillStyle = ag2;
+      lx.fillRect(cx2 - 10, cy2 - 10, 20, 20);
+      lx.restore();
+      lx.fillStyle = 'rgba(160,230,255,0.95)';
+      lx.font = '600 10px -apple-system, sans-serif';
+      lx.fillText('2026 RX7', cx2 + 9, cy2 - 6);
+      // scale bar
+      lx.fillStyle = 'rgba(200,210,235,0.55)';
+      lx.font = '9px ui-monospace, Menlo, monospace';
+      lx.fillRect(12, LH - 14, 40, 1);
+      lx.fillText('1 LD = 384,400 km', 58, LH - 11);
+      lx.fillStyle = 'rgba(200,210,235,0.55)';
+      lx.font = '9px -apple-system, sans-serif';
+      lx.fillText('FOCUS VIEW · EARTH-CENTRED', 12, 16);
+    </script>
+  </body>
+</html>
