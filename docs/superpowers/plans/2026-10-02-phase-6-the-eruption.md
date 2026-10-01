@@ -43,8 +43,8 @@ Fastify, zod 4, Vitest 5, fast-check.
 | #   | Task                                       | Issue | Format    | Status        |
 | --- | ------------------------------------------ | ----- | --------- | ------------- |
 | 1a  | DONKI on CCMC, key retired, re-recorded    | #85   | light     | ✅ #111       |
-| 1c  | Validate cache entries on first read       | #85   | light     | 🟨 in review  |
-| 1b  | Strict times, http(s) links, ENLIL arrival | #85   | light     | ⬜            |
+| 1c  | Validate cache entries on first read       | #85   | light     | ✅ #112       |
+| 1b  | Strict times, http(s) links, ENLIL arrival | #85   | light     | 🟨 in review  |
 | 2   | Engine: CME direction and Earth-in-cone    | #99   | full code | written later |
 | 3   | Engine: CME kinematics and arrival         | #100  | full code | written later |
 | 4   | CME picker + selected-CME store            | #101  | light     | written later |
@@ -138,8 +138,8 @@ decisions how many of the kept CMEs have an arrival (the sample for Task 3's tol
 
 **Acceptance:**
 
-- [ ] The two DONKI items in PROGRESS "Open questions" are removed and logged as decisions; the PR closes #85.
-- [ ] `npm run check` green.
+- [x] The two DONKI items in PROGRESS "Open questions" are removed and logged as decisions; the PR closes #85.
+- [x] `npm run check` green.
 
 ## Task 1c: Validate cache entries on first read
 
