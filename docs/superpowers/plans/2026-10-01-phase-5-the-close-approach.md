@@ -1776,6 +1776,27 @@ Phase 7). Browser check (Chrome 154, 1920 × 809 canvas, DPR 1, live data): Eart
 rows, e.g. (2026 SC) at (−0.06, 0.45), (2026 RQ34) at (0.20, −0.01); following (2026 SA8) through its pass 75.0 fps
 (median 13.3 ms, worst 14.4 ms, none over 20 ms over 8 s), Sun overview with it selected the same over 5 s.
 
+### Task 6d: Focus card scrolls in the wide layout
+
+Added during Task 7 (#96): the release stills (1920 × 809) showed the focus card running under the time bar, its
+Follow / Play approach buttons partly covered and its source line, which labels the drawn positions illustrative,
+out of reach. Only the drawers below 1100 px scrolled. Style-only task: acceptance checks, no code in the plan.
+
+**Files:**
+
+- Modify: `apps/web/src/styles.css`
+
+**Change:** the column scroll rule (`max-height: 100%; overflow-y: auto` on `.shell-column`) moves out of the
+`max-width: 1099.98px` query, so a column taller than the space above the time bar scrolls at every width.
+
+- [x] **Step 1: Browser check, wide layout** (1186 × 723, (2026 SA8) selected): the right column ends above the time
+      bar and scrolls to its end, showing the buttons and the whole source line; scrolling past the end does not zoom
+      the scene; scrolling and dragging over empty scene still zoom and orbit; the left column, which fits, does not
+      scroll.
+- [x] **Step 2: Browser check, drawer layout** (1024 × 768): unchanged; the Focus drawer ends above the time bar and
+      scrolls to its end without zooming the scene.
+- [x] **Step 3: `npm run check`**, then commit: `Let the side columns scroll in the wide layout`.
+
 ---
 
 ### Task 7: Exit verification and close-out
