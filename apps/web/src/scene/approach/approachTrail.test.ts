@@ -1,6 +1,16 @@
 import { planetElementsAt, writeGeocentricOffset } from '@perihelion/orbit';
 import { describe, expect, it } from 'vitest';
-import { TRAIL_POINTS, trailIndexAt, trailOffsetDays, writeTrail } from './approachTrail';
+import { closeApproachRow } from '../../test/closeApproachRow';
+import { crossingDays } from './approachTiming';
+import {
+  TRAIL_HALF_WINDOW_CROSSINGS,
+  TRAIL_POINTS,
+  trailForApproach,
+  trailIndexAt,
+  trailOffsetDays,
+  writeTrail,
+} from './approachTrail';
+import { elementsForApproach } from './asteroidPosition';
 
 const HALF_WINDOW_DAYS = 5;
 
@@ -46,5 +56,26 @@ describe('writeTrail', () => {
       expect(trail[index * 3 + 1]).toBeCloseTo(z, 6);
       expect(trail[index * 3 + 2]).toBeCloseTo(-y, 6);
     }
+  });
+});
+
+describe('trailForApproach', () => {
+  const approach = closeApproachRow();
+
+  it('writes the trail over ±8 crossing times of the selected pass', () => {
+    const halfWindowDays = TRAIL_HALF_WINDOW_CROSSINGS * crossingDays(approach);
+    const request = {
+      elements: elementsForApproach(approach),
+      approachJdTdb: approach.approachJdTdb,
+      halfWindowDays,
+    };
+    const trail = trailForApproach(approach);
+    expect(trail.halfWindowDays).toBe(halfWindowDays);
+    expect(trail.positions).toEqual(writeTrail(request, new Float32Array(TRAIL_POINTS * 3)));
+  });
+
+  it('is memoised by row identity, so the scene and the card share one array', () => {
+    expect(trailForApproach(approach)).toBe(trailForApproach(approach));
+    expect(trailForApproach({ ...approach })).not.toBe(trailForApproach(approach));
   });
 });
