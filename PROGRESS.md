@@ -1,7 +1,7 @@
 # PROGRESS
 
-**Current phase:** Phase 5: Shot 2: The Close Approach (in progress)
-**Last updated:** 2026-10-01
+**Current phase:** Phase 6: Shot 3: The Eruption (not started)
+**Last updated:** 2026-10-02
 
 ## Phase status
 
@@ -12,7 +12,7 @@
 | 2. Data layer                 | ✅ Done        |
 | 3. Scene foundation           | ✅ Done        |
 | 4. Shot 1: The Swarm          | ✅ Done        |
-| 5. Shot 2: The Close Approach | 🟨 In progress |
+| 5. Shot 2: The Close Approach | ✅ Done        |
 | 6. Shot 3: The Eruption       | ⬜ Not started |
 | 7. Polish & ship              | ⬜ Not started |
 
@@ -128,7 +128,27 @@ Plan: `docs/superpowers/plans/2026-10-01-phase-5-the-close-approach.md`. UI refe
 - [x] Earth-centred close-up in the focus card (illustrative, no Moon)
 - [x] Earth marker during an approach, so Earth is findable at any pass distance (found in exit verification)
 - [x] Focus card scrolls in the wide layout, so its actions and source line stay reachable (found in exit verification)
-- [ ] Exit verification: every listed approach plays end to end; HUD values match CAD exactly; 60 fps
+- [x] Exit verification: every listed approach plays end to end; HUD values match CAD exactly; 60 fps
+
+Exit criteria verified on `main` at `74725c7` (CI green, run 36927321821), measured on `phase-5/exit-verification`
+(the same code plus `PROGRESS.md` and plan notes), in Chrome 154 in a foreground window (1920×809 canvas at DPR 1)
+on an Apple M3 with 16 GB, macOS 26.5, live data (origin `fresh`, 19 approaches, 42,536-NEO catalog, trails on).
+The checks were scripted in the console (dev only, no app code), one approach per call, each capped at 30 s.
+
+- Every listed approach plays end to end (19/19): picked from the list, Play approach lands chasing in 2.51 s;
+  Earth's marker and the asteroid are in view on every frame to closest approach (263/263 per row); the bright trail
+  ends at the asteroid (within one trail sample, ≤ 1.7 % of the miss distance); paused at CAD's time, both are in
+  view, the countdown reads "now" and the close-up marker shows.
+- HUD values match CAD exactly (19/19): title, CAD's AU and km/s figures, km, LD, UTC time, the close-up's LD label
+  and its 512-point path, against each `/api/close-approaches` row. No row needed an SBDB lookup this week.
+- Frame times (Phase 4's method, 10 s per run): following (2026 SA8) through its pass, and the Sun overview with it
+  selected at 1 d/s: 75.0 fps (the display's cap), median 13.3 ms, worst 14.4 ms, no frame over 20 ms.
+- Engine vs CAD: the "Close approach" row in "Calibrated tolerances".
+- Task 6d (#97, styles only, found by this check, merged as `99474e6`): checked on its own at 1186 × 723 and
+  1024 × 768 (Task 6d entry below).
+- Not verified: the offline (snapshot) replay of two rows, deferred (decisions log, 2026-10-02).
+- Screenshot-worthy: two stills (the list with the focus card, and (2026 SA8) at closest approach with Earth in
+  frame), attached to the v0.5.0 release.
 
 Status (2026-10-01): plan merged in #82 (with the UI mockup applied, decision 7); issues #74–#81 and #83 (Task 6b).
 Task 0 (#74, app shell) in progress on `phase-5/app-shell`. Its review against `main` produced 11 proposals; the
@@ -231,6 +251,26 @@ the focus card ran under the time bar, hiding part of its buttons and its source
 data, (2026 SA8) selected): at 1186 × 723 the right column ends above the time bar and scrolls to its end with the
 buttons and source line in view, scrolling past the end leaves the camera unchanged, and scrolling and dragging
 over empty scene still zoom and orbit; at 1024 × 768 the drawer behaves as before.
+
+Task 7 (#81, exit verification) on `phase-5/exit-verification`, in progress (2026-10-02). Review proposals 1–7
+approved. Done so far (Chrome, live data, origin `fresh`, 19 rows): none needed an SBDB lookup (all 19 designations
+are in the 42,536-object catalog); every card matches its `/api/close-approaches` row exactly (title, CAD's AU and
+km/s strings, day, close-up LD label, 512-point path). Before Task 6c, 10 rows played end to end (flight lands in
+2.5 s, the countdown passes zero, the close-up marker shows), but paused at CAD's time Earth was visible only on
+(2026 SA8): that check added Task 6c. Rerun of all 19 rows on `main` after #94 (2026-10-02, Chrome, live data,
+origin `fresh`, 1920 × 809 at DPR 1; one row per console call, each capped at 30 s): every row picked from the list, every
+card matches its row (title, AU, km, LD, km/s, UTC time, close-up LD label, 512-point path); every flight lands
+chasing in 2.51 s; through the pass to CAD's time Earth's marker and the asteroid are in view on 263/263 frames per
+row, and the bright trail ends within 1.7 % of the miss distance of the asteroid (one trail sample); paused at
+CAD's time, both are in view, the countdown reads "now" and the close-up marker shows. Frame times on `main`
+(2026-10-02, same laptop, Chrome and window as Phase 4, tab visible, 10 s per run): following (2026 SA8) from Play
+approach (1 s warm-up) through closest approach, and the Sun overview with it still selected at 1 d/s (3.5 s
+warm-up, so the 2.5 s flight is done): each 750 frames, 75.0 fps, median 13.3 ms, worst 14.4 ms, none over 20 ms.
+Trackpad check at 1024 × 768 (2026-10-02): the Focus drawer scrolls to its end with the buttons and source line in
+view, scrolling past the end does not zoom, Play approach from the scrolled drawer leaves it in place, and the scene
+still zooms and orbits. The first release stills (1920 × 809) showed the card under the time bar in the wide
+layout, which added Task 6d; the stills were retaken after it. The offline (snapshot)
+replay of two rows is deferred (user decision, 2026-10-02).
 
 ## Phase 6–7
 
@@ -556,6 +596,9 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
 - Before Phase 6 shows CME times or renders CME links: DONKI times go through `Date.parse`, which reads a time without
   `Z` as local time (every recorded time has `Z`), so require an explicit `Z`; and `cmeSchema.link` accepts any string,
   so restrict it to http(s).
+- The server's SQLite cache is not checked against the schema on read, so an entry cached before a schema change is
+  served until its TTL ends (seen in Phase 5 Task 1). Proposed fix: validate each entry the first time a process reads
+  it and treat a failure as a miss.
 
 ## Known external issues
 
@@ -614,3 +657,6 @@ _None._
 - **2026-10-02:** The side columns scroll at every width, not only as drawers below 1100 px: a focus card taller
   than the space above the time bar otherwise hides its actions and the source line that labels the drawn positions
   illustrative.
+- **2026-10-02:** Phase 5's offline (snapshot) replay of two approaches is deferred (user decision): it is not a
+  `PLAN.md` exit criterion, and its behaviour (snapshot pill, past rows playable) is pinned by the Task 0 and Task 5
+  tests and the Phase 2 offline check.
