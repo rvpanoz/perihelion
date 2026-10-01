@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   SBDB_NEO_FIELDS,
   cadQuery,
+  sbdbObjectQuery,
   closeApproachWindow,
   cmeWindow,
   donkiCmeQuery,
@@ -24,14 +25,25 @@ describe('sbdbNeoQuery', () => {
 });
 
 describe('cadQuery', () => {
-  it('pins the distance cut-off and asks for full names over the window', () => {
+  it('pins the distance cut-off and asks for asteroids with full names and diameters', () => {
     const { baseUrl, params } = cadQuery({ startDate: '2026-09-21', endDate: '2026-10-05' });
     expect(baseUrl).toBe('https://ssd-api.jpl.nasa.gov/cad.api');
     expect(params).toEqual({
       'date-min': '2026-09-21',
       'date-max': '2026-10-05',
       'dist-max': '0.05',
+      kind: 'a',
       fullname: 'true',
+      diameter: 'true',
+    });
+  });
+});
+
+describe('sbdbObjectQuery', () => {
+  it('looks one object up by its exact designation, at full precision', () => {
+    expect(sbdbObjectQuery('2026 SY')).toEqual({
+      baseUrl: 'https://ssd-api.jpl.nasa.gov/sbdb.api',
+      params: { des: '2026 SY', 'full-prec': 'true' },
     });
   });
 });

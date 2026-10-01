@@ -20,7 +20,7 @@ const MAGNITUDE_DECIMALS = 2;
 
 type SbdbCells = Record<SbdbNeoField, Cell>;
 
-interface RawElements {
+export interface RawElements {
   epoch: number;
   e: number;
   a: number;
@@ -44,7 +44,7 @@ interface NeoRow {
   orbitClass: NeoOrbitClass;
 }
 
-type Elements = Omit<NeoRow, 'designation' | 'name' | 'absoluteMagnitude' | 'orbitClass'>;
+export type Elements = Omit<NeoRow, 'designation' | 'name' | 'absoluteMagnitude' | 'orbitClass'>;
 
 export function toNeoCatalog(response: JplColumnarResponse): NeoCatalog {
   const cells = readColumnarRows(response, SBDB_NEO_FIELDS);
@@ -91,7 +91,7 @@ function readRawElements(cells: SbdbCells): RawElements | null {
 }
 
 /** The engine rejects e ≥ 1 (Phase 1 decision), so unbound orbits are skipped here. */
-function toElements(raw: RawElements | null): Elements | null {
+export function toElements(raw: RawElements | null): Elements | null {
   if (raw === null) return null;
   const eccentricity = roundTo(raw.e, ELEMENT_DECIMALS);
   const semiMajorAxisAu = roundTo(raw.a, ELEMENT_DECIMALS);

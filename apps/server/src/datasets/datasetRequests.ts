@@ -1,24 +1,32 @@
 import {
+  type CloseApproach,
   DATASET_DATA_SCHEMAS,
   DEFAULT_CLOSE_APPROACH_DAYS,
   DEFAULT_CME_DAYS,
   type DatasetName,
+  type LookedUpOrbit,
+  type NeoCatalog,
   type UpstreamQuery,
   cadQuery,
   closeApproachWindow,
   cmeWindow,
   donkiCmeQuery,
   donkiCmeResponseSchema,
+  indexCatalogOrbits,
   jplColumnarResponseSchema,
   sbdbNeoQuery,
+  sbdbObjectQuery,
+  sbdbObjectResponseSchema,
   toCloseApproaches,
   toCmes,
+  toLookedUpOrbit,
   toNeoCatalog,
 } from '@perihelion/data';
 import type { Clock } from '../clock.js';
 import type { HttpClient } from '../upstream/httpClient.js';
 import { upstreamUrl } from '../upstream/upstreamUrl.js';
-import type { DatasetRequest } from './types.js';
+import { attachOrbits } from './approachOrbitJoin.js';
+import type { DatasetLogger, DatasetRequest } from './types.js';
 
 const HOUR_MS = 3_600_000;
 
@@ -35,11 +43,14 @@ export interface DatasetRequests {
   cmes(days: number): DatasetRequest;
 }
 
-interface DatasetRequestDependencies {
+export interface DatasetRequestDependencies {
   jpl: HttpClient;
   donki: HttpClient;
   clock: Clock;
   nasaApiKey: string;
+  /** The catalog the close approaches join by designation (the server's cached copy, or a fresh fetch). */
+  readNeoCatalog: () => Promise<NeoCatalog>;
+  logger: DatasetLogger;
 }
 
 export function createDatasetRequests(deps: DatasetRequestDependencies): DatasetRequests {
@@ -63,11 +74,31 @@ function closeApproachRequest(deps: DatasetRequestDependencies, days: number): D
   return datasetRequest({
     name: 'close-approaches',
     cacheKey: `close-approaches?days=${days}`,
-    fetchData: async () => {
-      const query = cadQuery(closeApproachWindow(deps.clock.now(), days));
-      return toCloseApproaches(jplColumnarResponseSchema.parse(await getJson(deps.jpl, query)));
-    },
+    fetchData: () => fetchCloseApproaches(deps, days),
   });
+}
+
+/** An empty window needs no catalog, so the list still works while the catalog is unavailable. */
+async function fetchCloseApproaches(
+  deps: DatasetRequestDependencies,
+  days: number,
+): Promise<CloseApproach[]> {
+  const query = cadQuery(closeApproachWindow(deps.clock.now(), days));
+  const approaches = toCloseApproaches(
+    jplColumnarResponseSchema.parse(await getJson(deps.jpl, query)),
+  );
+  if (approaches.length === 0) return [];
+  return attachOrbits({
+    approaches,
+    catalogOrbits: indexCatalogOrbits(await deps.readNeoCatalog()),
+    lookUpOrbit: (designation) => lookUpOrbit(deps.jpl, designation),
+    logger: deps.logger,
+  });
+}
+
+async function lookUpOrbit(jpl: HttpClient, designation: string): Promise<LookedUpOrbit | null> {
+  const body = await getJson(jpl, sbdbObjectQuery(designation));
+  return toLookedUpOrbit(sbdbObjectResponseSchema.parse(body));
 }
 
 function cmeRequest(deps: DatasetRequestDependencies, days: number): DatasetRequest {
