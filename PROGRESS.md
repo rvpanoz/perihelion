@@ -280,7 +280,7 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-6-the-eruption.md` (part 1: Task 
 - [x] DONKI migration: new CME endpoint, validation, re-recorded fixtures and snapshot (#85)
 - [x] Engine: CME direction from DONKI latitude/longitude, and whether Earth is inside the cone (#99)
 - [x] Engine: CME kinematics and arrival time at Earth (#100)
-- [ ] CME picker for the last 30 days + selected-CME store (#101)
+- [x] CME picker for the last 30 days + selected-CME store (#101)
 - [ ] CME particle shell on the GPU (#102)
 - [ ] Sun look: noise surface, limb darkening, corona (#103)
 - [ ] Earth look: day/night terminator and rim glow (#104)
@@ -726,3 +726,11 @@ _None._
   `KM_PER_AU` moved to `src/units.ts`, re-exported unchanged. The cross-check against the recording
   (`apps/server/src/datasets/cmeCrossCheck.test.ts`) measured 0 on all three checks, so all three assert exact
   equality (user-approved). The 13 ENLIL CMEs travel 1.99–3.77 days at a mean 417–790 km/s.
+- **2026-10-02:** The user authorized finishing Phase 6 in one go (Tasks 4–10): each task's plan section is written on
+  its own branch and lands with its code in one PR, merged once `npm run check` and CI are green; stop only on
+  failures, critical errors or performance drops.
+- **2026-10-02:** Task 4 (#101): an "Eruptions" list joins the left column (renamed "Events"), newest first, and a
+  CME card the right one. One shot at a time: picking a CME clears the approach and vice versa
+  (`src/shell/shotSelection.ts`). `ApproachSelection` became a generic `SelectionStore<T>`. Earth tag: ENLIL arrival,
+  else DONKI's cone at `time21_5` (inside/outside). The approach list's height drops from min(60vh, 560px) to
+  min(42vh, 480px) to share the column.

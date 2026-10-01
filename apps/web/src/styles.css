@@ -13,6 +13,7 @@
   --accent: #e8f4ff;
   --approach-accent: #5ad1ff;
   --approach-trail: #ffb347; /* the scene trail colour, ApproachScene APPROACH_COLOR */
+  --cme-accent: #ff8a4c; /* the mockup's --orange: eruptions */
   --status-live: #4be3a0;
   --status-warn: #ffc46b;
   --status-error: #ff7ab8;
@@ -274,8 +275,9 @@ p {
   padding: 8px 14px;
 }
 
+/* The approaches share the left column with the eruptions (Phase 6 Task 4), so each list scrolls in less height. */
 .approach-list {
-  max-height: min(60vh, 560px);
+  max-height: min(42vh, 480px);
   padding: 16px 12px 10px;
   overflow-y: auto;
 }
@@ -669,4 +671,43 @@ p {
   margin: 12px 0 0;
   color: var(--faint);
   font-size: 10.5px;
+}
+
+/* Eruptions (Phase 6 Task 4): the mockup's space-weather card and a list beside the approaches. */
+.approach-list.cme-list {
+  max-height: min(36vh, 340px);
+}
+
+.cme-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app-shell .cme-row[aria-pressed='true'] {
+  background: rgb(255 138 76 / 9%);
+  box-shadow: inset 0 0 0 1px rgb(255 138 76 / 30%);
+}
+
+.cme-tag-arrival {
+  color: var(--cme-accent);
+}
+
+.cme-badge {
+  color: var(--cme-accent);
+  background: rgb(255 138 76 / 12%);
+  box-shadow: inset 0 0 0 1px rgb(255 138 76 / 35%);
+}
+
+.cme-arrival {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  background: rgb(255 138 76 / 7%);
+  border-radius: 10px;
+}
+
+.src a {
+  color: var(--muted);
 }
