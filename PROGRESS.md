@@ -1,6 +1,6 @@
 # PROGRESS
 
-**Current phase:** Phase 5: Shot 2: The Close Approach (not started)
+**Current phase:** Phase 5: Shot 2: The Close Approach (in progress)
 **Last updated:** 2026-10-01
 
 ## Phase status
@@ -12,7 +12,7 @@
 | 2. Data layer                 | ✅ Done        |
 | 3. Scene foundation           | ✅ Done        |
 | 4. Shot 1: The Swarm          | ✅ Done        |
-| 5. Shot 2: The Close Approach | ⬜ Not started |
+| 5. Shot 2: The Close Approach | 🟨 In progress |
 | 6. Shot 3: The Eruption       | ⬜ Not started |
 | 7. Polish & ship              | ⬜ Not started |
 
@@ -114,7 +114,20 @@ with 16 GB, with the 42,535-NEO catalog and trails on; 10 s per run after a 1 s 
 - Screenshot-worthy: three stills (the Sun overview, Earth in the swarm, the opening's end frame with its caption),
   attached to the v0.4.0 release.
 
-## Phase 5–7
+## Phase 5: Shot 2: The Close Approach
+
+Plan: `docs/superpowers/plans/2026-10-01-phase-5-the-close-approach.md`.
+
+- [ ] App shell: layout regions around the canvas + data-status pill (fresh / stale / snapshot)
+- [ ] Close-approach rows carry an orbit (NEO catalog join, SBDB lookup for misses) and JPL's diameter
+- [ ] Diameter: JPL's when known, else estimated from H and labelled "est."
+- [ ] Close-approach list UI (from `/api/close-approaches`), with an empty state
+- [ ] Focused asteroid positioned by the CPU engine (float64) + trail; engine-vs-CAD closest-distance check
+- [ ] Selecting an approach: clock to the approach, camera flies to the asteroid and follows it through closest approach
+- [ ] HUD: JPL-reported distance (LD/AU/km), relative speed and date, plus diameter
+- [ ] Exit verification: every listed approach plays end to end; HUD values match CAD exactly; 60 fps
+
+## Phase 6–7
 
 Checklists will be expanded from `PLAN.md` when each phase starts.
 
