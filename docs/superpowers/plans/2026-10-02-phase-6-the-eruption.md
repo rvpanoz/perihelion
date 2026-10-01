@@ -47,10 +47,10 @@ Fastify, zod 4, Vitest 5, fast-check.
 | --- | ------------------------------------------ | ----- | --------- | ------------- |
 | 1a  | DONKI on CCMC, key retired, re-recorded    | #85   | light     | ✅ #111       |
 | 1c  | Validate cache entries on first read       | #85   | light     | ✅ #112       |
-| 1b  | Strict times, http(s) links, ENLIL arrival | #85   | light     | 🟨 in review  |
+| 1b  | Strict times, http(s) links, ENLIL arrival | #85   | light     | ✅ #113       |
 | 2   | Engine: CME direction and Earth-in-cone    | #99   | full code | ✅ #115, #116 |
-| 3   | Engine: CME kinematics and arrival         | #100  | full code | 🟨 3a review  |
-| 4   | CME picker + selected-CME store            | #101  | light     | written later |
+| 3   | Engine: CME kinematics and arrival         | #100  | full code | ✅ #118, #119 |
+| 4   | CME picker + selected-CME store            | #101  | light     | ✅            |
 | 5   | CME particle shell                         | #102  | full code | written later |
 | 6   | Sun look                                   | #103  | full code | written later |
 | 7   | Earth look                                 | #104  | full code | written later |
@@ -535,4 +535,49 @@ value is 0) for approval, then records them in PROGRESS "Calibrated tolerances".
       (39 of 77).
 - [x] 3b: tolerances measured, approved and recorded (exact, all three measured 0); `KM_PER_AU` unchanged for every
       importer.
-- [ ] `npm run check` green for each PR.
+- [x] `npm run check` green for each PR.
+
+---
+
+Tasks 4–10 were planned and run in one go on 2026-10-02: the user authorized finishing the whole phase, merging each
+PR once `npm run check` and CI are green, and asked to be told only of failures, critical errors or performance
+drops. Each task's section below is written on its own branch, first, and lands with that task's code in one PR.
+
+## Task 4: CME picker + selected-CME store (#101, light)
+
+Branch `phase-6/cme-picker`.
+
+**Decisions:**
+
+1. **One shot at a time.** Selecting a CME clears the selected approach (the camera leaves a followed asteroid for
+   Earth, as `clearApproach` does) and selecting an approach clears the CME, so the right column shows one card.
+   `src/shell/shotSelection.ts` holds both choices, with injectable targets like `playApproach.ts`.
+2. **One selection store.** `ApproachSelection`'s body becomes a generic `SelectionStore<T>`
+   (`src/state/selectionStore.ts`); `ApproachSelection` extends it unchanged, `CmeSelection` is the second user.
+3. **Where.** The left column, renamed "Events", gets an "Eruptions" panel under the approaches: newest first, with
+   each CME's start time (UTC), speed, half-angle and an Earth tag. The right column shows the CME card when a CME
+   is selected.
+4. **Earth tag (facts from DONKI first).** "Earth arrival predicted" when ENLIL predicts one (decision 2 of Task 3);
+   otherwise "Earth inside cone" or "Earth outside cone" from the engine's cone test (Task 2) at `time21_5`, i.e.
+   from DONKI's own cone. The card's arrival line: ENLIL's time as fact (UTC, with "glancing blow" / "minor
+   impact"), else "ENLIL: no Earth arrival predicted" (`enlilRunCount > 0`) or "No ENLIL run for this CME".
+5. **Card (mockup's space-weather card).** Title "Coronal mass ejection", start time; stats: speed (km/s, measured at
+   21.5 R☉ at `time21_5`), half-angle (° cone), direction (Stonyhurst "S12 W07": N/S latitude, W positive as DONKI);
+   the DONKI link; source line "NASA DONKI (CCMC) · the drawn shell illustrates DONKI's cone model". Watch eruption
+   comes with Task 9.
+6. The CME dataset joins the data-status pill.
+
+**Files:** `src/state/selectionStore.ts` (+ test), `src/approaches/approachSelection.ts`,
+`src/eruptions/cmeSelection.ts`, `cmeFormat.ts` (+ test), `cmeGeometry.ts` (+ test), `cmeCardModel.ts`
+(+ test), `CmeList.tsx` (+ test), `CmeCard.tsx` (+ test), `src/shell/shotSelection.ts` (+ test), `App.tsx`,
+`styles.css`, `src/test/cmeRow.ts`.
+
+**Tests:** format (UTC text, direction text incl. rounding to 0 → "N00"/"W00", arrival texts for the three cases);
+geometry (a cone pointing at Earth contains it, one 90° away does not); card model; list (loading, unavailable,
+empty, newest first, `aria-pressed` on the selected row); card (stats, link, arrival line); shot selection (each
+choice clears the other).
+
+**Acceptance:**
+
+- [x] Picking a CME shows its card; picking an approach replaces it; the scene runs as before.
+- [x] `npm run check` green.

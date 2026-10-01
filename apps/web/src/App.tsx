@@ -3,11 +3,14 @@ import { ApproachCard } from './approaches/ApproachCard';
 import { ApproachList } from './approaches/ApproachList';
 import { CloseUp } from './approaches/CloseUp';
 import { useSelectedApproach } from './approaches/approachSelection';
-import { followApproach, playApproach, selectApproach } from './approaches/playApproach';
+import { followApproach, playApproach } from './approaches/playApproach';
 import { type DatasetState, useDataset } from './data/useDataset';
 import { type NeoCatalogState, useNeoCatalog } from './data/useNeoCatalog';
 import { useNowMs } from './data/useNowMs';
 import { swarmStressCopiesFromUrl } from './dev/swarmStress';
+import { CmeCard } from './eruptions/CmeCard';
+import { CmeList } from './eruptions/CmeList';
+import { useSelectedCme } from './eruptions/cmeSelection';
 import { SceneCanvas } from './scene/SceneCanvas';
 import { FocusPicker } from './scene/camera/FocusPicker';
 import { OpeningCaption } from './scene/opening/OpeningCaption';
@@ -17,10 +20,12 @@ import { Brand } from './shell/Brand';
 import { DataStatusPill } from './shell/DataStatusPill';
 import { ShellColumn } from './shell/ShellColumn';
 import type { NamedDatasetState } from './shell/dataStatus';
+import { chooseApproach, chooseCme } from './shell/shotSelection';
 import { TimeControls } from './time/TimeControls';
 import { jdTdbFromUnixMs } from './time/timeController';
 
 type CloseApproachesState = DatasetState<'close-approaches'>;
+type CmesState = DatasetState<'cmes'>;
 
 /** Read once per load; production builds drop the dev-only stress tool entirely. */
 const SWARM_STRESS_COPIES = import.meta.env.DEV
@@ -31,6 +36,7 @@ const APPROACH_GROUPING_INTERVAL_MS = 30_000;
 export function App() {
   const neoCatalog = useNeoCatalog();
   const closeApproaches = useDataset('close-approaches');
+  const cmes = useDataset('cmes');
   const [showTrails, setShowTrails] = useState(true);
   const swarm =
     neoCatalog.status === 'ready'
@@ -41,8 +47,12 @@ export function App() {
   );
   return (
     <AppShell
-      top={<ShellTop neoCatalog={neoCatalog} closeApproaches={closeApproaches} />}
-      left={<ShellLeft closeApproaches={closeApproaches}>{swarmControls}</ShellLeft>}
+      top={<ShellTop neoCatalog={neoCatalog} closeApproaches={closeApproaches} cmes={cmes} />}
+      left={
+        <ShellLeft closeApproaches={closeApproaches} cmes={cmes}>
+          {swarmControls}
+        </ShellLeft>
+      }
       right={<ShellRight />}
       bottom={<TimeControls />}
     >
@@ -55,9 +65,10 @@ export function App() {
 interface ShellTopProps {
   neoCatalog: NeoCatalogState;
   closeApproaches: CloseApproachesState;
+  cmes: CmesState;
 }
 
-function ShellTop({ neoCatalog, closeApproaches }: ShellTopProps) {
+function ShellTop({ neoCatalog, closeApproaches, cmes }: ShellTopProps) {
   return (
     <>
       <Brand />
@@ -66,6 +77,7 @@ function ShellTop({ neoCatalog, closeApproaches }: ShellTopProps) {
         datasets={[
           neoCatalogStatus(neoCatalog),
           { label: 'Close approaches', state: closeApproaches },
+          { label: 'CMEs', state: cmes },
         ]}
       />
     </>
@@ -78,29 +90,41 @@ function ShellTop({ neoCatalog, closeApproaches }: ShellTopProps) {
  */
 function ShellLeft({
   closeApproaches,
+  cmes,
   children,
 }: {
   closeApproaches: CloseApproachesState;
+  cmes: CmesState;
   children: ReactNode;
 }) {
   const nowMs = useNowMs(APPROACH_GROUPING_INTERVAL_MS);
   const selected = useSelectedApproach();
+  const selectedCme = useSelectedCme();
   return (
-    <ShellColumn side="left" label="Asteroids">
+    <ShellColumn side="left" label="Events">
       <ApproachList
         state={closeApproaches}
         selected={selected}
         nowJdTdb={jdTdbFromUnixMs(nowMs)}
-        onSelect={selectApproach}
+        onSelect={chooseApproach}
       />
+      <CmeList state={cmes} selected={selectedCme} onSelect={chooseCme} />
       {children}
     </ShellColumn>
   );
 }
 
-/** The focus card for the selected row; with nothing selected the column stays empty so the scene shows through. */
+/** The card for the selected shot; with nothing selected the column stays empty so the scene shows through. */
 function ShellRight() {
   const selected = useSelectedApproach();
+  const selectedCme = useSelectedCme();
+  if (selectedCme !== undefined) {
+    return (
+      <ShellColumn side="right" label="Focus">
+        <CmeCard cme={selectedCme} />
+      </ShellColumn>
+    );
+  }
   if (selected === undefined) return null;
   return (
     <ShellColumn side="right" label="Focus">

@@ -1,7 +1,8 @@
 import type { CloseApproach } from '@perihelion/data';
 import type { ReactNode } from 'react';
+import { StatItem } from '../shell/StatItem';
 import { Countdown } from './Countdown';
-import { type CardStat, approachCard } from './approachCardModel';
+import { approachCard } from './approachCardModel';
 
 export interface ApproachCardProps {
   approach: CloseApproach;
@@ -23,7 +24,7 @@ export function ApproachCard({ approach, onFollow, onPlay, closeUp }: ApproachCa
       {closeUp}
       <dl className="stats">
         {card.stats.map((stat) => (
-          <Stat key={stat.label} stat={stat} />
+          <StatItem key={stat.label} stat={stat} />
         ))}
       </dl>
       <div className="focus-actions">
@@ -36,17 +37,5 @@ export function ApproachCard({ approach, onFollow, onPlay, closeUp }: ApproachCa
       </div>
       <p className="src">{card.source}</p>
     </section>
-  );
-}
-
-function Stat({ stat }: { stat: CardStat }) {
-  return (
-    <div className="stat" title={stat.tooltip}>
-      <dt className="k">{stat.label}</dt>
-      <dd className="v mono">
-        {stat.value}
-        {stat.detail && <small>{stat.detail}</small>}
-      </dd>
-    </div>
   );
 }
