@@ -1803,14 +1803,14 @@ out of reach. Only the drawers below 1100 px scrolled. Style-only task: acceptan
 
 Verification task: no new code unless a check fails (then stop and report, as CLAUDE.md requires).
 
-- [ ] **Step 1: Every listed approach plays end to end.** With live data: press Play approach on each row in the
+- [x] **Step 1: Every listed approach plays end to end.** With live data: press Play approach on each row in the
       list. For each, record: flight lands, asteroid on its trail, Earth in view through closest approach, the card
       and the close-up match the `/api/close-approaches` row. Include the rows that needed an SBDB lookup in Task 1 (Review Focus 1). Repeat
       for two rows with the server stopped (snapshot origin; Review Focus 4).
-- [ ] **Step 2: Frame times** as in Phase 4 (same machine and method): following the closest-approach row through
+- [x] **Step 2: Frame times** as in Phase 4 (same machine and method): following the closest-approach row through
       its pass and the Sun overview with an approach selected. Target ≥ 60 fps, no frame over 20 ms apart from known
       ones.
-- [ ] **Step 3: `PROGRESS.md`:** tick the Phase 5 items, add the evidence block (commit, CI run, browser, machine),
+- [x] **Step 3: `PROGRESS.md`:** tick the Phase 5 items, add the evidence block (commit, CI run, browser, machine),
       decisions made during the phase and the cross-check tolerance row; mark Phase 5 done and Phase 6 current.
 - [ ] **Step 4: `npm run check`**, commit, push, open the PR (`Closes #N` for the close-out issue).
 - [ ] **Step 5: After the user merges and CI on `main` is green:** close the Phase 5 milestone, tag the merge
