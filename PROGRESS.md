@@ -127,6 +127,7 @@ Plan: `docs/superpowers/plans/2026-10-01-phase-5-the-close-approach.md`. UI refe
 - [x] Focus card (HUD): JPL-reported distance (LD/AU/km), relative speed and date, plus diameter and class; Follow / Play approach
 - [x] Earth-centred close-up in the focus card (illustrative, no Moon)
 - [x] Earth marker during an approach, so Earth is findable at any pass distance (found in exit verification)
+- [x] Focus card scrolls in the wide layout, so its actions and source line stay reachable (found in exit verification)
 - [ ] Exit verification: every listed approach plays end to end; HUD values match CAD exactly; 60 fps
 
 Status (2026-10-01): plan merged in #82 (with the UI mockup applied, decision 7); issues #74–#81 and #83 (Task 6b).
@@ -223,6 +224,13 @@ selected, drawn over its disc (a depth-tested marker was hidden by the dark nigh
 user decision). The card's source line adds `· markers not to scale`. Browser check (2026-10-02, Chrome 154,
 1920 × 809, DPR 1, live data): Earth projects inside the view and its marker shows on all 10 rows; 75.0 fps following
 (2026 SA8) through its pass and in the Sun overview with it selected (median 13.3 ms, worst 14.4 ms, none over 20 ms).
+
+Task 6d (#96, card scroll) on `phase-5/wide-card-scroll`, added during Task 7: in the release stills (1920 × 809)
+the focus card ran under the time bar, hiding part of its buttons and its source line; only the drawers below
+1100 px scrolled. The column scroll rule now applies at every width. Browser check (2026-10-02, Chrome 154, live
+data, (2026 SA8) selected): at 1186 × 723 the right column ends above the time bar and scrolls to its end with the
+buttons and source line in view, scrolling past the end leaves the camera unchanged, and scrolling and dragging
+over empty scene still zoom and orbit; at 1024 × 768 the drawer behaves as before.
 
 ## Phase 6–7
 
@@ -603,3 +611,6 @@ _None._
 - **2026-10-02:** During an approach Earth has a fixed 8 px marker drawn over its disc, never depth-tested: the chase
   camera keeps Earth in frame, but its disc is sub-pixel beyond about 1 LD and can be on the night side. A ring sized
   to the disc, which would not cover a large lit disc, is left for Phase 7 polish.
+- **2026-10-02:** The side columns scroll at every width, not only as drawers below 1100 px: a focus card taller
+  than the space above the time bar otherwise hides its actions and the source line that labels the drawn positions
+  illustrative.
