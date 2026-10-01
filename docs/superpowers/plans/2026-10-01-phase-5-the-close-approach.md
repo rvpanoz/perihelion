@@ -885,6 +885,27 @@ function twoDigits(value: number): string {
 
 Maths task: full code. The cross-check tolerance is measured, not chosen (decision 5).
 
+As built (2026-10-01): these take precedence over the files and code below.
+
+1. `elementsFromDegrees` and `DegreeElements` live in `packages/orbit/src/degreeElements.ts`, and
+   `writeGeocentricOffset`, `closestApproach` and `findClosestApproach` in `packages/orbit/src/closestApproach.ts`
+   (code as below; the request type is named `GeocentricRequest`). Both are pure maths over the engine, and the
+   server-side cross-check needs them too. `DegreeElements` is a plain interface there, since the engine may not
+   import `@perihelion/data`; `ApproachOrbit` has the same shape. No web `orbitElements.ts` or
+   `approachGeometry.ts`.
+2. The cross-check is `apps/server/src/datasets/approachCrossCheck.test.ts`: it reuses the server's recorded CAD,
+   SBDB catalogue and SBDB lookup fixtures, and `apps/web` does not depend on `packages/fixtures`. The server gains
+   `@perihelion/orbit` as a dev dependency.
+3. Tolerance (approved): 15,700 km / 86 min, absolute. Measured worst 12,509 km (2026 RN15) and 68.8 min
+   (2026 SA8) × 1.25 over the 19 recorded rows; relative error reaches 2.77 % only for the closest pass (2026 SA8,
+   0.0025 AU), so a relative term would not fit.
+4. `ApproachScene` builds the two trail lines as three.js objects mounted with `<primitive>` (JSX `<line>` collides
+   with SVG's in the types), sharing one `BufferAttribute`, so the GPU holds one buffer; they are disposed when the
+   selection changes. Marker and trail are a placeholder amber (`#ffb347`) until the Task 6 card settles the
+   palette.
+5. Browser check: the jitter check at Earth zoom moves to Task 5, which follows the asteroid; at Earth's minimum
+   zoom the asteroid is off screen.
+
 **Files:**
 
 - Create: `apps/web/src/scene/orbitElements.ts`, `apps/web/src/scene/approach/approachTiming.ts`,

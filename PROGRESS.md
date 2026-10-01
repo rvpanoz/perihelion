@@ -122,7 +122,7 @@ Plan: `docs/superpowers/plans/2026-10-01-phase-5-the-close-approach.md`. UI refe
 - [x] Close-approach rows carry an orbit (NEO catalog join, SBDB lookup for misses), orbit class and JPL's diameter
 - [x] Diameter: JPL's when known, else a range estimated from H (albedo 0.25–0.05) and labelled "est."
 - [x] Close-approach list UI (from `/api/close-approaches`), with an empty state
-- [ ] Focused asteroid positioned by the CPU engine (float64) + trail; engine-vs-CAD closest-distance check
+- [x] Focused asteroid positioned by the CPU engine (float64) + trail; engine-vs-CAD closest-distance check
 - [ ] Selecting an approach: clock to the approach, camera flies to the asteroid and follows it through closest approach
 - [ ] Focus card (HUD): JPL-reported distance (LD/AU/km), relative speed and date, plus diameter and class; Follow / Play approach
 - [ ] Earth-centred close-up in the focus card (illustrative, no Moon)
@@ -165,34 +165,42 @@ Browser check (2026-10-01, Chrome, live data): 19 rows with the same names and o
 reports both datasets. From that check (user decisions): Coming is listed before Passed, and the dev FPS overlay
 moved out of the list's corner.
 
+Task 4 (#78, the asteroid on the engine) on `phase-5/approach-engine`. The degree conversion and the
+closest-approach search moved into `packages/orbit`, and the engine-vs-CAD cross-check runs in `apps/server` (plan
+Task 4, "As built"). Tolerance 15,700 km / 86 min approved (2026-10-01). Browser check (2026-10-01, Chrome, live
+data, 2019 AS2 at 4.48 LD): at the approach and ±1 d the marker sits on the trail and the bright part ends at it;
+75.0 fps, median 13.3 ms, worst 14.4 ms, no frame over 20 ms over 10 s at 1 d/s through the approach, camera on
+Earth at 0.025 AU. Jitter at close zoom is checked in Task 5, which follows the asteroid.
+
 ## Phase 6–7
 
 Checklists will be expanded from `PLAN.md` when each phase starts.
 
 ## Calibrated tolerances
 
-| Test                                   | Tolerance                    | Rationale                                                                                  |
-| -------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------ |
-| Planets vs Horizons: Mercury           | 31.4″ / 2.91″ / 2,250 km     | Measured 25.1″ / 2.33″ / 1,800 km × 1.25; Standish nominal 15″ / 1″ / 1,000 km             |
-| Planets vs Horizons: Venus             | 31.5″ / 1.88″ / 7,000 km     | Measured 25.2″ / 1.50″ / 5,600 km × 1.25; Standish nominal 20″ / 1″ / 4,000 km             |
-| Planets vs Horizons: EM barycentre     | 24.6″ / 2.03″ / 8,875 km     | Measured 19.7″ / 1.62″ / 7,100 km × 1.25; Standish nominal 20″ / 8″ / 6,000 km             |
-| Planets vs Horizons: Mars              | 73.5″ / 1.71″ / 30,125 km    | Measured 58.8″ / 1.37″ / 24,100 km × 1.25; Standish nominal 40″ / 2″ / 25,000 km           |
-| Planets vs Horizons: Jupiter           | 568″ / 8.88″ / 711,125 km    | Measured 454.6″ / 7.10″ / 568,900 km × 1.25; Standish nominal 400″ / 10″ / 600,000 km      |
-| Planets vs Horizons: Saturn            | 891″ / 28.7″ / 3,502,375 km  | Measured 712.7″ / 22.95″ / 2,801,900 km × 1.25; Standish nominal 600″ / 25″ / 1,500,000 km |
-| Planets vs Horizons: Uranus            | 127″ / 4.39″ / 1,676,875 km  | Measured 101.9″ / 3.51″ / 1,341,500 km × 1.25; Standish nominal 50″ / 2″ / 1,000,000 km    |
-| Planets vs Horizons: Neptune           | 73.9″ / 2.09″ / 1,571,375 km | Measured 59.1″ / 1.67″ / 1,257,100 km × 1.25; Standish nominal 10″ / 1″ / 200,000 km       |
-| Asteroids vs Horizons: Eros            | 7.06e-5 AU over ±120 d       | Measured 5.65e-5 AU × 1.25 (JPL#659)                                                       |
-| Asteroids vs Horizons: Apophis         | 2.44e-5 AU over ±120 d       | Measured 1.95e-5 AU × 1.25 (JPL#220)                                                       |
-| Asteroids vs Horizons: Bennu           | 4.31e-5 AU over ±120 d       | Measured 3.45e-5 AU × 1.25 (ORX_merged_DE424)                                              |
-| Asteroids vs Horizons: Ryugu           | 2.95e-5 AU over ±120 d       | Measured 2.36e-5 AU × 1.25 (JPL#270)                                                       |
-| Asteroids vs Horizons: Phaethon        | 6.15e-5 AU over ±120 d       | Measured 4.92e-5 AU × 1.25 (JPL#1003; e = 0.89, q = 0.14 AU)                               |
-| Asteroids vs Horizons: Aten            | 2.15e-5 AU over ±120 d       | Measured 1.72e-5 AU × 1.25 (JPL#149)                                                       |
-| Asteroids vs Horizons: Atira           | 4.18e-5 AU over ±120 d       | Measured 3.34e-5 AU × 1.25 (JPL#225)                                                       |
-| Asteroids vs Horizons: PLAN target     | 1e-3 AU within ±60 d         | PLAN.md target; worst measured 1.42e-5 AU (Eros), ~70× inside                              |
-| Asteroids: elements → state at epoch   | 1e-12 AU / 1e-12 AU/day      | Fixed bound (15 cm); measured ≤ 3e-15 AU / 6e-14 AU/day                                    |
-| Asteroids: Horizons Keplerian GM vs k² | 1e-11 relative               | Measured 5e-12                                                                             |
-| Swarm float32 vs engine: within ±10 yr | 1.71e-5 AU                   | Measured 1.37e-5 AU × 1.25 (2,006 NEOs, seed 20260930); 1 px ≈ 0.002 AU at the overview    |
-| Swarm float32 vs engine: 1800 / 2050   | 4.73e-4 AU                   | Measured 3.78e-4 AU × 1.25 (2,006 NEOs, seed 20260930); 1 px ≈ 0.002 AU at the overview    |
+| Test                                   | Tolerance                    | Rationale                                                                                   |
+| -------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------- |
+| Planets vs Horizons: Mercury           | 31.4″ / 2.91″ / 2,250 km     | Measured 25.1″ / 2.33″ / 1,800 km × 1.25; Standish nominal 15″ / 1″ / 1,000 km              |
+| Planets vs Horizons: Venus             | 31.5″ / 1.88″ / 7,000 km     | Measured 25.2″ / 1.50″ / 5,600 km × 1.25; Standish nominal 20″ / 1″ / 4,000 km              |
+| Planets vs Horizons: EM barycentre     | 24.6″ / 2.03″ / 8,875 km     | Measured 19.7″ / 1.62″ / 7,100 km × 1.25; Standish nominal 20″ / 8″ / 6,000 km              |
+| Planets vs Horizons: Mars              | 73.5″ / 1.71″ / 30,125 km    | Measured 58.8″ / 1.37″ / 24,100 km × 1.25; Standish nominal 40″ / 2″ / 25,000 km            |
+| Planets vs Horizons: Jupiter           | 568″ / 8.88″ / 711,125 km    | Measured 454.6″ / 7.10″ / 568,900 km × 1.25; Standish nominal 400″ / 10″ / 600,000 km       |
+| Planets vs Horizons: Saturn            | 891″ / 28.7″ / 3,502,375 km  | Measured 712.7″ / 22.95″ / 2,801,900 km × 1.25; Standish nominal 600″ / 25″ / 1,500,000 km  |
+| Planets vs Horizons: Uranus            | 127″ / 4.39″ / 1,676,875 km  | Measured 101.9″ / 3.51″ / 1,341,500 km × 1.25; Standish nominal 50″ / 2″ / 1,000,000 km     |
+| Planets vs Horizons: Neptune           | 73.9″ / 2.09″ / 1,571,375 km | Measured 59.1″ / 1.67″ / 1,257,100 km × 1.25; Standish nominal 10″ / 1″ / 200,000 km        |
+| Asteroids vs Horizons: Eros            | 7.06e-5 AU over ±120 d       | Measured 5.65e-5 AU × 1.25 (JPL#659)                                                        |
+| Asteroids vs Horizons: Apophis         | 2.44e-5 AU over ±120 d       | Measured 1.95e-5 AU × 1.25 (JPL#220)                                                        |
+| Asteroids vs Horizons: Bennu           | 4.31e-5 AU over ±120 d       | Measured 3.45e-5 AU × 1.25 (ORX_merged_DE424)                                               |
+| Asteroids vs Horizons: Ryugu           | 2.95e-5 AU over ±120 d       | Measured 2.36e-5 AU × 1.25 (JPL#270)                                                        |
+| Asteroids vs Horizons: Phaethon        | 6.15e-5 AU over ±120 d       | Measured 4.92e-5 AU × 1.25 (JPL#1003; e = 0.89, q = 0.14 AU)                                |
+| Asteroids vs Horizons: Aten            | 2.15e-5 AU over ±120 d       | Measured 1.72e-5 AU × 1.25 (JPL#149)                                                        |
+| Asteroids vs Horizons: Atira           | 4.18e-5 AU over ±120 d       | Measured 3.34e-5 AU × 1.25 (JPL#225)                                                        |
+| Asteroids vs Horizons: PLAN target     | 1e-3 AU within ±60 d         | PLAN.md target; worst measured 1.42e-5 AU (Eros), ~70× inside                               |
+| Asteroids: elements → state at epoch   | 1e-12 AU / 1e-12 AU/day      | Fixed bound (15 cm); measured ≤ 3e-15 AU / 6e-14 AU/day                                     |
+| Asteroids: Horizons Keplerian GM vs k² | 1e-11 relative               | Measured 5e-12                                                                              |
+| Swarm float32 vs engine: within ±10 yr | 1.71e-5 AU                   | Measured 1.37e-5 AU × 1.25 (2,006 NEOs, seed 20260930); 1 px ≈ 0.002 AU at the overview     |
+| Swarm float32 vs engine: 1800 / 2050   | 4.73e-4 AU                   | Measured 3.78e-4 AU × 1.25 (2,006 NEOs, seed 20260930); 1 px ≈ 0.002 AU at the overview     |
+| Close approach: engine vs CAD          | 15,700 km / 86 min           | Measured 12,509 km (2026 RN15) / 68.8 min (2026 SA8) × 1.25 over 19 recorded rows; absolute |
 
 Planet tolerances are heliocentric longitude / latitude / distance, the units of Standish's accuracy table
 (https://ssd.jpl.nasa.gov/planets/approx_pos.html): the worst case over the 27 fixture dates × 1.25
@@ -521,3 +529,9 @@ _None._
 - **2026-10-01:** The server's SQLite cache is not checked against the schema on read, so a pre-change entry is served
   until its TTL ends. For now the dev cache was cleared by hand (user decision); proposed fix: validate each cache
   entry the first time a process reads it and treat a failure as a miss.
+- **2026-10-01:** The degrees → radians conversion and the closest-approach search live in `packages/orbit`, not
+  `apps/web`: they are pure maths over the engine and the server's cross-check uses them. The engine-vs-CAD
+  cross-check runs in `apps/server`, next to the recorded fixtures it needs.
+- **2026-10-01:** Engine vs CAD tolerance is absolute (15,700 km / 86 min, user-approved): two-body motion omits
+  Earth's pull and the Standish Earth is the Earth–Moon barycentre (up to 4,670 km off), errors that do not shrink
+  with distance. The engine only places the marker and trail; distances, speeds and dates shown come from CAD.

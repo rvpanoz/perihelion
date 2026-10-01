@@ -1,3 +1,4 @@
+import { ApproachScene } from './approach/ApproachScene';
 import { CameraRigUpdater } from './camera/CameraRigUpdater';
 import { SolarSystem } from './bodies/SolarSystem';
 import { SimulationClock } from './SimulationClock';
@@ -12,6 +13,7 @@ export function SceneContents({ swarm }: { swarm: SwarmProps | undefined }) {
       <SimulationClock />
       <ambientLight intensity={AMBIENT_LIGHT_INTENSITY} />
       <SolarSystem />
+      <ApproachScene />
       {swarm && <Swarm {...swarm} />}
       <CameraRigUpdater />
     </>
