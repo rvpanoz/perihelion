@@ -1,6 +1,6 @@
 import { RECORDED_CAD_EMPTY, RECORDED_CAD_WINDOW } from '@perihelion/fixtures/upstream';
 import { describe, expect, it } from 'vitest';
-import { closeApproachSchema } from '../closeApproach';
+import { cadApproachSchema } from '../closeApproach';
 import { CAD_FIELDS, toCloseApproaches } from './cad';
 import { jplColumnarResponseSchema } from './cells';
 import { UpstreamFormatError } from './upstreamFormatError';
@@ -18,6 +18,8 @@ const ROW = [
   '< 00:01',
   null,
   '       (2026 AB)',
+  null,
+  null,
 ];
 
 function cadResponse(rows: (string | null)[][]) {
@@ -39,7 +41,7 @@ describe('toCloseApproaches', () => {
     expect(approaches.map((a) => a.distanceAu).toSorted(ascending)).toEqual(
       response.data.map((row) => Number(row[distIndex])).toSorted(ascending),
     );
-    for (const approach of approaches) closeApproachSchema.parse(approach);
+    for (const approach of approaches) cadApproachSchema.parse(approach);
   });
 
   it('sorts approaches by time', () => {
@@ -67,8 +69,31 @@ describe('toCloseApproaches', () => {
         infinityVelocityKmPerS: null,
         timeUncertainty: '< 00:01',
         absoluteMagnitude: null,
+        diameterKm: null,
+        diameterSigmaKm: null,
       },
     ]);
+  });
+
+  it("reads JPL's diameter and its sigma when CAD has them", () => {
+    const withDiameter = ROW.map((cell, index) => {
+      if (index === CAD_FIELDS.indexOf('diameter')) return '0.32';
+      return index === CAD_FIELDS.indexOf('diameter_sigma') ? '0.05' : cell;
+    });
+    expect(toCloseApproaches(cadResponse([withDiameter]))[0]).toMatchObject({
+      diameterKm: 0.32,
+      diameterSigmaKm: 0.05,
+    });
+  });
+
+  it('reads the recorded diameters as CAD printed them, null where CAD has none', () => {
+    const response = jplColumnarResponseSchema.parse(RECORDED_CAD_WINDOW);
+    const column = response.fields.indexOf('diameter');
+    const printed = response.data
+      .map((row) => row[column] ?? null)
+      .map((cell) => cell && Number(cell));
+    const read = toCloseApproaches(response).map((approach) => approach.diameterKm);
+    expect(read.toSorted()).toEqual(printed.toSorted());
   });
 
   it('rejects a row whose distance is not a number rather than guessing', () => {

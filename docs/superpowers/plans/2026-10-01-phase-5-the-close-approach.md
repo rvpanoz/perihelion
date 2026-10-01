@@ -55,7 +55,7 @@ Fastify, zod 4, Vitest 5, fast-check.
 ## Global Constraints
 
 - No AI/LLM calls anywhere in shipped code.
-- Tests never touch the network. Server tests use recorded responses in `packages/fixtures/src/recorded`; web tests
+- Tests never touch the network. Server tests use recorded responses in `packages/fixtures/upstream` (`@perihelion/fixtures/upstream`); web tests
   build approaches in code; nothing reads `apps/web/public/snapshot`.
 - Recordings and the snapshot change only by running `npm run record` / `npm run snapshot` (network, dev only),
   committed as generated. Never hand-edit them; never loosen a tolerance to make a test pass.
@@ -205,6 +205,37 @@ origin: DatasetOrigin; fetchedAt: string } | { status: 'unavailable' }`
 Data and server task: interfaces, test cases and acceptance checks; no full code. Read `recordUpstream.ts`, the
 server test helpers and `cells.ts` before starting; the review proposes exact names against them.
 
+**Review (2026-10-01):** all 12 proposals approved ("Include all. Go"); they are folded in below and take precedence
+over any older wording in this section.
+
+1. Recordings live in `packages/fixtures/upstream/`, exported from `@perihelion/fixtures/upstream`.
+2. The wiring is in `apps/server/src/datasets/createDatasets.ts`: `readNeoCatalog` parses
+   `(await service.read(requests.neos())).dataJson` with `neoCatalogSchema`. `writeSnapshot.ts` has no service and
+   uses one memoised `requests.neos().fetchData()`.
+3. `DatasetRequestDependencies` gains `logger: DatasetLogger` for dropped rows; the snapshot script passes `console`.
+4. Lookups use `des=<designation>` (exact), not `sstr` (a search string that can match names or several objects).
+5. SBDB's not-found answer is HTTP 200 `{ code: "200", message: "specified object was not found" }` with no
+   `orbit`: it drops the row (logged); any other body without `orbit` is a format error. Element `value`s and
+   `orbit.epoch` are strings (e.g. `".637565170804427"`), converted with a finite check.
+6. The 2026-09-28 recordings have no misses (all 32 CAD rows are in the full catalog), so the recorder saves a lookup
+   for the first CAD row regardless, one for `SBDB_NOT_FOUND_DESIGNATION = '2099 ZZ999'`, and one per real miss, in
+   one file `sbdb-object-lookups.json` keyed by designation. The miss test builds its catalog in code.
+7. `FakeUpstream` serves `/sbdb.api` bodies by their `des` parameter.
+8. DONKI moved (`api.nasa.gov/DONKI/CME` answers 301 to `ccmc.gsfc.nasa.gov/news/major-updates`), so the recorder
+   and the snapshot script take optional names (`npm run record -- cad sbdb-object`,
+   `npm run snapshot -- close-approaches`). The manifest keeps entries it did not re-record, each with its own
+   `recordedAt`. The DONKI recordings and snapshot stay as committed; the move is a separate issue.
+9. The join lives in `apps/server/src/datasets/approachOrbitJoin.ts`:
+   `attachOrbits({ approaches, catalogOrbits, lookUpOrbit })`, tested without HTTP.
+10. Misses are counted first: more than `MAX_ORBIT_LOOKUPS = 25` rejects before any lookup request.
+11. `cadQuery` adds `kind: 'a'` (asteroids only; comets are parked and absent from the catalog).
+12. `indexCatalogOrbits` maps each designation to `{ orbit, orbitClass }`.
+
+Found during execution: the 2026-10-01 CAD window has no diameters, so "diameter present" is tested on a row built in
+code; raw CAD rows validate against `cadApproachSchema` (the row before orbits), and the existing CAD tests' row gains
+the two diameter cells. A dataset cached before this schema change is served unchanged until its TTL ends; the dev
+cache was cleared by hand (user decision) and cache validation is proposed separately.
+
 **Files:**
 
 - Create: `packages/data/src/upstream/sbdbObject.ts`, `packages/data/src/approachOrbits.ts`, tests beside each
@@ -227,46 +258,47 @@ inclinationDeg, longitudeOfAscendingNodeDeg, argumentOfPerihelionDeg, meanAnomal
     `orbit: ApproachOrbit` and `orbitClass: NeoOrbitClass | null`. `toCloseApproaches` returns
     `CadApproach = Omit<CloseApproach, 'orbit' | 'orbitClass'>`. The class comes from the catalog's `orbitClass`
     column, or from the lookup's `object.orbit_class.code`; a code outside `NEO_ORBIT_CLASSES` gives `null`.
-  - `cadQuery(window)` adds `diameter: 'true'`; `CAD_FIELDS` adds `'diameter'`, `'diameter_sigma'`.
+  - `cadQuery(window)` adds `diameter: 'true'` and `kind: 'a'`; `CAD_FIELDS` adds `'diameter'`, `'diameter_sigma'`.
   - `SBDB_OBJECT_API_URL = 'https://ssd-api.jpl.nasa.gov/sbdb.api'`;
-    `sbdbObjectQuery(designation): UpstreamQuery` → `{ sstr: designation, 'full-prec': 'true' }`.
+    `sbdbObjectQuery(designation): UpstreamQuery` → `{ des: designation, 'full-prec': 'true' }`.
   - `sbdbObjectResponseSchema` (zod over `orbit.epoch` and `orbit.elements[{ name, value }]`; extra fields allowed)
     and `toApproachOrbit(response): ApproachOrbit | null` (null when an element is missing or e ≥ 1 after rounding,
     as `toElements` does for the catalog).
-  - `indexCatalogOrbits(catalog: NeoCatalog): ReadonlyMap<string, ApproachOrbit>` keyed by designation.
+  - `indexCatalogOrbits(catalog: NeoCatalog): ReadonlyMap<string, CatalogOrbit>` keyed by designation, where
+    `CatalogOrbit = { orbit: ApproachOrbit; orbitClass: NeoOrbitClass }`.
   - Server: `closeApproachRequest` takes a new dependency `readNeoCatalog: () => Promise<NeoCatalog>` (backed by
     `DatasetService.read(requests.neos())`), joins orbits, and calls `sbdbObjectQuery` sequentially for misses, at
     most `MAX_ORBIT_LOOKUPS = 25` per refresh (beyond that the refresh fails, as a format change would).
 
-- [ ] **Step 1: Re-record.** Extend `recordUpstream.ts`: CAD with `diameter=true`, then one `sbdb.api` response for
+- [x] **Step 1: Re-record.** Extend `recordUpstream.ts`: CAD with `diameter=true`, then one `sbdb.api` response for
       each recorded CAD designation absent from the recorded SBDB catalog, plus one known-not-found designation for
       the drop path. Run `npm run record` and commit the generated files as they are.
-- [ ] **Step 2: Write failing data tests:**
+- [x] **Step 2: Write failing data tests:**
   - `toCloseApproaches` on the new recording: `diameterKm`/`diameterSigmaKm` read when present, null when CAD leaves
     them null; existing CAD tests unchanged and still passing.
   - `toApproachOrbit` on a recorded lookup: elements equal the response's values rounded like the catalog
     (`ELEMENT_DECIMALS` / `ANGLE_DECIMALS`), `epochJdTdb` equals `orbit.epoch`.
-  - `toApproachOrbit` on the same response with `e` = `1.2` or with `ma` removed → null; with `orbit` missing →
-    the schema throws `ZodError`.
+  - `toApproachOrbit` on the same response with `e` = `1.2` or with `ma` removed → null; the recorded not-found
+    answer → not found (row dropped); any other body without `orbit` → the schema throws `ZodError`.
   - `indexCatalogOrbits` on a 2-row catalog built in code: both designations map to their columns' values,
     including `orbitClass`.
   - The lookup's class: `APO` in the recorded response → `'APO'`; the same response with code `MBA` → `null`.
-- [ ] **Step 3: Write failing server tests** (recorded responses, fake `HttpClient`):
+- [x] **Step 3: Write failing server tests** (recorded responses, fake `HttpClient`):
   - every CAD row found in the catalog → zero lookups, every row has `orbit`
   - one row missing from the catalog → exactly one `sbdb.api` request, for that designation; the row has the
     looked-up orbit (Review Focus 1)
   - lookup answers "not found" (recorded) → that row dropped, a warning logged, the rest served
   - lookup throws a network error → `fetchData` rejects (so `DatasetService` serves stale or snapshot)
-  - 26 misses → rejects without making a 26th request
-- [ ] **Step 4: Run** `npx vitest run packages/data apps/server`, expect FAIL.
-- [ ] **Step 5: Implement** the schema, CAD fields, SBDB object query and normaliser, catalog index and the server
+  - 26 misses → rejects without making any lookup request
+- [x] **Step 4: Run** `npx vitest run packages/data apps/server`, expect FAIL.
+- [x] **Step 5: Implement** the schema, CAD fields, SBDB object query and normaliser, catalog index and the server
       join; wire `readNeoCatalog` in `app.ts`.
-- [ ] **Step 6: Run the tests again**, expect PASS.
-- [ ] **Step 7: Refresh the snapshot** with `npm run snapshot`; check the new `close-approaches.json` validates
+- [x] **Step 6: Run the tests again**, expect PASS.
+- [x] **Step 7: Refresh the snapshot** with `npm run snapshot`; check the new `close-approaches.json` validates
       (the web's snapshot test, if any, or `loadDataset` against it in the browser) and commit it as generated.
-- [ ] **Step 8: Live check** (`npm run dev`): `curl -s localhost:<port>/api/close-approaches | jq '.data[0]'`
+- [x] **Step 8: Live check** (`npm run dev`): `curl -s localhost:<port>/api/close-approaches | jq '.data[0]'`
       shows `orbit` and the diameter fields; note in the PR how many rows needed a lookup.
-- [ ] **Step 9: `npm run check`**, then commit: `Attach orbits and JPL diameters to close-approach rows`.
+- [x] **Step 9: `npm run check`**, then commit: `Attach orbits and JPL diameters to close-approach rows`.
 
 ---
 

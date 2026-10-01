@@ -4,13 +4,11 @@ import {
   RECORDED_CAD_EMPTY,
   RECORDED_DONKI_CME_EMPTY,
   RECORDED_SBDB_NEO_SAMPLE,
+  RECORDED_SBDB_OBJECT_LOOKUPS,
   RECORDED_UPSTREAM_MANIFEST,
+  SBDB_NOT_FOUND_DESIGNATION,
 } from './upstream';
-
-const manifestSchema = z.object({
-  recordedAt: z.iso.datetime(),
-  files: z.record(z.string(), z.object({ url: z.url(), status: z.literal(200) })),
-});
+import { upstreamManifestSchema } from './upstreamManifest';
 
 describe('recorded upstream responses', () => {
   it('include an SBDB sample carrying the requested element fields', () => {
@@ -27,11 +25,24 @@ describe('recorded upstream responses', () => {
     expect(RECORDED_DONKI_CME_EMPTY).toEqual([]);
   });
 
-  it('list every recording in the manifest without an API key', () => {
-    const { files } = manifestSchema.parse(RECORDED_UPSTREAM_MANIFEST);
-    expect(Object.keys(files)).toHaveLength(6);
-    for (const { url } of Object.values(files)) {
-      expect(new URL(url).searchParams.get('api_key') ?? 'REDACTED').toBe('REDACTED');
+  it('include SBDB object lookups, one of them for a designation SBDB does not know', () => {
+    const lookups = z.record(z.string(), z.unknown()).parse(RECORDED_SBDB_OBJECT_LOOKUPS);
+    expect(Object.keys(lookups).length).toBeGreaterThanOrEqual(2);
+    expect(lookups[SBDB_NOT_FOUND_DESIGNATION]).toMatchObject({
+      message: 'specified object was not found',
+    });
+  });
+
+  it('list every recording in the manifest, each dated, without an API key', () => {
+    const { files } = upstreamManifestSchema.parse(RECORDED_UPSTREAM_MANIFEST);
+    expect(Object.keys(files)).toHaveLength(7);
+    for (const entry of Object.values(files)) {
+      expect(entry).toMatchObject({ recordedAt: expect.any(String), status: 200 });
+      const urls = entry.urls ?? (entry.url === undefined ? [] : [entry.url]);
+      expect(urls.length).toBeGreaterThan(0);
+      for (const url of urls) {
+        expect(new URL(url).searchParams.get('api_key') ?? 'REDACTED').toBe('REDACTED');
+      }
     }
   });
 });

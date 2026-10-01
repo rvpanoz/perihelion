@@ -1,3 +1,4 @@
+import { neoCatalogSchema } from '@perihelion/data';
 import { systemClock } from '../clock.js';
 import type { ServerConfig } from '../config.js';
 import { createUpstreamClients } from '../upstream/upstreamClients.js';
@@ -22,10 +23,17 @@ export function createDatasets(config: ServerConfig, logger: DatasetLogger): Dat
     logger,
   });
   const clients = createUpstreamClients(systemClock);
-  const requests = createDatasetRequests({
+  const requests: DatasetRequests = createDatasetRequests({
     ...clients,
     clock: systemClock,
     nasaApiKey: config.nasaApiKey,
+    readNeoCatalog: () => readServedNeoCatalog(service, requests),
+    logger,
   });
   return { service, requests, close: () => database.close() };
+}
+
+/** The catalog as the server serves it (cache, refresh or snapshot), so the join never fetches it twice. */
+async function readServedNeoCatalog(service: DatasetService, requests: DatasetRequests) {
+  return neoCatalogSchema.parse(JSON.parse((await service.read(requests.neos())).dataJson));
 }

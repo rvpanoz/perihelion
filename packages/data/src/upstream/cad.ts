@@ -1,4 +1,4 @@
-import type { CloseApproach } from '../closeApproach';
+import type { CadApproach } from '../closeApproach';
 import {
   type Cell,
   type JplColumnarResponse,
@@ -9,7 +9,7 @@ import {
   readString,
 } from './cells';
 
-/** Fields CAD returns with `fullname=true`. */
+/** Fields CAD returns with `fullname=true` and `diameter=true`. */
 export const CAD_FIELDS = [
   'des',
   'orbit_id',
@@ -23,17 +23,19 @@ export const CAD_FIELDS = [
   't_sigma_f',
   'h',
   'fullname',
+  'diameter',
+  'diameter_sigma',
 ] as const;
 type CadCells = Record<(typeof CAD_FIELDS)[number], Cell>;
 
 /** A bad row fails the whole list: these are displayed facts, so a partial list is worse than a fallback. */
-export function toCloseApproaches(response: JplColumnarResponse): CloseApproach[] {
+export function toCloseApproaches(response: JplColumnarResponse): CadApproach[] {
   return readColumnarRows(response, CAD_FIELDS)
     .map(toCloseApproach)
     .toSorted((a, b) => a.approachJdTdb - b.approachJdTdb);
 }
 
-function toCloseApproach(cells: CadCells): CloseApproach {
+function toCloseApproach(cells: CadCells): CadApproach {
   return {
     designation: readString(cells.des, 'des'),
     fullName: readString(cells.fullname, 'fullname'),
@@ -47,5 +49,7 @@ function toCloseApproach(cells: CadCells): CloseApproach {
     infinityVelocityKmPerS: readOptionalNumber(cells.v_inf, 'v_inf'),
     timeUncertainty: readOptionalString(cells.t_sigma_f),
     absoluteMagnitude: readOptionalNumber(cells.h, 'h'),
+    diameterKm: readOptionalNumber(cells.diameter, 'diameter'),
+    diameterSigmaKm: readOptionalNumber(cells.diameter_sigma, 'diameter_sigma'),
   };
 }

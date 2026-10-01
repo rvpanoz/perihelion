@@ -11,6 +11,7 @@ export interface DateWindow {
 }
 
 export const SBDB_QUERY_API_URL = 'https://ssd-api.jpl.nasa.gov/sbdb_query.api';
+export const SBDB_OBJECT_API_URL = 'https://ssd-api.jpl.nasa.gov/sbdb.api';
 export const CAD_API_URL = 'https://ssd-api.jpl.nasa.gov/cad.api';
 export const DONKI_CME_API_URL = 'https://api.nasa.gov/DONKI/CME';
 
@@ -54,6 +55,7 @@ export function sbdbNeoQuery(): UpstreamQuery {
   };
 }
 
+/** Asteroids only, like the catalog: comets are parked (PLAN.md) and would never find an orbit to join. */
 export function cadQuery(window: DateWindow): UpstreamQuery {
   return {
     baseUrl: CAD_API_URL,
@@ -61,9 +63,19 @@ export function cadQuery(window: DateWindow): UpstreamQuery {
       'date-min': window.startDate,
       'date-max': window.endDate,
       'dist-max': CAD_MAX_DISTANCE_AU,
+      kind: 'a',
       fullname: 'true',
+      diameter: 'true',
     },
   };
+}
+
+/**
+ * One object by exact designation (`des`, not the `sstr` search string, which can match names or several
+ * objects). https://ssd-api.jpl.nasa.gov/doc/sbdb.html
+ */
+export function sbdbObjectQuery(designation: string): UpstreamQuery {
+  return { baseUrl: SBDB_OBJECT_API_URL, params: { des: designation, 'full-prec': 'true' } };
 }
 
 /** DONKI takes the key in the query string, so any printed URL must go through redaction. */

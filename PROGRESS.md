@@ -119,7 +119,7 @@ with 16 GB, with the 42,535-NEO catalog and trails on; 10 s per run after a 1 s 
 Plan: `docs/superpowers/plans/2026-10-01-phase-5-the-close-approach.md`. UI reference: `docs/design/perihelion-mockup.html`.
 
 - [x] App shell: layout regions around the canvas + data-status pill (fresh / stale / snapshot)
-- [ ] Close-approach rows carry an orbit (NEO catalog join, SBDB lookup for misses), orbit class and JPL's diameter
+- [x] Close-approach rows carry an orbit (NEO catalog join, SBDB lookup for misses), orbit class and JPL's diameter
 - [ ] Diameter: JPL's when known, else a range estimated from H (albedo 0.25–0.05) and labelled "est."
 - [ ] Close-approach list UI (from `/api/close-approaches`), with an empty state
 - [ ] Focused asteroid positioned by the CPU engine (float64) + trail; engine-vs-CAD closest-distance check
@@ -137,7 +137,13 @@ one pill text pattern, interim homes for the existing controls, `.hud` → `.pan
 `DatasetState<'neos'>` (`data`, not `catalog`).
 Browser check (2026-10-01, Chrome, 1600 × 1000 and 1024 × 768): pill `Live · JPL · updated 13 h ago` with the
 server up and `Offline snapshot · JPL · from 29 Sep 2026` with it stopped; drawers below 1100 px; Tab reaches all
-16 controls; drags between panels still orbit the camera. Frame times unchanged from Phase 4. Next: Task 1 (#75).
+16 controls; drags between panels still orbit the camera. Frame times unchanged from Phase 4.
+
+Task 1 (#75, orbits on close-approach rows) on `phase-5/approach-orbits`, all 12 review proposals included. Live
+check (2026-10-01): 19 rows, all with an orbit (15 APO, 2 AMO, 2 ATE), none dropped, no lookups needed (the fresh
+catalog had every row); CAD reported no diameters this week. Known issue: a dataset cached before a schema change is
+served as-is until its TTL ends (seen live: old rows without `orbit`). Cleared the dev cache for now (user decision);
+validating cache entries on first read is the proposed fix. DONKI moved (#85, Phase 6). Next: Task 2 (#76).
 
 ## Phase 6–7
 
@@ -485,3 +491,13 @@ _None._
   Earth each 75.0 fps over 5 s, median 13.3 ms, worst 14.3 / 14.4 ms, no frame over 20 ms. Opening: 901 frames,
   median 13.3 ms, only the first frame (38 ms) over 20 ms. drei's `<Stats />` meter, pinned top-left by inline
   styles, is moved under the top bar (right edge above the timeline below 1100 px) so it no longer covers the brand.
+- **2026-10-01:** Close-approach rows join the NEO catalog by designation (CAD `des` = SBDB `pdes`); a miss is looked
+  up with `sbdb.api?des=…` (exact, not `sstr`), one at a time, at most 25 per refresh (more fails the refresh before
+  any lookup). SBDB's "not found" (HTTP 200, `message`) and an unusable orbit drop the row with a warning; a network
+  or format error fails the refresh. CAD is asked for `kind=a` (asteroids, like the catalog) and `diameter=true`.
+- **2026-10-01:** DONKI's CME endpoint moved (301 to CCMC, #85). `npm run record` and `npm run snapshot` now take
+  names (`record -- cad sbdb-object`, `snapshot -- close-approaches`) so one upstream can be refreshed while another
+  is down; the recordings manifest dates each file. The DONKI recordings and the CME snapshot stay as committed.
+- **2026-10-01:** The server's SQLite cache is not checked against the schema on read, so a pre-change entry is served
+  until its TTL ends. For now the dev cache was cleared by hand (user decision); proposed fix: validate each cache
+  entry the first time a process reads it and treat a failure as a miss.
