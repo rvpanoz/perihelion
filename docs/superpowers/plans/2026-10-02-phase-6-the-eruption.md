@@ -32,8 +32,10 @@ Fastify, zod 4, Vitest 5, fast-check.
    (`analysis.earthArrival`, with its glancing-blow and minor-impact flags) when it has an ENLIL run that predicts
    one, else `null`; ENLIL runs belong to an analysis (Task 1b review, 2026-10-02). When present it is the arrival time shown as fact and the time the drawn
    front reaches Earth (Task 3).
-8. **Ground truth for the CME direction (Task 2):** published worked examples (Hapgood 1992, _Planet. Space Sci._
-   40, 711), committed as a fixture with the source cited.
+8. **Ground truth for the CME direction (Task 2):** JPL Horizons, not Hapgood's worked examples (changed
+   2026-10-02: no published worked values could be verified). Horizons gives Earth's heliocentric ecliptic J2000
+   position and Earth's heliographic latitude B0 (the Sun's sub-observer latitude seen from Earth); with the IAU Sun
+   pole these fix the HEEQ frame. Hapgood (1992) stays the cited source of the formulas.
 9. **Arrival timing (Task 3):** with an ENLIL arrival, the drawn front is timed to reach Earth then; without one, it
    moves at the analysis speed from 21.5 R☉ at `time21_5` (constant speed) and the arrival is labelled "est.". The
    tolerance for "consistent with DONKI" is measured and proposed with evidence at Task 3, as in earlier phases.
@@ -45,7 +47,7 @@ Fastify, zod 4, Vitest 5, fast-check.
 | 1a  | DONKI on CCMC, key retired, re-recorded    | #85   | light     | ✅ #111       |
 | 1c  | Validate cache entries on first read       | #85   | light     | ✅ #112       |
 | 1b  | Strict times, http(s) links, ENLIL arrival | #85   | light     | 🟨 in review  |
-| 2   | Engine: CME direction and Earth-in-cone    | #99   | full code | written later |
+| 2   | Engine: CME direction and Earth-in-cone    | #99   | full code | ⬜ planned    |
 | 3   | Engine: CME kinematics and arrival         | #100  | full code | written later |
 | 4   | CME picker + selected-CME store            | #101  | light     | written later |
 | 5   | CME particle shell                         | #102  | full code | written later |
@@ -166,3 +168,204 @@ output and rejects an entry missing a required field, and rejects non-JSON; `Sql
 
 - [x] The cache item in PROGRESS "Open questions" is removed and logged as a decision.
 - [x] `npm run check` green.
+
+---
+
+## Task 2: Engine: CME direction and Earth-in-cone (#99)
+
+Maths-heavy, so full code. Two PRs: **2a** adds the Horizons Sun-orientation fixture (`phase-6/sun-fixtures`),
+**2b** adds the engine functions and their tests (`phase-6/cme-direction`).
+
+**Why the fixture proves the transform.** DONKI gives the cone axis in HEEQ (Stonyhurst) coordinates: z along the
+Sun's rotation axis, x where the solar equator meets the central meridian seen from Earth, y = z × x (solar west).
+That frame is fixed by two directions in ecliptic J2000: the Sun's pole, and the Sun→Earth line. The Sun→Earth line
+is an input (the engine's Earth–Moon barycentre; the ~4,700 km offset is 0.002° at 1 AU). The pole is the only
+modelled quantity, and it is pinned by Earth's heliographic latitude B0 = asin(ê · p̂): over a year B0 traces the
+pole's tilt (amplitude) and node (phase), so twelve monthly B0 values from Horizons check both. The handedness
+(y = west, so W30 is longitude +30°) is a convention, checked by unit test against Thompson (2006).
+
+### Task 2a: Horizons Sun-orientation fixture
+
+**Files (light format: interfaces and tests; read the existing generator first):**
+
+- `packages/fixtures/src/fixtureSpec.ts`: `SUN_SAMPLE_JD_TDB` = 0h on the 1st of each month of 2026 (12 dates, via
+  `julianDateOfNewYear`'s `Date.UTC` pattern); `EARTH_HORIZONS_ID = '399'` (Earth itself, not the EMB).
+- `packages/fixtures/src/horizonsQuery.ts`: `SUN_OBSERVER_PARAMS` and `buildSunObserverQuery(jdTtList)`:
+  `COMMAND='10'`, `CENTER='500@399'`, `EPHEM_TYPE=OBSERVER`, `QUANTITIES='14'` (observer sub-longitude/latitude),
+  `TIME_TYPE=TT` (observer tables accept no TDB; TT = TDB within 1.7 ms, decisions log 2026-09-28), `TLIST_TYPE=JD`,
+  `CAL_FORMAT=JD`, `ANG_FORMAT=DEG`, `EXTRA_PREC=YES`, `CSV_FORMAT=YES`, `OBJ_DATA=NO`, `MAKE_EPHEM=YES`.
+  Checked live on 2026-10-01: header `Date_________JDTT, , , ObsSub-LON, ObsSub-LAT,`; 2026-01-01 gives
+  B0 = −2.997476°.
+- `packages/fixtures/src/horizonsRecords.ts`: `toSunObserverRecord(row) → { jdTt, earthHeliographicLatitudeDeg }`
+  from `Date_________JDTT` and `ObsSub-LAT` (the Sun is a sphere in Horizons, so planetodetic = heliographic).
+- `packages/fixtures/src/fixtureSchema.ts`: `sunOrientationFixturesSchema = { source, observerSettings, ephemeris,
+samples: [{ jdTdb, earthPositionAu: vector3, earthHeliographicLatitudeDeg }] }`.
+- `packages/fixtures/src/generate.ts`: `generateSunOrientationFixtures(client)`: Earth (399) vectors on
+  `SUN_SAMPLE_JD_TDB` with the existing frame params, then the observer table on the same JDs; join by JD (both must
+  cover exactly the requested dates); one ephemeris across both.
+- `loaders.ts` / `golden.ts`: `loadSunOrientationFixtures()`, exported from the golden entry with its type.
+- `packages/fixtures/scripts/generateFixtures.ts`: takes set names like `record`/`snapshot` do
+  (`npm run fixtures -- sun`; no names = all, unknown name = error), so adding the Sun set never regenerates the
+  planet and asteroid ground truth. Write `data/sun-orientation.json` and commit it.
+
+**Tests (in `generate.test.ts` style, fake client, no network):** the observer query carries the params above; a
+fake observer table parses to records; the generator joins vectors and B0 by JD and rejects a missing date or a
+mixed ephemeris; the loader validates the committed file; the CLI's name parsing rejects an unknown set.
+
+### Task 2b: CME direction in the engine
+
+**Files:** create `packages/orbit/src/heliographic.ts`, `heliographic.test.ts`, `heliographic.golden.test.ts`;
+export from `packages/orbit/src/index.ts`.
+
+```ts
+// packages/orbit/src/heliographic.ts
+import { type Vector3, cross, dot, norm } from './vector3';
+
+const RAD_PER_DEG = Math.PI / 180;
+
+/**
+ * The Sun's north rotation pole in ICRF/J2000 equatorial coordinates: α0 = 286.13°, δ0 = 63.87°, with no drift
+ * (IAU WGCCRE 2015: Archinal et al. 2018, Celest. Mech. Dyn. Astron. 130:22, Table 1). Horizons' IAU_SUN frame
+ * uses the same pole.
+ */
+const SUN_POLE_RIGHT_ASCENSION_RAD = 286.13 * RAD_PER_DEG;
+const SUN_POLE_DECLINATION_RAD = 63.87 * RAD_PER_DEG;
+
+/** Obliquity of the ecliptic at J2000, 84381.448″ (IAU 1976): the value of Horizons' ecliptic J2000 frame. */
+const OBLIQUITY_J2000_RAD = (84_381.448 / 3600) * RAD_PER_DEG;
+
+/** A direction from the Sun's centre in HEEQ/Stonyhurst coordinates; longitude is positive toward solar west. */
+export interface HeliographicDirection {
+  latitudeRad: number;
+  longitudeRad: number;
+}
+
+/** DONKI's cone model: apex at the Sun's centre, axis along `axis`, angular half-width `halfAngleRad`. */
+export interface CmeCone {
+  axis: HeliographicDirection;
+  halfAngleRad: number;
+}
+
+/** Unit vector for a latitude/longitude on a frame's axes: x at longitude 0, z at latitude +90°. */
+function unitFromSpherical(latitudeRad: number, longitudeRad: number): Vector3 {
+  const cosLatitude = Math.cos(latitudeRad);
+  return [
+    cosLatitude * Math.cos(longitudeRad),
+    cosLatitude * Math.sin(longitudeRad),
+    Math.sin(latitudeRad),
+  ];
+}
+
+/** Equatorial → ecliptic J2000: a rotation about x by the obliquity (Meeus, Astronomical Algorithms, eq. 13.5–13.6). */
+function equatorialToEcliptic(vector: Readonly<Vector3>): Vector3 {
+  const cosObliquity = Math.cos(OBLIQUITY_J2000_RAD);
+  const sinObliquity = Math.sin(OBLIQUITY_J2000_RAD);
+  return [
+    vector[0],
+    cosObliquity * vector[1] + sinObliquity * vector[2],
+    -sinObliquity * vector[1] + cosObliquity * vector[2],
+  ];
+}
+
+/** HEEQ's z axis in heliocentric ecliptic J2000 (unit vector). */
+export const SUN_POLE_ECLIPTIC_J2000: Readonly<Vector3> = equatorialToEcliptic(
+  unitFromSpherical(SUN_POLE_DECLINATION_RAD, SUN_POLE_RIGHT_ASCENSION_RAD),
+);
+
+/**
+ * Earth's heliographic latitude B0: the angle of the Sun→Earth line above the solar equator. It is Earth's latitude
+ * in HEEQ (its HEEQ longitude is 0 by definition) and stays within ±7.25°, the solar equator's tilt.
+ */
+export function earthHeliographicLatitudeRad(earthPositionAu: Readonly<Vector3>): number {
+  return Math.asin(dot(earthPositionAu, SUN_POLE_ECLIPTIC_J2000) / norm(earthPositionAu));
+}
+
+/**
+ * HEEQ (Stonyhurst) direction → heliocentric ecliptic J2000 unit vector. HEEQ: z = the Sun's pole, x = the Sun→Earth
+ * line projected onto the solar equator, y = z × x, which points to solar west (the right-hand limb seen from Earth),
+ * so a source at W30 has longitude +30° (Hapgood 1992, Planet. Space Sci. 40, 711, §4; Thompson 2006, A&A 449, 791,
+ * §7). `earthPositionAu` is heliocentric ecliptic J2000 at the CME's time.
+ */
+export function heliographicToEcliptic(
+  direction: HeliographicDirection,
+  earthPositionAu: Readonly<Vector3>,
+  out: Vector3 = [0, 0, 0],
+): Vector3 {
+  const xAxis = heeqXAxis(earthPositionAu);
+  const yAxis = cross(SUN_POLE_ECLIPTIC_J2000, xAxis);
+  const [x, y, z] = unitFromSpherical(direction.latitudeRad, direction.longitudeRad);
+  const pole = SUN_POLE_ECLIPTIC_J2000;
+  out[0] = x * xAxis[0] + y * yAxis[0] + z * pole[0];
+  out[1] = x * xAxis[1] + y * yAxis[1] + z * pole[1];
+  out[2] = x * xAxis[2] + y * yAxis[2] + z * pole[2];
+  return out;
+}
+
+/** The Sun→Earth direction with its component along the pole removed: the solar equator's central meridian. */
+function heeqXAxis(earthPositionAu: Readonly<Vector3>): Vector3 {
+  const pole = SUN_POLE_ECLIPTIC_J2000;
+  const alongPole = dot(earthPositionAu, pole);
+  const inEquator: Vector3 = [
+    earthPositionAu[0] - alongPole * pole[0],
+    earthPositionAu[1] - alongPole * pole[1],
+    earthPositionAu[2] - alongPole * pole[2],
+  ];
+  const length = norm(inEquator);
+  return [inEquator[0] / length, inEquator[1] / length, inEquator[2] / length];
+}
+
+/**
+ * Angle between a HEEQ direction and Earth, which sits at (B0, 0) in HEEQ. atan2(|a × b|, a · b) keeps precision
+ * for small angles, where acos would not.
+ */
+export function angleFromEarthRad(
+  direction: HeliographicDirection,
+  earthLatitudeRad: number,
+): number {
+  const axis = unitFromSpherical(direction.latitudeRad, direction.longitudeRad);
+  const earth = unitFromSpherical(earthLatitudeRad, 0);
+  return Math.atan2(norm(cross(axis, earth)), dot(axis, earth));
+}
+
+/** Whether Earth's direction lies within the cone (edge inclusive). Distance plays no part in the cone model. */
+export function isEarthInsideCone(cone: CmeCone, earthLatitudeRad: number): boolean {
+  return angleFromEarthRad(cone.axis, earthLatitudeRad) <= cone.halfAngleRad;
+}
+```
+
+`heliographicToEcliptic` takes `(direction, earthPositionAu, out?)`: the optional `out` is the engine's hot-path
+convention, not a third argument to wrap (CLAUDE.md engine conventions).
+
+**Unit and property tests (`heliographic.test.ts`):**
+
+- `SUN_POLE_ECLIPTIC_J2000` is a unit vector at ecliptic latitude 82.75° (Carrington's 7.25° tilt) and ecliptic
+  longitude 345.76° (ascending node Ω = 75.76° at J2000 minus 90°; Hapgood 1992's node formula at J2000), each
+  within 0.01°: published constants that the IAU pole must reproduce.
+- `heliographicToEcliptic`: latitude 90° gives the pole; `(B0, 0)` with `B0 = earthHeliographicLatitudeRad(e)` gives
+  `e / |e|` (1e-12) for synthetic Earth positions; longitude +90° at latitude 0 gives `pole × x` (solar west);
+  results are unit vectors and the map preserves angles between directions (fast-check over latitude/longitude and
+  Earth's ecliptic longitude); it writes into and returns `out`.
+- `earthHeliographicLatitudeRad`: within ±7.25° (+1e-9) for the engine's EMB on every day of 2026; scale-free
+  (`e` and `3e` agree).
+- `angleFromEarthRad`: 0 at `(B0, 0)`; equals |longitude| when both latitudes are 0; symmetric in longitude sign;
+  within [0, π] (fast-check).
+- `isEarthInsideCone`: with B0 = 0, an axis at W30 is outside a 25° cone and inside a 35° one; the edge (30°) is
+  inside.
+
+**Golden test (`heliographic.golden.test.ts`), against `loadSunOrientationFixtures()`:**
+
+1. Pole check: `earthHeliographicLatitudeRad(sample.earthPositionAu)` (Horizons' Earth) vs Horizons'
+   `earthHeliographicLatitudeDeg`, worst over the 12 dates.
+2. End to end: the same with the engine's `planetStateAt('earthMoonBarycenter', jdTdb).positionAu`, which is what
+   the app will use.
+
+Expected agreement is about 0.001° (Horizons' B0 is light-time corrected, about 0.0007°; the EMB offset is about
+0.002°), but the tolerances are not guessed: the first run measures the worst error of each check, and Task 2b
+stops there to propose `measured × 1.25` with that evidence (the PROGRESS "Calibrated tolerances" rule).
+
+**Acceptance:**
+
+- [ ] 2a: `npm run fixtures -- sun` writes `sun-orientation.json` and leaves `planets.json` and `asteroids.json`
+      untouched; committed with its provenance.
+- [ ] 2b: tolerances measured, approved and recorded in PROGRESS "Calibrated tolerances".
+- [ ] `npm run check` green for each PR.

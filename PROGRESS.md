@@ -693,3 +693,7 @@ _None._
 - **2026-10-02:** ENLIL arrival sample for Task 3: of the 77 CMEs kept from the 2026-10-01 recording, 13 have an ENLIL
   Earth arrival (6 glancing blows, none minor); the CME snapshot (fetched 2026-10-01T22:31Z) matches. On the first
   dev start after the change, Task 1c dropped the pre-change `cmes?days=30` cache entry once and refetched.
+- **2026-10-02:** Ground truth for the CME direction (#99) is JPL Horizons, replacing Hapgood (1992)'s worked examples
+  (no published values could be verified; user-approved). Horizons gives Earth's heliocentric ecliptic J2000 position
+  and Earth's heliographic latitude B0 (observer table, quantity 14, TT only); with the IAU Sun pole (α 286.13°,
+  δ 63.87°) these fix the HEEQ frame. Plan part 2 adds a `sun` fixture set, generated on its own.
