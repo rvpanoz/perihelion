@@ -711,3 +711,7 @@ p {
 .src a {
   color: var(--muted);
 }
+
+.focus-actions .btn.cme-watch {
+  color: var(--cme-accent);
+}

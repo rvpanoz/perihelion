@@ -11,6 +11,7 @@ import { swarmStressCopiesFromUrl } from './dev/swarmStress';
 import { CmeCard } from './eruptions/CmeCard';
 import { CmeList } from './eruptions/CmeList';
 import { useSelectedCme } from './eruptions/cmeSelection';
+import { watchEruption } from './eruptions/watchEruption';
 import { SceneCanvas } from './scene/SceneCanvas';
 import { FocusPicker } from './scene/camera/FocusPicker';
 import { OpeningCaption } from './scene/opening/OpeningCaption';
@@ -121,7 +122,7 @@ function ShellRight() {
   if (selectedCme !== undefined) {
     return (
       <ShellColumn side="right" label="Focus">
-        <CmeCard cme={selectedCme} />
+        <CmeCard cme={selectedCme} onWatch={watchEruption} />
       </ShellColumn>
     );
   }

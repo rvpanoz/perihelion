@@ -11,9 +11,11 @@ import { bodyPositions } from '../bodies/bodyPositions';
 import { FRAME_PRIORITY } from '../framePriorities';
 import { setSceneOrigin } from '../sceneFrame';
 import { cameraRig } from './cameraRig';
+import { DirectedAim } from './directedAim';
 import { focusPositions } from './focusPositions';
 
 const chaseAim = new ChaseAim();
+const directedAim = new DirectedAim();
 const scratchGeocentricOffsetAu: Vector3 = [0, 0, 0];
 const scratchCameraOffset: Vector3 = [0, 0, 0];
 const scratchDirection: Vector3 = [0, 0, 0];
@@ -37,7 +39,9 @@ export function CameraRigUpdater() {
     setSceneOrigin(pose.originAu);
     const distanceAu = wasFlying ? pose.distanceAu : cameraDistanceAu;
     const chased = cameraRig.chasing ? approachSelection.selected : undefined;
+    const direction = wasFlying ? cameraRig.flightDirection : undefined;
     if (chased) aimChase(camera, { approach: chased, distanceAu });
+    else if (direction) aimDirected(camera, { direction, distanceAu });
     else if (wasFlying) camera.position.setLength(distanceAu);
     if (hasEnabledFlag(controls)) controls.enabled = !cameraRig.flying;
   }, FRAME_PRIORITY.cameraRig);
@@ -46,25 +50,48 @@ export function CameraRigUpdater() {
 
 /**
  * Both positions were updated this frame (`bodyPositions` priority), so their difference is the Earth→asteroid
- * line without propagating again. The direction is blended in over the flight (`ChaseAim`). The camera is turned
- * to face the focus here because the controls, which otherwise do it, are off during a flight.
+ * line without propagating again. The direction is blended in over the flight (`ChaseAim`).
  */
 function aimChase(camera: Camera, target: ChaseTarget): void {
-  const { position } = camera;
   writeDifference(asteroidPositionAu, bodyPositions.earthMoonBarycenter, scratchGeocentricOffsetAu);
-  scratchCameraOffset[0] = position.x;
-  scratchCameraOffset[1] = position.y;
-  scratchCameraOffset[2] = position.z;
   const frame = {
-    flightSerial: cameraRig.flightSerial,
-    easedProgress: cameraRig.flightEasedProgress,
-    cameraOffset: scratchCameraOffset,
+    ...flightFrame(camera),
     geocentricOffsetAu: scratchGeocentricOffsetAu,
     passNormal: passNormalForApproach(target.approach),
   };
-  const [x, y, z] = chaseAim.write(frame, scratchDirection);
+  placeCamera(camera, { direction: chaseAim.write(frame, scratchDirection), ...target });
+}
+
+/** A directed flight turns the camera onto its requested direction over the flight, facing the focus. */
+function aimDirected(
+  camera: Camera,
+  target: { direction: Readonly<Vector3>; distanceAu: number },
+): void {
+  const frame = { ...flightFrame(camera), toDirection: target.direction };
+  placeCamera(camera, { ...target, direction: directedAim.write(frame, scratchDirection) });
+}
+
+/** The running flight and where the last frame left the camera, as both aims read them. */
+function flightFrame(camera: Camera) {
+  const { position } = camera;
+  scratchCameraOffset[0] = position.x;
+  scratchCameraOffset[1] = position.y;
+  scratchCameraOffset[2] = position.z;
+  return {
+    flightSerial: cameraRig.flightSerial,
+    easedProgress: cameraRig.flightEasedProgress,
+    cameraOffset: scratchCameraOffset,
+  };
+}
+
+/** The camera is turned to face the focus here because the controls, which otherwise do it, are off in a flight. */
+function placeCamera(
+  camera: Camera,
+  target: { direction: Readonly<Vector3>; distanceAu: number },
+): void {
+  const [x, y, z] = target.direction;
   const { distanceAu } = target;
-  position.set(x * distanceAu, y * distanceAu, z * distanceAu);
+  camera.position.set(x * distanceAu, y * distanceAu, z * distanceAu);
   camera.lookAt(0, 0, 0);
 }
 

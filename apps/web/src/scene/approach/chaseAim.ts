@@ -1,6 +1,7 @@
 import type { Vector3 } from '@perihelion/orbit';
+import { DirectedAim } from '../camera/directedAim';
 import { sceneAxesFromEcliptic } from '../sceneFrame';
-import { writeChaseDirection, writeDirectionBlend, writeUnit } from './approachCamera';
+import { writeChaseDirection } from './approachCamera';
 
 export interface ChaseFrame {
   /** `cameraRig.flightSerial`: a new value is a new flight, so the starting view is captured again. */
@@ -21,22 +22,12 @@ const scratchChase: Vector3 = [0, 0, 0];
  * progress, so starting or retargeting a chase never swings the camera in one frame (Review Focus 3).
  */
 export class ChaseAim {
-  #flightSerial: number | undefined;
-  readonly #fromDirection: Vector3 = [0, 0, 1];
+  readonly #aim = new DirectedAim();
 
   /** Writes the unit direction from the asteroid to the camera, in scene axes. */
   write(frame: ChaseFrame, out: Vector3): Vector3 {
-    if (frame.flightSerial !== this.#flightSerial) {
-      this.#flightSerial = frame.flightSerial;
-      writeUnit(frame.cameraOffset, this.#fromDirection);
-    }
     writeChaseDirection(frame.geocentricOffsetAu, frame.passNormal, scratchChase);
     sceneAxesFromEcliptic(scratchChase, scratchChase);
-    const blend = {
-      fromDirection: this.#fromDirection,
-      toDirection: scratchChase,
-      eased: frame.easedProgress,
-    };
-    return writeDirectionBlend(blend, out);
+    return this.#aim.write({ ...frame, toDirection: scratchChase }, out);
   }
 }
