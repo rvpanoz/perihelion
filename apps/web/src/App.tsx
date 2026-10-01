@@ -1,6 +1,7 @@
 import { type ReactNode, useState } from 'react';
 import { ApproachCard } from './approaches/ApproachCard';
 import { ApproachList } from './approaches/ApproachList';
+import { CloseUp } from './approaches/CloseUp';
 import { useSelectedApproach } from './approaches/approachSelection';
 import { followApproach, playApproach, selectApproach } from './approaches/playApproach';
 import { type DatasetState, useDataset } from './data/useDataset';
@@ -103,7 +104,12 @@ function ShellRight() {
   if (selected === undefined) return null;
   return (
     <ShellColumn side="right" label="Focus">
-      <ApproachCard approach={selected} onFollow={followApproach} onPlay={playApproach} />
+      <ApproachCard
+        approach={selected}
+        onFollow={followApproach}
+        onPlay={playApproach}
+        closeUp={<CloseUp approach={selected} />}
+      />
     </ShellColumn>
   );
 }

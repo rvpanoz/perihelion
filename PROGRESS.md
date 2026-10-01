@@ -125,7 +125,7 @@ Plan: `docs/superpowers/plans/2026-10-01-phase-5-the-close-approach.md`. UI refe
 - [x] Focused asteroid positioned by the CPU engine (float64) + trail; engine-vs-CAD closest-distance check
 - [x] Selecting an approach: clock to the approach, camera flies to the asteroid and follows it through closest approach
 - [x] Focus card (HUD): JPL-reported distance (LD/AU/km), relative speed and date, plus diameter and class; Follow / Play approach
-- [ ] Earth-centred close-up in the focus card (illustrative, no Moon)
+- [x] Earth-centred close-up in the focus card (illustrative, no Moon)
 - [ ] Exit verification: every listed approach plays end to end; HUD values match CAD exactly; 60 fps
 
 Status (2026-10-01): plan merged in #82 (with the UI mockup applied, decision 7); issues #74–#81 and #83 (Task 6b).
@@ -205,6 +205,15 @@ steps about 8 h per update, coarser than the 86 min engine-vs-CAD bound, so zero
 coincide on screen. 75 fps (median 13.3 ms, worst 14.4 ms). `npm run check` green (708 tests). Not checked by me:
 wheel scrolling in the drawer (user to confirm). Noted, outside Task 6: during play the time bar's date lags the
 countdown by about 0.15 s; the dev FPS overlay covers the card's speed value.
+
+Task 6b (#83, Earth-centred close-up) on `phase-5/close-up`, review proposals 1–10 included (plan Task 6b,
+"Review"). The close-up is an SVG in the card's slot, filled from `App.tsx`; the pure maths is `closeUpModel.ts`
+(`./closeUp` and `./CloseUp` collided on the case-insensitive file system, as in Task 6); `trailForApproach` is
+shared by the scene and the card. Browser check (2026-10-01, Chrome, live data, 19 rows): the closest row, (2026 SA8)
+at CAD 0.99 LD, draws its closest point at 1.016 LD (0.6 px off), the farthest, (2026 SL7) at 17.59 LD, at
+17.575 LD; during Play approach the marker steps ~10.5 px per 8 h along the path and is hidden outside the trail
+window; 75 fps with the card shown (median 13.3 ms, worst 14.4 ms, none over 20 ms). `npm run check` green
+(724 tests). The card is ~200 px taller, so at small heights more of it sits below the drawer's scroll.
 
 ## Phase 6–7
 
@@ -578,3 +587,7 @@ _None._
 - **2026-10-01:** Engine vs CAD tolerance is absolute (15,700 km / 86 min, user-approved): two-body motion omits
   Earth's pull and the Standish Earth is the Earth–Moon barycentre (up to 4,670 km off), errors that do not shrink
   with distance. The engine only places the marker and trail; distances, speeds and dates shown come from CAD.
+- **2026-10-01:** The focus card's close-up (Task 6b) is a 2D schematic of the engine trail in its own pass plane,
+  centred on the Earth–Moon barycentre (≈ 0.012 LD from Earth's centre, not corrected), labelled illustrative. Only
+  the dashed closest-point label is a fact (CAD's LD). Its scale shows 4 miss distances above and below Earth, never
+  less than 1.25 LD, so the 1 LD ring stays whole; 1 LD is CNEOS's 384,400 km throughout.

@@ -1667,41 +1667,74 @@ without the Moon (decision 2).
 
 **Files:**
 
-- Create: `apps/web/src/approaches/closeUp.ts` (pure), `apps/web/src/approaches/CloseUp.tsx` (SVG), tests beside
-  `closeUp.ts`
-- Modify: `apps/web/src/approaches/ApproachCard.tsx` (fills the close-up slot); `asteroidPosition.ts` gains
-  `trailForApproach(approach)` (memoised by row identity like `elementsForApproach`), which `ApproachScene` then
-  reuses instead of calling `writeTrail` itself
+- Create: `apps/web/src/approaches/closeUpModel.ts` (pure), `apps/web/src/approaches/CloseUp.tsx` (SVG), tests
+  beside both
+- Modify: `apps/web/src/scene/approach/approachTrail.ts` gains `trailForApproach(approach)` (memoised by row
+  identity like `elementsForApproach`), which `ApproachScene` then reuses instead of calling `writeTrail` itself;
+  `apps/web/src/App.tsx` passes `closeUp={<CloseUp approach={selected} />}` to `ApproachCard` (the slot exists since
+  Task 6); `apps/web/src/styles.css`
 
 **Interfaces:**
 
-- Consumes: `writeTrail`, `TRAIL_POINTS`, `TRAIL_HALF_WINDOW_CROSSINGS`, `trailIndexAt`, `crossingDays` (Task 4);
-  `KM_PER_LUNAR_DISTANCE`, `distanceTexts` (Task 3); `KM_PER_AU`; `useTimeReadout()`.
+- Consumes: `writeTrail`, `TRAIL_POINTS`, `TRAIL_HALF_WINDOW_CROSSINGS`, `trailIndexAt`, `trailOffsetDays`
+  (`scene/approach/approachTrail.ts`), `elementsForApproach` (`scene/approach/asteroidPosition.ts`), `crossingDays`
+  (`scene/approach/approachTiming.ts`); `KM_PER_LUNAR_DISTANCE` (384,400 km, CNEOS), `distanceTexts` (Task 3);
+  `KM_PER_AU`; `useTimeReadout()`.
 - Produces:
+  - `trailForApproach(approach): TrailSamples`, where `TrailSamples = { positions: Float32Array; halfWindowDays:
+number }`, cached in a `WeakMap` by row
   - `closeUpPath(trail: Float32Array): CloseUpPath`, where `CloseUpPath = { points: Float64Array; closestIndex:
 number }`: the trail projected onto the pass plane, x along the motion at closest approach, y toward the closest
-    point, Earth at the origin (AU, 2 numbers per sample)
-  - `closeUpHalfWidthAu(distanceAu: number): number` = `max(4 · distanceAu, 1.25 LD)`, so the 1 LD ring is always in
-    view
+    point, Earth at the origin (AU, 2 numbers per sample). `closestIndex` is the sample nearest Earth, the first on a
+    tie. x follows the chord from the first sample to the last (the window is centred on the pass, so the chord is
+    parallel to the motion at closest approach; the closest sample's neighbours are ~1e-10 AU apart, below float32's
+    resolution); y is the closest point with its x part removed.
+  - `closeUpHalfSpanAu(distanceAu: number): number` = `max(4 · distanceAu, 1.25 LD)`, applied to the half-height (the
+    short side of 294 × 172), so the 1 LD ring is never clipped
+  - `closeUpPixelsPerAu(halfSpanAu)`, `closeUpPixelPoints(points, pixelsPerAu)`: SVG pixels, Earth at (147, 86),
+    y up
+  - `closeUpMarkerIndex(offsetDays, halfWindowDays): number | undefined`: `trailIndexAt` inside the window,
+    `undefined` outside it (no marker where the asteroid is not)
+  - `closeUpGeometry(approach): CloseUpGeometry`: pixels, their `"x,y"` texts, `closestIndex`, ring radius and
+    `halfWindowDays`, computed once per selection
 
-- [ ] **Step 1: Write failing tests for `closeUpPath`** on a straight-line trail built in code, offsets
+- [x] **Step 1: Write failing tests for `closeUpPath`** on a straight-line trail built in code, offsets
       `(d, 0, 0) + t · (0, v, 0)` at the `trailOffsetDays` sample times:
-  - `closestIndex` is the sample nearest `t = 0`
+  - `|trailOffsetDays(closestIndex)|` is the smallest offset (512 samples: 255 and 256 tie)
   - the closest point projects to `(≈0, d)`; every point has `y ≈ d` (a straight pass stays a straight line)
   - x increases with the sample index (the motion runs left to right)
   - a trail mirrored through Earth (`(−d, 0, 0) + t · (0, −v, 0)`) gives the same projected points (the frame is
     built from the trail, not from fixed axes)
-- [ ] **Step 2: Write failing tests for `closeUpHalfWidthAu`:** `0.0123456789` → `4 × 0.0123456789`;
-      `1e-4` → `1.25 × 384,398 / 149,597,870.7`.
-- [ ] **Step 3: Run**, expect FAIL; **implement**; run, expect PASS.
-- [ ] **Step 4: `CloseUp`** draws, in a 294 × 172 SVG like the mockup: Earth at the centre, a dashed 1 LD ring, the
-      projected path (bright up to now, faint after, split at `trailIndexAt(now − approach)`), the asteroid's marker
-      at that index, a dashed line from Earth to the closest point labelled with CAD's distance in LD (a fact, from
-      `distanceTexts`), the header `FOCUS VIEW · EARTH-CENTRED · ILLUSTRATIVE` and the scale `1 LD = 384,398 km`.
-      The path is computed once per selection; only the marker moves, at the 4 Hz readout.
-- [ ] **Step 5: Browser check:** for the closest and the farthest row the path bends around Earth, the marker
-      matches the main view's asteroid as time plays, and frame times are unchanged.
-- [ ] **Step 6: `npm run check`**, then commit: `Add an Earth-centred close-up to the focus card`.
+- [x] **Step 2: Write failing tests for `closeUpHalfSpanAu`:** `0.0123456789` → `4 × 0.0123456789`;
+      `1e-4` → `1.25 × 384,400 / 149,597,870.7`. Also: the pixel mapping, `closeUpMarkerIndex` inside / at the edges
+      of / outside the window, `closeUpGeometry`, and `trailForApproach` (equals `writeTrail` over ±8 crossings;
+      the same object for the same row).
+- [x] **Step 3: Run**, expect FAIL; **implement**; run, expect PASS.
+- [x] **Step 4: `CloseUp`** draws, in a 294 × 172 SVG like the mockup: Earth at the centre (a fixed-size symbol,
+      not to scale), a dashed 1 LD ring, the projected path (a faint full line under a bright one up to
+      `trailIndexAt(now − approach)`), the asteroid's marker at `closeUpMarkerIndex`, a dashed line from Earth to
+      the closest point labelled with CAD's distance in LD (a fact, from `distanceTexts`), the header
+      `FOCUS VIEW · EARTH-CENTRED · ILLUSTRATIVE` and the scale `1 LD = 384,400 km`. The path is computed once per
+      selection; only `PassProgress` (bright line and marker) follows the clock, at the 4 Hz readout. Markup tests:
+      the labels, a marker during the pass, none outside the window.
+- [x] **Step 5: Browser check:** for the closest and the farthest row the dashed line matches the LD label within
+      about a pixel (Earth's pull is not modelled, so the path is near straight, not bent); the marker steps along
+      the path as time plays and sits on the same sample as the main view's trail end; frame times are unchanged.
+- [x] **Step 6: `npm run check`**, then commit: `Add an Earth-centred close-up to the focus card`.
+
+Review against `main` (2026-10-01): proposals 1–10 approved and folded in above: LD is 384,400 km (user decision);
+the trail code lives in `scene/approach/`; `trailForApproach` returns the window too and sits in `approachTrail.ts`;
+the card slot already existed, so `App.tsx` fills it; the half-span fits the height; the closest-sample tie; no
+marker outside the window; a measurable browser check; small functions plus a tested pixel mapping; the Earth–Moon
+barycentre offset (≈ 0.012 LD) is noted, not corrected.
+
+As built (2026-10-01): the pure module is `closeUpModel.ts`, since `./closeUp` and `./CloseUp` are one file on the
+case-insensitive file system (as in Task 6); x follows the end-to-end chord, not the closest sample's neighbours
+(float32 resolution, above); `closeUpGeometry` holds the once-per-selection layout. The trail colour is a
+`--approach-trail` token equal to the scene's `APPROACH_COLOR`. Browser check (Chrome, live data): (2026 SA8),
+CAD 0.99 LD, drawn 1.016 LD (22.1 px against 21.5); (2026 SL7), CAD 17.59 LD, drawn 17.575 LD. During Play
+approach the marker moved 10.3–10.7 px per 8 h step (6.6 km/s, 10.9 px expected) and crossed Earth's centre line
+within 1.5 px of CAD's time. 75 fps with the card shown (median 13.3 ms, worst 14.4 ms, none over 20 ms over 5 s).
 
 ---
 

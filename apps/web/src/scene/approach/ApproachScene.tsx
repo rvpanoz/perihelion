@@ -14,18 +14,8 @@ import { timeStore } from '../../time/timeStore';
 import { bodyPositions } from '../bodies/bodyPositions';
 import { FRAME_PRIORITY } from '../framePriorities';
 import { writeSceneOffset } from '../sceneFrame';
-import { crossingDays } from './approachTiming';
-import {
-  TRAIL_HALF_WINDOW_CROSSINGS,
-  TRAIL_POINTS,
-  trailIndexAt,
-  writeTrail,
-} from './approachTrail';
-import {
-  asteroidPositionAu,
-  elementsForApproach,
-  updateAsteroidPosition,
-} from './asteroidPosition';
+import { trailForApproach, trailIndexAt } from './approachTrail';
+import { asteroidPositionAu, updateAsteroidPosition } from './asteroidPosition';
 
 const APPROACH_COLOR = '#ffb347';
 /** Illustrative: the real body is metres to kilometres across, sub-pixel at any useful zoom. */
@@ -105,14 +95,9 @@ function useTrailLines(approach: CloseApproach): TrailLines {
 }
 
 function buildTrailLines(approach: CloseApproach): TrailLines {
-  const halfWindowDays = TRAIL_HALF_WINDOW_CROSSINGS * crossingDays(approach);
-  const request = {
-    elements: elementsForApproach(approach),
-    approachJdTdb: approach.approachJdTdb,
-    halfWindowDays,
-  };
+  const { positions, halfWindowDays } = trailForApproach(approach);
   // One attribute in both geometries: three.js keys GPU buffers by attribute, so the lines share one upload.
-  const position = new BufferAttribute(writeTrail(request, new Float32Array(TRAIL_POINTS * 3)), 3);
+  const position = new BufferAttribute(positions, 3);
   return {
     faint: trailLine(position, TRAIL_OPACITY.faint),
     bright: trailLine(position, TRAIL_OPACITY.bright),
