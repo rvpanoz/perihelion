@@ -37,7 +37,8 @@ export interface CountdownParts {
 }
 
 /** Distances are JPL's; the drawn pass comes from our two-body propagation, so it is labelled as illustrative. */
-const SOURCE_TEXT = 'Distances from JPL CAD · drawn positions are a two-body illustration';
+const SOURCE_TEXT =
+  'Distances from JPL CAD · drawn positions are a two-body illustration · markers not to scale';
 const GROUPED_KM_PER_H = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
 const SECONDS_PER_HOUR = 3600;
 const SECONDS_PER_DAY = 86_400;

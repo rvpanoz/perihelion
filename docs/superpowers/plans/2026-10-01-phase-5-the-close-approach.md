@@ -1738,6 +1738,46 @@ within 1.5 px of CAD's time. 75 fps with the card shown (median 13.3 ms, worst 1
 
 ---
 
+### Task 6c: Earth marker during an approach (illustrative)
+
+Added during Task 7 (#93): at closest approach the chase camera has Earth in frame, but beyond about 1 LD Earth's
+disc is under a pixel, so on 9 of the first 10 rows Earth could not be seen. UI task: interfaces, test cases and
+acceptance checks.
+
+**Files:**
+
+- Modify: `apps/web/src/scene/approach/ApproachScene.tsx`, `apps/web/src/approaches/approachCardModel.ts` (and their
+  tests)
+- Create: `apps/web/src/scene/approach/ApproachScene.test.tsx`
+
+**Interfaces:**
+
+- `AsteroidMarker` becomes `FixedSizeMarker({ look, positionAu })`, where `MarkerLook = { name; color; sizePx;
+overBody? }`. It draws the asteroid (6 px, approach orange, depth-tested, unchanged) and Earth (8 px,
+  `BODY_APPEARANCE.earthMoonBarycenter.color`, at `bodyPositions.earthMoonBarycenter`), both only while an approach
+  is selected.
+- The Earth marker is drawn over Earth's disc (`depthTest` and `depthWrite` off, `renderOrder` 1): on some passes the
+  side of Earth facing the camera is in darkness, and a depth-tested marker was hidden by the dark disc (seen on
+  (2026 SC), 1.70 LD, disc ≈ 9 px).
+- The card's source line ends with `· markers not to scale`, so both markers are labelled illustrative.
+
+- [x] **Step 1: Tests** (`ApproachScene.test.tsx`, `@react-three/test-renderer` like `SolarSystem.test.tsx`): with an
+      approach selected and one frame advanced, `approach-earth-marker` sits at the barycentre's scene position, is
+      8 px, not size-attenuated, not depth-tested, drawn after the bodies, in Earth's colour; it is gone once the
+      selection is cleared. The card's source text test expects the new line.
+- [x] **Step 2: Browser check:** the first 10 rows paused at CAD's closest-approach time: Earth projects inside the
+      view on every one and the marker is visible; on (2026 SA8) it sits on the half-lit disc. Frame times unchanged.
+- [x] **Step 3: `npm run check`**, then commit: `Mark Earth during a close approach`.
+
+Review (2026-10-02): proposals 1–6 approved. As built: the first version let the disc hide the marker once the disc
+was larger (depth-tested at Earth's centre); the browser check showed a dark disc hiding it on (2026 SC), so the
+marker is now always drawn over the disc (user decision, option 1 of 3; a ring sized to the disc was left for
+Phase 7). Browser check (Chrome 154, 1920 × 809 canvas, DPR 1, live data): Earth in view (projected) on all 10
+rows, e.g. (2026 SC) at (−0.06, 0.45), (2026 RQ34) at (0.20, −0.01); following (2026 SA8) through its pass 75.0 fps
+(median 13.3 ms, worst 14.4 ms, none over 20 ms over 8 s), Sun overview with it selected the same over 5 s.
+
+---
+
 ### Task 7: Exit verification and close-out
 
 Verification task: no new code unless a check fails (then stop and report, as CLAUDE.md requires).
