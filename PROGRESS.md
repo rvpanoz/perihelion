@@ -118,7 +118,7 @@ with 16 GB, with the 42,535-NEO catalog and trails on; 10 s per run after a 1 s 
 
 Plan: `docs/superpowers/plans/2026-10-01-phase-5-the-close-approach.md`. UI reference: `docs/design/perihelion-mockup.html`.
 
-- [ ] App shell: layout regions around the canvas + data-status pill (fresh / stale / snapshot)
+- [x] App shell: layout regions around the canvas + data-status pill (fresh / stale / snapshot)
 - [ ] Close-approach rows carry an orbit (NEO catalog join, SBDB lookup for misses), orbit class and JPL's diameter
 - [ ] Diameter: JPL's when known, else a range estimated from H (albedo 0.25–0.05) and labelled "est."
 - [ ] Close-approach list UI (from `/api/close-approaches`), with an empty state
@@ -129,20 +129,15 @@ Plan: `docs/superpowers/plans/2026-10-01-phase-5-the-close-approach.md`. UI refe
 - [ ] Exit verification: every listed approach plays end to end; HUD values match CAD exactly; 60 fps
 
 Status (2026-10-01): plan merged in #82 (with the UI mockup applied, decision 7); issues #74–#81 and #83 (Task 6b).
-Next: Task 0 (#74, app shell). Its review against `main` is done and awaits the user's choice of these proposals:
-
-1. Needed: the pill replaces `SwarmStatus` (its loading/unavailable states and the NEO count move into the pill).
-2. Needed: define `NamedDatasetState = { label: string; state: DatasetState<DatasetName> }`.
-3. Needed: the shell is one CSS grid over the canvas with `pointer-events: none`; only panels take events.
-4. Needed: `useNowMs(30_000)` refreshes the pill's "updated … ago" (not per frame).
-5. Recommended: one pill pattern, `Live · JPL · updated 12 min ago` / `Cached · …` / `Offline snapshot · JPL · from …`.
-6. Recommended: interim homes: `FocusPicker` top centre, `SwarmControls` foot of the left column, `TimeControls`
-   in the bottom timeline panel.
-7. Recommended: the `.hud` class becomes the mockup's `.panel` on the shared tokens.
-8. Recommended: below 1100 px the columns become `<details>` panels.
-9. Recommended: `--faint` lightened to a computed ≥ 4.5:1 contrast, recorded in the PR.
-10. Recommended: a `Brand` component with the mockup's inline SVG and tagline.
-11. Optional: a render test for the pill (`SwarmControls.test.tsx` setup).
+Task 0 (#74, app shell) in progress on `phase-5/app-shell`. Its review against `main` produced 11 proposals; the
+user approved all of them (2026-10-01) and they are folded into the plan's Task 0: the pill replaces `SwarmStatus`
+(count included), `NamedDatasetState` (with an optional `summary`), one pointer-transparent CSS grid, `useNowMs(30_000)`,
+one pill text pattern, interim homes for the existing controls, `.hud` → `.panel`, `<details>` columns below
+1100 px, `--faint` at ≥ 4.5:1, a `Brand` component and a pill render test. `useNeoCatalog` now returns the generic
+`DatasetState<'neos'>` (`data`, not `catalog`).
+Browser check (2026-10-01, Chrome, 1600 × 1000 and 1024 × 768): pill `Live · JPL · updated 13 h ago` with the
+server up and `Offline snapshot · JPL · from 29 Sep 2026` with it stopped; drawers below 1100 px; Tab reaches all
+16 controls; drags between panels still orbit the camera. Frame times unchanged from Phase 4. Next: Task 1 (#75).
 
 ## Phase 6–7
 
@@ -479,3 +474,14 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
 ## Blockers
 
 _None._
+
+- **2026-10-01:** The data-status pill replaces `SwarmStatus`. It shows the worst state across datasets (unavailable >
+  snapshot > stale > loading > live), aged by the oldest dataset in that state and refreshed every 30 s (`useNowMs`),
+  and expands (a `<details>`, so keyboard-reachable) to one line per dataset; the NEO count lives in that line.
+- **2026-10-01:** The shell is one CSS grid over the canvas with `pointer-events: none`; only `.panel`s take events.
+  Below 1100 px the columns are `<details>` drawers, remounted when the breakpoint flips. `--faint` is `#787e90`
+  (4.80:1 against `--panel` composited on `--bg`; the mockup's `#5b6378` was 3.24:1).
+- **2026-10-01:** Shell frame times (Task 0 browser check, same laptop as Phase 4, tab visible): Sun overview and
+  Earth each 75.0 fps over 5 s, median 13.3 ms, worst 14.3 / 14.4 ms, no frame over 20 ms. Opening: 901 frames,
+  median 13.3 ms, only the first frame (38 ms) over 20 ms. drei's `<Stats />` meter, pinned top-left by inline
+  styles, is moved under the top bar (right edge above the timeline below 1100 px) so it no longer covers the brand.

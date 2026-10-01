@@ -10,8 +10,9 @@ export function OpeningCaption({ neoCount }: { neoCount: number | undefined }) {
   const phase = useSyncExternalStore(openingStore.subscribe, () => openingStore.phase);
   if (neoCount === undefined) return null;
   return (
-    <p className="hud opening-caption" data-phase={phase}>
-      {openingCaptionText(neoCount)}
-    </p>
+    <div className="caption opening-caption" data-phase={phase}>
+      <p className="caption-kicker">THE SWARM</p>
+      <p className="caption-text">{openingCaptionText(neoCount)}</p>
+    </div>
   );
 }
