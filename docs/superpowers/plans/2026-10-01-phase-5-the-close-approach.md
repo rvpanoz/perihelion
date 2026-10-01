@@ -7,8 +7,9 @@ it through closest approach, with a trail, while a HUD shows JPL's own distance,
 
 **Architecture:** The server attaches an orbit to every CAD row (from its cached NEO catalog, or one SBDB lookup
 per object the catalog lacks), so every listed approach is playable. The web app loads `/api/close-approaches`
-through `loadDataset`, lists the rows in a side panel of a minimal app shell, and on selection sets the clock to just
-before the approach and flies the camera rig to the asteroid. The asteroid is positioned every frame by the float64
+through `loadDataset` and lists the rows in the left column of an app shell styled after the mockup. Selecting a
+row opens a focus card: **Follow** flies the camera rig to the asteroid, **Play approach** also sets the clock to
+just before the pass. The asteroid is positioned every frame by the float64
 engine (`stateAtTime`), never by the swarm shader. Every number in the list and HUD is a CAD value or an exact unit
 conversion of one; the drawn geometry is a two-body illustration.
 
@@ -17,11 +18,15 @@ Fastify, zod 4, Vitest 5, fast-check.
 
 **Spec:** `PLAN.md` § Phase 5, plus decisions approved while planning (2026-10-01):
 
-1. **App shell, partial.** Task 0 adds the shell layout (canvas full-bleed, top bar, side panel, bottom bar) and a
-   data-status pill. Shot tabs, the event timeline and blurred panels are Phase 7. The mockup HTML is not used.
-2. **No Earth-centred inset.** It needs a Moon model the engine lacks; deferred, to be decided later.
-3. **Diameter.** CAD is asked for `diameter=true`; JPL's diameter (± sigma) is shown when present. Otherwise it is
-   estimated from H with an assumed albedo and labelled "est.". No orbit class on the rows.
+1. **App shell, partial, styled after the mockup.** Task 0 adds the shell layout (canvas full-bleed, top bar, left
+   and right columns, bottom bar), the mockup's design tokens and panel style, and a data-status pill. The reference
+   is `docs/design/perihelion-mockup.html` (added 2026-10-01), adapted as listed in decision 7. Shot tabs, the event
+   timeline, the orbit-class legend, the icon buttons and optional panel blur are Phase 7.
+2. **Earth-centred close-up without the Moon.** Task 6b draws the mockup's close-up as a 2D schematic of the Task 4
+   trail around Earth with a 1 LD ring, labelled illustrative. The mockup's Moon waits for a Moon model.
+3. **Diameter and class.** CAD is asked for `diameter=true`; JPL's diameter (± sigma) is shown when present.
+   Otherwise it is estimated from H as a range over geometric albedo 0.25–0.05 (the CNEOS convention) and labelled
+   "est.", e.g. `est. 16–36 m`. Each row also carries its SBDB orbit class, from the catalog join or the lookup.
 4. **Orbits for approaches (option B).** The server joins each CAD row to its cached NEO catalog by designation and
    looks up any miss individually in the SBDB API, so newly discovered objects are playable too. A lookup that
    finds no usable orbit drops that row (logged); a network failure fails the refresh, so the cache or snapshot is
@@ -32,6 +37,20 @@ Fastify, zod 4, Vitest 5, fast-check.
    engine-derived distance.
 6. **Units.** CAD reports AU. km uses `KM_PER_AU` (IAU 2012, exact); LD uses 1 LD = 384,398 km (JPL CNEOS; confirm
    the constant against CNEOS at Task 3 review). Conversions are exact multiplications, never re-derived distances.
+7. **Mockup adaptations** (approved 2026-10-01):
+   - Times are shown in UTC, converted from CAD's TDB with the engine's `jdUtcFromJdTdb` and rounded to the
+     minute; CAD's own TDB string stays in the tooltip.
+   - The list covers ±7 days, grouped as "Passed" and "Coming" by the wall clock; the mockup's "next 7 days" is not
+     what CAD is asked for.
+   - One LD constant everywhere (the mockup's lens says 384,400 km).
+   - The focus card leads with LD rounded to 2 decimals and keeps CAD's full AU on the line beneath, with km.
+   - Orbit-class colours stay as shipped in Phase 4 (`SWARM_CLASS_COLORS`); the UI accent is ice white `#e8f4ff`,
+     which matches no class (the mockup's cyan accent is also its Apollo colour).
+   - Panels are near-opaque without `backdrop-filter`; blur becomes a Phase 7 quality option after measurement.
+   - The layout is responsive (the mockup is fixed at 1600 × 1000); below 1100 px the columns collapse to drawers.
+   - The mockup's `--faint` text is lightened to at least 4.5:1 contrast; rows, tabs and buttons are real buttons.
+   - The focus card has two actions: **Follow** flies to the asteroid at the current time, **Play approach** also
+     sets the clock to the pass. Selecting a row only selects it and opens the card.
 
 ## Global Constraints
 
@@ -57,8 +76,8 @@ Fastify, zod 4, Vitest 5, fast-check.
    only in the snapshot): it must still be listed and playable. Pinned in Task 1 (lookup path) and Task 7 (browser).
 2. **An empty CAD window** (no approaches within 0.05 AU in ±7 days): the list shows an empty state, the shell and
    swarm keep working. Pinned in Task 3.
-3. **Selecting an approach while a flight is running, or picking a second one mid-follow**: the camera retargets
-   without jumping and the clock lands on the new approach. Pinned in Task 5.
+3. **Pressing Follow or Play approach while a flight is running, or for a second asteroid mid-follow**: the camera
+   retargets without jumping and, for Play approach, the clock lands on the new pass. Pinned in Task 5.
 4. **A snapshot-origin list whose approaches are all in the past**: rows stay playable (the clock moves to them)
    and the pill says the data is a snapshot. Pinned in Tasks 0 and 5.
 5. **A very close pass** (distance below a few Earth radii, e.g. 2029 Apophis-like 2.5e-4 AU): the follow camera
@@ -68,27 +87,28 @@ Fastify, zod 4, Vitest 5, fast-check.
 
 ## File structure
 
-| File                                                  | Responsibility                                                   | Task |
-| ----------------------------------------------------- | ---------------------------------------------------------------- | ---- |
-| `apps/web/src/data/useDataset.ts` (new)               | Generic load-once hook over `loadDataset` (from `useNeoCatalog`) | 0    |
-| `apps/web/src/data/useNeoCatalog.ts`                  | Becomes a thin wrapper over `useDataset('neos')`                 | 0    |
-| `apps/web/src/shell/AppShell.tsx` (new)               | Layout regions around the full-bleed canvas                      | 0    |
-| `apps/web/src/shell/dataStatus.ts` (new)              | Pure: dataset states → pill tone and text                        | 0    |
-| `apps/web/src/shell/DataStatusPill.tsx` (new)         | Renders `dataStatus` output                                      | 0    |
-| `packages/data/src/closeApproach.ts`                  | Adds `diameterKm`, `diameterSigmaKm`, `orbit` to the row schema  | 1    |
-| `packages/data/src/upstream/cad.ts`                   | Reads `diameter`, `diameter_sigma`                               | 1    |
-| `packages/data/src/upstream/queries.ts`               | `cadQuery` sends `diameter=true`; adds `sbdbObjectQuery`         | 1    |
-| `packages/data/src/upstream/sbdbObject.ts` (new)      | Validates one `sbdb.api` response → `ApproachOrbit` or null      | 1    |
-| `packages/data/src/approachOrbits.ts` (new)           | Catalog index by designation; catalog row → `ApproachOrbit`      | 1    |
-| `apps/server/src/datasets/datasetRequests.ts`         | Close-approach fetch joins orbits, looks up misses               | 1    |
-| `apps/server/scripts/recordUpstream.ts`               | Records the CAD (with diameters) and the SBDB lookups it needs   | 1    |
-| `apps/web/src/approaches/diameter.ts` (new)           | JPL or estimated diameter, and its display text                  | 2    |
-| `apps/web/src/approaches/*` (new)                     | List, formatting, selection store, HUD                           | 3, 6 |
-| `apps/web/src/scene/approach/*` (new)                 | Engine position, trail, follow target                            | 4, 5 |
-| `apps/web/src/scene/camera/cameraRig.ts`, `flight.ts` | Focus becomes "body or approach asteroid"                        | 5    |
-| `apps/web/src/scene/orbitElements.ts` (new)           | Degrees → engine elements, shared by swarm and approach          | 4    |
-| `apps/web/src/scene/swarm/swarmAttributes.ts`         | Uses `elementsFromDegrees`                                       | 4    |
-| `apps/web/src/scene/sceneFrame.ts`                    | Optional `out` on `sceneAxesFromEcliptic`                        | 5    |
+| File                                                  | Responsibility                                                   | Task     |
+| ----------------------------------------------------- | ---------------------------------------------------------------- | -------- |
+| `apps/web/src/data/useDataset.ts` (new)               | Generic load-once hook over `loadDataset` (from `useNeoCatalog`) | 0        |
+| `apps/web/src/data/useNeoCatalog.ts`                  | Becomes a thin wrapper over `useDataset('neos')`                 | 0        |
+| `apps/web/src/shell/AppShell.tsx` (new)               | Layout regions around the full-bleed canvas                      | 0        |
+| `apps/web/src/shell/dataStatus.ts` (new)              | Pure: dataset states → pill tone and text                        | 0        |
+| `apps/web/src/shell/DataStatusPill.tsx` (new)         | Renders `dataStatus` output                                      | 0        |
+| `packages/data/src/closeApproach.ts`                  | Adds `diameterKm`, `diameterSigmaKm`, `orbit` to the row schema  | 1        |
+| `packages/data/src/upstream/cad.ts`                   | Reads `diameter`, `diameter_sigma`                               | 1        |
+| `packages/data/src/upstream/queries.ts`               | `cadQuery` sends `diameter=true`; adds `sbdbObjectQuery`         | 1        |
+| `packages/data/src/upstream/sbdbObject.ts` (new)      | Validates one `sbdb.api` response → `ApproachOrbit` or null      | 1        |
+| `packages/data/src/approachOrbits.ts` (new)           | Catalog index by designation; catalog row → `ApproachOrbit`      | 1        |
+| `apps/server/src/datasets/datasetRequests.ts`         | Close-approach fetch joins orbits, looks up misses               | 1        |
+| `apps/server/scripts/recordUpstream.ts`               | Records the CAD (with diameters) and the SBDB lookups it needs   | 1        |
+| `apps/web/src/approaches/diameter.ts` (new)           | JPL or estimated diameter, and its display text                  | 2        |
+| `apps/web/src/approaches/*` (new)                     | List, formatting, selection store, focus card, close-up          | 3, 6, 6b |
+| `packages/data/src/upstream/queries.ts`               | Exports `CAD_MAX_DISTANCE_AU` as a number for the closeness bar  | 3        |
+| `apps/web/src/scene/approach/*` (new)                 | Engine position, trail, follow target                            | 4, 5     |
+| `apps/web/src/scene/camera/cameraRig.ts`, `flight.ts` | Focus becomes "body or approach asteroid"                        | 5        |
+| `apps/web/src/scene/orbitElements.ts` (new)           | Degrees → engine elements, shared by swarm and approach          | 4        |
+| `apps/web/src/scene/swarm/swarmAttributes.ts`         | Uses `elementsFromDegrees`                                       | 4        |
+| `apps/web/src/scene/sceneFrame.ts`                    | Optional `out` on `sceneAxesFromEcliptic`                        | 5        |
 
 ---
 
@@ -115,12 +135,18 @@ origin: DatasetOrigin; fetchedAt: string } | { status: 'unavailable' }`
     `DataStatus = { tone: 'live' | 'stale' | 'snapshot' | 'loading' | 'unavailable'; text: string; details: string[] }`.
     The pill shows the worst tone across datasets (unavailable > snapshot > stale > loading > live) and one
     `details` line per dataset for its tooltip / expanded view.
-  - `<AppShell top={…} side={…} bottom={…}>{canvas}</AppShell>`: named slots; Task 3 fills `side`.
+  - `<AppShell top={…} left={…} right={…} bottom={…}>{canvas}</AppShell>`: named slots; Task 3 fills `left`,
+    Task 6 fills `right`.
+  - Stylesheet tokens as CSS custom properties, taken from the mockup: `--bg`, `--panel` (raised to ~0.85 opacity,
+    no `backdrop-filter`), `--panel-border`, `--text`, `--muted`, `--faint` (lightened to ≥ 4.5:1 on `--panel`),
+    `--accent: #e8f4ff`, `--radius-panel: 14px`, the mockup's type scale and a `.mono` class with tabular numerals.
+    Class colours are not tokens here: the UI reads `SWARM_CLASS_COLORS` so the swarm and the UI cannot drift.
 
 - [ ] **Step 1: Write failing tests for `loadDatasetState`** (move the existing `loadNeoCatalog` cases): ready with
       origin and `fetchedAt` passed through; a rejecting loader → `unavailable` (and a `console.warn`).
 - [ ] **Step 2: Write failing tests for `dataStatus`:**
-  - all `fresh` → tone `live`, text `Live JPL data`
+  - all `fresh`, oldest fetched 12 min before `nowMs` → tone `live`, text `Live · JPL · updated 12 min ago`
+    (the mockup's wording)
   - one `stale` → tone `stale`, text `Cached data, refreshing`
   - one `snapshot` with `fetchedAt` 2026-09-28T10:00:00Z → tone `snapshot`, text `Offline snapshot from 28 Sep 2026`
   - one `unavailable` among ready ones → tone `unavailable`, text names that dataset (`Close approaches unavailable`)
@@ -129,13 +155,16 @@ origin: DatasetOrigin; fetchedAt: string } | { status: 'unavailable' }`
 - [ ] **Step 3: Run** `npx vitest run apps/web/src/data apps/web/src/shell`, expect FAIL.
 - [ ] **Step 4: Implement** `useDataset`, `loadDatasetState`, `dataStatus`; rewire `useNeoCatalog` over them.
 - [ ] **Step 5: Run the tests again**, expect PASS.
-- [ ] **Step 6: Build the shell.** `AppShell` + `DataStatusPill`; `App` renders the canvas full-bleed under the
-      shell; `TimeControls` moves to `bottom`, `FocusPicker` and the pill to `top`, the `side` slot is empty for now.
-      The pill reads `neos` only in this task; Task 3 adds `close-approaches`. Review checks whether `SwarmStatus`
-      overlaps the pill and proposes keeping only its loading/unavailable message.
-- [ ] **Step 7: Browser check** (`npm run dev`): pill reads `Live JPL data` with the server up; stop the server and
-      reload → `Offline snapshot from …`. Overlays leave the canvas centre clear; Sun overview and Earth zoom still at
-      the Phase 4 frame times (60 fps target). Note the numbers in the PR.
+- [ ] **Step 6: Build the shell.** `AppShell` + `DataStatusPill`, placed as in the mockup: brand (logo and
+      "PERIHELION · The live solar system · NASA / JPL data") and pill in `top`; today's `TimeControls` restyled inside
+      the mockup's bottom timeline panel; `FocusPicker` in `top`; `left` and `right` empty for now. The pill reads
+      `neos` only in this task; Task 3 adds `close-approaches`. Review checks whether `SwarmStatus` overlaps the pill
+      and proposes keeping only its loading/unavailable message. The opening caption takes the mockup's caption
+      style, with its count still from the catalog.
+- [ ] **Step 7: Browser check** (`npm run dev`): pill reads `Live · JPL · updated … ago` with the server up; stop
+      the server and reload → `Offline snapshot from …`. At 1600 × 1000 the layout matches the mockup's regions; at
+      1024 px wide the columns collapse and nothing overlaps; keyboard Tab reaches every control. Sun overview and
+      Earth zoom still at the Phase 4 frame times (60 fps target). Note the numbers in the PR.
 - [ ] **Step 8: `npm run check`**, then commit: `Add the app shell layout and a data-status pill`.
 
 ---
@@ -164,7 +193,9 @@ server test helpers and `cells.ts` before starting; the review proposes exact na
 inclinationDeg, longitudeOfAscendingNodeDeg, argumentOfPerihelionDeg, meanAnomalyDeg }`, the same names and
     rounding as the NEO catalog columns, so a catalog row maps across 1:1.
   - `closeApproachSchema` gains `diameterKm: number > 0 | null`, `diameterSigmaKm: number ≥ 0 | null`,
-    `orbit: ApproachOrbit`. `toCloseApproaches` returns `CadApproach = Omit<CloseApproach, 'orbit'>`.
+    `orbit: ApproachOrbit` and `orbitClass: NeoOrbitClass | null`. `toCloseApproaches` returns
+    `CadApproach = Omit<CloseApproach, 'orbit' | 'orbitClass'>`. The class comes from the catalog's `orbitClass`
+    column, or from the lookup's `object.orbit_class.code`; a code outside `NEO_ORBIT_CLASSES` gives `null`.
   - `cadQuery(window)` adds `diameter: 'true'`; `CAD_FIELDS` adds `'diameter'`, `'diameter_sigma'`.
   - `SBDB_OBJECT_API_URL = 'https://ssd-api.jpl.nasa.gov/sbdb.api'`;
     `sbdbObjectQuery(designation): UpstreamQuery` → `{ sstr: designation, 'full-prec': 'true' }`.
@@ -186,7 +217,9 @@ inclinationDeg, longitudeOfAscendingNodeDeg, argumentOfPerihelionDeg, meanAnomal
     (`ELEMENT_DECIMALS` / `ANGLE_DECIMALS`), `epochJdTdb` equals `orbit.epoch`.
   - `toApproachOrbit` on the same response with `e` = `1.2` or with `ma` removed → null; with `orbit` missing →
     the schema throws `ZodError`.
-  - `indexCatalogOrbits` on a 2-row catalog built in code: both designations map to their columns' values.
+  - `indexCatalogOrbits` on a 2-row catalog built in code: both designations map to their columns' values,
+    including `orbitClass`.
+  - The lookup's class: `APO` in the recorded response → `'APO'`; the same response with code `MBA` → `null`.
 - [ ] **Step 3: Write failing server tests** (recorded responses, fake `HttpClient`):
   - every CAD row found in the catalog → zero lookups, every row has `orbit`
   - one row missing from the catalog → exactly one `sbdb.api` request, for that designation; the row has the
@@ -218,32 +251,52 @@ Maths task: full code.
 
 - Consumes: `CloseApproach` (`diameterKm`, `diameterSigmaKm`, `absoluteMagnitude`) from Task 1.
 - Produces:
-  - `estimatedDiameterKm(absoluteMagnitude: number): number`
-  - `type ApproachDiameter = { kind: 'jpl'; diameterKm: number; sigmaKm: number | null } | { kind: 'estimated';
-diameterKm: number } | { kind: 'unknown' }`
+  - `ALBEDO_RANGE = { bright: 0.25, dark: 0.05 }`
+  - `diameterAtAlbedoKm(absoluteMagnitude: number, albedo: number): number`
+  - `estimatedDiameterRangeKm(absoluteMagnitude: number): DiameterRangeKm`, where
+    `DiameterRangeKm = { minKm: number; maxKm: number }`
+  - `type ApproachDiameter = { kind: 'jpl'; diameterKm: number; sigmaKm: number | null } | ({ kind: 'estimated' } &
+DiameterRangeKm) | { kind: 'unknown' }`
   - `approachDiameter(approach: DiameterFields): ApproachDiameter`
-  - `diameterText(diameter: ApproachDiameter): string` (used by the list in Task 3 and the HUD in Task 6)
+  - `diameterText(diameter: ApproachDiameter): string` (used by the list in Task 3 and the card in Task 6)
 
 - [ ] **Step 1: Write the failing tests**
 
 ```ts
-import { describe, expect, it } from 'vitest';
 import fc from 'fast-check';
-import { approachDiameter, diameterText, estimatedDiameterKm } from './diameter';
+import { describe, expect, it } from 'vitest';
+import {
+  ALBEDO_RANGE,
+  approachDiameter,
+  diameterAtAlbedoKm,
+  diameterText,
+  estimatedDiameterRangeKm,
+} from './diameter';
 
-describe('estimatedDiameterKm', () => {
-  it('follows D = 1329 km / √p · 10^(−H/5) with p = 0.14', () => {
-    // 1329 / √0.14 = 3551.902 km at H = 0; 10^(−15/5) = 1e-3.
-    expect(estimatedDiameterKm(15)).toBeCloseTo(3.551902, 6);
+describe('diameterAtAlbedoKm', () => {
+  it('follows D = 1329 km / √p · 10^(−H/5)', () => {
+    // At H = 15, 10^(−15/5) = 1e-3: 1329 / √0.25 = 2658 km and 1329 / √0.05 = 5943.469 km.
+    expect(diameterAtAlbedoKm(15, 0.25)).toBeCloseTo(2.658, 12);
+    expect(diameterAtAlbedoKm(15, 0.05)).toBeCloseTo(5.943469, 6);
   });
 
   it('shrinks tenfold for every 5 magnitudes', () => {
     fc.assert(
       fc.property(fc.double({ min: 5, max: 30, noNaN: true }), (h) => {
-        const ratio = estimatedDiameterKm(h) / estimatedDiameterKm(h + 5);
+        const ratio = diameterAtAlbedoKm(h, 0.14) / diameterAtAlbedoKm(h + 5, 0.14);
         expect(ratio).toBeCloseTo(10, 9);
       }),
     );
+  });
+});
+
+describe('estimatedDiameterRangeKm', () => {
+  it('runs from the bright (small) to the dark (large) albedo', () => {
+    const range = estimatedDiameterRangeKm(15);
+    expect(range.minKm).toBe(diameterAtAlbedoKm(15, ALBEDO_RANGE.bright));
+    expect(range.maxKm).toBe(diameterAtAlbedoKm(15, ALBEDO_RANGE.dark));
+    // √(0.25 / 0.05) = √5: every estimate spans the same factor.
+    expect(range.maxKm / range.minKm).toBeCloseTo(Math.sqrt(5), 12);
   });
 });
 
@@ -257,13 +310,13 @@ describe('approachDiameter', () => {
     expect(diameter).toEqual({ kind: 'jpl', diameterKm: 0.37, sigmaKm: 0.02 });
   });
 
-  it('estimates from H when JPL has no diameter', () => {
+  it('estimates a range from H when JPL has no diameter', () => {
     const diameter = approachDiameter({
       diameterKm: null,
       diameterSigmaKm: null,
       absoluteMagnitude: 15,
     });
-    expect(diameter).toEqual({ kind: 'estimated', diameterKm: estimatedDiameterKm(15) });
+    expect(diameter).toEqual({ kind: 'estimated', ...estimatedDiameterRangeKm(15) });
   });
 
   it('is unknown with neither', () => {
@@ -282,10 +335,14 @@ describe('diameterText', () => {
     expect(diameterText({ kind: 'jpl', diameterKm: 1.1, sigmaKm: null })).toBe('1.1 km');
   });
 
-  it('labels estimates and keeps two significant figures', () => {
-    expect(diameterText({ kind: 'estimated', diameterKm: 3.551902 })).toBe('est. 3.6 km');
-    expect(diameterText({ kind: 'estimated', diameterKm: 0.35519 })).toBe('est. 360 m');
-    expect(diameterText({ kind: 'estimated', diameterKm: 0.0355 })).toBe('est. 36 m');
+  it('labels estimates as a two-significant-figure range', () => {
+    expect(diameterText({ kind: 'estimated', minKm: 2.658, maxKm: 5.943469 })).toBe(
+      'est. 2.7–5.9 km',
+    );
+    expect(diameterText({ kind: 'estimated', minKm: 0.016016, maxKm: 0.035813 })).toBe(
+      'est. 16–36 m',
+    );
+    expect(diameterText({ kind: 'estimated', minKm: 0.7, maxKm: 1.56 })).toBe('est. 700 m–1.6 km');
   });
 
   it('says unknown', () => {
@@ -302,10 +359,10 @@ describe('diameterText', () => {
 import type { CloseApproach } from '@perihelion/data';
 
 /**
- * Debiased mean geometric albedo of near-Earth asteroids (Stuart & Binzel 2004, Icarus 170, 295). Real albedos
- * run ~0.05–0.5, so an estimate can be off by a factor of ~2 either way: hence "est." and two significant figures.
+ * CNEOS's convention for objects without a measured size: the diameters for geometric albedos 0.25 (bright, so
+ * small) and 0.05 (dark, so large). The range is always a factor √5 ≈ 2.2 wide, hence "est.".
  */
-export const ASSUMED_ALBEDO = 0.14;
+export const ALBEDO_RANGE = { bright: 0.25, dark: 0.05 } as const;
 /** D = 1329 km / √p · 10^(−H/5) (Fowler & Chillemi 1992; Pravec & Harris 2007, Icarus 190, 250). */
 const DIAMETER_AT_H0_UNIT_ALBEDO_KM = 1329;
 const ESTIMATE_SIGNIFICANT_FIGURES = 2;
@@ -316,15 +373,25 @@ export type DiameterFields = Pick<
   'diameterKm' | 'diameterSigmaKm' | 'absoluteMagnitude'
 >;
 
+export interface DiameterRangeKm {
+  minKm: number;
+  maxKm: number;
+}
+
 export type ApproachDiameter =
   | { kind: 'jpl'; diameterKm: number; sigmaKm: number | null }
-  | { kind: 'estimated'; diameterKm: number }
+  | ({ kind: 'estimated' } & DiameterRangeKm)
   | { kind: 'unknown' };
 
-export function estimatedDiameterKm(absoluteMagnitude: number): number {
-  return (
-    (DIAMETER_AT_H0_UNIT_ALBEDO_KM / Math.sqrt(ASSUMED_ALBEDO)) * 10 ** (-absoluteMagnitude / 5)
-  );
+export function diameterAtAlbedoKm(absoluteMagnitude: number, albedo: number): number {
+  return (DIAMETER_AT_H0_UNIT_ALBEDO_KM / Math.sqrt(albedo)) * 10 ** (-absoluteMagnitude / 5);
+}
+
+export function estimatedDiameterRangeKm(absoluteMagnitude: number): DiameterRangeKm {
+  return {
+    minKm: diameterAtAlbedoKm(absoluteMagnitude, ALBEDO_RANGE.bright),
+    maxKm: diameterAtAlbedoKm(absoluteMagnitude, ALBEDO_RANGE.dark),
+  };
 }
 
 /** A measured diameter always wins: the estimate is only a fallback for objects JPL has not sized. */
@@ -333,7 +400,7 @@ export function approachDiameter(approach: DiameterFields): ApproachDiameter {
     return { kind: 'jpl', diameterKm: approach.diameterKm, sigmaKm: approach.diameterSigmaKm };
   }
   if (approach.absoluteMagnitude === null) return { kind: 'unknown' };
-  return { kind: 'estimated', diameterKm: estimatedDiameterKm(approach.absoluteMagnitude) };
+  return { kind: 'estimated', ...estimatedDiameterRangeKm(approach.absoluteMagnitude) };
 }
 
 export function diameterText(diameter: ApproachDiameter): string {
@@ -341,7 +408,7 @@ export function diameterText(diameter: ApproachDiameter): string {
     case 'jpl':
       return jplDiameterText(diameter.diameterKm, diameter.sigmaKm);
     case 'estimated':
-      return `est. ${estimateText(diameter.diameterKm)}`;
+      return `est. ${rangeText(diameter)}`;
     case 'unknown':
       return 'unknown';
   }
@@ -352,20 +419,25 @@ function jplDiameterText(diameterKm: number, sigmaKm: number | null): string {
   return sigmaKm === null ? `${diameterKm} km` : `${diameterKm} ± ${sigmaKm} km`;
 }
 
-function estimateText(diameterKm: number): string {
-  return diameterKm < 1
-    ? `${significant(diameterKm * METRES_PER_KM)} m`
-    : `${significant(diameterKm)} km`;
+/** Metres below 1 km, as CNEOS prints small objects; a range straddling 1 km gives each end its own unit. */
+function rangeText({ minKm, maxKm }: DiameterRangeKm): string {
+  if (maxKm < 1) return `${metres(minKm)}–${metres(maxKm)} m`;
+  if (minKm >= 1) return `${significant(minKm)}–${significant(maxKm)} km`;
+  return `${metres(minKm)} m–${significant(maxKm)} km`;
 }
 
-/** Through Number, so 355.19 prints as "360" rather than toPrecision's "3.6e+2". */
+function metres(km: number): string {
+  return significant(km * METRES_PER_KM);
+}
+
+/** Through Number, so 700 prints as "700" rather than toPrecision's "7.0e+2". */
 function significant(value: number): string {
   return String(Number(value.toPrecision(ESTIMATE_SIGNIFICANT_FIGURES)));
 }
 ```
 
 - [ ] **Step 4: Run the tests again**, expect PASS.
-- [ ] **Step 5: `npm run check`**, then commit: `Show JPL's diameter, or an estimate from H labelled est.`
+- [ ] **Step 5: `npm run check`**, then commit: `Show JPL's diameter, or an estimated range from H labelled est.`
 
 ---
 
@@ -382,14 +454,26 @@ UI task with one fact-critical formatter (full code for `approachFormat.ts` only
 **Interfaces:**
 
 - Consumes: `useDataset('close-approaches')` and `DatasetState` (Task 0); `diameterText`/`approachDiameter`
-  (Task 2); `KM_PER_AU` from `@perihelion/orbit`.
+  (Task 2); `KM_PER_AU`, `jdUtcFromJdTdb`, `calendarFromJulianDate` (read its `CalendarDateTime` fields at review)
+  from `@perihelion/orbit`; `jdTdbFromUnixMs`; `NEO_ORBIT_CLASSES`, `NeoOrbitClass`, `CAD_MAX_DISTANCE_AU` from
+  `@perihelion/data`; `SWARM_CLASS_COLORS` (check at review that its order is `NEO_ORBIT_CLASSES`'s).
 - Produces:
   - `KM_PER_LUNAR_DISTANCE = 384_398`; `distanceTexts(distanceAu): { au: string; km: string; lunar: string }`;
-    `speedText(kmPerS): string`; `approachDateText(approach): string`; `approachLabel(approach): string`
+    `speedText(kmPerS): string`; `approachDateText(approach): string` (CAD's TDB string, for tooltips);
+    `approachLabel(approach): string`
+  - `approachUtcText(approach): string`: `approachJdTdb` → UTC with `jdUtcFromJdTdb`, rounded to the nearest
+    minute before the calendar conversion (so 59.5 s carries into the hour), printed `Sep 30 · 04:11 UTC`
+  - `closenessFraction(distanceAu): number` = `1 − distanceAu / CAD_MAX_DISTANCE_AU`, clamped to [0, 1] (the
+    mockup's bar; linear, so it reads as "how far inside CAD's 0.05 AU cut")
+  - `orbitClassLabel(orbitClass: NeoOrbitClass | null): string`: `APO` → `Apollo`, `ATE` → `Aten`, `AMO` → `Amor`,
+    `IEO` → `Atira`, `null` → `—`
+  - `groupApproaches(request: { approaches: readonly CloseApproach[]; nowJdTdb: number }): { passed; coming }`,
+    each in CAD order
   - `approachSelection`: `selected: CloseApproach | undefined`, `select(approach)`, `clear()`, `subscribe`
     (an external store like `timeStore`: notifies on user actions only)
-  - `<ApproachList state={DatasetState<'close-approaches'>} onSelect={(approach) => void} />`. Until Task 5,
-    `App` passes `approachSelection.select`; Task 5 swaps in `playApproach`.
+  - `<ApproachList state={DatasetState<'close-approaches'>} onSelect={(approach) => void} />`. `App` passes
+    `approachSelection.select`: selecting only selects and opens the card (decision 7); Task 6's card holds
+    **Follow** and **Play approach**.
 
 - [ ] **Step 1: Confirm the LD constant** against the CNEOS site (cneos.jpl.nasa.gov, "LD" definition). If CNEOS
       uses another value, use theirs and fix the expected strings below before writing the test.
@@ -430,7 +514,35 @@ describe('approachLabel', () => {
     expect(approachLabel({ fullName: '       (2024 XY1)' })).toBe('(2024 XY1)');
   });
 });
+
+describe('approachUtcText', () => {
+  it('converts CAD’s TDB to UTC and rounds to the minute', () => {
+    // 2026-Sep-30 04:12:00 TDB = JD 2461313.675; UTC = TDB − 69.184 s = 04:10:50.8 → 04:11.
+    expect(approachUtcText({ approachJdTdb: 2_461_313.675 })).toBe('Sep 30 · 04:11 UTC');
+  });
+});
+
+describe('closenessFraction', () => {
+  it("is linear inside CAD's 0.05 AU cut and clamped outside it", () => {
+    expect(closenessFraction(0)).toBe(1);
+    expect(closenessFraction(0.0125)).toBeCloseTo(0.75, 12);
+    expect(closenessFraction(0.05)).toBe(0);
+    expect(closenessFraction(0.06)).toBe(0);
+  });
+});
+
+describe('orbitClassLabel', () => {
+  it('names the four NEO classes and marks a missing one', () => {
+    expect(
+      ['APO', 'ATE', 'AMO', 'IEO'].map((code) => orbitClassLabel(code as NeoOrbitClass)),
+    ).toEqual(['Apollo', 'Aten', 'Amor', 'Atira']);
+    expect(orbitClassLabel(null)).toBe('—');
+  });
+});
 ```
+
+`approachUtcText`, `closenessFraction`, `orbitClassLabel` and `groupApproaches` are implemented after reading
+`CalendarDateTime`; the import line of this test file then also takes them and `type NeoOrbitClass`.
 
 - [ ] **Step 3: Run** `npx vitest run apps/web/src/approaches`, expect FAIL.
 - [ ] **Step 4: Implement**
@@ -481,11 +593,16 @@ export function approachLabel(approach: Pick<CloseApproach, 'fullName'>): string
   - `loading` → `Loading close approaches…`
   - `unavailable` → `Close approaches unavailable`
   - ready with `[]` → `No asteroid passes within 0.05 AU (19.46 LD) of Earth in this window.` (Review Focus 2)
-  - ready with 3 rows → 3 buttons in CAD order, each showing label, date text, `lunar` distance, speed and
-    diameter text; the selected row has `aria-pressed="true"`; clicking calls `onSelect` with that row object
+  - ready with 3 rows (one before `nowJdTdb`) → a `Passing Earth · ±7 days` header, a `Passed` group with 1 button
+    and a `Coming` group with 2, in CAD order; each row shows label, `approachUtcText`, a closeness bar at
+    `closenessFraction`, the `lunar` distance, diameter text and the class label with its `SWARM_CLASS_COLORS`
+    swatch; the CAD TDB string is the row's tooltip; the selected row has `aria-pressed="true"`; clicking calls
+    `onSelect` with that row object
 - [ ] **Step 7: Run the tests**, expect FAIL; **implement** `approachSelection` and `ApproachList`; run, expect PASS.
 - [ ] **Step 8: Wire up.** `App` loads `useDataset('close-approaches')`, renders `ApproachList` in the shell's
-      `side` slot and adds the dataset to the pill (labelled `Close approaches`).
+      `left` slot and adds the dataset to the pill (labelled `Close approaches`). `queries.ts` exports
+      `CAD_MAX_DISTANCE_AU = 0.05` as a number, and `cadQuery` sends `String(CAD_MAX_DISTANCE_AU)`, so the bar and the
+      query cannot drift.
 - [ ] **Step 9: Browser check:** the list matches `curl -s localhost:<port>/api/close-approaches | jq '.data'` row
       for row; the pill reflects both datasets; frame times unchanged.
 - [ ] **Step 10: `npm run check`**, then commit: `Add the close-approach list`.
@@ -925,7 +1042,7 @@ interfaces and tests.
   each
 - Modify: `apps/web/src/scene/camera/cameraRig.ts`, `flight.ts`, `viewDistances.ts`, `CameraRigUpdater.tsx`,
   `CameraControls.tsx`, `FocusPicker.tsx`, `apps/web/src/scene/sceneFrame.ts` (optional `out` on
-  `sceneAxesFromEcliptic`), `apps/web/src/App.tsx` (list `onSelect` → `playApproach`), their tests
+  `sceneAxesFromEcliptic`), their tests
 
 **Interfaces:**
 
@@ -940,8 +1057,10 @@ interfaces and tests.
     the same arrays the updaters write)
   - `CameraRig`: `focus: FocusId`; `update({ positions: FocusPositions; cameraDistanceAu })`;
     `FlightRequest.chase?: boolean`; `chasing: boolean`; `stopChase()`. `flyTo` without `chase` ends any chase.
-  - `playApproach(approach, targets?)` where `targets` defaults to `{ selection: approachSelection, time: timeStore,
-camera: cameraRig }`
+  - In `apps/web/src/approaches/playApproach.ts`, both with `targets` defaulting to
+    `{ selection: approachSelection, time: timeStore, camera: cameraRig }`:
+    - `followApproach(approach, targets?)`: selects it and flies with chase at the current simulated time
+    - `playApproach(approach, targets?)`: selects it, sets the clock with `approachPlayback`, then follows
 
 - [ ] **Step 1: Write the failing camera-maths tests**
 
@@ -1115,65 +1234,120 @@ function writeNorthPerpendicular(unit: Readonly<Vector3>, out: Vector3): Vector3
   - retarget mid-flight (Review Focus 3): a second `flyTo` halfway through the first starts from the pose at that
     moment (origin and distance continuous: equal to the last `update`'s pose)
   - `minViewDistanceAu('asteroid')` is `1e-7` AU (15 km); `defaultViewDistanceAu('asteroid')` is `1e-3` AU
-- [ ] **Step 6: Write failing `playApproach` tests** with fake targets: selection set first; clock scrubbed to
-      `approachPlayback(row).startJdTdb`, rate set, playing; then `flyTo({ focus: 'asteroid', distanceAu:
-followDistanceAu(row), chase: true })`. A row whose approach is in the past still scrubs to before it (Review
-      Focus 4).
-- [ ] **Step 7: Run**, expect FAIL; **implement** the rig changes, `focusPositions` and `playApproach`; run, PASS.
+- [ ] **Step 6: Write failing action tests** with fake targets:
+  - `followApproach`: selection set; the clock untouched (no scrub, rate or play calls); then
+    `flyTo({ focus: 'asteroid', distanceAu: followDistanceAu(row), chase: true })`
+  - `playApproach`: selection set first; clock scrubbed to `approachPlayback(row).startJdTdb`, rate set, playing;
+    then the same `flyTo`. A row whose approach is in the past still scrubs to before it (Review Focus 4).
+- [ ] **Step 7: Run**, expect FAIL; **implement** the rig changes, `focusPositions` and both actions; run, PASS.
 - [ ] **Step 8: Wire up.** `CameraRigUpdater` passes `focusPositions`; while `cameraRig.chasing`, it computes
       `writeGeocentricOffset` from `asteroidPositionAu − bodyPositions.earthMoonBarycenter`, then
       `writeChaseDirection`, maps it with `sceneAxesFromEcliptic(…, out)` and sets
       `camera.position = direction × distance` (the pose's distance in flight, the camera's current length after).
       `CameraControls` passes `onStart={() => cameraRig.stopChase()}` so a drag hands the view back; `minDistance`
-      takes `FocusId`. `FocusPicker` shows bodies only (the list is the asteroid's control). `App` passes
-      `playApproach` to `ApproachList`.
-- [ ] **Step 9: Browser check:** play three rows (the closest, the farthest, one in the past): the flight lands on
-      the asteroid, Earth stays in view through closest approach, a drag ends the chase without a jump, choosing
-      another row mid-flight retargets smoothly (note any hitch against the open question on carried velocity).
+      takes `FocusId`. `FocusPicker` shows bodies only (the card is the asteroid's control). Until Task 6 adds the
+      card's buttons, a dev-only key (`F` follow, `P` play) on the selected row drives the browser check.
+- [ ] **Step 9: Browser check:** Play approach on three rows (the closest, the farthest, one in the past): the
+      flight lands on the asteroid, Earth stays in view through closest approach, a drag ends the chase without a
+      jump, another row mid-flight retargets smoothly (note any hitch against the open question on carried
+      velocity). Follow on one row leaves the clock where it was.
 - [ ] **Step 10: `npm run check`**, then commit: `Fly to the selected asteroid and follow it past Earth`.
 
 ---
 
-### Task 6: HUD
+### Task 6: Focus card
 
-UI task: interfaces, test cases and acceptance checks; the exactness check runs over every recorded CAD row.
+UI task: interfaces, test cases and acceptance checks; the exactness check runs over every recorded CAD row. The
+card follows the mockup's right column (decision 7).
 
 **Files:**
 
-- Create: `apps/web/src/approaches/approachHud.ts` (pure lines), `apps/web/src/approaches/ApproachHud.tsx`,
+- Create: `apps/web/src/approaches/approachCard.ts` (pure model), `apps/web/src/approaches/ApproachCard.tsx`,
   tests beside each
-- Modify: `apps/web/src/App.tsx` (HUD in the shell, shown while a row is selected), the app stylesheet
+- Modify: `apps/web/src/App.tsx` (card in the shell's `right` slot, shown while a row is selected), the stylesheet
 
 **Interfaces:**
 
-- Consumes: `distanceTexts`, `speedText`, `approachDateText`, `approachLabel` (Task 3); `approachDiameter`,
-  `diameterText` (Task 2); `approachSelection` (Task 3); `useTimeReadout()` (4 Hz).
+- Consumes: `distanceTexts`, `speedText`, `approachDateText`, `approachUtcText`, `approachLabel`,
+  `orbitClassLabel` (Task 3); `approachDiameter`, `diameterText` (Task 2); `approachSelection` (Task 3);
+  `followApproach`, `playApproach` (Task 5); `useTimeReadout()` (4 Hz).
 - Produces:
-  - `approachHudLines(request: { approach: CloseApproach; jdTdb: number }): HudLine[]`, where
-    `HudLine = { label: string; value: string }`
+  - `approachCard(request: { approach: CloseApproach; jdTdb: number }): ApproachCardModel`, where
+    `ApproachCardModel = { title: string; badge: string; countdown: string; stats: CardStat[]; source: string }` and
+    `CardStat = { label: string; value: string; detail: string; tooltip?: string }`
   - `countdownText(daysFromApproach: number): string`
 
-- [ ] **Step 1: Write failing tests for `approachHudLines`**, for a row built in code (`distanceAu: 0.0123456789`,
-      `relativeVelocityKmPerS: 12.345678`, `approachCalendarTdb: '2026-Oct-03 14:22'`, `timeUncertainty: '< 00:01'`,
-      `diameterKm: null`, `absoluteMagnitude: 25.1`):
-  - `Closest approach` → `2026-Oct-03 14:22 TDB (± < 00:01)`; with `timeUncertainty: null`, no bracket
-  - `Distance` → `0.0123456789 AU · 1,846,887 km · 4.80 LD`
-  - `Relative speed` → `12.345678 km/s`
-  - `Diameter` → `diameterText(approachDiameter(row))`
-  - `Countdown` → `countdownText(jdTdb − approachJdTdb)`
-  - a final note line: `Figures: JPL CAD. Drawn path and marker: two-body illustration.`
-- [ ] **Step 2: Write failing tests for `countdownText`:** `-1.5` → `T−1 d 12 h 00 m`; `0.25` → `T+0 d 06 h 00 m`;
-      `|Δ| < 1 min` → `Closest approach now`; minutes round down, not to nearest.
+- [ ] **Step 1: Write failing tests for `approachCard`**, for a row built in code (`fullName: '       (2026 RX7)'`,
+      `orbitClass: 'APO'`, `distanceAu: 0.0123456789`, `relativeVelocityKmPerS: 12.345678`,
+      `approachJdTdb: 2_461_313.675`, `approachCalendarTdb: '2026-Sep-30 04:12'`, `timeUncertainty: '< 00:01'`,
+      `diameterKm: null`, `absoluteMagnitude: 26.1`):
+  - `title` → `(2026 RX7)`; `badge` → `Apollo · NEO` (just `NEO` when `orbitClass` is null)
+  - `Miss distance` → value `4.80 LD`, detail `1,846,887 km · 0.0123456789 AU`
+  - `Relative speed` → value `12.345678 km/s`, detail `44,444 km/h`
+  - `Est. diameter` → value `diameterText(approachDiameter(row))`, detail `H = 26.1` (label `Diameter` and detail
+    `JPL` when JPL's diameter is present)
+  - `Closest approach` → value `Sep 30 · 04:11 UTC`, detail `± < 00:01` (empty when `timeUncertainty` is null),
+    tooltip `2026-Sep-30 04:12 TDB (JPL CAD)`
+  - `countdown` → `countdownText(jdTdb − approachJdTdb)`
+  - `source` → `Distances from JPL CAD · drawn positions are a two-body illustration`
+- [ ] **Step 2: Write failing tests for `countdownText`:** `-1.5` → `Closest approach in 1d 12h 00m`;
+      `0.25` → `Closest approach 0d 06h 00m ago`; `|Δ| < 1 min` → `Closest approach now`; minutes round down.
 - [ ] **Step 3: Write the exactness test** (the exit criterion at unit level): for every row of the recorded CAD
-      response, after `toCloseApproaches`, the HUD's distance value starts with `String(row.distanceAu)`, its speed
-      equals `${row.relativeVelocityKmPerS} km/s` and its date starts with `row.approachCalendarTdb`.
+      response, after `toCloseApproaches`, the card's distance detail ends with `${row.distanceAu} AU`, its speed
+      value equals `${row.relativeVelocityKmPerS} km/s` and its date tooltip starts with `row.approachCalendarTdb`.
 - [ ] **Step 4: Run**, expect FAIL; **implement**; run, expect PASS.
-- [ ] **Step 5: `ApproachHud`** renders the lines from `useTimeReadout()` (no per-frame React state) inside the
-      shell; hidden when nothing is selected.
-- [ ] **Step 6: Browser check:** for two rows, each HUD value matches the row in
+- [ ] **Step 5: `ApproachCard`** renders the model from `useTimeReadout()` (no per-frame React state) in the `right`
+      slot; hidden when nothing is selected. Two real buttons: **Follow** → `followApproach(selected)`, **Play
+      approach** → `playApproach(selected)`. A slot between the countdown and the stats holds Task 6b's close-up.
+- [ ] **Step 6: Browser check:** for two rows, each card value matches the row in
       `curl -s localhost:<port>/api/close-approaches`; the countdown passes zero at the moment the drawn pass is
-      closest (within the Task 4 tolerance's Δt).
-- [ ] **Step 7: `npm run check`**, then commit: `Add the close-approach HUD`.
+      closest (within the Task 4 tolerance's Δt); the layout matches the mockup's right column at 1600 × 1000.
+- [ ] **Step 7: `npm run check`**, then commit: `Add the close-approach focus card`.
+
+---
+
+### Task 6b: Earth-centred close-up (illustrative)
+
+UI task with light geometry: interfaces, exact test cases and acceptance checks. It replaces the mockup's lens
+without the Moon (decision 2).
+
+**Files:**
+
+- Create: `apps/web/src/approaches/closeUp.ts` (pure), `apps/web/src/approaches/CloseUp.tsx` (SVG), tests beside
+  `closeUp.ts`
+- Modify: `apps/web/src/approaches/ApproachCard.tsx` (fills the close-up slot); `asteroidPosition.ts` gains
+  `trailForApproach(approach)` (memoised by row identity like `elementsForApproach`), which `ApproachScene` then
+  reuses instead of calling `writeTrail` itself
+
+**Interfaces:**
+
+- Consumes: `writeTrail`, `TRAIL_POINTS`, `TRAIL_HALF_WINDOW_CROSSINGS`, `trailIndexAt`, `crossingDays` (Task 4);
+  `KM_PER_LUNAR_DISTANCE`, `distanceTexts` (Task 3); `KM_PER_AU`; `useTimeReadout()`.
+- Produces:
+  - `closeUpPath(trail: Float32Array): CloseUpPath`, where `CloseUpPath = { points: Float64Array; closestIndex:
+number }`: the trail projected onto the pass plane, x along the motion at closest approach, y toward the closest
+    point, Earth at the origin (AU, 2 numbers per sample)
+  - `closeUpHalfWidthAu(distanceAu: number): number` = `max(4 · distanceAu, 1.25 LD)`, so the 1 LD ring is always in
+    view
+
+- [ ] **Step 1: Write failing tests for `closeUpPath`** on a straight-line trail built in code, offsets
+      `(d, 0, 0) + t · (0, v, 0)` at the `trailOffsetDays` sample times:
+  - `closestIndex` is the sample nearest `t = 0`
+  - the closest point projects to `(≈0, d)`; every point has `y ≈ d` (a straight pass stays a straight line)
+  - x increases with the sample index (the motion runs left to right)
+  - a trail mirrored through Earth (`(−d, 0, 0) + t · (0, −v, 0)`) gives the same projected points (the frame is
+    built from the trail, not from fixed axes)
+- [ ] **Step 2: Write failing tests for `closeUpHalfWidthAu`:** `0.0123456789` → `4 × 0.0123456789`;
+      `1e-4` → `1.25 × 384,398 / 149,597,870.7`.
+- [ ] **Step 3: Run**, expect FAIL; **implement**; run, expect PASS.
+- [ ] **Step 4: `CloseUp`** draws, in a 294 × 172 SVG like the mockup: Earth at the centre, a dashed 1 LD ring, the
+      projected path (bright up to now, faint after, split at `trailIndexAt(now − approach)`), the asteroid's marker
+      at that index, a dashed line from Earth to the closest point labelled with CAD's distance in LD (a fact, from
+      `distanceTexts`), the header `FOCUS VIEW · EARTH-CENTRED · ILLUSTRATIVE` and the scale `1 LD = 384,398 km`.
+      The path is computed once per selection; only the marker moves, at the 4 Hz readout.
+- [ ] **Step 5: Browser check:** for the closest and the farthest row the path bends around Earth, the marker
+      matches the main view's asteroid as time plays, and frame times are unchanged.
+- [ ] **Step 6: `npm run check`**, then commit: `Add an Earth-centred close-up to the focus card`.
 
 ---
 
@@ -1181,9 +1355,9 @@ UI task: interfaces, test cases and acceptance checks; the exactness check runs 
 
 Verification task: no new code unless a check fails (then stop and report, as CLAUDE.md requires).
 
-- [ ] **Step 1: Every listed approach plays end to end.** With live data: play each row in the list. For each,
-      record: flight lands, asteroid on its trail, Earth in view through closest approach, HUD matches the
-      `/api/close-approaches` row. Include the rows that needed an SBDB lookup in Task 1 (Review Focus 1). Repeat
+- [ ] **Step 1: Every listed approach plays end to end.** With live data: press Play approach on each row in the
+      list. For each, record: flight lands, asteroid on its trail, Earth in view through closest approach, the card
+      and the close-up match the `/api/close-approaches` row. Include the rows that needed an SBDB lookup in Task 1 (Review Focus 1). Repeat
       for two rows with the server stopped (snapshot origin; Review Focus 4).
 - [ ] **Step 2: Frame times** as in Phase 4 (same machine and method): following the closest-approach row through
       its pass and the Sun overview with an approach selected. Target ≥ 60 fps, no frame over 20 ms apart from known
@@ -1193,4 +1367,4 @@ Verification task: no new code unless a check fails (then stop and report, as CL
 - [ ] **Step 4: `npm run check`**, commit, push, open the PR (`Closes #N` for the close-out issue).
 - [ ] **Step 5: After the user merges and CI on `main` is green:** close the Phase 5 milestone, tag the merge
       commit `v0.5.0` (annotated) and publish the release with the phase summary and two stills (the list with the
-      HUD, and a close pass with Earth in frame).
+      focus card, and a close pass with Earth in frame).

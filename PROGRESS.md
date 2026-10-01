@@ -116,15 +116,16 @@ with 16 GB, with the 42,535-NEO catalog and trails on; 10 s per run after a 1 s 
 
 ## Phase 5: Shot 2: The Close Approach
 
-Plan: `docs/superpowers/plans/2026-10-01-phase-5-the-close-approach.md`.
+Plan: `docs/superpowers/plans/2026-10-01-phase-5-the-close-approach.md`. UI reference: `docs/design/perihelion-mockup.html`.
 
 - [ ] App shell: layout regions around the canvas + data-status pill (fresh / stale / snapshot)
-- [ ] Close-approach rows carry an orbit (NEO catalog join, SBDB lookup for misses) and JPL's diameter
-- [ ] Diameter: JPL's when known, else estimated from H and labelled "est."
+- [ ] Close-approach rows carry an orbit (NEO catalog join, SBDB lookup for misses), orbit class and JPL's diameter
+- [ ] Diameter: JPL's when known, else a range estimated from H (albedo 0.25–0.05) and labelled "est."
 - [ ] Close-approach list UI (from `/api/close-approaches`), with an empty state
 - [ ] Focused asteroid positioned by the CPU engine (float64) + trail; engine-vs-CAD closest-distance check
 - [ ] Selecting an approach: clock to the approach, camera flies to the asteroid and follows it through closest approach
-- [ ] HUD: JPL-reported distance (LD/AU/km), relative speed and date, plus diameter
+- [ ] Focus card (HUD): JPL-reported distance (LD/AU/km), relative speed and date, plus diameter and class; Follow / Play approach
+- [ ] Earth-centred close-up in the focus card (illustrative, no Moon)
 - [ ] Exit verification: every listed approach plays end to end; HUD values match CAD exactly; 60 fps
 
 ## Phase 6–7
