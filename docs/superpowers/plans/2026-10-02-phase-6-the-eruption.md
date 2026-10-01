@@ -47,7 +47,7 @@ Fastify, zod 4, Vitest 5, fast-check.
 | 1a  | DONKI on CCMC, key retired, re-recorded    | #85   | light     | ✅ #111       |
 | 1c  | Validate cache entries on first read       | #85   | light     | ✅ #112       |
 | 1b  | Strict times, http(s) links, ENLIL arrival | #85   | light     | 🟨 in review  |
-| 2   | Engine: CME direction and Earth-in-cone    | #99   | full code | 🟨 2a review  |
+| 2   | Engine: CME direction and Earth-in-cone    | #99   | full code | 🟨 in review  |
 | 3   | Engine: CME kinematics and arrival         | #100  | full code | written later |
 | 4   | CME picker + selected-CME store            | #101  | light     | written later |
 | 5   | CME particle shell                         | #102  | full code | written later |
@@ -368,9 +368,14 @@ Expected agreement is about 0.001° (Horizons' B0 is light-time corrected, about
 0.002°), but the tolerances are not guessed: the first run measures the worst error of each check, and Task 2b
 stops there to propose `measured × 1.25` with that evidence (the PROGRESS "Calibrated tolerances" rule).
 
+**Changes approved while building 2b (2026-10-02):** the B0 range test's bound is 7.25° + 0.01°, not 7.25° + 1e-9
+rad: the IAU pole tilts the solar equator 7.2517° (Carrington's 7.25° is rounded) and the EMB strays off the ecliptic,
+so the engine's B0 peaks at 7.2521°. Golden tolerances, measured × 1.25: pole 8.7e-7°, end to end 7.3e-4°.
+
 **Acceptance:**
 
 - [x] 2a: `npm run fixtures -- sun` writes `sun-orientation.json` and leaves `planets.json` and `asteroids.json`
       untouched; committed with its provenance.
-- [ ] 2b: tolerances measured, approved and recorded in PROGRESS "Calibrated tolerances".
-- [ ] `npm run check` green for each PR.
+- [x] 2b: tolerances measured, approved and recorded in PROGRESS "Calibrated tolerances" (pole 8.7e-7°,
+      end to end 7.3e-4°).
+- [x] `npm run check` green for each PR.
