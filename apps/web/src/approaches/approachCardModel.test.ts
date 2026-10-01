@@ -83,7 +83,7 @@ describe('approachCard', () => {
 
   it('says which figures are JPL’s and which are illustrative', () => {
     expect(card.source).toBe(
-      'Distances from JPL CAD · drawn positions are a two-body illustration',
+      'Distances from JPL CAD · drawn positions are a two-body illustration · markers not to scale',
     );
   });
 });

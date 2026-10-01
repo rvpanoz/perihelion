@@ -126,6 +126,7 @@ Plan: `docs/superpowers/plans/2026-10-01-phase-5-the-close-approach.md`. UI refe
 - [x] Selecting an approach: clock to the approach, camera flies to the asteroid and follows it through closest approach
 - [x] Focus card (HUD): JPL-reported distance (LD/AU/km), relative speed and date, plus diameter and class; Follow / Play approach
 - [x] Earth-centred close-up in the focus card (illustrative, no Moon)
+- [x] Earth marker during an approach, so Earth is findable at any pass distance (found in exit verification)
 - [ ] Exit verification: every listed approach plays end to end; HUD values match CAD exactly; 60 fps
 
 Status (2026-10-01): plan merged in #82 (with the UI mockup applied, decision 7); issues #74–#81 and #83 (Task 6b).
@@ -214,6 +215,14 @@ at CAD 0.99 LD, draws its closest point at 1.016 LD (0.6 px off), the farthest, 
 17.575 LD; during Play approach the marker steps ~10.5 px per 8 h along the path and is hidden outside the trail
 window; 75 fps with the card shown (median 13.3 ms, worst 14.4 ms, none over 20 ms). `npm run check` green
 (724 tests). The card is ~200 px taller, so at small heights more of it sits below the drawer's scroll.
+
+Task 6c (#93, Earth marker) on `phase-5/earth-marker`, added during Task 7: on the exit check's first 10 rows, paused
+at CAD's closest-approach time, the chase camera had Earth in frame, but only (2026 SA8) at 0.99 LD showed it; beyond
+about 1 LD Earth's disc is under a pixel. Earth now gets an 8 px marker in its own colour while an approach is
+selected, drawn over its disc (a depth-tested marker was hidden by the dark night-side disc of (2026 SC) at 1.70 LD;
+user decision). The card's source line adds `· markers not to scale`. Browser check (2026-10-02, Chrome 154,
+1920 × 809, DPR 1, live data): Earth projects inside the view and its marker shows on all 10 rows; 75.0 fps following
+(2026 SA8) through its pass and in the Sun overview with it selected (median 13.3 ms, worst 14.4 ms, none over 20 ms).
 
 ## Phase 6–7
 
@@ -591,3 +600,6 @@ _None._
   centred on the Earth–Moon barycentre (≈ 0.012 LD from Earth's centre, not corrected), labelled illustrative. Only
   the dashed closest-point label is a fact (CAD's LD). Its scale shows 4 miss distances above and below Earth, never
   less than 1.25 LD, so the 1 LD ring stays whole; 1 LD is CNEOS's 384,400 km throughout.
+- **2026-10-02:** During an approach Earth has a fixed 8 px marker drawn over its disc, never depth-tested: the chase
+  camera keeps Earth in frame, but its disc is sub-pixel beyond about 1 LD and can be on the night side. A ring sized
+  to the disc, which would not cover a large lit disc, is left for Phase 7 polish.
