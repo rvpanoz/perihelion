@@ -142,3 +142,18 @@ describe('defaultDatasetRequests', () => {
     ]);
   });
 });
+
+describe('DatasetRequest.accepts', () => {
+  it('accepts its own fetched output and rejects an entry that no longer fits the schema', async () => {
+    const request = requestsWith().requests.cmes(30);
+    const cmes = DATASET_DATA_SCHEMAS.cmes.parse(await request.fetchData());
+    expect(request.accepts(JSON.stringify(cmes))).toBe(true);
+    // JSON.stringify leaves out undefined, so this is an entry missing a required field.
+    const withoutAnalysis = cmes.map((cme) => ({ ...cme, analysis: undefined }));
+    expect(request.accepts(JSON.stringify(withoutAnalysis))).toBe(false);
+  });
+
+  it('rejects text that is not JSON without throwing', () => {
+    expect(requestsWith().requests.neos().accepts('{')).toBe(false);
+  });
+});

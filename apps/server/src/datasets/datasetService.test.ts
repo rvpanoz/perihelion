@@ -16,6 +16,7 @@ const BROKEN_CACHE: DatasetCache = {
     throw new TypeError('Corrupt cache row for cmes?days=30');
   },
   write: () => undefined,
+  delete: () => undefined,
 };
 
 function setup(
@@ -44,6 +45,7 @@ function countingRequest(fetchData?: () => Promise<unknown>) {
       calls += 1;
       return fetchData === undefined ? [calls] : fetchData();
     },
+    accepts: () => true,
   };
   return { request, calls: () => calls };
 }
@@ -167,5 +169,65 @@ describe('DatasetService.refreshIfStale', () => {
     const { service, warnings } = setup(NO_SNAPSHOTS, BROKEN_CACHE);
     await expect(service.refreshIfStale(countingRequest().request)).resolves.toBeUndefined();
     expect(warnings).toEqual(['Dataset refresh failed']);
+  });
+});
+
+describe('DatasetService cache validation', () => {
+  const OLD_ENTRY = { dataJson: '["old"]', fetchedAtMs: Date.UTC(2026, 8, 28, 12) };
+  const rejectsOld = (dataJson: string) => dataJson !== OLD_ENTRY.dataJson;
+  const DROPPED = 'Dropped a cached dataset that fails its schema';
+
+  it('treats an entry its request rejects as a miss: fetches, serves fresh and overwrites it', async () => {
+    const { service, cache, warnings } = setup();
+    cache.write('cmes?days=30', OLD_ENTRY);
+    const request = { ...countingRequest().request, accepts: rejectsOld };
+    await expect(service.read(request)).resolves.toMatchObject({
+      dataJson: '[1]',
+      origin: 'fresh',
+    });
+    expect(cache.read(request.cacheKey)?.dataJson).toBe('[1]');
+    expect(warnings).toEqual([DROPPED]);
+  });
+
+  it('drops a rejected entry and serves the snapshot when upstream is down, logging the drop once', async () => {
+    const { service, cache, warnings } = setup(snapshotsOf({ cmes: SNAPSHOT }));
+    cache.write('cmes?days=30', OLD_ENTRY);
+    const request = { ...countingRequest(offline).request, accepts: rejectsOld };
+    await expect(service.read(request)).resolves.toMatchObject({ origin: 'snapshot' });
+    await expect(service.read(request)).resolves.toMatchObject({ origin: 'snapshot' });
+    expect(cache.read(request.cacheKey)).toBeUndefined();
+    expect(warnings).toEqual([DROPPED, 'Dataset refresh failed']);
+  });
+
+  it('checks an entry once per process and serves a valid one without fetching', async () => {
+    const { service, cache } = setup();
+    cache.write('cmes?days=30', { dataJson: '["valid"]', fetchedAtMs: OLD_ENTRY.fetchedAtMs });
+    const accepts = vi.fn(() => true);
+    const { request, calls } = countingRequest();
+    await service.read({ ...request, accepts });
+    await expect(service.read({ ...request, accepts })).resolves.toMatchObject({
+      dataJson: '["valid"]',
+      origin: 'fresh',
+    });
+    expect(accepts).toHaveBeenCalledOnce();
+    expect(calls()).toBe(0);
+  });
+
+  it('does not re-check what it fetched and wrote itself', async () => {
+    const { service } = setup();
+    const accepts = vi.fn(() => true);
+    const request = { ...countingRequest().request, accepts };
+    await service.read(request);
+    await service.read(request);
+    expect(accepts).not.toHaveBeenCalled();
+  });
+
+  it('lets the scheduler replace a rejected entry that has not expired', async () => {
+    const { service, cache } = setup();
+    cache.write('cmes?days=30', OLD_ENTRY);
+    const { request, calls } = countingRequest();
+    await service.refreshIfStale({ ...request, accepts: rejectsOld });
+    expect(calls()).toBe(1);
+    expect(cache.read(request.cacheKey)?.dataJson).toBe('[1]');
   });
 });

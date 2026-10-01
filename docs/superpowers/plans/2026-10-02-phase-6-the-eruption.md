@@ -28,8 +28,9 @@ Fastify, zod 4, Vitest 5, fast-check.
 5. **Links.** `cmeSchema.link` accepts only `http:`/`https:` URLs.
 6. **Cache validation on read.** Each SQLite cache entry is validated against its dataset schema the first time a
    process reads it; a failure counts as a miss.
-7. **ENLIL arrival is kept.** A CME carries ENLIL's predicted Earth arrival when its chosen analysis has an ENLIL
-   run that predicts one, else `null`. When present it is the arrival time shown as fact and the time the drawn
+7. **ENLIL arrival is kept.** A CME's chosen analysis carries ENLIL's predicted Earth arrival
+   (`analysis.earthArrival`, with its glancing-blow and minor-impact flags) when it has an ENLIL run that predicts
+   one, else `null`; ENLIL runs belong to an analysis (Task 1b review, 2026-10-02). When present it is the arrival time shown as fact and the time the drawn
    front reaches Earth (Task 3).
 8. **Ground truth for the CME direction (Task 2):** published worked examples (Hapgood 1992, _Planet. Space Sci._
    40, 711), committed as a fixture with the source cited.
@@ -41,9 +42,9 @@ Fastify, zod 4, Vitest 5, fast-check.
 
 | #   | Task                                       | Issue | Format    | Status        |
 | --- | ------------------------------------------ | ----- | --------- | ------------- |
-| 1a  | DONKI on CCMC, key retired, re-recorded    | #85   | light     | 🟨 in review  |
+| 1a  | DONKI on CCMC, key retired, re-recorded    | #85   | light     | ✅ #111       |
+| 1c  | Validate cache entries on first read       | #85   | light     | 🟨 in review  |
 | 1b  | Strict times, http(s) links, ENLIL arrival | #85   | light     | ⬜            |
-| 1c  | Validate cache entries on first read       | #85   | light     | ⬜            |
 | 2   | Engine: CME direction and Earth-in-cone    | #99   | full code | written later |
 | 3   | Engine: CME kinematics and arrival         | #100  | full code | written later |
 | 4   | CME picker + selected-CME store            | #101  | light     | written later |
@@ -54,8 +55,9 @@ Fastify, zod 4, Vitest 5, fast-check.
 | 9   | Shot choreography                          | #106  | light     | written later |
 | 10  | Exit verification                          | #107  | light     | written later |
 
-Task 1 is one issue (#85) delivered in three PRs (`phase-6/donki-ccmc`, `phase-6/donki-strict`,
-`phase-6/cache-validation`); the last one closes #85.
+Task 1 is one issue (#85) delivered in three PRs, in the order 1a → 1c → 1b (`phase-6/donki-ccmc`,
+`phase-6/cache-validation`, `phase-6/donki-strict`): 1c goes before 1b so the CME schema change lands with cache
+validation already in place (approved 2026-10-02). 1b closes #85.
 
 ---
 
@@ -106,44 +108,61 @@ Task 1 is one issue (#85) delivered in three PRs (`phase-6/donki-ccmc`, `phase-6
 
 ## Task 1b: Strict times, http(s) links, ENLIL arrival
 
+Runs after Task 1c (see above). Review changes approved 2026-10-02 are folded in.
+
 **Files:**
 
-- Modify: `packages/data/src/upstream/donki.ts` (+ test): `toIsoTimestamp` rejects a time without `Z` (decision 4);
-  `link` keeps only `http:`/`https:` URLs, others become `null` (decision 5); the analysis schema reads `enlilList`.
-- Modify: `packages/data/src/cme.ts`: `link` is `z.url({ protocol: /^https?$/ }).nullable()`; add
-  `earthArrival: { predictedTime: iso datetime, isGlancingBlow: boolean } | null`.
+- Modify: `packages/data/src/upstream/donki.ts` (+ test): every DONKI time must end in `Z` (decision 4): `startTime`,
+  `time21_5` and ENLIL's `modelCompletionTime` and `estimatedShockArrivalTime`; a malformed one fails the list (as a
+  bad CAD row does). `recencyMs` treats a time without `Z` as unreadable. `link` keeps only `http:`/`https:` URLs,
+  others become `null` (decision 5). The analysis schema reads `enlilList`, and `toCmeAnalysis` maps the arrival, so
+  `mostAccurateAnalysis` keeps its signature.
+- Modify: `packages/data/src/cme.ts`: `link` is `z.url({ protocol: /^https?$/ }).nullable()`; the analysis gets
+  `earthArrival: { predictedTime: iso datetime, isGlancingBlow: boolean, isMinorImpact: boolean } | null`.
 - Refresh: `npm run snapshot -- cmes`; commit `apps/web/public/snapshot/cmes.json`.
 
-**ENLIL rule (read the field names from the Task 1a recording before coding; don't guess):** from the chosen
-analysis's `enlilList`, take the run with the latest `modelCompletionTime` that has a non-null
-`estimatedShockArrivalTime`; `isGlancingBlow` is its `isEarthGB`. No such run → `earthArrival: null`. Record in the
-PROGRESS decisions how many recorded CMEs have an arrival.
+**ENLIL rule** (field names checked against the Task 1a recording: `modelCompletionTime`,
+`estimatedShockArrivalTime`, `isEarthGB`, `isEarthMinorImpact`): from the chosen analysis's `enlilList`, take the run
+with the latest `modelCompletionTime` whose `estimatedShockArrivalTime` is not null; `isGlancingBlow` is its
+`isEarthGB`, `isMinorImpact` its `isEarthMinorImpact`. No such run → `earthArrival: null`. Log in the PROGRESS
+decisions how many of the kept CMEs have an arrival (the sample for Task 3's tolerance).
 
 **Tests:**
 
-- A time without `Z` (`2026-09-01T12:00`) throws `UpstreamFormatError`; minute precision with `Z` parses.
+- A time without `Z` (`2026-09-01T12:00`) throws `UpstreamFormatError`, in each of the four time fields; minute
+  precision with `Z` parses.
 - A `javascript:` or relative `link` becomes `null`; an `https:` link is kept.
-- ENLIL: no list → `null`; several runs → the latest completed with an arrival; a run without an arrival is skipped.
+- ENLIL: no list → `null`; several runs → the latest completed with an arrival; a run whose
+  `estimatedShockArrivalTime` is `null` is skipped even when it is the latest (the recording has such runs).
 - The re-recorded response normalizes, and its output passes `cmeSchema`.
 
 **Acceptance:**
 
-- [ ] The two DONKI items in PROGRESS "Open questions" are removed and logged as decisions.
+- [ ] The two DONKI items in PROGRESS "Open questions" are removed and logged as decisions; the PR closes #85.
 - [ ] `npm run check` green.
 
 ## Task 1c: Validate cache entries on first read
 
-**Files:** `apps/server/src/datasets/sqliteDatasetCache.ts` or `datasetService.ts` (+ tests); read both first and put
-the check where the dataset's schema is already known.
+Runs before Task 1b. Design approved 2026-10-02 (review items 1–4).
 
-**Behaviour:** the first time a process reads an entry for a dataset, it parses it with that dataset's schema; a
-failure is logged once, the entry is treated as a miss (refetch, then stale/snapshot fallback as today), and later
-reads of a valid entry skip re-validation.
+**Files:**
 
-**Tests:** a pre-change entry (e.g. a CME row without `earthArrival`) is a miss and triggers a fetch; a valid entry is
-served without a fetch; validation runs once per entry per process.
+- Modify: `apps/server/src/datasets/types.ts`: `DatasetRequest.accepts(dataJson): boolean`;
+  `DatasetCache.delete(cacheKey)`.
+- Modify: `apps/server/src/datasets/datasetRequests.ts` (+ test): `datasetRequest()` builds `accepts` from the same
+  `DATASET_DATA_SCHEMAS[name]` that `fetchData` uses; text that is not JSON is rejected without throwing. The service
+  stays schema-agnostic.
+- Modify: `apps/server/src/datasets/sqliteDatasetCache.ts` (+ test): `delete`.
+- Modify: `apps/server/src/datasets/datasetService.ts` (+ test): `read` and the scheduler's `#refreshUnlessFresh` both
+  go through `#readValid`. An entry is checked once per process (a `Set` of checked keys; entries the process writes
+  count as checked); one that fails is deleted, logged once and treated as a miss (refetch, then snapshot).
+
+**Tests:** a rejected entry is a miss (fetch, `fresh`, overwritten); with upstream down it serves the snapshot, the row
+is gone and a second read logs nothing new; a valid entry is checked once and served without a fetch; entries the
+process wrote are not re-checked; the scheduler replaces a rejected, unexpired entry; `accepts` takes the request's own
+output and rejects an entry missing a required field, and rejects non-JSON; `SqliteDatasetCache.delete` removes a row.
 
 **Acceptance:**
 
-- [ ] The cache item in PROGRESS "Open questions" is removed and logged as a decision; the PR closes #85.
-- [ ] `npm run check` green.
+- [x] The cache item in PROGRESS "Open questions" is removed and logged as a decision.
+- [x] `npm run check` green.

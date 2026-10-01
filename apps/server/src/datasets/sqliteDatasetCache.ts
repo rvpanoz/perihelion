@@ -11,6 +11,7 @@ const CREATE_TABLE = `CREATE TABLE IF NOT EXISTS dataset_cache (
 const SELECT = 'SELECT data_json, fetched_at_ms FROM dataset_cache WHERE cache_key = ?';
 const UPSERT = `INSERT INTO dataset_cache (cache_key, data_json, fetched_at_ms) VALUES (?, ?, ?)
   ON CONFLICT (cache_key) DO UPDATE SET data_json = excluded.data_json, fetched_at_ms = excluded.fetched_at_ms`;
+const DELETE = 'DELETE FROM dataset_cache WHERE cache_key = ?';
 
 /** Creates the parent directory, since the default path (.cache/) does not exist on a fresh checkout. */
 export function openDatasetDatabase(path: string): DatabaseSync {
@@ -21,11 +22,13 @@ export function openDatasetDatabase(path: string): DatabaseSync {
 export class SqliteDatasetCache implements DatasetCache {
   readonly #select: StatementSync;
   readonly #upsert: StatementSync;
+  readonly #delete: StatementSync;
 
   constructor(database: DatabaseSync) {
     database.exec(CREATE_TABLE);
     this.#select = database.prepare(SELECT);
     this.#upsert = database.prepare(UPSERT);
+    this.#delete = database.prepare(DELETE);
   }
 
   read(cacheKey: string): CachedDataset | undefined {
@@ -40,5 +43,9 @@ export class SqliteDatasetCache implements DatasetCache {
 
   write(cacheKey: string, dataset: CachedDataset): void {
     this.#upsert.run(cacheKey, dataset.dataJson, dataset.fetchedAtMs);
+  }
+
+  delete(cacheKey: string): void {
+    this.#delete.run(cacheKey);
   }
 }

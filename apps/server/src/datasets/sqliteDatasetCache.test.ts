@@ -20,6 +20,14 @@ describe('SqliteDatasetCache', () => {
     expect(cache.read('neos')).toEqual({ dataJson: '[]', fetchedAtMs: DATASET.fetchedAtMs + 1 });
   });
 
+  it('deletes a row, and deleting a missing key is a no-op', () => {
+    const cache = new SqliteDatasetCache(new DatabaseSync(':memory:'));
+    cache.write('neos', DATASET);
+    cache.delete('neos');
+    expect(cache.read('neos')).toBeUndefined();
+    expect(() => cache.delete('neos')).not.toThrow();
+  });
+
   it('survives a restart, which is what keeps data flowing with the network down', () => {
     const path = join(mkdtempSync(join(tmpdir(), 'perihelion-')), 'nested', 'cache.sqlite');
     const first = openDatasetDatabase(path);
