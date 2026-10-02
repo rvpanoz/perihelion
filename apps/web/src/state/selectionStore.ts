@@ -20,6 +20,18 @@ export class SelectionStore<T> {
     this.#notify();
   };
 
+  /**
+   * After a data swap: points at the selected row's counterpart (same key) in the new list. False when the list no
+   * longer has it; the caller clears, since clearing may move the camera too.
+   */
+  reselectFrom = (items: readonly T[], keyOf: (item: T) => string): boolean => {
+    if (this.#selected === undefined) return true;
+    const key = keyOf(this.#selected);
+    const counterpart = items.find((item) => keyOf(item) === key);
+    if (counterpart !== undefined) this.select(counterpart);
+    return counterpart !== undefined;
+  };
+
   subscribe = (listener: () => void): (() => void) => {
     this.#listeners.add(listener);
     return () => this.#listeners.delete(listener);

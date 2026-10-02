@@ -32,4 +32,32 @@ describe('SelectionStore', () => {
     selection.select(APPROACH);
     expect(listener).not.toHaveBeenCalled();
   });
+
+  describe('reselectFrom (a data swap)', () => {
+    const keyOf = (row: typeof APPROACH) => row.designation;
+
+    it('points at the same row in the new list, so the list can still match it by identity', () => {
+      const selection = new SelectionStore<typeof APPROACH>();
+      selection.select(APPROACH);
+      const swapped = { designation: '2026 RX7' };
+      expect(selection.reselectFrom([{ designation: '2026 QA1' }, swapped], keyOf)).toBe(true);
+      expect(selection.selected).toBe(swapped);
+    });
+
+    it('reports a row the new list no longer has, and leaves clearing to the caller', () => {
+      const selection = new SelectionStore<typeof APPROACH>();
+      selection.select(APPROACH);
+      expect(selection.reselectFrom([{ designation: '2026 QA1' }], keyOf)).toBe(false);
+      expect(selection.selected).toBe(APPROACH);
+    });
+
+    it('has nothing to keep, and does not notify, with nothing selected', () => {
+      const selection = new SelectionStore<typeof APPROACH>();
+      const listener = vi.fn();
+      selection.subscribe(listener);
+      expect(selection.reselectFrom([APPROACH], keyOf)).toBe(true);
+      expect(selection.selected).toBeUndefined();
+      expect(listener).not.toHaveBeenCalled();
+    });
+  });
 });

@@ -100,7 +100,7 @@ parts):
 | 2   | Quality tiers                                | #129  | full code | ⬜     |
 | 3   | Tier governor + Display panel                | #130  | full code | ⬜     |
 | 4   | Progressive loading: worker + code splitting | #131  | light     | ⬜     |
-| 5   | Fallbacks: no WebGL2, server timeout         | #132  | light     | ⬜     |
+| 5   | Fallbacks: no WebGL2, server timeout         | #132  | light     | ✅     |
 | 6   | Responsive, touch and scrollbars             | #133  | light     | ⬜     |
 | 7   | Accessibility and reduced motion             | #134  | light     | ⬜     |
 | 8   | Help dialog, legend, hint, credits           | #135  | light     | ⬜     |
@@ -818,11 +818,53 @@ shows for `snapshot` and not for `fresh`/`stale`.
 
 **Acceptance:**
 
-- [ ] With the server stopped, the app shows the snapshot within ~4 s with the banner; starting the server swaps to
+- [x] With the server stopped, the app shows the snapshot within ~4 s with the banner; starting the server swaps to
       live without a reload; a selected approach stays selected.
-- [ ] The Phase 5 deferred check: two approaches replay end to end from the snapshot (server stopped), HUD values
+- [x] The Phase 5 deferred check: two approaches replay end to end from the snapshot (server stopped), HUD values
       equal the snapshot rows.
-- [ ] `?webgl=off` shows the notice; no WebGL context is created.
+- [x] `?webgl=off` shows the notice; no WebGL context is created.
+
+**As built** (review proposals 1–11, approved 2026-10-03):
+
+1. No wake-up `fetch('/api/health')`: the server's route is `/health`, which neither the dev proxy nor Netlify
+   forwards, and the first dataset request reaches Render and wakes it anyway. Task 9's `/api/health` check needs a
+   server route for it.
+2. `loadDataset(name, options?)` takes `{ fetchImpl, serverTimeoutMs, signal }`. The limit is an `AbortController`
+   with `setTimeout`, not `AbortSignal.timeout`, so tests drive it with fake timers; it is combined with the caller's
+   signal through `AbortSignal.any`.
+3. The 4 s limit (`SERVER_TIMEOUT_MS`) covers only the wait for headers; the timer is cleared once the server
+   answers, so a slow 4 MB NEO body from a live server is never cut off.
+4. Retries call `loadFromServer` (server only, never the snapshot) with a 30 s limit per attempt
+   (`RETRY_SERVER_TIMEOUT_MS`). Delays 4, 8, 16, 32 s, then every 60 s, each counted from the end of the previous
+   attempt (`data/serverRetry.ts`: `retryDelayMs`, `retryUntilAnswered`). Any answer from the server ends them, even
+   its own snapshot (JPL down): `needsServerRetry` is true only for origin `snapshot` or `unavailable`. `useDataset`
+   now takes `DatasetSources` (`load` + `loadFromServer`) instead of a bare loader.
+5. The NEO catalog retries too: `NeoCatalogRequest.serverOnly` makes the worker (or the main-thread fallback) ask the
+   server only, and `useNeoCatalog` replaces the swarm's attributes when it answers. Each attempt's worker is stopped
+   when the attempt ends. The swarm's fade-in does not run again.
+6. `SelectionStore.reselectFrom(items, keyOf)` points the store at the row with the same key in the new list, since
+   the lists match the selection by identity. `shotSelection.keepShotsIn` uses `approachKey` (moved to
+   `approaches/approachKey.ts`) and `activityId`; a missing approach clears through `clearApproach()`, a missing CME
+   through `cmeSelection.clear()`. No camera flight. `shell/useKeepShots.ts` runs it when a list changes.
+7. Banner text: "Live JPL data unavailable · showing the snapshot from <date>" (oldest snapshot date, the pill's date
+   format), true whether our server or JPL is down. `SnapshotBanner` spans the top bar under the pill; it is not a
+   live region.
+8. `hasWebGl2` releases its probe context through `WEBGL_lose_context`. `?webgl=off` (dev only) skips the probe, so no
+   context is created at all.
+9. Stills in `apps/web/public/stills/`: `swarm.webp` (v0.4 overview, cropped clear of the FPS meter and the old
+   buttons, 1280 × 605, 173 KB), `close-approach.webp` (v0.5 close pass, 1280 × 602, 34 KB), `eruption.webp` (v0.6
+   burst, the cursor removed from the Sun's glow, cropped to the scene, 990 × 520, 91 KB). The v0.6 cruise frame was
+   not used: its cursor sits on the shell's edge and could not be removed cleanly.
+10. Tests as planned, plus: the swap re-selects the new object; a server answering with its own snapshot stops the
+    retries; a slow body from a live server still arrives; an aborted retry cancels its attempt.
+
+Verified 2026-10-03 in Chrome (dev, 1920×809 canvas, DPR 1, S2721HN at 75 Hz), with a listener on 8787 that accepts
+and never answers standing in for an asleep server: the snapshot and the banner arrived at 4.6 s after navigation.
+2026 RP39 and 2024 SH7 played through their passes from the snapshot; the card's distance, speed, H and 3σ equal the
+snapshot rows. Swapping in the real server, all three datasets went live within 26 s without a reload, the banner
+went away and 2024 SH7 stayed selected and highlighted. Frame times over 26 s spanning the swap: 1,920 frames, none
+over 16.7 ms (worst 14.5 ms, steady median 13.3 ms). `?webgl=off`: the notice, no canvas, the three stills loaded and
+no data requested.
 
 ## Task 6: Responsive, touch and scrollbars (light)
 
@@ -945,6 +987,9 @@ Branch `phase-7/deploy`.
 - **README:** the public URL and how to run locally.
 
 **Tests:** `config.test.ts` for the host binding if it changes. Deployment itself is checked by hand.
+
+_Note from Task 5:_ the server answers `/health` only, and Netlify forwards `/api/*`, so the `/api/health` check
+below needs an `/api/health` route (or the check uses `/api/cmes`); decide in this task's review.
 
 **Acceptance:**
 

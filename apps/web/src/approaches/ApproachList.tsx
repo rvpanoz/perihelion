@@ -18,6 +18,7 @@ import {
   groupApproaches,
   orbitClassLabel,
 } from './approachFormat';
+import { approachKey } from './approachKey';
 import { approachDiameter, diameterText } from './diameter';
 
 export interface ApproachListProps {
@@ -116,11 +117,6 @@ function approachTabStop(rows: {
     focusedKey,
     selectedKey: selected && approachKey(selected),
   });
-}
-
-/** One designation can pass twice in the window, so the time is part of the key. */
-function approachKey(approach: CloseApproach): string {
-  return `${approach.designation} ${approach.approachJdTdb}`;
 }
 
 /** CAD's TDB string is the tooltip: the row shows UTC, and the source time stays one hover away. */

@@ -10,11 +10,19 @@ import {
   type SwarmAttributes,
   buildSwarmAttributes,
 } from '../scene/swarm/swarmAttributes';
-import { type DatasetLoader, loadDataset, loadDatasetOrUndefined } from './loadDataset';
+import {
+  type DatasetLoader,
+  loadDataset,
+  loadDatasetOrUndefined,
+  loadFromServer,
+} from './loadDataset';
+import { RETRY_SERVER_TIMEOUT_MS } from './serverRetry';
 
 /** The main thread's simulation time when it asks: the swarm's reference epoch. */
 export interface NeoCatalogRequest {
   referenceJdTdb: number;
+  /** A background retry while the swarm shows the snapshot: our server or nothing, never the snapshot again. */
+  serverOnly?: boolean;
 }
 
 export type OrbitClassCounts = Record<NeoOrbitClass, number>;
@@ -45,10 +53,15 @@ const UNAVAILABLE: PostableNeoCatalogMessage = { message: { kind: 'unavailable' 
 /** The same path in the worker and, without one, on the main thread: validate, build, summarise. */
 export async function loadNeoCatalogMessage(
   request: NeoCatalogRequest,
-  load: DatasetLoader<'neos'> = () => loadDataset('neos'),
+  load: DatasetLoader<'neos'> = neoCatalogLoader(request),
 ): Promise<PostableNeoCatalogMessage> {
   const response = await loadDatasetOrUndefined(load);
   return response === undefined ? UNAVAILABLE : neoCatalogMessage(response, request.referenceJdTdb);
+}
+
+function neoCatalogLoader(request: NeoCatalogRequest): DatasetLoader<'neos'> {
+  if (request.serverOnly !== true) return () => loadDataset('neos');
+  return () => loadFromServer('neos', { serverTimeoutMs: RETRY_SERVER_TIMEOUT_MS });
 }
 
 export function neoCatalogMessage(
