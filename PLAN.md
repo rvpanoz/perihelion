@@ -177,16 +177,21 @@ DONKI analysis; full sequence runs at ≥ 60 fps.
 
 ## Phase 7 — Polish & ship
 
-- Earth detail: city lights on the night side and a cloud layer (moved from Phase 6)
-- Performance pass on modest hardware (integrated GPU); quality tiers (particle count, bloom resolution)
+Performance comes before graphics detail (2026-10-02).
+
+- Performance pass on modest hardware (integrated GPU): quality tiers (pixel ratio, MSAA, bloom resolution, trails,
+  CME particle count), chosen automatically from frame times, with a manual override
+- Display panel: quality and trails
 - Loading experience (progressive: planets first, swarm streams in)
 - Graceful fallbacks: WebGL2 missing, data unavailable (snapshot banner)
-- Responsive layout; touch controls on mobile web
+- Responsive layout; touch controls on mobile web; thin, consistent scrollbars
 - Accessibility basics for the UI chrome; reduced-motion mode (no auto camera moves)
-- Credits/attribution page for NASA/JPL data and imagery
-- Deploy (web: static host; server: small Node host) + a short screen recording for sharing
+- Help: a short guide to what you're seeing, an orbit-class legend, and credits/attribution for NASA/JPL data and
+  imagery
+- Deploy (web: Netlify; server: Render) + a short screen recording for sharing
 
-**Exit criteria:** public URL, shareable recording, Lighthouse performance acceptable on desktop.
+**Exit criteria:** public URL, shareable recording, Lighthouse on desktop: Performance ≥ 85 with Total Blocking Time
+< 300 ms and Accessibility ≥ 90.
 
 ## Parked (post-v1)
 
@@ -194,3 +199,5 @@ DONKI analysis; full sequence runs at ≥ 60 fps.
 - React Native companion (aurora alerts from DONKI)
 - WebGPU renderer (three.js TSL) for the swarm
 - Comets and main-belt asteroids (hundreds of thousands of points)
+- Earth detail: city lights on the night side and a cloud layer (moved from Phase 7, 2026-10-02)
+- Swarm colour tuning: Apollo blue dominates zoomed out, Amor purple reads almost white (deferred from Phase 4)
