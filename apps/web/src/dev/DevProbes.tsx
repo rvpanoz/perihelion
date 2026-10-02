@@ -1,18 +1,22 @@
 import { useFrame, useThree } from '@react-three/fiber';
 import { useRef, useState } from 'react';
 import { openingStore } from '../scene/opening/openingStore';
+import { BenchProbe } from './BenchProbe';
+import { parseBenchRequest } from './benchScenarios';
 import { hitchTimesMs, summarizeFrameTimes } from './frameTimes';
 import { createSwarmGpuTiming } from './gpuTimer';
 
 /**
- * Dev-only measurement for the Phase 4 exit runs; `SceneCanvas` mounts it behind `import.meta.env.DEV`, so none of
- * it ships. Results go to the console, where the Chrome runs read them.
+ * Dev-only measurement for the exit runs; `SceneCanvas` mounts it behind `import.meta.env.DEV`, so none of it
+ * ships. Results go to the console, where the Chrome runs read them.
  */
 export function DevProbes() {
+  const [benchRequest] = useState(() => parseBenchRequest(window.location.search));
   return (
     <>
       <OpeningFrameProbe />
       <GpuTimerProbe />
+      {benchRequest && <BenchProbe request={benchRequest} />}
     </>
   );
 }

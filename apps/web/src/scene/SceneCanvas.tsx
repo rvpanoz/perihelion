@@ -2,6 +2,7 @@ import { Stats } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { useEffect } from 'react';
 import { DevProbes } from '../dev/DevProbes';
+import { devPixelRatioFromUrl } from '../dev/devPixelRatio';
 import { CAMERA_SETTINGS, RENDERER_PARAMETERS, SCENE_BACKGROUND } from './canvasConfig';
 import { earthDayMap } from './bodies/earth/earthDayMap';
 import { CameraControls } from './camera/CameraControls';
@@ -9,6 +10,11 @@ import { Effects } from './effects/Effects';
 import { OpeningDirector } from './opening/OpeningDirector';
 import { SceneContents } from './SceneContents';
 import type { SwarmProps } from './swarm/Swarm';
+
+/** Read once per load; production builds keep R3F's default pixel ratio until the quality tiers set one. */
+const DEV_PIXEL_RATIO = import.meta.env.DEV
+  ? devPixelRatioFromUrl(window.location.search)
+  : undefined;
 
 export interface SceneCanvasProps {
   swarm: SwarmProps | undefined;
@@ -24,7 +30,7 @@ export interface SceneCanvasProps {
 export function SceneCanvas({ swarm, openingCanStart }: SceneCanvasProps) {
   useEffect(() => earthDayMap.load(), []);
   return (
-    <Canvas flat gl={RENDERER_PARAMETERS} camera={CAMERA_SETTINGS}>
+    <Canvas flat dpr={DEV_PIXEL_RATIO} gl={RENDERER_PARAMETERS} camera={CAMERA_SETTINGS}>
       <color attach="background" args={[SCENE_BACKGROUND]} />
       <OpeningDirector canStart={openingCanStart} />
       <SceneContents swarm={swarm} />
