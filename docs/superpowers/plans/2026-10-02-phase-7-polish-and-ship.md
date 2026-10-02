@@ -96,7 +96,7 @@ parts):
 
 | #   | Task                                         | Issue | Format    | Status |
 | --- | -------------------------------------------- | ----- | --------- | ------ |
-| 1   | Baseline harness: frame times + bundle size  | #128  | light     | ⬜     |
+| 1   | Baseline harness: frame times + bundle size  | #128  | light     | ✅     |
 | 2   | Quality tiers                                | #129  | full code | ⬜     |
 | 3   | Tier governor + Display panel                | #130  | full code | ⬜     |
 | 4   | Progressive loading: worker + code splitting | #131  | light     | ⬜     |
@@ -140,11 +140,32 @@ arrays (empty → 0; `[1..10]` → 9).
 
 **Acceptance:**
 
-- [ ] Baseline in `PROGRESS.md`, on the S2721HN, for `overview`, `earth`, `approach`, `eruption` at: normal; `?dpr=2`;
+- [x] Baseline in `PROGRESS.md`, on the S2721HN, for `overview`, `earth`, `approach`, `eruption` at: normal; `?dpr=2`;
       `?dpr=2&swarmStress=4`; `?dpr=2&swarmStress=4` with CPU throttle 4×. Median, p90, worst, frames over 20 ms.
-- [ ] Lighthouse desktop on `npm run build && npx vite preview` (local, no server: snapshot path): Performance, TBT,
+- [x] Lighthouse desktop on `npm run build && npx vite preview` (local, no server: snapshot path): Performance, TBT,
       LCP, Accessibility, recorded as the baseline.
-- [ ] Initial JS gzip size recorded; `npm run check` green with the budget step.
+- [x] Initial JS gzip size recorded; `npm run check` green with the budget step.
+
+**As built** (review proposals 1–8, approved 2026-10-02):
+
+1. `BenchProbe` loads its own copy of the close-approach and CME lists (`loadDataset`), because the lists are React
+   state in `App` and the probe runs inside `<Canvas>`. Dev and bench only; `App` is unchanged.
+2. `approach` plays the closest row by CAD distance (`closestApproach`); `eruption` watches the latest CME with an
+   ENLIL Earth arrival, else the latest (`benchCme`). The log line's `subject` names the row.
+3. Timing starts when the shot's camera flight has landed, then 1 s settles and 10 s are recorded (`BenchRun`,
+   pure, with tests). `overview` and `earth` jump to now at 1 d/s and fly to the Sun / `earthMoonBarycenter`.
+   `tour`: overview 0 s, Earth 8 s, approach 16 s, eruption 32 s, done at 64 s (`[bench] tour done`).
+4. Scenario setups are a table in `benchScenarios.ts` driven through injected targets (tested with fakes); the probe
+   picks a row as the viewer does (`chooseApproach`, then `playApproach`).
+5. `SceneCanvas` passes `dpr={DEV_PIXEL_RATIO}` (undefined outside dev or without `?dpr`, so R3F's default stays
+   until Task 2's cap).
+6. `bundleBudget.mjs` gzips at Node's default level: 391,164 bytes measured, budget 400,000.
+7. Chrome's 4× CPU throttle measured ≈ 1.7× on the M3 (a fixed loop: 486 ms vs 281 ms unthrottled; 483 ms in the
+   user's DevTools console). The throttled column is labelled with the measured rate. The user ran Lighthouse in
+   DevTools; no `npx lighthouse`.
+8. Port 8787 was free during the Lighthouse run; the pill read "Offline snapshot".
+
+`summarizeFrameTimes`'s existing tests now expect `p90Ms` in the summary (the type gained the field).
 
 ## Task 2: Quality tiers (full code)
 

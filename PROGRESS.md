@@ -312,7 +312,7 @@ started from the console (dev only, no app code) by pressing Watch eruption on t
 
 Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performance comes before graphics detail.
 
-- [ ] Baseline harness: frame times and bundle size (#128)
+- [x] Baseline harness: frame times and bundle size (#128)
 - [ ] Quality tiers (#129)
 - [ ] Tier governor and Display panel (#130)
 - [ ] Progressive loading: worker and code splitting (#131)
@@ -324,7 +324,33 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 - [ ] Exit verification (#137)
 
 Status (2026-10-02): plan merged in #138, with issues #128–#137 on the board. README rewritten for the current state
-in #139. Development is paused; the next step is Task 1 (#128).
+in #139. Task 1 (#128) on `phase-7/baseline`, review proposals 1–8 included (plan Task 1, "As built"); next is
+Task 2 (#129).
+
+### Phase 7 baseline
+
+Measured 2026-10-02 on `phase-7/baseline` (`main` at `0f9d2ca` plus the harness), in Chrome in a foreground window
+(1920×809 canvas) on an Apple M3 with 16 GB, macOS 26.5, Dell S2721HN at 75 Hz; live data (19 approaches, 42,536-NEO
+catalog, trails on). Each run is `?opening=off&bench=<scenario>`: the camera flight lands, 1 s settles, 10 s are
+recorded. Approach: 2026 SA8, the closest row. Eruption: `2026-09-30T03:12:00-CME-001`, the latest with an ENLIL
+Earth arrival. Cells: median / p90 / worst ms, then frames over 20 ms.
+
+| Scenario | Normal (DPR 1)            | `?dpr=2`                    | `?dpr=2&swarmStress=4`      | + CPU 4× setting (≈ 1.7×)   |
+| -------- | ------------------------- | --------------------------- | --------------------------- | --------------------------- |
+| overview | 13.3 / 13.8 / 14.5, 0/750 | 23.3 / 24.1 / 25.5, 430/431 | 34.1 / 37.4 / 39.0, 288/288 | 34.4 / 37.5 / 39.5, 287/287 |
+| earth    | 13.3 / 13.6 / 15.1, 0/750 | 19.5 / 21.0 / 98.6, 164/500 | 22.5 / 23.1 / 32.7, 446/447 | 22.5 / 23.7 / 27.1, 441/445 |
+| approach | 13.3 / 13.9 / 14.9, 0/750 | 19.2 / 20.4 / 25.6, 106/522 | 20.9 / 23.8 / 27.8, 336/468 | 21.0 / 24.3 / 47.0, 323/465 |
+| eruption | 13.3 / 14.3 / 17.5, 0/750 | 21.5 / 23.9 / 25.5, 446/454 | 29.3 / 35.8 / 44.9, 322/323 | 32.6 / 41.9 / 49.0, 292/292 |
+
+- At DPR 1 every scenario holds the display's 75 fps. At 4× the pixels every one misses 16.7 ms: fill rate is the
+  first cost, so Task 2's pixel-ratio cap and MSAA come first. The overview and the eruption are the worst cases.
+- The CPU throttle barely moves the medians (GPU-bound); it shows in the tails (approach worst 47 ms, eruption p90
+  41.9 ms). Chrome's 4× setting slowed a 2e8-iteration loop 1.7× on this machine (486 ms vs 281 ms; the user's
+  check in the DevTools console: 483 ms), so the column is labelled with the measured rate (decisions log).
+- Lighthouse desktop (DevTools, Navigation) on `npm run build` + `vite preview`, data server stopped (pill "Offline
+  snapshot"): Performance 90, Accessibility 98; FCP 0.6 s, LCP 2.0 s, TBT 0 ms, CLS 0, Speed Index 0.6 s.
+- Initial JS: 391,164 bytes gzipped (one entry chunk, Node's default gzip level); `npm run check` fails above
+  400,000 (`scripts/bundleBudget.mjs`). Task 4 lowers the budget.
 
 ## Calibrated tolerances
 
@@ -807,3 +833,13 @@ _None._
   Performance ≥ 85, TBT < 300 ms, Accessibility ≥ 90; the user captures the recording.
 - **2026-10-02:** README rewritten in plain English for the current state (#139): the three shots, how the web app,
   data server and engine fit together, data sources, endpoints, getting started and every npm command.
+- **2026-10-02:** Task 1 (#128): the bench (`?bench=overview|earth|approach|eruption|tour`, dev only) loads its own
+  copy of the lists, so nothing is threaded through `App`; it plays the closest approach and the latest CME with an
+  ENLIL Earth arrival (else the latest), and logs which. Timing starts after the shot's camera flight lands plus
+  1 s, so a flight is never mixed into the steady numbers; `tour` (~64 s) is untimed. `?dpr=<n>` clamps to 0.5–3.
+  `FrameTimeSummary` gains `p90Ms` (nearest rank), so the existing summary tests now expect it.
+- **2026-10-02:** Chrome's DevTools CPU throttle at 4× gives only ≈ 1.7× on the M3 (fixed loop, checked by the user in
+  the DevTools console as well), so throttled runs are recorded as "CPU 4× setting (≈ 1.7×)", never as 4×. The other
+  proxies (`?dpr=2`, `?swarmStress=4`) already show the GPU sets the frame time.
+- **2026-10-02:** The initial JS budget counts what `index.html` loads up front (entry script + modulepreloads),
+  gzipped at Node's default level, against 400,000 bytes (391,164 measured, rounded up to the next 10 kB).
