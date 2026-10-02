@@ -6,6 +6,10 @@ describe('canvas configuration', () => {
     expect(RENDERER_PARAMETERS.logarithmicDepthBuffer).toBe(true);
   });
 
+  it('leaves antialiasing to the composer, whose off-screen buffers are what reach the screen', () => {
+    expect(RENDERER_PARAMETERS.antialias).toBe(false);
+  });
+
   it('renders on a black background', () => {
     expect(SCENE_BACKGROUND).toBe('#000000');
   });

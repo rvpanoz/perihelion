@@ -2,8 +2,10 @@ import type { WebGLRendererParameters } from 'three';
 
 // World unit is 1 AU, so depth spans ~1e-6 to ~1e3 units. A logarithmic depth buffer keeps
 // precision across that range and prevents z-fighting at planet scale (PLAN.md, Phase 0 + 3).
+// The composer renders off-screen with its own MSAA (per quality tier), so the canvas's MSAA buffer would never reach
+// the screen and only cost memory and fill.
 export const RENDERER_PARAMETERS = {
-  antialias: true,
+  antialias: false,
   logarithmicDepthBuffer: true,
 } as const satisfies WebGLRendererParameters;
 

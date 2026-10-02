@@ -313,7 +313,7 @@ started from the console (dev only, no app code) by pressing Watch eruption on t
 Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performance comes before graphics detail.
 
 - [x] Baseline harness: frame times and bundle size (#128)
-- [ ] Quality tiers (#129)
+- [x] Quality tiers (#129)
 - [ ] Tier governor and Display panel (#130)
 - [ ] Progressive loading: worker and code splitting (#131)
 - [ ] Fallbacks: no WebGL2, server timeout (#132)
@@ -324,8 +324,8 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 - [ ] Exit verification (#137)
 
 Status (2026-10-02): plan merged in #138, with issues #128–#137 on the board. README rewritten for the current state
-in #139. Task 1 (#128) on `phase-7/baseline`, review proposals 1–8 included (plan Task 1, "As built"); next is
-Task 2 (#129).
+in #139. Task 1 (#128) merged in #141. Task 2 (#129) on `phase-7/quality-tiers`, review proposals 1–8 included (plan
+Task 2, "As built"); next is Task 3 (#130).
 
 ### Phase 7 baseline
 
@@ -351,6 +351,45 @@ Earth arrival. Cells: median / p90 / worst ms, then frames over 20 ms.
   snapshot"): Performance 90, Accessibility 98; FCP 0.6 s, LCP 2.0 s, TBT 0 ms, CLS 0, Speed Index 0.6 s.
 - Initial JS: 391,164 bytes gzipped (one entry chunk, Node's default gzip level); `npm run check` fails above
   400,000 (`scripts/bundleBudget.mjs`). Task 4 lowers the budget.
+
+### Quality tiers (Task 2)
+
+Measured 2026-10-02 21:33–21:46 on `phase-7/quality-tiers`, same setup as the baseline, tier from `?tier=`. `?dpr=2`
+stands in for the device's ratio and the tier caps it (Low 1, Medium 1.5, High 2). Cells as above.
+
+| Scenario | High, normal (DPR 1)      | `?dpr=2` Low              | `?dpr=2` Medium           | `?dpr=2` High               |
+| -------- | ------------------------- | ------------------------- | ------------------------- | --------------------------- |
+| overview | 13.3 / 13.8 / 15.1, 0/750 | 13.3 / 13.7 / 41.2, 1/749 | 13.3 / 13.5 / 15.7, 0/750 | 20.4 / 21.5 / 29.7, 450/485 |
+| earth    | 13.3 / 14.3 / 22.2, 1/750 | 13.3 / 13.8 / 15.0, 0/750 | 13.3 / 15.3 / 17.4, 0/750 | 16.2 / 16.9 / 24.4, 1/616   |
+| approach | 13.3 / 13.9 / 22.8, 1/750 | 13.3 / 13.8 / 20.2, 1/750 | 13.3 / 15.2 / 26.1, 1/750 | 15.8 / 17.1 / 18.9, 0/629   |
+| eruption | 13.3 / 13.5 / 24.3, 1/750 | 13.3 / 13.8 / 16.0, 0/750 | 13.3 / 13.7 / 14.5, 0/750 | 18.2 / 21.5 / 26.9, 190/525 |
+
+| Scenario | `?dpr=2&swarmStress=4` Low | … Medium                  | … High                      |
+| -------- | -------------------------- | ------------------------- | --------------------------- |
+| overview | 13.3 / 13.8 / 24.8, 1/750  | 14.3 / 14.7 / 16.0, 0/697 | 35.1 / 35.7 / 39.9, 287/287 |
+| earth    | 13.3 / 13.8 / 14.9, 0/750  | 13.3 / 14.1 / 19.0, 0/750 | 19.8 / 20.5 / 26.9, 110/506 |
+| approach | 13.3 / 13.8 / 15.0, 0/750  | 13.3 / 13.8 / 14.8, 0/750 | 17.6 / 21.2 / 22.5, 135/549 |
+| eruption | 13.3 / 14.2 / 54.6, 1/748  | 13.4 / 14.8 / 20.3, 1/725 | 27.5 / 36.6 / 38.7, 333/334 |
+
+- Medium and Low hold the display's 75 fps in every proxy run; High at `?dpr=2` beats the baseline in every scenario
+  (overview 23.3 → 20.4 ms median), from 4× MSAA instead of 8× and no canvas MSAA buffer.
+- High at `?dpr=2&swarmStress=4` read slower than the baseline (overview 35.1 vs 34.1 ms) and repeats drifted worse
+  (41.5 ms at 21:46) as the fanless Mac warmed, so main and the branch were compared head to head (A/B below).
+- Isolated single frames over 20 ms at Low and Medium (worst 54.6 ms) are one-offs, not a pattern.
+
+A/B, 2026-10-02 21:53–22:07, overview at `?dpr=2&swarmStress=4`, main (`37af7ba`, own worktree) against the branch at
+High, in the order M B B M M B B M with 90 s idle between runs so drift cancels:
+
+| Build       | Median (ms)                   | p90 (ms)                  | Worst (ms)                | Frames in 10 s        |
+| ----------- | ----------------------------- | ------------------------- | ------------------------- | --------------------- |
+| main        | 34.65 / 34.40 / 34.75         | 38.1 / 37.5 / 37.6        | 83.3 / 39.6 / 39.8        | 284 / 287 / 286       |
+| branch High | 35.10 / 35.20 / 35.10 / 35.30 | 35.8 / 36.1 / 36.3 / 36.2 | 37.3 / 37.4 / 39.1 / 37.9 | 286 / 285 / 286 / 284 |
+
+- Same throughput (≈ 285.5 frames per 10 s, so the same mean frame time); the branch's median is 0.6 ms higher but
+  its p90 is 1.6 ms lower and its worst frames tighter: steadier pacing, not slower rendering. Accepted as not slower
+  (user decision).
+- The last main run came out bimodal (half the frames ~17 ms, half ~70 ms); a repeat of main and a branch control run
+  did the same, so the machine changed state, not the code. Those three runs are left out.
 
 ## Calibrated tolerances
 
@@ -843,3 +882,10 @@ _None._
   proxies (`?dpr=2`, `?swarmStress=4`) already show the GPU sets the frame time.
 - **2026-10-02:** The initial JS budget counts what `index.html` loads up front (entry script + modulepreloads),
   gzipped at Node's default level, against 400,000 bytes (391,164 measured, rounded up to the next 10 kB).
+- **2026-10-02:** Task 2 (#129): `?dpr` stands in for the device's ratio and the tier caps it, so proxy runs show the
+  tiers apart; the dev-only `?tier=low|medium|high` is read once in `main.tsx` (a bench run reloads the page), with no
+  `window` handle. `CME_SHELL_LOOK.particleCount` (24,000) stays and `QUALITY_TIERS.high` references it, so the
+  Phase 6 exit-check and shell-geometry tests are unchanged.
+- **2026-10-02:** Task 2's High tier counts as not slower than main at `?dpr=2&swarmStress=4` (user decision): an
+  alternating A/B showed the same frames per 10 s, a 0.6 ms higher median and a 1.6 ms lower p90. A/B runs on this
+  fanless Mac alternate builds with idle breaks; one long sweep drifts with heat.

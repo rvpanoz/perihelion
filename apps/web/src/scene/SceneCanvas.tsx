@@ -3,6 +3,8 @@ import { Canvas } from '@react-three/fiber';
 import { useEffect } from 'react';
 import { DevProbes } from '../dev/DevProbes';
 import { devPixelRatioFromUrl } from '../dev/devPixelRatio';
+import { useQualityTier } from '../quality/qualityStore';
+import { pixelRatioFor } from '../quality/qualityTiers';
 import { CAMERA_SETTINGS, RENDERER_PARAMETERS, SCENE_BACKGROUND } from './canvasConfig';
 import { earthDayMap } from './bodies/earth/earthDayMap';
 import { CameraControls } from './camera/CameraControls';
@@ -11,7 +13,10 @@ import { OpeningDirector } from './opening/OpeningDirector';
 import { SceneContents } from './SceneContents';
 import type { SwarmProps } from './swarm/Swarm';
 
-/** Read once per load; production builds keep R3F's default pixel ratio until the quality tiers set one. */
+/**
+ * Read once per load. It stands in for the device's ratio, so the tier still caps it and proxy runs show the tiers
+ * apart; production builds drop it.
+ */
 const DEV_PIXEL_RATIO = import.meta.env.DEV
   ? devPixelRatioFromUrl(window.location.search)
   : undefined;
@@ -29,8 +34,9 @@ export interface SceneCanvasProps {
  */
 export function SceneCanvas({ swarm, openingCanStart }: SceneCanvasProps) {
   useEffect(() => earthDayMap.load(), []);
+  const pixelRatio = pixelRatioFor(useQualityTier(), DEV_PIXEL_RATIO ?? window.devicePixelRatio);
   return (
-    <Canvas flat dpr={DEV_PIXEL_RATIO} gl={RENDERER_PARAMETERS} camera={CAMERA_SETTINGS}>
+    <Canvas flat dpr={pixelRatio} gl={RENDERER_PARAMETERS} camera={CAMERA_SETTINGS}>
       <color attach="background" args={[SCENE_BACKGROUND]} />
       <OpeningDirector canStart={openingCanStart} />
       <SceneContents swarm={swarm} />

@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from 'react';
+import type { ReactNode } from 'react';
 import { ApproachCard } from './approaches/ApproachCard';
 import { ApproachList } from './approaches/ApproachList';
 import { CloseUp } from './approaches/CloseUp';
@@ -8,6 +8,7 @@ import { type DatasetState, useDataset } from './data/useDataset';
 import { type NeoCatalogState, useNeoCatalog } from './data/useNeoCatalog';
 import { useNowMs } from './data/useNowMs';
 import { swarmStressCopiesFromUrl } from './dev/swarmStress';
+import { qualityStore, useShowTrails } from './quality/qualityStore';
 import { CmeCard } from './eruptions/CmeCard';
 import { CmeList } from './eruptions/CmeList';
 import { useSelectedCme } from './eruptions/cmeSelection';
@@ -38,13 +39,13 @@ export function App() {
   const neoCatalog = useNeoCatalog();
   const closeApproaches = useDataset('close-approaches');
   const cmes = useDataset('cmes');
-  const [showTrails, setShowTrails] = useState(true);
+  const showTrails = useShowTrails();
   const swarm =
     neoCatalog.status === 'ready'
       ? { catalog: neoCatalog.data, showTrails, stressCopies: SWARM_STRESS_COPIES }
       : undefined;
   const swarmControls = swarm && (
-    <SwarmControls showTrails={showTrails} onShowTrailsChange={setShowTrails} />
+    <SwarmControls showTrails={showTrails} onShowTrailsChange={qualityStore.setTrailsPreference} />
   );
   return (
     <AppShell

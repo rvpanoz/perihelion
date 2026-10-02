@@ -1,6 +1,7 @@
 import type { Cme } from '@perihelion/data';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useMemo } from 'react';
+import { useQualityTier } from '../../quality/qualityStore';
 import { timeStore } from '../../time/timeStore';
 import { FRAME_PRIORITY } from '../framePriorities';
 import { IGNORE_RAYCAST, useDisposal } from '../swarm/swarmLayer';
@@ -11,23 +12,21 @@ import {
   createCmeShellUniforms,
   writeCmeShellUniforms,
 } from './cmeShellMesh';
-import { CME_SHELL_LOOK } from './cmeShellLook';
 import { createShellSeeds, mulberry32 } from './cmeShellSeeds';
 import { cmeAxisEcliptic, cmeShellMotion, cmeShellState } from './cmeShellTiming';
 
 const SHELL_RANDOM_SEED = 20_261_002;
 
 /**
- * One particle layout for every CME; the selected CME sets the cone (axis and width, fixed) and the clock moves the
- * front. The front's distance is float64 on the CPU (`cmeFrontDistanceAu`); the shader only spreads the particles.
+ * One particle layout per tier for every CME; the selected CME sets the cone (axis and width, fixed) and the clock
+ * moves the front. The front's distance is float64 on the CPU (`cmeFrontDistanceAu`); the shader only spreads the
+ * particles.
  */
 export function CmeShell({ cme }: { cme: Cme }) {
+  const { cmeParticleCount } = useQualityTier();
   const geometry = useMemo(
-    () =>
-      createCmeShellGeometry(
-        createShellSeeds(CME_SHELL_LOOK.particleCount, mulberry32(SHELL_RANDOM_SEED)),
-      ),
-    [],
+    () => createCmeShellGeometry(createShellSeeds(cmeParticleCount, mulberry32(SHELL_RANDOM_SEED))),
+    [cmeParticleCount],
   );
   const pixelRatio = useThree((state) => state.viewport.dpr);
   const motion = useMemo(() => cmeShellMotion(cme), [cme]);
