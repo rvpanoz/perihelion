@@ -324,8 +324,8 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 - [ ] Exit verification (#137)
 
 Status (2026-10-02): plan merged in #138, with issues #128–#137 on the board. README rewritten for the current state
-in #139. Task 1 (#128) merged in #141, Task 2 (#129) in #142. Task 3 (#130) on `phase-7/tier-governor`, review
-proposals 1–9 included (plan Task 3, "As built"); next is Task 4 (#131).
+in #139. Task 1 (#128) merged in #141, Task 2 (#129) in #142, Task 3 (#130) in #143. Task 4 (#131) on
+`phase-7/progressive-loading`, review proposals 1–10 included (plan Task 4, "As built"); Lighthouse check pending.
 
 ### Phase 7 baseline
 
@@ -405,6 +405,31 @@ times from `requestAnimationFrame` in the console. No CPU throttle (decisions lo
   20 ms (worst 507.8 ms, during page load).
 - Medium under stress had a slower tail here (p90 25.7 ms) than in Task 2's sweep (14.7 ms), probably heat on the
   fanless Mac after the earlier runs; that is the case the governor handles by stepping down again.
+
+### Progressive loading (Task 4)
+
+Measured 2026-10-03 on `phase-7/progressive-loading` in dev, same setup as the baseline (live data, trails on, Auto
+→ High). Opening and start-up frames from the `[opening]` and `[startup]` dev logs; cells are median / p90 / worst ms,
+then frames over 20 ms.
+
+| Fresh load | Opening (≈ 900 frames) | Start-up, from the canvas's first frame |
+| ---------- | ---------------------- | --------------------------------------- |
+| 1          | 13.3 / 13.8 / 15.1, 0  | 13.3 / 13.8 / 47.6, 3 (at 67–166 ms)    |
+| 2          | 13.3 / 13.8 / 15.8, 0  | 13.3 / 13.8 / 46.4, 3 (at 64–148 ms)    |
+| 3          | 13.3 / 13.7 / 14.6, 0  | 13.3 / 13.7 / 48.3, 2 (at 65–150 ms)    |
+| 4          | 13.3 / 13.7 / 14.6, 0  | 13.3 / 13.8 / 46.6, 3 (at 66–150 ms)    |
+
+- The Phase 4 hitch is gone. Main-thread time the worker removes (Node, 4.26 MB snapshot, 42.5k NEOs): JSON parse
+  ≈ 10 ms, zod ≈ 35 ms, attribute build ≈ 17 ms.
+- Before the warm-up gate, the opening still had one 27–28 ms frame 41–44 ms in: the lazy composer's first frame
+  (textures 2 → 19, programs 7 → 18). With `Effects` eager it was clean (worst 16.9 ms); with the gate, as above.
+- The start-up slow frames come before any camera move, in the first 170 ms, while the canvas's first frames draw;
+  the baseline never logged this span, so there is no before number.
+- Approach (2026 SA8) and eruption (`2026-09-30T03:12:00-CME-001`) at `?opening=off&bench=…`: 13.3 / 14.3 / 14.7 and
+  13.3 / 14.2 / 15.1 ms, 0/750 over 20 ms each.
+- Initial JS 370,460 B gzip (baseline 391,142 B): postprocessing (`Effects`, 24.5 kB gzip) loads as its own chunk;
+  the worker is 99 kB minified, loaded beside the first frames.
+- Lighthouse desktop on `vite preview`: pending.
 
 ## Calibrated tolerances
 
@@ -909,3 +934,9 @@ _None._
   `?tier=` applies to that load only; `HITCH_THRESHOLD_MS` and `percentileMs` live in `quality/frameStats.ts`. The
   right column always holds the Display panel, under the focus card when one is selected. Step 12 ran without the
   CPU throttle.
+- **2026-10-03:** Task 4 (#131): the NEO catalog loads, validates and builds its swarm attributes in a module
+  worker, which posts only the summary the main thread reads plus the transferred buffers; a worker that reports the
+  catalog unavailable is believed, and only a worker that can't start or dies first falls back to the main thread.
+  Only postprocessing is code-split (the scenes and cards would save ≈ 8 kB); the opening waits for the composer's
+  two warm-up frames, since its first frame costs ≈ 27 ms and `gl.compile(scene)` can't reach it. The swarm fades
+  in over 1 s of wall-clock time (illustrative). Budget 380,000 B.

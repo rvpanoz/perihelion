@@ -4,7 +4,14 @@ import { Color } from 'three';
 import { describe, expect, it } from 'vitest';
 import { BLOOM_SETTINGS, relativeLuminance } from '../effects/effectsConfig';
 import { UNKNOWN_ABSOLUTE_MAGNITUDE } from './swarmAttributes';
-import { SWARM_CLASS_COLORS, SWARM_LOOK, pointBrightness, pointSizePx } from './swarmLook';
+import {
+  SWARM_CLASS_COLORS,
+  SWARM_FADE_IN_SECONDS,
+  SWARM_LOOK,
+  pointBrightness,
+  pointSizePx,
+  swarmFadeIn,
+} from './swarmLook';
 
 const absoluteMagnitude = fc.double({ min: 5, max: 35, noNaN: true });
 const { brightest, faintest } = SWARM_LOOK.absoluteMagnitudeRange;
@@ -30,6 +37,27 @@ describe('pointSizePx and pointBrightness', () => {
   it('give NEOs without an H the minimum', () => {
     expect(pointSizePx(UNKNOWN_ABSOLUTE_MAGNITUDE)).toBe(SWARM_LOOK.pointSizePx.faintest);
     expect(pointBrightness(UNKNOWN_ABSOLUTE_MAGNITUDE)).toBe(SWARM_LOOK.brightness.faintest);
+  });
+});
+
+describe('swarmFadeIn', () => {
+  it('runs from 0 at the first frame to 1 at the end of the fade, and stays there', () => {
+    expect(swarmFadeIn(0)).toBe(0);
+    expect(swarmFadeIn(SWARM_FADE_IN_SECONDS / 2)).toBeCloseTo(0.5, 12);
+    expect(swarmFadeIn(SWARM_FADE_IN_SECONDS)).toBe(1);
+    expect(swarmFadeIn(60)).toBe(1);
+  });
+
+  it('never falls as time goes on', () => {
+    fc.assert(
+      fc.property(
+        fc.double({ min: -1, max: 3, noNaN: true }),
+        fc.double({ min: 0, max: 1, noNaN: true }),
+        (from, step) => {
+          expect(swarmFadeIn(from + step)).toBeGreaterThanOrEqual(swarmFadeIn(from));
+        },
+      ),
+    );
   });
 });
 

@@ -23,25 +23,29 @@ export function DevProbes() {
 
 /**
  * Records every frame of the opening from its first, which an injected recorder would miss: the opening starts as
- * soon as the local catalog arrives. Logs once when it ends.
+ * soon as the catalog arrives. Logs once when it ends: `[opening]` for the move itself, `[startup]` for every frame
+ * since the canvas's first, which also covers the wait for the catalog and the effects chunk landing.
  */
 function OpeningFrameProbe() {
-  const [frameTimesMs] = useState<number[]>(() => []);
+  const [recording] = useState(() => ({ openingMs: [] as number[], startupMs: [] as number[] }));
   const reported = useRef(false);
   useFrame((_, deltaSeconds) => {
     if (reported.current) return;
-    if (openingStore.phase === 'playing') frameTimesMs.push(deltaSeconds * 1000);
+    recording.startupMs.push(deltaSeconds * 1000);
+    if (openingStore.phase === 'playing') recording.openingMs.push(deltaSeconds * 1000);
     if (openingStore.phase !== 'done') return;
     reported.current = true;
     // A skipped opening (reduced motion, `?opening=off`) records nothing and has nothing to report.
-    if (frameTimesMs.length === 0) return;
-    const summary = {
-      ...summarizeFrameTimes(frameTimesMs),
-      hitchesAtMs: hitchTimesMs(frameTimesMs),
-    };
-    console.info(`[opening] frame times ${JSON.stringify(summary)}`);
+    if (recording.openingMs.length === 0) return;
+    logFrameTimes('[opening] frame times', recording.openingMs);
+    logFrameTimes('[startup] frame times', recording.startupMs);
   });
   return null;
+}
+
+function logFrameTimes(label: string, frameTimesMs: readonly number[]): void {
+  const summary = { ...summarizeFrameTimes(frameTimesMs), hitchesAtMs: hitchTimesMs(frameTimesMs) };
+  console.info(`${label} ${JSON.stringify(summary)}`);
 }
 
 function GpuTimerProbe() {

@@ -1,11 +1,11 @@
 import type { DatasetName, DatasetResponse } from '@perihelion/data';
 import { useEffect, useState } from 'react';
-import { loadDataset } from './loadDataset';
+import { type DatasetLoader, loadDataset, loadDatasetOrUndefined } from './loadDataset';
 
 export type DatasetState<N extends DatasetName> =
   { status: 'loading' } | ({ status: 'ready' } & DatasetResponse<N>) | { status: 'unavailable' };
 
-export type DatasetLoader<N extends DatasetName> = () => Promise<DatasetResponse<N>>;
+export type { DatasetLoader } from './loadDataset';
 
 const LOADING = { status: 'loading' } as const;
 
@@ -33,19 +33,7 @@ export function useDataset<N extends DatasetName>(
 export async function loadDatasetState<N extends DatasetName>(
   load: DatasetLoader<N>,
 ): Promise<DatasetState<N>> {
-  const response = await responseOrUndefined(load);
+  const response = await loadDatasetOrUndefined(load);
   if (response === undefined) return { status: 'unavailable' };
   return { status: 'ready', ...response };
-}
-
-/** Both the server and the snapshot failed: the app runs on without this dataset. */
-async function responseOrUndefined<N extends DatasetName>(
-  load: DatasetLoader<N>,
-): Promise<DatasetResponse<N> | undefined> {
-  try {
-    return await load();
-  } catch (error) {
-    console.warn('Dataset unavailable; running without it', error);
-    return undefined;
-  }
 }

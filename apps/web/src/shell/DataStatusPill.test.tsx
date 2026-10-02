@@ -15,7 +15,7 @@ describe('DataStatusPill', () => {
         datasets={[
           {
             label: 'NEO catalog',
-            state: { status: 'ready', data: [], origin: 'fresh', fetchedAt },
+            state: { status: 'ready', origin: 'fresh', fetchedAt },
             summary: '40,123 asteroids',
           },
         ]}
