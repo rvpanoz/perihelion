@@ -791,7 +791,8 @@ still finds no `setState` in `useFrame`.
 10. Initial JS 370,460 B gzip (was 391,142 B); budget 380,000 B.
 
 Measured 2026-10-03 (dev, live data, 1920×809 canvas, DPR 1, S2721HN at 75 Hz): 4 fresh loads, opening worst
-15.1 / 15.8 / 14.6 / 14.6 ms, none over 20 ms. Numbers in `PROGRESS.md`.
+15.1 / 15.8 / 14.6 / 14.6 ms, none over 20 ms. Lighthouse desktop on `vite preview`: Performance 100, LCP 0.6 s
+(baseline 2.0 s), TBT 0 ms. Numbers in `PROGRESS.md`.
 
 ## Task 5: Fallbacks (light)
 

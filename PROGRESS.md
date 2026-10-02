@@ -315,7 +315,7 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 - [x] Baseline harness: frame times and bundle size (#128)
 - [x] Quality tiers (#129)
 - [x] Tier governor and Display panel (#130)
-- [ ] Progressive loading: worker and code splitting (#131)
+- [x] Progressive loading: worker and code splitting (#131)
 - [ ] Fallbacks: no WebGL2, server timeout (#132)
 - [ ] Responsive layout, touch and scrollbars (#133)
 - [ ] Accessibility and reduced motion (#134)
@@ -325,7 +325,7 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 
 Status (2026-10-02): plan merged in #138, with issues #128–#137 on the board. README rewritten for the current state
 in #139. Task 1 (#128) merged in #141, Task 2 (#129) in #142, Task 3 (#130) in #143. Task 4 (#131) on
-`phase-7/progressive-loading`, review proposals 1–10 included (plan Task 4, "As built"); Lighthouse check pending.
+`phase-7/progressive-loading`, review proposals 1–10 included (plan Task 4, "As built"), PR #144; next is Task 5 (#132).
 
 ### Phase 7 baseline
 
@@ -429,7 +429,10 @@ then frames over 20 ms.
   13.3 / 14.2 / 15.1 ms, 0/750 over 20 ms each.
 - Initial JS 370,460 B gzip (baseline 391,142 B): postprocessing (`Effects`, 24.5 kB gzip) loads as its own chunk;
   the worker is 99 kB minified, loaded beside the first frames.
-- Lighthouse desktop on `vite preview`: pending.
+- Lighthouse desktop (DevTools, Navigation) on `vite preview`, data server stopped, run by the user 2026-10-03:
+  Performance 100; FCP 0.6 s, LCP 0.6 s, TBT 0 ms, CLS 0.014, Speed Index 0.6 s (baseline: 90; 0.6 s, 2.0 s, 0 ms,
+  0, 0.6 s). LCP falls with the lighter start; CLS rises from 0 to 0.014, inside the 0.1 "good" bound. Accessibility
+  was not recorded in this run.
 
 ## Calibrated tolerances
 
