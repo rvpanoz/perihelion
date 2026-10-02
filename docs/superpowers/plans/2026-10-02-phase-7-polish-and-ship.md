@@ -189,7 +189,7 @@ Branch `phase-7/quality-tiers`. Tiers apply from a store; nothing chooses them y
   `pixelRatioFor(tier, devicePixelRatio)`; `qualityStore` with `tierName`, `tier`, `showTrails`, `setTierName`,
   `setTrailsPreference`, `subscribe`; hooks `useQualityTier()` and `useShowTrails()`.
 
-- [ ] **Step 1: Write the failing tier test**
+- [x] **Step 1: Write the failing tier test**
 
 ```ts
 // apps/web/src/quality/qualityTiers.test.ts
@@ -232,9 +232,9 @@ describe('quality tiers', () => {
 });
 ```
 
-- [ ] **Step 2: Run it; expect FAIL** (`npx vitest run apps/web/src/quality/qualityTiers.test.ts`: module not found)
+- [x] **Step 2: Run it; expect FAIL** (`npx vitest run apps/web/src/quality/qualityTiers.test.ts`: module not found)
 
-- [ ] **Step 3: Implement the table**
+- [x] **Step 3: Implement the table**
 
 ```ts
 // apps/web/src/quality/qualityTiers.ts
@@ -289,9 +289,9 @@ export function pixelRatioFor(tier: QualityTier, devicePixelRatio: number): numb
 }
 ```
 
-- [ ] **Step 4: Run it; expect PASS**
+- [x] **Step 4: Run it; expect PASS**
 
-- [ ] **Step 5: Write the failing store test**
+- [x] **Step 5: Write the failing store test**
 
 ```ts
 // apps/web/src/quality/qualityStore.test.ts
@@ -326,9 +326,9 @@ describe('QualityStore', () => {
 });
 ```
 
-- [ ] **Step 6: Run it; expect FAIL**
+- [x] **Step 6: Run it; expect FAIL**
 
-- [ ] **Step 7: Implement the store** (same shape as `OpeningStore` and `SelectionStore`)
+- [x] **Step 7: Implement the store** (same shape as `OpeningStore` and `SelectionStore`)
 
 ```ts
 // apps/web/src/quality/qualityStore.ts
@@ -390,9 +390,9 @@ export function useShowTrails(): boolean {
 }
 ```
 
-- [ ] **Step 8: Run it; expect PASS**
+- [x] **Step 8: Run it; expect PASS**
 
-- [ ] **Step 9: Apply the tier to the scene**
+- [x] **Step 9: Apply the tier to the scene**
 
   - `SceneCanvas`: `const tier = useQualityTier();` and `<Canvas dpr={pixelRatioFor(tier, window.devicePixelRatio)} …>`
     (in dev, `devPixelRatio` from Task 1 wins).
@@ -406,12 +406,31 @@ multisampling={tier.multisampling}>` and `<Bloom {...BLOOM_SETTINGS} resolutionS
   - Scene tests: a `SceneContents`/`Effects` test that switching the store's tier re-renders with the new props and
     that `useFrame` callbacks never call `setState` (extend the existing render-loop test).
 
-- [ ] **Step 10: Measure.** High, Medium and Low (set from the console: `qualityStore.setTierName('low')` exposed on
+- [x] **Step 10: Measure.** High, Medium and Low (set from the console: `qualityStore.setTierName('low')` exposed on
       `window` in dev only) at the Task 1 proxy settings; add rows to the baseline table. Stop and report if any tier
       is slower than the baseline at the same settings.
 
-- [ ] **Step 11: `npm run check`, commit** (`Add quality tiers: pixel ratio, MSAA, bloom resolution, trails and CME
+- [x] **Step 11: `npm run check`, commit** (`Add quality tiers: pixel ratio, MSAA, bloom resolution, trails and CME
 particles per tier`)
+
+**As built** (review proposals 1–8, approved 2026-10-02):
+
+1. `?dpr` stands in for the device's ratio and the tier caps it: `pixelRatioFor(tier, DEV_PIXEL_RATIO ??
+window.devicePixelRatio)`, so proxy runs show the tiers apart.
+2. The dev-only `?tier=low|medium|high` (`devTierNameFromUrl`, with a test) is read once in `main.tsx` before the
+   first render, because a bench run reloads the page; no `window.qualityStore` handle.
+3. The tier test reads `QUALITY_TIERS.low/.medium/.high` by name (a destructured `.map` fails typecheck under
+   `noUncheckedIndexedAccess`).
+4. `CME_SHELL_LOOK.particleCount` (24,000) stays and `QUALITY_TIERS.high.cmeParticleCount` references it, so
+   `cmeExitCheck.test.ts` and `cmeShellGeometry.test.ts` are untouched (replaces Step 9's third bullet).
+5. The tier-switch test goes through `CmeShell` in the test renderer (High 24,000 → Low 6,000, geometry rebuilt);
+   `EffectComposer` needs real WebGL, so `Effects` has no render test.
+6. `canvasConfig.test.ts` gains the `antialias: false` assertion (the agreed test change).
+7. CME shell brightness unchanged at every tier; the Step 10 runs logged frame times only, so a look check of the
+   thinner Medium and Low shells is still open (optional).
+8. Step 10: every tier at `?dpr=2` and `?dpr=2&swarmStress=4` plus High at normal (rows in `PROGRESS.md`). High
+   under stress read 1 ms slower than the baseline, so main and the branch were run alternately (A/B): same frames
+   per 10 s, median +0.6 ms, p90 −1.6 ms; accepted as not slower (user decision).
 
 ## Task 3: Tier governor + Display panel (full code for the governor)
 
