@@ -38,11 +38,13 @@ export function TimeControls() {
   );
 }
 
+/** `aria-valuetext` because the value is a Julian Date: read aloud as a number it means nothing to a listener. */
 function DateScrubber({ jdTdb }: { jdTdb: number }) {
   return (
     <input
       type="range"
       aria-label="Scrub date"
+      aria-valuetext={formatSimulationDate(jdTdb)}
       min={TIME_RANGE_JD_TDB.startJdTdb}
       max={TIME_RANGE_JD_TDB.endJdTdb}
       step={1}
@@ -58,6 +60,7 @@ function RateSlider({ rateDaysPerSecond }: { rateDaysPerSecond: number }) {
       <input
         type="range"
         aria-label="Speed"
+        aria-valuetext={formatRate(rateDaysPerSecond)}
         min={0}
         max={RATE_SLIDER_STEPS}
         value={Math.round(sliderPositionFromRate(rateDaysPerSecond) * RATE_SLIDER_STEPS)}

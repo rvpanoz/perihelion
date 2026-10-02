@@ -25,4 +25,19 @@ describe('DataStatusPill', () => {
     expect(markup).toContain('<b>Live</b> · JPL · updated 12 min ago');
     expect(markup).toContain('<li>NEO catalog: 40,123 asteroids · fetched 12 min ago</li>');
   });
+
+  it('announces the head word politely, never the minute-by-minute age', () => {
+    vi.useFakeTimers({ now: NOW_MS });
+    const fetchedAt = new Date(NOW_MS - 12 * 60_000).toISOString();
+    const markup = renderToStaticMarkup(
+      <DataStatusPill
+        datasets={[{ label: 'CMEs', state: { status: 'ready', origin: 'fresh', fetchedAt } }]}
+      />,
+    );
+    const liveRegions = markup.match(/<[^>]*aria-live="polite"[^>]*>[^<]*</g) ?? [];
+    expect(liveRegions).toEqual([
+      '<span class="visually-hidden" aria-live="polite">Data status: Live<',
+    ]);
+    expect(markup).not.toMatch(/<summary[^>]*aria-live/);
+  });
 });

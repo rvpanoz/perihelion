@@ -1,3 +1,5 @@
+import { prefersReducedMotion } from '../camera/motionPreference';
+
 /** Any of these means the viewer wants control, so the opening ends at once at its final state. */
 export const OPENING_SKIP_EVENTS = ['pointerdown', 'wheel', 'keydown'] as const;
 
@@ -16,6 +18,5 @@ export function openingOffInUrl(search: string): boolean {
 
 /** Reduced motion, or `?opening=off` in dev, starts at the final state with no move. Reads the browser. */
 export function browserSkipsOpeningMove(): boolean {
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  return reducedMotion || (import.meta.env.DEV && openingOffInUrl(window.location.search));
+  return prefersReducedMotion() || (import.meta.env.DEV && openingOffInUrl(window.location.search));
 }

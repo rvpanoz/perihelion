@@ -1,7 +1,7 @@
 # PROGRESS
 
 **Current phase:** Phase 7: Polish & ship (in progress)
-**Last updated:** 2026-10-02
+**Last updated:** 2026-10-03
 
 ## Phase status
 
@@ -323,9 +323,9 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 - [ ] Deploy: Netlify and Render (#136)
 - [ ] Exit verification (#137)
 
-Status (2026-10-02): plan merged in #138, with issues #128–#137 on the board. README rewritten for the current state
-in #139. Task 1 (#128) merged in #141, Task 2 (#129) in #142, Task 3 (#130) in #143. Task 4 (#131) on
-`phase-7/progressive-loading`, review proposals 1–10 included (plan Task 4, "As built"), PR #144; next is Task 5 (#132).
+Status (2026-10-03): plan merged in #138, with issues #128–#137 on the board. README rewritten for the current state
+in #139. Task 1 (#128) merged in #141, Task 2 (#129) in #142, Task 3 (#130) in #143. Task 4 (#131) in #144. Task 7 (#134) on
+`phase-7/accessibility`, review proposals 1–9 included (plan Task 7, "As built"); Tasks 5 and 6 are next.
 
 ### Phase 7 baseline
 
@@ -433,6 +433,17 @@ then frames over 20 ms.
   Performance 100; FCP 0.6 s, LCP 0.6 s, TBT 0 ms, CLS 0.014, Speed Index 0.6 s (baseline: 90; 0.6 s, 2.0 s, 0 ms,
   0, 0.6 s). LCP falls with the lighter start; CLS rises from 0 to 0.014, inside the 0.1 "good" bound. Accessibility
   was not recorded in this run.
+
+### Accessibility and reduced motion (Task 7)
+
+- Lighthouse Accessibility on `main`: 98 (Task 1); the one failed audit was "Document does not have a main
+  landmark". On `phase-7/accessibility` (desktop, Navigation, `vite preview`, data server running, run by the user 2026-10-03):
+  Accessibility 100, Performance 100; FCP 0.6 s, LCP 0.6 s, TBT 0 ms, CLS 0.015, Speed Index 0.6 s.
+- Keyboard only (Chrome, dev, live data, 2026-10-03): pick an approach (↓, Enter), Play approach (3 Tabs), pick a CME
+  (2 Shift+Tabs, Enter), Watch eruption (1 Tab), change the speed (PageUp: 13 h/s → 28 d/s). The event lists are one
+  Tab stop each, so a full Tab cycle is 19 stops with 100 approach rows listed.
+- Reduced motion: with `matchMedia` stubbed in the page, a flight had landed two frames after `flyTo`; without it, the
+  same flight was at eased progress ≈ 0.
 
 ## Calibrated tolerances
 
@@ -943,3 +954,8 @@ _None._
   Only postprocessing is code-split (the scenes and cards would save ≈ 8 kB); the opening waits for the composer's
   two warm-up frames, since its first frame costs ≈ 27 ms and `gl.compile(scene)` can't reach it. The swarm fades
   in over 1 s of wall-clock time (illustrative). Budget 380,000 B.
+- **2026-10-03:** Task 7 (#134), reviewed before Tasks 5 and 6 (independent per the plan): reduced motion makes every
+  camera flight a cut in one place, `CameraRig.flyTo`, reading `prefers-reduced-motion` on each call; fades stay,
+  since they move nothing. The status pill announces only its head word, never the minute-by-minute age. Each event
+  list is one Tab stop with arrow keys inside (roving `tabIndex`). The scene is the `<main>` landmark. No key
+  handlers yet: Esc arrives with Task 8's `<dialog>`.

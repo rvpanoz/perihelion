@@ -7,6 +7,7 @@ import {
   writeFlightPose,
 } from './flight';
 import type { FocusId, FocusPositions } from './focusPositions';
+import { prefersReducedMotion } from './motionPreference';
 import { defaultViewDistanceAu } from './viewDistances';
 
 export interface FlightRequest {
@@ -25,6 +26,8 @@ export interface FlightRequest {
 export interface CameraRigOptions {
   initialDistanceAu: number;
   nowSeconds?: () => number;
+  /** True turns every flight into a cut (decision 10). Injected so the tests need no `matchMedia`. */
+  reducedMotion?: () => boolean;
 }
 
 export const DEFAULT_FLIGHT_SECONDS = 2.5;
@@ -42,11 +45,13 @@ export class CameraRig {
   #flightDirection: Readonly<Vector3> | undefined;
   readonly #pose: CameraPose;
   readonly #nowSeconds: () => number;
+  readonly #reducedMotion: () => boolean;
   readonly #listeners = new Set<() => void>();
 
   constructor(options: CameraRigOptions) {
     this.#pose = { originAu: [0, 0, 0], distanceAu: options.initialDistanceAu };
     this.#nowSeconds = options.nowSeconds ?? (() => performance.now() / 1000);
+    this.#reducedMotion = options.reducedMotion ?? (() => false);
   }
 
   get focus(): FocusId {
@@ -86,7 +91,7 @@ export class CameraRig {
       to: request.focus,
       toDistanceAu: request.distanceAu ?? defaultViewDistanceAu(request.focus),
       startSeconds: this.#nowSeconds(),
-      durationSeconds: request.durationSeconds ?? DEFAULT_FLIGHT_SECONDS,
+      durationSeconds: this.#flightSeconds(request),
     };
     this.#focus = request.focus;
     this.#chasing = request.chase ?? false;
@@ -119,6 +124,12 @@ export class CameraRig {
     return () => this.#listeners.delete(listener);
   };
 
+  /** A zero-length flight lands on its first frame (`flightProgress`), which is the cut. */
+  #flightSeconds(request: FlightRequest): number {
+    if (this.#reducedMotion()) return 0;
+    return request.durationSeconds ?? DEFAULT_FLIGHT_SECONDS;
+  }
+
   #advanceFlight(flight: Flight, positions: FocusPositions): Readonly<CameraPose> {
     const progress = flightProgress(flight, this.#nowSeconds());
     this.#flightEasedProgress = easeInOutCubic(progress);
@@ -132,4 +143,7 @@ export class CameraRig {
   }
 }
 
-export const cameraRig = new CameraRig({ initialDistanceAu: defaultViewDistanceAu('sun') });
+export const cameraRig = new CameraRig({
+  initialDistanceAu: defaultViewDistanceAu('sun'),
+  reducedMotion: prefersReducedMotion,
+});

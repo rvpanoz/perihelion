@@ -33,6 +33,21 @@ describe('CmeList', () => {
     expect(markup.match(/aria-pressed="true"/g)).toHaveLength(1);
     expect(markup).toMatch(/aria-pressed="true" title="older"/);
   });
+
+  it('is one Tab stop, the newest row until one is selected', () => {
+    const tabStops = (markup: string) => markup.match(/data-row-key="(\w+)"/g) ?? [];
+    expect(tabStops(listMarkup(readyState([OLDER, NEWER])))).toEqual([
+      'data-row-key="newer"',
+      'data-row-key="older"',
+    ]);
+    expect(listMarkup(readyState([OLDER, NEWER]))).toMatch(/tabindex="0" data-row-key="newer"/);
+    expect(listMarkup(readyState([OLDER, NEWER]), OLDER)).toMatch(
+      /tabindex="0" data-row-key="older"/,
+    );
+    expect(listMarkup(readyState([OLDER, NEWER]), OLDER)).toMatch(
+      /tabindex="-1" data-row-key="newer"/,
+    );
+  });
 });
 
 describe('CmeRow', () => {

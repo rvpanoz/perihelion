@@ -2,8 +2,11 @@ import { useSyncExternalStore } from 'react';
 import { BODY_APPEARANCE, BODY_IDS } from '../bodies/bodyCatalog';
 import { cameraRig } from './cameraRig';
 
+const readFocus = () => cameraRig.focus;
+
+/** The same reader serves server rendering, which the accessible-name test uses. */
 export function FocusPicker() {
-  const focus = useSyncExternalStore(cameraRig.subscribe, () => cameraRig.focus);
+  const focus = useSyncExternalStore(cameraRig.subscribe, readFocus, readFocus);
   return (
     <nav className="panel focus-picker" aria-label="Focus">
       {BODY_IDS.map((body) => (

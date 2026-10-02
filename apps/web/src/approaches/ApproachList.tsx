@@ -6,6 +6,8 @@ import {
 } from '@perihelion/data';
 import type { DatasetState } from '../data/useDataset';
 import { SWARM_CLASS_COLORS } from '../scene/swarm/swarmLook';
+import { tabStopKey } from '../shell/rovingRows';
+import { useRovingRows } from '../shell/useRovingRows';
 import {
   NO_APPROACHES_TEXT,
   approachDateText,
@@ -30,11 +32,18 @@ export interface ApproachRowProps {
   approach: CloseApproach;
   selected: boolean;
   onSelect: (approach: CloseApproach) => void;
+  /** False takes the row out of the Tab order; the list's arrow keys still reach it. */
+  tabStop?: boolean;
+}
+
+interface ApproachListBodyProps extends ApproachListProps {
+  focusedKey: string | undefined;
 }
 
 interface ApproachGroupProps extends Omit<ApproachListProps, 'state' | 'nowJdTdb'> {
   title: string;
   approaches: readonly CloseApproach[];
+  tabStopKey: string | undefined;
 }
 
 /**
@@ -42,24 +51,32 @@ interface ApproachGroupProps extends Omit<ApproachListProps, 'state' | 'nowJdTdb
  * the focus card holds Follow and Play approach.
  */
 export function ApproachList(props: ApproachListProps) {
+  const roving = useRovingRows();
   return (
-    <section className="panel approach-list" aria-label="Close approaches">
+    <section
+      className="panel approach-list"
+      aria-label="Close approaches"
+      {...roving.containerProps}
+    >
       <h2 className="approach-list-heading">
         <span>Passing Earth</span>
         <span>{`±${DEFAULT_CLOSE_APPROACH_DAYS} days`}</span>
       </h2>
-      <ApproachListBody {...props} />
+      <ApproachListBody {...props} focusedKey={roving.focusedKey} />
     </section>
   );
 }
 
-function ApproachListBody({ state, nowJdTdb, ...groupProps }: ApproachListProps) {
+function ApproachListBody({ state, nowJdTdb, focusedKey, ...rowProps }: ApproachListBodyProps) {
   if (state.status === 'loading') return <p className="approach-note">Loading close approaches…</p>;
   if (state.status === 'unavailable') {
     return <p className="approach-note">Close approaches unavailable</p>;
   }
   if (state.data.length === 0) return <p className="approach-note">{NO_APPROACHES_TEXT}</p>;
   const { passed, coming } = groupApproaches({ approaches: state.data, nowJdTdb });
+  const ordered = [...coming, ...passed];
+  const stopKey = approachTabStop({ ordered, focusedKey, selected: rowProps.selected });
+  const groupProps = { ...rowProps, tabStopKey: stopKey };
   return (
     <>
       <ApproachGroup title="Coming" approaches={coming} {...groupProps} />
@@ -68,7 +85,7 @@ function ApproachListBody({ state, nowJdTdb, ...groupProps }: ApproachListProps)
   );
 }
 
-function ApproachGroup({ title, approaches, selected, onSelect }: ApproachGroupProps) {
+function ApproachGroup({ title, approaches, selected, onSelect, tabStopKey }: ApproachGroupProps) {
   if (approaches.length === 0) return null;
   return (
     <div className="approach-group" role="group" aria-label={title}>
@@ -76,10 +93,11 @@ function ApproachGroup({ title, approaches, selected, onSelect }: ApproachGroupP
       <ul>
         {approaches.map((approach) => (
           <ApproachRow
-            key={`${approach.designation} ${approach.approachJdTdb}`}
+            key={approachKey(approach)}
             approach={approach}
             selected={approach === selected}
             onSelect={onSelect}
+            tabStop={approachKey(approach) === tabStopKey}
           />
         ))}
       </ul>
@@ -87,13 +105,33 @@ function ApproachGroup({ title, approaches, selected, onSelect }: ApproachGroupP
   );
 }
 
+function approachTabStop(rows: {
+  ordered: readonly CloseApproach[];
+  focusedKey: string | undefined;
+  selected: CloseApproach | undefined;
+}): string | undefined {
+  const { ordered, focusedKey, selected } = rows;
+  return tabStopKey({
+    keys: ordered.map(approachKey),
+    focusedKey,
+    selectedKey: selected && approachKey(selected),
+  });
+}
+
+/** One designation can pass twice in the window, so the time is part of the key. */
+function approachKey(approach: CloseApproach): string {
+  return `${approach.designation} ${approach.approachJdTdb}`;
+}
+
 /** CAD's TDB string is the tooltip: the row shows UTC, and the source time stays one hover away. */
-export function ApproachRow({ approach, selected, onSelect }: ApproachRowProps) {
+export function ApproachRow({ approach, selected, onSelect, tabStop = true }: ApproachRowProps) {
   return (
     <li>
       <button
         type="button"
         className="approach-row"
+        tabIndex={tabStop ? 0 : -1}
+        data-row-key={approachKey(approach)}
         aria-pressed={selected}
         title={approachDateText(approach)}
         onClick={() => onSelect(approach)}
