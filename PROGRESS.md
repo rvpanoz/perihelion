@@ -323,6 +323,9 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 - [ ] Deploy: Netlify and Render (#136)
 - [ ] Exit verification (#137)
 
+Status (2026-10-02): plan merged in #138, with issues #128–#137 on the board. README rewritten for the current state
+in #139. Development is paused; the next step is Task 1 (#128).
+
 ## Calibrated tolerances
 
 | Test                                    | Tolerance                    | Rationale                                                                                    |
@@ -654,7 +657,8 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
 - Mars Rover Photos API is offline (404), so it is not used.
 - Legacy APOD API archived on 2026-12-01, so it is not used.
 - R3F 9.8 logs `THREE.Clock: This module has been deprecated` with three 0.186 (upstream; harmless).
-- Vite warns the web bundle is 1.13 MB (310 kB gzipped), mostly three.js. Revisit code-splitting in Phase 7.
+- Vite warns the web bundle is 1.42 MB (394 kB gzipped, 2026-10-02), mostly three.js. Code splitting is Phase 7
+  Task 4 (#131).
 - `npm ci` warns that esbuild's postinstall script is not covered by npm's `allowScripts` policy (esbuild comes in
   via tsx). It doesn't affect `check`; revisit if `npm run dev` for the server breaks on a fresh install.
 - The leap-second table ends at 2017-01-01 (TAI − UTC = 37 s) and assumes none since. Check it against the
@@ -801,3 +805,5 @@ _None._
   manual override in a Display panel; High keeps today's bloom (0.5) and drops the composer's MSAA from 8 to 4.
   Explanation is a help dialog, an orbit-class legend and one first-visit hint (no tour). Exit: Lighthouse desktop
   Performance ≥ 85, TBT < 300 ms, Accessibility ≥ 90; the user captures the recording.
+- **2026-10-02:** README rewritten in plain English for the current state (#139): the three shots, how the web app,
+  data server and engine fit together, data sources, endpoints, getting started and every npm command.
