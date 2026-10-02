@@ -1,6 +1,11 @@
 import { type ReactNode, useSyncExternalStore } from 'react';
-
-const WIDE_LAYOUT_QUERY = '(min-width: 1100px)';
+import {
+  columnDetailsProps,
+  SHEETS_LAYOUT_QUERY,
+  type ShellLayout,
+  shellLayoutFor,
+  WIDE_LAYOUT_QUERY,
+} from './shellLayout';
 
 export interface ShellColumnProps {
   side: 'left' | 'right';
@@ -9,16 +14,17 @@ export interface ShellColumnProps {
 }
 
 /**
- * Wide screens show the column open with its summary hidden; narrow ones get a closed drawer. Remounting on the
- * breakpoint (the key) resets the open state, so a drawer closed on a phone is not left shut on a desktop.
+ * Wide screens show the column open with its summary hidden; narrower ones get a closed drawer, and phones a sheet
+ * that closes the other. Remounting on the layout (the key) resets the open state, so a drawer closed on a phone is
+ * not left shut on a desktop.
  */
 export function ShellColumn({ side, label, children }: ShellColumnProps) {
-  const wide = useSyncExternalStore(subscribeToLayout, isWideLayout, () => true);
+  const layout = useSyncExternalStore(subscribeToLayout, currentLayout, (): ShellLayout => 'wide');
   return (
     <details
-      key={wide ? 'wide' : 'narrow'}
+      key={layout}
       className={`shell-column shell-column-${side}`}
-      open={wide}
+      {...columnDetailsProps(layout)}
     >
       <summary className="panel">{label}</summary>
       <div className="shell-column-body">{children}</div>
@@ -27,11 +33,13 @@ export function ShellColumn({ side, label, children }: ShellColumnProps) {
 }
 
 function subscribeToLayout(onChange: () => void): () => void {
-  const query = window.matchMedia(WIDE_LAYOUT_QUERY);
-  query.addEventListener('change', onChange);
-  return () => query.removeEventListener('change', onChange);
+  const queries = [WIDE_LAYOUT_QUERY, SHEETS_LAYOUT_QUERY].map((query) => window.matchMedia(query));
+  for (const query of queries) query.addEventListener('change', onChange);
+  return () => {
+    for (const query of queries) query.removeEventListener('change', onChange);
+  };
 }
 
-function isWideLayout(): boolean {
-  return window.matchMedia(WIDE_LAYOUT_QUERY).matches;
+function currentLayout(): ShellLayout {
+  return shellLayoutFor((query) => window.matchMedia(query).matches);
 }

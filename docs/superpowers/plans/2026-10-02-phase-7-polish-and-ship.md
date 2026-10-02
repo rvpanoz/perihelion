@@ -890,6 +890,30 @@ scrollbar-gutter: stable;` on scroll areas. Lists stop having their own `max-hei
 - [ ] At 1920 × 1080, 1186 × 723 and 1024 × 768 no column shows two scrollbars; content does not shift when a
       scrollbar appears. Before/after stills in the PR.
 
+**As built** (review proposals 1–10, approved 2026-10-03; proposal 8 took the alternative):
+
+1. Exclusive sheets are native `<details name="shell-sheet">`, set only in the phone layout: both wide columns start
+   open, and a shared name would close one. `ShellColumn` has three layouts (`shell/shellLayout.ts`: `wide`,
+   `drawers`, `sheets`), each its own remount key.
+2. Test: `columnDetailsProps(layout)` and `shellLayoutFor(matches)` are unit-tested (sheets share a name and start
+   closed, drawers start closed, wide is open). The web tests have no DOM to click in; the browser's grouping was
+   checked in Chrome (opening Display closed Events and back).
+3. The phone layout is `(max-width: 599.98px), (max-height: 500px) and (max-width: 1099.98px)`, so a phone held
+   sideways gets sheets rather than drawers.
+4. Speed stays a range slider: no preset list exists for a select. Phone time bar: controls on one row, scrubber and
+   speed under them; sideways, everything on one row.
+5. Phone sheets: both columns share one grid area above the time bar; the summaries sit side by side at its foot and
+   the open body rises above them at full width (`flex-direction: column-reverse`).
+6. `rotateSpeed` unchanged: three's OrbitControls scales rotation by the canvas height and already sets
+   `touch-action: none` on r3f's event element.
+7. 44 px targets only under `@media (pointer: coarse)`: buttons, selects, summaries, the Trails label and sliders.
+8. Decision 9 amended: no box scrolls inside another, but the left column itself never scrolls. The column and its
+   `::details-content` are flex boxes; the eruption list is capped at `min(28vh, 300px)` and the approach list takes
+   what is left; each list scrolls. The right column's body scrolls.
+9. Phones: the focus picker is one horizontally scrolling row; `body` has `overscroll-behavior: none`.
+10. Checked with classic scrollbars (this Mac shows them). Desktop sizes by window size (1920 × 809 is the tallest
+    page the screen allows); phones in same-origin iframes for layout. Touch checks need DevTools emulation (user).
+
 ## Task 7: Accessibility and reduced motion (light)
 
 Branch `phase-7/accessibility`.

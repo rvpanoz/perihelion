@@ -318,14 +318,15 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 - [x] Progressive loading: worker and code splitting (#131)
 - [x] Fallbacks: no WebGL2, server timeout (#132)
 - [ ] Responsive layout, touch and scrollbars (#133)
-- [ ] Accessibility and reduced motion (#134)
+- [x] Accessibility and reduced motion (#134)
 - [ ] Help dialog, orbit-class legend, first-visit hint and credits (#135)
 - [ ] Deploy: Netlify and Render (#136)
 - [ ] Exit verification (#137)
 
 Status (2026-10-03): plan merged in #138, with issues #128–#137 on the board. README rewritten for the current state
-in #139. Task 1 (#128) merged in #141, Task 2 (#129) in #142, Task 3 (#130) in #143. Task 4 (#131) in #144. Task 7 (#134) on
-`phase-7/accessibility`, review proposals 1–9 included (plan Task 7, "As built"); Tasks 5 and 6 are next.
+in #139. Task 1 (#128) merged in #141, Task 2 (#129) in #142, Task 3 (#130) in #143, Task 4 (#131) in #144, Task 7
+(#134) in #145, Task 5 (#132) in #146. Task 6 (#133) on `phase-7/responsive`, review proposals 1–10 included (plan
+Task 6, "As built"); the device-emulation check is the user's.
 
 ### Phase 7 baseline
 
@@ -444,6 +445,26 @@ then frames over 20 ms.
   Tab stop each, so a full Tab cycle is 19 stops with 100 approach rows listed.
 - Reduced motion: with `matchMedia` stubbed in the page, a flight had landed two frames after `flyTo`; without it, the
   same flight was at eased progress ≈ 0.
+
+### Responsive layout (Task 6)
+
+- Measured in Chrome, dev, live data, approach card open, classic (always-shown) scrollbars, 2026-10-03. Scroll
+  areas that overflow, per page size:
+
+  | Page (CSS px) | `main`                                     | Task 6                                  |
+  | ------------- | ------------------------------------------ | --------------------------------------- |
+  | 1920 × 809    | (not taken)                                | approaches 346, eruptions 253, card 615 |
+  | 1186 × 723    | left column + both lists, right column (4) | approaches 284, eruptions 228, card 529 |
+  | 1024 × 768    | left drawer + both lists, right drawer (4) | approaches 198, eruptions 241, card 455 |
+
+  Every column ends above the time bar (20 px wide, 12 px drawers). The Display panel is 329 px wide with and
+  without the right column overflowing, so `scrollbar-gutter: stable` holds the content still.
+
+- Phones in same-origin iframes (393 × 852 and 852 × 393; layout only, no touch): the two summaries sit above the
+  time bar and the open sheet spans the width (upright: approaches 287 px, eruptions 248 px; ends 53 px above the
+  bar). Opening Display closed Events and back (native `<details name>`). Sideways the time bar is one 62 px row.
+- Not checked by me: touch rotate and pinch, the 44 px targets under `(pointer: coarse)`, and page scroll while
+  dragging, all of which need Chrome's device emulation (DevTools).
 
 ## Calibrated tolerances
 
@@ -965,3 +986,12 @@ _None._
   since they move nothing. The status pill announces only its head word, never the minute-by-minute age. Each event
   list is one Tab stop with arrow keys inside (roving `tabIndex`). The scene is the `<main>` landmark. No key
   handlers yet: Esc arrives with Task 8's `<dialog>`.
+- **2026-10-03:** Task 6 (#133): decision 9 amended (user decision): no box scrolls inside another, but the left
+  column itself never scrolls; the approach list takes what the eruption list (capped at `min(28vh, 300px)`) leaves,
+  and each scrolls on its own, so the eruptions stay in view. The right column's body scrolls. Phones (`< 600 px`
+  wide, or `≤ 500 px` tall below 1100 px, so a phone held sideways too) get sheets: one `<details name>` group, so
+  the browser keeps one open; tested as `columnDetailsProps(layout)`, since the web tests have no DOM. Speed stays a
+  slider (no presets to list in a select); the phone time bar is controls over the two sliders, one row sideways.
+  `rotateSpeed` unchanged: OrbitControls already scales rotation by canvas height and sets `touch-action: none`.
+  Touch targets are 44 px only under `(pointer: coarse)`; the focus picker is one scrolling row on phones; `body`
+  has `overscroll-behavior: none`.
