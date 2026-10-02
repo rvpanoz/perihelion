@@ -8,6 +8,8 @@ import {
   snapshotFileName,
 } from '@perihelion/data';
 
+export type DatasetLoader<N extends DatasetName> = () => Promise<DatasetResponse<N>>;
+
 export class DatasetLoadError extends Error {
   override name = 'DatasetLoadError';
 }
@@ -51,6 +53,18 @@ async function tryLoad<T>({ fetchImpl, path, parse }: LoadAttempt<T>): Promise<T
     return response.ok ? parse(await response.json()) : undefined;
   } catch (error) {
     console.warn(`Could not load ${path}`, error);
+    return undefined;
+  }
+}
+
+/** Both the server and the snapshot failed: the app runs on without this dataset. */
+export async function loadDatasetOrUndefined<N extends DatasetName>(
+  load: DatasetLoader<N>,
+): Promise<DatasetResponse<N> | undefined> {
+  try {
+    return await load();
+  } catch (error) {
+    console.warn('Dataset unavailable; running without it', error);
     return undefined;
   }
 }

@@ -759,6 +759,41 @@ still finds no `setState` in `useFrame`.
 - [ ] Initial JS gzip below the baseline; Lighthouse TBT and LCP no worse than baseline (local preview).
 - [ ] The swarm, the approaches and an eruption still play end to end.
 
+**As built** (review proposals 1–10, approved 2026-10-03):
+
+1. Messages: the request is `{ referenceJdTdb }`. The reply is `{ kind: 'ready', summary }` or
+   `{ kind: 'unavailable' }`, where `summary` holds origin, fetched time, count, orbit-class counts and the swarm
+   attributes; the four attribute buffers are transferred. No catalog columns come back: the main thread reads only
+   those fields (`indexCatalogOrbits` is server-only). The pure builder is `data/neoCatalogMessage.ts`; the worker
+   entry `data/neoCatalogWorker.ts` is a thin wrapper tests never import. The hook takes every `ready` message, so
+   Task 5's snapshot → live upgrade is a second post.
+2. `useNeoCatalog` returns `loading | unavailable | ready & NeoCatalogSummary` through a `NeoCatalogSource`
+   (`data/neoCatalogSource.ts`); `Swarm` takes `attributes` instead of `catalog`; the pill's state type is the smaller
+   `DatasetStatusState`. `Swarm.test.tsx`, `SceneContents.test.tsx`, `useNeoCatalog.test.tsx` and
+   `DataStatusPill.test.tsx` changed to the new shapes with the same assertions. `loadDatasetOrUndefined` moved into
+   `loadDataset.ts` so the worker shares it without importing React.
+3. A worker that reports `unavailable` is believed. Only a missing `Worker`, a constructor error, or an
+   `error`/`messageerror` before the first message falls back to the main thread, through the same builder.
+4. The "no `setState` in `useFrame`" test already exists: `SceneContents.test.tsx` ("120 frames without a single
+   React commit"). It now covers the fade too; `Swarm.test.tsx` adds a fade test that counts renders.
+5. Instead of a new `?bench=opening`, the existing opening probe (`DevProbes.tsx`) also logs `[startup]`: every frame
+   from the canvas's first to the end of the opening.
+6. `compileAsync` was not needed: the opening's `gl.compile` took 0.6 ms (all 9 scene programs were already built).
+   The remaining hitch was the lazy composer's first frame (17 bloom targets, 11 new programs, ≈ 27 ms) landing in
+   the opening. `EffectsWarmUp` counts two composer frames and the opening waits for it
+   (`openingCanStart && effectsWarm`).
+7. Only postprocessing is split (`React.lazy` + `Suspense` inside the canvas); the approach and CME scenes and cards
+   stay in the main chunk (≈ 8 KB). Before the chunk lands, the overview draws for ≈ 10 frames without bloom (dimmer
+   swarm, no Sun glow, nothing clipped).
+8. The fade is one shared `fadeIn` uniform, 0 → 1 with smoothstep over `SWARM_FADE_IN_SECONDS` (1 s) of wall-clock
+   time from the swarm's first frame, written through `writeSwarmFadeIn`.
+9. `worker: { format: 'es' }` in `vite.config.ts`.
+10. Initial JS 370,460 B gzip (was 391,142 B); budget 380,000 B.
+
+Measured 2026-10-03 (dev, live data, 1920×809 canvas, DPR 1, S2721HN at 75 Hz): 4 fresh loads, opening worst
+15.1 / 15.8 / 14.6 / 14.6 ms, none over 20 ms. Lighthouse desktop on `vite preview`: Performance 100, LCP 0.6 s
+(baseline 2.0 s), TBT 0 ms. Numbers in `PROGRESS.md`.
+
 ## Task 5: Fallbacks (light)
 
 Branch `phase-7/fallbacks`.

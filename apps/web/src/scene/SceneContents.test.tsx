@@ -3,9 +3,11 @@ import { Profiler } from 'react';
 import { describe, expect, it } from 'vitest';
 import { timeStore } from '../time/timeStore';
 import { SceneContents } from './SceneContents';
+import { buildSwarmAttributes } from './swarm/swarmAttributes';
 import { THREE_NEO_CATALOG } from './swarm/swarmTestSupport';
 
 const J2000_JD_TDB = 2_451_545;
+const THREE_NEO_ATTRIBUTES = buildSwarmAttributes(THREE_NEO_CATALOG, J2000_JD_TDB);
 
 describe('the render loop', () => {
   it('runs 120 frames without a single React commit', async () => {
@@ -15,7 +17,7 @@ describe('the render loop', () => {
     timeStore.setPlaying(true);
     const renderer = await ReactThreeTestRenderer.create(
       <Profiler id="scene" onRender={() => (commits += 1)}>
-        <SceneContents swarm={{ catalog: THREE_NEO_CATALOG, showTrails: true }} />
+        <SceneContents swarm={{ attributes: THREE_NEO_ATTRIBUTES, showTrails: true }} />
       </Profiler>,
     );
     // The mount itself commits; seeing it proves the Profiler reports here, so 0 below is meaningful.

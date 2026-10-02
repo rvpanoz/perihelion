@@ -7,11 +7,15 @@ import { DEFAULT_FLIGHT_SECONDS, cameraRig } from '../camera/cameraRig';
 import { SceneContents } from '../SceneContents';
 import { sceneAxesFromEcliptic, setSceneOrigin } from '../sceneFrame';
 import { Swarm } from './Swarm';
+import { buildSwarmAttributes } from './swarmAttributes';
+import { SWARM_FADE_IN_SECONDS } from './swarmLook';
 import { SWARM_TRAIL_VERTEX_COUNT } from './swarmMesh';
 import { J2000_JD_TDB, THREE_NEO_CATALOG, expectCloseTo } from './swarmTestSupport';
 
 const FRAME_SECONDS = 1 / 60;
 const FLIGHT_START_MS = 1_000_000;
+/** The catalog as the worker hands it over, built at J2000. */
+const THREE_NEO_ATTRIBUTES = buildSwarmAttributes(THREE_NEO_CATALOG, J2000_JD_TDB);
 
 type TestRenderer = Awaited<ReturnType<typeof ReactThreeTestRenderer.create>>;
 
@@ -44,7 +48,7 @@ describe('Swarm', () => {
 
   it('draws one point per NEO', async () => {
     const renderer = await ReactThreeTestRenderer.create(
-      <Swarm catalog={THREE_NEO_CATALOG} showTrails />,
+      <Swarm attributes={THREE_NEO_ATTRIBUTES} showTrails />,
     );
     expect(swarmPoints(renderer).geometry.getAttribute('position').count).toBe(3);
     await renderer.unmount();
@@ -52,7 +56,7 @@ describe('Swarm', () => {
 
   it('draws one trail strip per NEO, sharing the points’ uniforms', async () => {
     const renderer = await ReactThreeTestRenderer.create(
-      <Swarm catalog={THREE_NEO_CATALOG} showTrails />,
+      <Swarm attributes={THREE_NEO_ATTRIBUTES} showTrails />,
     );
     const [trails] = swarmTrails(renderer);
     if (!(trails?.geometry instanceof InstancedBufferGeometry))
@@ -65,7 +69,7 @@ describe('Swarm', () => {
 
   it('draws no trails when they are off', async () => {
     const renderer = await ReactThreeTestRenderer.create(
-      <Swarm catalog={THREE_NEO_CATALOG} showTrails={false} />,
+      <Swarm attributes={THREE_NEO_ATTRIBUTES} showTrails={false} />,
     );
     expect(swarmTrails(renderer)).toHaveLength(0);
     expect(swarmPoints(renderer)).toBeDefined();
@@ -81,7 +85,7 @@ describe('Swarm', () => {
     cameraRig.flyTo({ focus: 'earthMoonBarycenter' });
     clock.mockReturnValue(FLIGHT_START_MS + DEFAULT_FLIGHT_SECONDS * 1000);
     const renderer = await ReactThreeTestRenderer.create(
-      <SceneContents swarm={{ catalog: THREE_NEO_CATALOG, showTrails: true }} />,
+      <SceneContents swarm={{ attributes: THREE_NEO_ATTRIBUTES, showTrails: true }} />,
     );
     await renderer.advanceFrames(1, FRAME_SECONDS);
     const [x, y, z] = planetStateAt('earthMoonBarycenter', J2000_JD_TDB).positionAu;
@@ -92,6 +96,27 @@ describe('Swarm', () => {
       12,
     );
     expect(uniforms.elapsedDays?.value).toBe(0);
+    await renderer.unmount();
+  });
+
+  it('fades in over its first second by the wall clock, without re-rendering', async () => {
+    const clock = vi.spyOn(performance, 'now').mockReturnValue(FLIGHT_START_MS);
+    let renders = 0;
+    function CountingSwarm() {
+      renders += 1;
+      return <Swarm attributes={THREE_NEO_ATTRIBUTES} showTrails />;
+    }
+    const renderer = await ReactThreeTestRenderer.create(<CountingSwarm />);
+    await renderer.advanceFrames(1, FRAME_SECONDS);
+    const uniforms = swarmUniforms(swarmPoints(renderer));
+    expect(uniforms.fadeIn?.value).toBe(0);
+    clock.mockReturnValue(FLIGHT_START_MS + (SWARM_FADE_IN_SECONDS * 1000) / 2);
+    await renderer.advanceFrames(1, FRAME_SECONDS);
+    expect(uniforms.fadeIn?.value).toBeCloseTo(0.5, 12);
+    clock.mockReturnValue(FLIGHT_START_MS + SWARM_FADE_IN_SECONDS * 1000);
+    await renderer.advanceFrames(1, FRAME_SECONDS);
+    expect(uniforms.fadeIn?.value).toBe(1);
+    expect(renders).toBe(1);
     await renderer.unmount();
   });
 });

@@ -15,6 +15,15 @@ export const SWARM_CLASS_COLORS = ['#ffd166', '#ff7a3d', '#2f86e0', '#b45cff'] a
 /** Opacity at a trail's head, falling with the square of the way back to 0 at the tail. Tuned by eye. */
 export const SWARM_TRAIL_MAX_OPACITY = 0.12;
 
+/** How long the swarm takes to fade in once its first frame draws, so it eases in rather than popping. */
+export const SWARM_FADE_IN_SECONDS = 1;
+
+/** 0 → 1 over the fade-in with smoothstep's easing, so it starts and settles without a visible step. */
+export function swarmFadeIn(secondsSinceFirstFrame: number): number {
+  const fraction = Math.min(Math.max(secondsSinceFirstFrame / SWARM_FADE_IN_SECONDS, 0), 1);
+  return fraction * fraction * (3 - 2 * fraction);
+}
+
 // These mirror swarm.vert, which gets the same constants as uniforms and so holds no numbers of its own.
 
 export function pointSizePx(absoluteMagnitude: number): number {

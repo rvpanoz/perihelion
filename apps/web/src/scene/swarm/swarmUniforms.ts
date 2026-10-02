@@ -13,6 +13,8 @@ export interface SwarmUniforms extends Record<string, IUniform> {
   brightness: IUniform<Vector2>;
   classColors: IUniform<Color[]>;
   trailMaxOpacity: IUniform<number>;
+  /** Illustrative: 0 → 1 as the swarm first appears (`swarmFadeIn`). */
+  fadeIn: IUniform<number>;
 }
 
 export function createSwarmUniforms(pixelRatio: number): SwarmUniforms {
@@ -25,6 +27,7 @@ export function createSwarmUniforms(pixelRatio: number): SwarmUniforms {
     brightness: { value: rangeVector(SWARM_LOOK.brightness) },
     classColors: { value: SWARM_CLASS_COLORS.map((hex) => new Color(hex)) },
     trailMaxOpacity: { value: SWARM_TRAIL_MAX_OPACITY },
+    fadeIn: { value: 0 },
   };
 }
 
@@ -36,6 +39,11 @@ export function createSwarmUniforms(pixelRatio: number): SwarmUniforms {
 export function writeSwarmUniforms(uniforms: SwarmUniforms, elapsedDays: number): void {
   uniforms.elapsedDays.value = elapsedDays;
   writeSceneOffset(bodyPositions.sun, uniforms.sunSceneOffsetAu.value);
+}
+
+/** Illustrative, not data: how far the swarm has faded in (`swarmFadeIn`). */
+export function writeSwarmFadeIn(uniforms: SwarmUniforms, fadeIn: number): void {
+  uniforms.fadeIn.value = fadeIn;
 }
 
 function rangeVector(range: { brightest: number; faintest: number }): Vector2 {

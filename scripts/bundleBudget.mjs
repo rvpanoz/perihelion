@@ -6,9 +6,9 @@ import { join } from 'node:path';
 import { constants, gzipSync } from 'node:zlib';
 
 const DIST_DIR = 'apps/web/dist';
-// Phase 7 baseline: 391,142 bytes on 2026-10-02, rounded up to the next 10 kB so it can only stop growth.
-// Task 4 (code splitting) lowers it.
-const INITIAL_JS_GZIP_BUDGET_BYTES = 400_000;
+// Phase 7 baseline 391,142 bytes (2026-10-02); 370,460 once postprocessing moved to its own chunk (Task 4),
+// rounded up to the next 10 kB so it can only stop growth.
+const INITIAL_JS_GZIP_BUDGET_BYTES = 380_000;
 // Fixed so the number means the same thing on every machine; Node's default level, close to what hosts serve.
 const GZIP_LEVEL = constants.Z_DEFAULT_COMPRESSION;
 

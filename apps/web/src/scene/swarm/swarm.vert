@@ -17,6 +17,7 @@ uniform vec2 absoluteMagnitudeRange; // H at the bright end, H at the faint end
 uniform vec2 pointSizePx;            // at the bright end, at the faint end
 uniform vec2 brightness;             // at the bright end, at the faint end
 uniform vec3 classColors[4];         // NEO_ORBIT_CLASSES order
+uniform float fadeIn;                // 0 → 1 as the swarm first appears
 
 varying vec3 vColor;
 
@@ -32,7 +33,8 @@ void main() {
     1.0
   );
   gl_PointSize = mix(pointSizePx.x, pointSizePx.y, faintness) * pixelRatio;
-  vColor = classColors[int(appearance.y)] * mix(brightness.x, brightness.y, faintness);
+  // Additive blending: scaling the colour is the fade.
+  vColor = classColors[int(appearance.y)] * mix(brightness.x, brightness.y, faintness) * fadeIn;
 
   // The logarithmic depth buffer is always on; without this, points depth-test against the wrong values.
   #include <logdepthbuf_vertex>

@@ -47,7 +47,7 @@ export function App() {
   const showTrails = useShowTrails();
   const swarm =
     neoCatalog.status === 'ready'
-      ? { catalog: neoCatalog.data, showTrails, stressCopies: SWARM_STRESS_COPIES }
+      ? { attributes: neoCatalog.attributes, showTrails, stressCopies: SWARM_STRESS_COPIES }
       : undefined;
   return (
     <AppShell
@@ -57,7 +57,7 @@ export function App() {
       bottom={<TimeControls />}
     >
       <SceneCanvas swarm={swarm} openingCanStart={neoCatalog.status !== 'loading'} />
-      <OpeningCaption neoCount={swarm?.catalog.count} />
+      <OpeningCaption neoCount={neoCatalog.status === 'ready' ? neoCatalog.count : undefined} />
     </AppShell>
   );
 }
@@ -158,6 +158,6 @@ function neoCatalogStatus(state: NeoCatalogState): NamedDatasetState {
   return {
     label: 'NEO catalog',
     state,
-    summary: `${state.data.count.toLocaleString('en-US')} asteroids`,
+    summary: `${state.count.toLocaleString('en-US')} asteroids`,
   };
 }

@@ -1,12 +1,16 @@
-import type { DatasetName } from '@perihelion/data';
-import type { DatasetState } from '../data/useDataset';
+import type { DatasetOrigin } from '@perihelion/data';
 import { SHORT_MONTHS } from '../time/shortMonths';
 
 export type DataTone = 'live' | 'stale' | 'snapshot' | 'loading' | 'unavailable';
 
+/** What the pill reads from any dataset's load state: the NEO catalog's and `useDataset`'s both fit. */
+export type DatasetStatusState =
+  | { status: 'loading' | 'unavailable' }
+  | { status: 'ready'; origin: DatasetOrigin; fetchedAt: string };
+
 export interface NamedDatasetState {
   label: string;
-  state: DatasetState<DatasetName>;
+  state: DatasetStatusState;
   /** What the detail line says beyond the age, e.g. "40,123 asteroids". */
   summary?: string;
 }
@@ -42,7 +46,7 @@ function worstTone(datasets: readonly NamedDatasetState[]): DataTone {
   return TONE_SEVERITY[Math.max(-1, ...severities)] ?? 'loading';
 }
 
-function toneOf(state: DatasetState<DatasetName>): DataTone {
+function toneOf(state: DatasetStatusState): DataTone {
   if (state.status !== 'ready') return state.status;
   return state.origin === 'fresh' ? 'live' : state.origin;
 }
@@ -67,7 +71,7 @@ function detailLine({ label, state, summary }: NamedDatasetState, nowMs: number)
   return `${label}: ${summary === undefined ? '' : `${summary} · `}${served}`;
 }
 
-function fetchedAtMs(state: DatasetState<DatasetName>): number {
+function fetchedAtMs(state: DatasetStatusState): number {
   return state.status === 'ready' ? Date.parse(state.fetchedAt) : Number.NaN;
 }
 
