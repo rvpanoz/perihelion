@@ -8,7 +8,12 @@ import { type DatasetState, useDataset } from './data/useDataset';
 import { type NeoCatalogState, useNeoCatalog } from './data/useNeoCatalog';
 import { useNowMs } from './data/useNowMs';
 import { swarmStressCopiesFromUrl } from './dev/swarmStress';
-import { qualityStore, useShowTrails } from './quality/qualityStore';
+import {
+  qualityStore,
+  useQualityPreference,
+  useQualityTierName,
+  useShowTrails,
+} from './quality/qualityStore';
 import { CmeCard } from './eruptions/CmeCard';
 import { CmeList } from './eruptions/CmeList';
 import { useSelectedCme } from './eruptions/cmeSelection';
@@ -16,10 +21,10 @@ import { watchEruption } from './eruptions/watchEruption';
 import { SceneCanvas } from './scene/SceneCanvas';
 import { FocusPicker } from './scene/camera/FocusPicker';
 import { OpeningCaption } from './scene/opening/OpeningCaption';
-import { SwarmControls } from './scene/swarm/SwarmControls';
 import { AppShell } from './shell/AppShell';
 import { Brand } from './shell/Brand';
 import { DataStatusPill } from './shell/DataStatusPill';
+import { DisplayPanel } from './shell/DisplayPanel';
 import { ShellColumn } from './shell/ShellColumn';
 import type { NamedDatasetState } from './shell/dataStatus';
 import { chooseApproach, chooseCme } from './shell/shotSelection';
@@ -44,17 +49,10 @@ export function App() {
     neoCatalog.status === 'ready'
       ? { catalog: neoCatalog.data, showTrails, stressCopies: SWARM_STRESS_COPIES }
       : undefined;
-  const swarmControls = swarm && (
-    <SwarmControls showTrails={showTrails} onShowTrailsChange={qualityStore.setTrailsPreference} />
-  );
   return (
     <AppShell
       top={<ShellTop neoCatalog={neoCatalog} closeApproaches={closeApproaches} cmes={cmes} />}
-      left={
-        <ShellLeft closeApproaches={closeApproaches} cmes={cmes}>
-          {swarmControls}
-        </ShellLeft>
-      }
+      left={<ShellLeft closeApproaches={closeApproaches} cmes={cmes} />}
       right={<ShellRight />}
       bottom={<TimeControls />}
     >
@@ -93,11 +91,9 @@ function ShellTop({ neoCatalog, closeApproaches, cmes }: ShellTopProps) {
 function ShellLeft({
   closeApproaches,
   cmes,
-  children,
 }: {
   closeApproaches: CloseApproachesState;
   cmes: CmesState;
-  children: ReactNode;
 }) {
   const nowMs = useNowMs(APPROACH_GROUPING_INTERVAL_MS);
   const selected = useSelectedApproach();
@@ -111,32 +107,49 @@ function ShellLeft({
         onSelect={chooseApproach}
       />
       <CmeList state={cmes} selected={selectedCme} onSelect={chooseCme} />
-      {children}
     </ShellColumn>
   );
 }
 
-/** The card for the selected shot; with nothing selected the column stays empty so the scene shows through. */
+/** The selected shot's card above the Display panel; the narrow layout's drawer is named for what it holds. */
 function ShellRight() {
+  const card = useFocusCard();
+  return (
+    <ShellColumn side="right" label={card ? 'Focus' : 'Display'}>
+      {card}
+      <QualityDisplayPanel />
+    </ShellColumn>
+  );
+}
+
+/** With nothing selected there is no card, so the scene shows through above the panel. */
+function useFocusCard(): ReactNode {
   const selected = useSelectedApproach();
   const selectedCme = useSelectedCme();
-  if (selectedCme !== undefined) {
-    return (
-      <ShellColumn side="right" label="Focus">
-        <CmeCard cme={selectedCme} onWatch={watchEruption} />
-      </ShellColumn>
-    );
-  }
+  if (selectedCme !== undefined) return <CmeCard cme={selectedCme} onWatch={watchEruption} />;
   if (selected === undefined) return null;
   return (
-    <ShellColumn side="right" label="Focus">
-      <ApproachCard
-        approach={selected}
-        onFollow={followApproach}
-        onPlay={playApproach}
-        closeUp={<CloseUp approach={selected} />}
-      />
-    </ShellColumn>
+    <ApproachCard
+      approach={selected}
+      onFollow={followApproach}
+      onPlay={playApproach}
+      closeUp={<CloseUp approach={selected} />}
+    />
+  );
+}
+
+function QualityDisplayPanel() {
+  const preference = useQualityPreference();
+  const tierName = useQualityTierName();
+  const showTrails = useShowTrails();
+  return (
+    <DisplayPanel
+      preference={preference}
+      tierName={tierName}
+      showTrails={showTrails}
+      onPreferenceChange={qualityStore.setPreference}
+      onShowTrailsChange={qualityStore.setTrailsPreference}
+    />
   );
 }
 

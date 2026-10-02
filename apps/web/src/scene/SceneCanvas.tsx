@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { useEffect } from 'react';
 import { DevProbes } from '../dev/DevProbes';
 import { devPixelRatioFromUrl } from '../dev/devPixelRatio';
+import { QualityGovernor } from '../quality/QualityGovernor';
 import { useQualityTier } from '../quality/qualityStore';
 import { pixelRatioFor } from '../quality/qualityTiers';
 import { CAMERA_SETTINGS, RENDERER_PARAMETERS, SCENE_BACKGROUND } from './canvasConfig';
@@ -42,6 +43,7 @@ export function SceneCanvas({ swarm, openingCanStart }: SceneCanvasProps) {
       <SceneContents swarm={swarm} />
       <CameraControls />
       <Effects />
+      <QualityGovernor />
       <Stats className="fps-meter" />
       {import.meta.env.DEV && <DevProbes />}
     </Canvas>

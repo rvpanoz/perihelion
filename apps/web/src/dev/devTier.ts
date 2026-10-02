@@ -2,7 +2,7 @@ import { QUALITY_TIER_NAMES, type QualityTierName } from '../quality/qualityTier
 
 /**
  * The dev-only `?tier=low|medium|high`: a bench run reloads the page, so the tier it measures has to come from the
- * URL. Anything else leaves the store's own tier.
+ * URL. Anything else leaves the viewer's own preference.
  */
 export function devTierNameFromUrl(search: string): QualityTierName | undefined {
   const requested = new URLSearchParams(search).get('tier');

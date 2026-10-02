@@ -314,7 +314,7 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 
 - [x] Baseline harness: frame times and bundle size (#128)
 - [x] Quality tiers (#129)
-- [ ] Tier governor and Display panel (#130)
+- [x] Tier governor and Display panel (#130)
 - [ ] Progressive loading: worker and code splitting (#131)
 - [ ] Fallbacks: no WebGL2, server timeout (#132)
 - [ ] Responsive layout, touch and scrollbars (#133)
@@ -324,8 +324,8 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 - [ ] Exit verification (#137)
 
 Status (2026-10-02): plan merged in #138, with issues #128–#137 on the board. README rewritten for the current state
-in #139. Task 1 (#128) merged in #141. Task 2 (#129) on `phase-7/quality-tiers`, review proposals 1–8 included (plan
-Task 2, "As built"); next is Task 3 (#130).
+in #139. Task 1 (#128) merged in #141, Task 2 (#129) in #142. Task 3 (#130) on `phase-7/tier-governor`, review
+proposals 1–9 included (plan Task 3, "As built"); next is Task 4 (#131).
 
 ### Phase 7 baseline
 
@@ -390,6 +390,21 @@ High, in the order M B B M M B B M with 90 s idle between runs so drift cancels:
   (user decision).
 - The last main run came out bimodal (half the frames ~17 ms, half ~70 ms); a repeat of main and a branch control run
   did the same, so the machine changed state, not the code. Those three runs are left out.
+
+### Tier governor (Task 3)
+
+Measured 2026-10-02 23:45–23:52 on `phase-7/tier-governor`, same setup as the baseline, preference Auto with nothing
+stored (the M3's first guess is High). Tier changes from the `[quality]` dev log and the Display panel's label; frame
+times from `requestAnimationFrame` in the console. No CPU throttle (decisions log, Task 1).
+
+- `?dpr=2&swarmStress=4`, overview: High → Medium 6.5 s after load (2 s warm-up, two slow 2 s windows). Medium for
+  10 s from 29 s: 13.4 / 25.7 / 27.4 ms, 69/681 over 20 ms. After a steady minute the governor tried High (68.6 s), fell
+  back to Medium at 74.9 s and locked, then dropped to Low at 81.1 s. Low for 10 s from 118 s: 13.3 / 13.8 / 14.4 ms,
+  0/750 over 20 ms.
+- Normal (DPR 1), overview: High for 128.8 s with no change; 9,598 frames, median 13.3 ms, p90 13.8 ms, 7 over
+  20 ms (worst 507.8 ms, during page load).
+- Medium under stress had a slower tail here (p90 25.7 ms) than in Task 2's sweep (14.7 ms), probably heat on the
+  fanless Mac after the earlier runs; that is the case the governor handles by stepping down again.
 
 ## Calibrated tolerances
 
@@ -889,3 +904,8 @@ _None._
 - **2026-10-02:** Task 2's High tier counts as not slower than main at `?dpr=2&swarmStress=4` (user decision): an
   alternating A/B showed the same frames per 10 s, a 0.6 ms higher median and a 1.6 ms lower p90. A/B runs on this
   fanless Mac alternate builds with idle breaks; one long sweep drifts with heat.
+- **2026-10-02:** Task 3 (#130): the store owns the governor and `QualityGovernor` only forwards frame times and
+  visibility changes; stored values pass through `qualityPreferenceFrom` (anything unknown reads as Auto); the dev
+  `?tier=` applies to that load only; `HITCH_THRESHOLD_MS` and `percentileMs` live in `quality/frameStats.ts`. The
+  right column always holds the Display panel, under the focus card when one is selected. Step 12 ran without the
+  CPU throttle.
