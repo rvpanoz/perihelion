@@ -6,6 +6,7 @@ describe('summarizeFrameTimes', () => {
     expect(summarizeFrameTimes([13.3, 25, 13.4, 13.2, 21])).toEqual({
       frames: 5,
       medianMs: 13.4,
+      p90Ms: 25,
       worstMs: 25,
       hitches: 2,
     });
@@ -16,7 +17,18 @@ describe('summarizeFrameTimes', () => {
   });
 
   it('reports zeros for no frames', () => {
-    expect(summarizeFrameTimes([])).toEqual({ frames: 0, medianMs: 0, worstMs: 0, hitches: 0 });
+    expect(summarizeFrameTimes([])).toEqual({
+      frames: 0,
+      medianMs: 0,
+      p90Ms: 0,
+      worstMs: 0,
+      hitches: 0,
+    });
+  });
+
+  it('gives the 90th percentile by nearest rank', () => {
+    expect(summarizeFrameTimes([10, 9, 8, 7, 6, 5, 4, 3, 2, 1]).p90Ms).toBe(9);
+    expect(summarizeFrameTimes([13.3]).p90Ms).toBe(13.3);
   });
 });
 
