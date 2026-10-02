@@ -2,6 +2,7 @@
   "name": "perihelion",
   "version": "0.0.0",
   "private": true,
+  "license": "GPL-3.0-or-later",
   "type": "module",
   "description": "A web-based 3D solar system VFX showcase driven by live NASA/JPL data.",
   "workspaces": [
