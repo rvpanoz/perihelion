@@ -316,7 +316,7 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 - [x] Quality tiers (#129)
 - [x] Tier governor and Display panel (#130)
 - [x] Progressive loading: worker and code splitting (#131)
-- [ ] Fallbacks: no WebGL2, server timeout (#132)
+- [x] Fallbacks: no WebGL2, server timeout (#132)
 - [ ] Responsive layout, touch and scrollbars (#133)
 - [ ] Accessibility and reduced motion (#134)
 - [ ] Help dialog, orbit-class legend, first-visit hint and credits (#135)
@@ -954,6 +954,12 @@ _None._
   Only postprocessing is code-split (the scenes and cards would save ≈ 8 kB); the opening waits for the composer's
   two warm-up frames, since its first frame costs ≈ 27 ms and `gl.compile(scene)` can't reach it. The swarm fades
   in over 1 s of wall-clock time (illustrative). Budget 380,000 B.
+- **2026-10-03:** Task 5 (#132): the first load waits 4 s for our server's headers (the body is never timed), then
+  shows the bundled snapshot with a one-line banner. Every dataset, the NEO catalog included, retries the server in
+  the background (4, 8, 16, 32 s, then every 60 s; 30 s per attempt) and swaps to its answer, whatever the origin;
+  selections follow by key, a missing row clears. No wake-up `/api/health` call: that route does not exist, and the
+  first request wakes Render anyway. Without WebGL2 a notice page with three release stills replaces the app
+  (`?webgl=off` in dev). The swap measured no frame over 16.7 ms.
 - **2026-10-03:** Task 7 (#134), reviewed before Tasks 5 and 6 (independent per the plan): reduced motion makes every
   camera flight a cut in one place, `CameraRig.flyTo`, reading `prefers-reduced-motion` on each call; fades stay,
   since they move nothing. The status pill announces only its head word, never the minute-by-minute age. Each event

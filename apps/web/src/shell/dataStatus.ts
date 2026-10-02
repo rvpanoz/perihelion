@@ -41,6 +41,18 @@ export function dataStatus({ datasets, nowMs }: DataStatusInput): DataStatus {
   };
 }
 
+/**
+ * Worded for both ways the snapshot arrives: our server unreachable or asleep (the bundled copy), or our server up
+ * with JPL down (its own copy). Absent when no dataset shows the snapshot.
+ */
+export function snapshotBannerText(datasets: readonly NamedDatasetState[]): string | undefined {
+  const snapshotDates = datasets
+    .filter(({ state }) => toneOf(state) === 'snapshot')
+    .map(({ state }) => fetchedAtMs(state));
+  if (snapshotDates.length === 0) return undefined;
+  return `Live JPL data unavailable · showing the snapshot from ${utcDateLabel(Math.min(...snapshotDates))}`;
+}
+
 function worstTone(datasets: readonly NamedDatasetState[]): DataTone {
   const severities = datasets.map((dataset) => TONE_SEVERITY.indexOf(toneOf(dataset.state)));
   return TONE_SEVERITY[Math.max(-1, ...severities)] ?? 'loading';

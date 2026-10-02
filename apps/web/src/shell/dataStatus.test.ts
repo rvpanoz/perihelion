@@ -1,7 +1,7 @@
 import type { DatasetName, DatasetOrigin } from '@perihelion/data';
 import { describe, expect, it } from 'vitest';
 import type { DatasetState } from '../data/useDataset';
-import { type NamedDatasetState, dataStatus } from './dataStatus';
+import { type NamedDatasetState, dataStatus, snapshotBannerText } from './dataStatus';
 
 const NOW_MS = Date.parse('2026-10-01T12:00:00.000Z');
 const MINUTE_MS = 60_000;
@@ -82,5 +82,30 @@ describe('dataStatus', () => {
       'Close approaches: snapshot from 28 Sep 2026',
       'CMEs: unavailable',
     ]);
+  });
+});
+
+describe('snapshotBannerText', () => {
+  const snapshotFrom = (fetchedAt: string): DatasetState<DatasetName> => ({
+    status: 'ready',
+    data: [],
+    origin: 'snapshot',
+    fetchedAt,
+  });
+
+  it('names the oldest snapshot date while any dataset shows the snapshot', () => {
+    const text = snapshotBannerText([
+      neos(snapshotFrom('2026-09-30T10:00:00.000Z')),
+      approaches(snapshotFrom('2026-09-28T10:00:00.000Z')),
+    ]);
+    expect(text).toBe('Live JPL data unavailable · showing the snapshot from 28 Sep 2026');
+  });
+
+  it.each([
+    ['fresh', [neos(ready('fresh', 4)), approaches(ready('fresh', 12))]],
+    ['stale', [neos(ready('fresh', 4)), approaches(ready('stale', 180))]],
+    ['loading', [neos({ status: 'loading' })]],
+  ])('is absent when the data is %s', (_case, datasets) => {
+    expect(snapshotBannerText(datasets)).toBeUndefined();
   });
 });

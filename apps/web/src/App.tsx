@@ -26,8 +26,10 @@ import { Brand } from './shell/Brand';
 import { DataStatusPill } from './shell/DataStatusPill';
 import { DisplayPanel } from './shell/DisplayPanel';
 import { ShellColumn } from './shell/ShellColumn';
+import { SnapshotBanner } from './shell/SnapshotBanner';
 import type { NamedDatasetState } from './shell/dataStatus';
 import { chooseApproach, chooseCme } from './shell/shotSelection';
+import { useKeepShots } from './shell/useKeepShots';
 import { TimeControls } from './time/TimeControls';
 import { jdTdbFromUnixMs } from './time/timeController';
 
@@ -44,6 +46,7 @@ export function App() {
   const neoCatalog = useNeoCatalog();
   const closeApproaches = useDataset('close-approaches');
   const cmes = useDataset('cmes');
+  useKeepShots({ closeApproaches, cmes });
   const showTrails = useShowTrails();
   const swarm =
     neoCatalog.status === 'ready'
@@ -69,17 +72,17 @@ interface ShellTopProps {
 }
 
 function ShellTop({ neoCatalog, closeApproaches, cmes }: ShellTopProps) {
+  const datasets = [
+    neoCatalogStatus(neoCatalog),
+    { label: 'Close approaches', state: closeApproaches },
+    { label: 'CMEs', state: cmes },
+  ];
   return (
     <>
       <Brand />
       <FocusPicker />
-      <DataStatusPill
-        datasets={[
-          neoCatalogStatus(neoCatalog),
-          { label: 'Close approaches', state: closeApproaches },
-          { label: 'CMEs', state: cmes },
-        ]}
-      />
+      <DataStatusPill datasets={datasets} />
+      <SnapshotBanner datasets={datasets} />
     </>
   );
 }
