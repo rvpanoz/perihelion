@@ -459,7 +459,7 @@ Branch `phase-7/tier-governor`.
 - Produces: `TierGovernor` (`tier`, `recordFrame(frameMs): boolean`, `discardWindow()`), `GOVERNOR_SETTINGS`,
   `initialTier(device: DeviceHints): QualityTierName`, `readStored`, `writeStored`.
 
-- [ ] **Step 1: Write the failing percentile test**
+- [x] **Step 1: Write the failing percentile test**
 
 ```ts
 // apps/web/src/quality/frameStats.test.ts
@@ -479,7 +479,7 @@ describe('percentileMs', () => {
 });
 ```
 
-- [ ] **Step 2: Run; expect FAIL. Step 3: implement**
+- [x] **Step 2: Run; expect FAIL. Step 3: implement**
 
 ```ts
 // apps/web/src/quality/frameStats.ts
@@ -494,9 +494,9 @@ export function percentileMs(values: readonly number[], fraction: number): numbe
 
 (Task 1's `p90Ms` in `dev/frameTimes.ts` calls this function instead of its own copy.)
 
-- [ ] **Step 4: Run; expect PASS.**
+- [x] **Step 4: Run; expect PASS.**
 
-- [ ] **Step 5: Write the failing governor tests**
+- [x] **Step 5: Write the failing governor tests**
 
 ```ts
 // apps/web/src/quality/tierGovernor.test.ts
@@ -586,9 +586,9 @@ describe('TierGovernor', () => {
 });
 ```
 
-- [ ] **Step 6: Run; expect FAIL.**
+- [x] **Step 6: Run; expect FAIL.**
 
-- [ ] **Step 7: Implement the governor**
+- [x] **Step 7: Implement the governor**
 
 ```ts
 // apps/web/src/quality/tierGovernor.ts
@@ -683,28 +683,51 @@ export class TierGovernor {
 }
 ```
 
-- [ ] **Step 8: Run; expect PASS.** If a test fails, fix the code, not the test; a test change needs the user's OK.
+- [x] **Step 8: Run; expect PASS.** If a test fails, fix the code, not the test; a test change needs the user's OK.
 
-- [ ] **Step 9: First guess (TDD, light).** `initialTier({ coarsePointer, shortSidePx, gpuRenderer })`:
+- [x] **Step 9: First guess (TDD, light).** `initialTier({ coarsePointer, shortSidePx, gpuRenderer })`:
       coarse pointer and short side < 600 px → `low`; `gpuRenderer` matching `/intel|mali|adreno|powervr/i` →
       `medium`; otherwise `high`. Tests: a phone, an Intel laptop, the M3 (`"ANGLE (Apple, ANGLE Metal Renderer: Apple
 M3, …)"` → high), an empty renderer string (Firefox masks it) → high. `QualityGovernor` reads the hints once
       (`matchMedia('(pointer: coarse)')`, `screen`, `WEBGL_debug_renderer_info` when exposed).
 
-- [ ] **Step 10: Preference and storage (TDD).** `safeStorage` tests: a storage whose `getItem`/`setItem` throw gives
+- [x] **Step 10: Preference and storage (TDD).** `safeStorage` tests: a storage whose `getItem`/`setItem` throw gives
       `undefined` and no throw. Store tests: `setPreference('low')` sets the tier and stops the governor;
       `setPreference('auto')` creates a new `TierGovernor` from the tier on screen (Review Focus 5); the preference and
       the trails choice survive a reload through `safeStorage` and still work when it throws (Review Focus 4).
 
-- [ ] **Step 11: Display panel (TDD, light).** Render tests: the select lists Auto/High/Medium/Low and shows
+- [x] **Step 11: Display panel (TDD, light).** Render tests: the select lists Auto/High/Medium/Low and shows
       "Auto (Medium)" when the governor picked Medium; changing it calls `setPreference`; the Trails checkbox reflects
       `showTrails` and writes `setTrailsPreference`. Keyboard: both controls are native and labelled.
 
-- [ ] **Step 12: Measure.** At `?dpr=2&swarmStress=4` with CPU throttle 4× the governor steps down within ~6 s and the
+- [x] **Step 12: Measure.** At `?dpr=2&swarmStress=4` with CPU throttle 4× the governor steps down within ~6 s and the
       frame times recover; on the normal setting it stays on High for 2 minutes. Log tier changes in dev
       (`[quality] high → medium`). Record both in the baseline table.
 
-- [ ] **Step 13: `npm run check`, commit** (`Choose the quality tier from frame times and add the Display panel`).
+- [x] **Step 13: `npm run check`, commit** (`Choose the quality tier from frame times and add the Display panel`).
+
+**As built** (review proposals 1–9, approved 2026-10-02):
+
+1. The dev-only `?tier=` sets the preference for that load only (`qualityStore.setPreferenceForThisLoad`), so a bench
+   run never leaves its tier in storage.
+2. The `[bench]` line also records `tier` and `qualityPreference`, since on Auto the governor may change the tier
+   during a run.
+3. `HITCH_THRESHOLD_MS` moves into `quality/frameStats.ts` beside `percentileMs`; `dev/frameTimes.ts` imports both
+   instead of keeping its own nearest-rank copy.
+4. The store owns the governor: `applyFirstGuess` (once per load, Auto only), `recordFrame` and `discardFrameWindow`.
+   `QualityGovernor` only reads the device hints and forwards frame times and `visibilitychange`.
+5. Stored values are untrusted strings: `qualityPreferenceFrom` lets only a known preference through (anything else
+   reads as Auto), and trails read only `'true'` / `'false'`. The select's value goes through the same check.
+6. The right column is always rendered: the focus card (when one is selected) above the Display panel. Its drawer
+   label is "Focus" with a card, else "Display".
+7. The GPU name falls back to `RENDERER` when `WEBGL_debug_renderer_info` is not exposed, and to `''` if neither is a
+   string.
+8. Step 12 runs without the CPU throttle (it is ≈ 1.7× on the M3 and barely moves the frame times; Task 1).
+9. The Trails checkbox is always shown, not only once the catalog is loaded.
+
+Step 12 (2026-10-02 23:45–23:52, Auto with nothing stored): at `?dpr=2&swarmStress=4` the governor dropped High →
+Medium 6.5 s after load, tried High again after a steady minute, fell back to Medium (locked), then dropped to Low;
+Low holds 75 fps. At the normal setting it stayed on High for 2 minutes. Numbers in `PROGRESS.md`.
 
 ## Task 4: Progressive loading: worker + code splitting (light)
 

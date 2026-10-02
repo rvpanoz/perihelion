@@ -6,6 +6,7 @@ import { playApproach } from '../approaches/playApproach';
 import { loadDataset } from '../data/loadDataset';
 import { watchEruption } from '../eruptions/watchEruption';
 import { cameraRig } from '../scene/camera/cameraRig';
+import { qualityStore } from '../quality/qualityStore';
 import { openingStore } from '../scene/opening/openingStore';
 import { chooseApproach } from '../shell/shotSelection';
 import { timeStore } from '../time/timeStore';
@@ -94,7 +95,10 @@ interface BenchResult {
   gl: WebGLRenderer;
 }
 
-/** Canvas size in CSS pixels plus the pixel ratio: every measurement records what it drew. */
+/**
+ * Canvas size in CSS pixels, the pixel ratio and the tier at the end: every measurement records what it drew. On
+ * Auto the governor may change the tier during a run.
+ */
 function logBenchResult({ scenario, subject, frameTimesMs, gl }: BenchResult): void {
   const canvas = gl.domElement;
   const result = {
@@ -102,6 +106,8 @@ function logBenchResult({ scenario, subject, frameTimesMs, gl }: BenchResult): v
     subject,
     canvasCssPx: [canvas.clientWidth, canvas.clientHeight],
     dpr: gl.getPixelRatio(),
+    tier: qualityStore.tierName,
+    qualityPreference: qualityStore.preference,
     search: window.location.search,
   };
   console.info(`[bench] ${scenario} ${JSON.stringify(result)}`);

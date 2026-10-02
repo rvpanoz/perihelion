@@ -107,7 +107,7 @@ p {
   align-items: center;
 }
 
-/* The close-approach list on top; the swarm controls sit under it until the Phase 7 legend takes them. */
+/* The close-approach list on top, the CME list under it. */
 .shell-left {
   grid-area: left;
   display: flex;
@@ -267,12 +267,28 @@ p {
   background: var(--status-error);
 }
 
-.swarm-controls {
+.display-panel {
   display: flex;
-  gap: 0.4rem;
+  flex-wrap: wrap;
+  gap: 8px 20px;
   align-items: center;
-  width: fit-content;
-  padding: 8px 14px;
+  padding: 10px 14px;
+}
+
+.display-control {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  color: var(--muted);
+}
+
+.display-control select {
+  padding: 4px 6px;
+  color: var(--text);
+  font: inherit;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
 }
 
 /* The approaches share the left column with the eruptions (Phase 6 Task 4), so each list scrolls in less height. */

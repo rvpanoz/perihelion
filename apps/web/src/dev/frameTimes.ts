@@ -1,5 +1,4 @@
-/** A frame over this is a visible hitch at 60 fps (16.7 ms), with room for timer noise. */
-export const HITCH_THRESHOLD_MS = 20;
+import { HITCH_THRESHOLD_MS, percentileMs } from '../quality/frameStats';
 
 const P90_FRACTION = 0.9;
 
@@ -17,7 +16,7 @@ export function summarizeFrameTimes(frameTimesMs: readonly number[]): FrameTimeS
   return {
     frames: sorted.length,
     medianMs: medianOfSorted(sorted),
-    p90Ms: nearestRankOfSorted(sorted, P90_FRACTION),
+    p90Ms: percentileMs(sorted, P90_FRACTION),
     worstMs: sorted.at(-1) ?? 0,
     hitches: sorted.filter((frameMs) => frameMs > HITCH_THRESHOLD_MS).length,
   };
@@ -34,11 +33,6 @@ export function hitchTimesMs(frameTimesMs: readonly number[]): number[] {
 
 export function medianMs(values: readonly number[]): number {
   return medianOfSorted([...values].sort((a, b) => a - b));
-}
-
-function nearestRankOfSorted(sorted: readonly number[], fraction: number): number {
-  const rank = Math.ceil(fraction * sorted.length);
-  return sorted[rank - 1] ?? 0;
 }
 
 function medianOfSorted(sorted: readonly number[]): number {
