@@ -1,6 +1,6 @@
 # PROGRESS
 
-**Current phase:** Phase 7: Polish & ship (not started)
+**Current phase:** Phase 7: Polish & ship (in progress)
 **Last updated:** 2026-10-02
 
 ## Phase status
@@ -14,7 +14,7 @@
 | 4. Shot 1: The Swarm          | ✅ Done        |
 | 5. Shot 2: The Close Approach | ✅ Done        |
 | 6. Shot 3: The Eruption       | ✅ Done        |
-| 7. Polish & ship              | ⬜ Not started |
+| 7. Polish & ship              | 🟨 In progress |
 
 Legend: ⬜ not started · 🟨 in progress · ✅ done (all exit criteria verified)
 
@@ -308,9 +308,20 @@ started from the console (dev only, no app code) by pressing Watch eruption on t
   ~1e-7 relative (~15 km), far below a pixel. Not measured separately.
 - Screenshot-worthy: five stills (burst, cruise, impact, Sun close-up, aurora), attached to the v0.6.0 release.
 
-## Phase 7
+## Phase 7: Polish & ship
 
-Checklist will be expanded from `PLAN.md` when the phase starts.
+Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performance comes before graphics detail.
+
+- [ ] Baseline harness: frame times and bundle size (#128)
+- [ ] Quality tiers (#129)
+- [ ] Tier governor and Display panel (#130)
+- [ ] Progressive loading: worker and code splitting (#131)
+- [ ] Fallbacks: no WebGL2, server timeout (#132)
+- [ ] Responsive layout, touch and scrollbars (#133)
+- [ ] Accessibility and reduced motion (#134)
+- [ ] Help dialog, orbit-class legend, first-visit hint and credits (#135)
+- [ ] Deploy: Netlify and Render (#136)
+- [ ] Exit verification (#137)
 
 ## Calibrated tolerances
 
@@ -784,3 +795,9 @@ _None._
   Phase 6 done; v0.6.0.
 - **2026-10-02:** Licensed under GPL-3.0-or-later (user decision): `LICENSE`, a `license` field in every
   `package.json`, and a README section. Upstream NASA/JPL data keeps its own terms.
+- **2026-10-02:** Phase 7 planned (user decisions): performance before graphics detail, so Earth city lights and
+  clouds and swarm colour tuning move to Parked. Proxy runs on the M3 stand in for an integrated GPU. Hosting is
+  Netlify (web, `/api` forwarded) and Render's free tier (server). Quality tiers are chosen from frame times with a
+  manual override in a Display panel; High keeps today's bloom (0.5) and drops the composer's MSAA from 8 to 4.
+  Explanation is a help dialog, an orbit-class legend and one first-visit hint (no tour). Exit: Lighthouse desktop
+  Performance ≥ 85, TBT < 300 ms, Accessibility ≥ 90; the user captures the recording.
