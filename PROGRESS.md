@@ -782,3 +782,5 @@ _None._
 - **2026-10-02:** Task 10 (#107): exit verified (see Phase 6). The exit check's tolerances follow the approved rule
   (measured × 1.25, exact if 0) and were set without a separate stop, under the user's go-ahead for the whole phase.
   Phase 6 done; v0.6.0.
+- **2026-10-02:** Licensed under GPL-3.0-or-later (user decision): `LICENSE`, a `license` field in every
+  `package.json`, and a README section. Upstream NASA/JPL data keeps its own terms.
