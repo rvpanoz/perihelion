@@ -56,7 +56,7 @@ Fastify, zod 4, Vitest 5, fast-check.
 | 7   | Earth look                                 | #104  | full code | ✅            |
 | 8   | Earth impact (illustrative)                | #105  | light     | ✅            |
 | 9   | Shot choreography                          | #106  | light     | ✅            |
-| 10  | Exit verification                          | #107  | light     | written later |
+| 10  | Exit verification                          | #107  | light     | ✅            |
 
 Task 1 is one issue (#85) delivered in three PRs, in the order 1a → 1c → 1b (`phase-6/donki-ccmc`,
 `phase-6/cache-validation`, `phase-6/donki-strict`): 1c goes before 1b so the CME schema change lands with cache
@@ -931,4 +931,27 @@ or another selection; Watch eruption selects, sets the clock and starts the shot
 - [x] Watch eruption on CME 2026-09-05T11:09 plays burst → cruise → impact and pauses at arrival + 14 h (dev app).
 - [x] Frame time over the whole 30 s shot (44 s recorded): 13.34 ms mean, p95 13.9 ms, p99 14.3 ms, one frame of
       26.5 ms (during a screenshot capture), 1920 × 809, 75 Hz.
+- [x] `npm run check` green.
+
+## Task 10: Exit verification (#107, light)
+
+Branch `phase-6/exit-verification`. Files: `apps/web/src/scene/eruption/cmeExitCheck.test.ts`; `PROGRESS.md`.
+
+**Checks:**
+
+1. **Geometry and timing vs DONKI, every recorded CME** (77; 13 with an ENLIL arrival), through the app's drawing
+   path: the shell axis's angle from Earth equals DONKI's (`angleFromEarthRad`); the shell (the real 24,000-seed
+   layout, CPU mirror of the shader) never leaves DONKI's half-angle and fills it; the front is at 21.5 R☉ at
+   `time21_5` and at Earth at ENLIL's arrival; the card shows DONKI's speed and half-angle verbatim; the shot's
+   impact beat brackets ENLIL's arrival and is absent without one. Tolerances measured first, then measured × 1.25
+   (exact where 0): 5.6e-16 rad, widest ≥ 0.9999895 α, exact timing.
+2. **≥ 60 fps for the full sequence:** Watch eruption on a CME with an ENLIL arrival and one without, frame times
+   recorded with `requestAnimationFrame` from the click to after the shot ends (dev console only).
+3. **Release:** tag `v0.6.0` on the merge commit once CI on `main` is green, with five stills; close the milestone.
+
+**Acceptance:**
+
+- [x] All 77 CMEs pass the exit check.
+- [x] Run A (1,323 km/s, ENLIL arrival): 13.34 ms mean, max 14.4 ms, none over 16.7 ms; run B (no arrival):
+      13.34 ms mean, max 14.4 ms, none over 16.7 ms; 1920 × 809, 75 Hz.
 - [x] `npm run check` green.
