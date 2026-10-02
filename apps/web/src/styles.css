@@ -37,7 +37,9 @@ body,
   background: var(--bg);
 }
 
+/* The page itself never scrolls; this also stops pull-to-refresh and edge bounce on a phone. */
 body {
+  overscroll-behavior: none;
   color: var(--text);
   font: var(--text-md) / 1.4 var(--font-ui);
   -webkit-font-smoothing: antialiased;
@@ -149,15 +151,46 @@ p {
 
 .shell-column-body {
   display: flex;
+  flex: 0 1 auto;
   flex-direction: column;
   gap: 12px;
+  min-height: 0;
 }
 
-/* A column taller than the space above the time bar (the focus card in a short window) scrolls instead of running
-   under the bar, at every width: in the wide layout it would hide the card's actions and its source line. */
+/*
+ * A column never runs under the time bar, at every width: in the wide layout it would hide the card's actions and
+ * its source line. The column is a flex box (its `::details-content` too) so its body can shrink to the space left,
+ * and exactly one box scrolls per region: the right column's body, and each list on the left on its own, so the
+ * eruptions stay in view under a long approach list (decision 9, as amended in Task 6).
+ */
 .shell-column {
+  display: flex;
+  flex-direction: column;
   max-height: 100%;
+}
+
+.shell-column::details-content {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.shell-column-right .shell-column-body {
   overflow-y: auto;
+}
+
+/* Thin and themed; vertical scroll areas keep their gutter, so content does not shift when a bar appears. */
+.shell-column-body,
+.approach-list,
+.focus-picker {
+  scrollbar-width: thin;
+  scrollbar-color: var(--faint) transparent;
+}
+
+.shell-column-right .shell-column-body,
+.approach-list {
+  scrollbar-gutter: stable;
 }
 
 @media (min-width: 1100px) {
@@ -195,6 +228,72 @@ p {
   .shell-column-body {
     width: min(var(--shell-left-width), calc(100vw - 24px));
     margin-top: 8px;
+  }
+}
+
+/*
+ * Phones, upright or sideways (SHEETS_LAYOUT_QUERY in shellLayout.ts): both columns share one area above the time
+ * bar. Their summaries sit side by side at its foot and the open one rises above them as a full-width sheet; the
+ * `<details name>` group keeps at most one open.
+ */
+@media (max-width: 599.98px), (max-height: 500px) and (max-width: 1099.98px) {
+  .app-shell {
+    grid-template:
+      'top' auto
+      'sheet' 1fr
+      'bottom' auto
+      / 1fr;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .shell-left,
+  .shell-right {
+    grid-area: sheet;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  .shell-column {
+    flex-direction: column-reverse;
+  }
+
+  .shell-right .shell-column > summary {
+    align-self: flex-end;
+  }
+
+  .shell-column-body {
+    width: auto;
+    margin: 0 0 8px;
+  }
+
+  .shell-top .focus-picker {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    justify-self: stretch;
+    overflow-x: auto;
+  }
+
+  .focus-picker button {
+    flex-shrink: 0;
+  }
+}
+
+/* Fingers, not cursors: every control in the chrome is at least 44 px tall. The desktop look is unchanged. */
+@media (pointer: coarse) {
+  .app-shell button,
+  .app-shell select,
+  .shell-column > summary,
+  .pill > summary,
+  .display-control,
+  .timeline input[type='range'] {
+    box-sizing: border-box;
+    min-height: 44px;
+  }
+
+  .shell-column > summary {
+    padding-block: 12px;
   }
 }
 
@@ -317,9 +416,11 @@ p {
   border-radius: 8px;
 }
 
-/* The approaches share the left column with the eruptions (Phase 6 Task 4), so each list scrolls in less height. */
+/* The approaches share the left column with the eruptions (Phase 6 Task 4): they take whatever height the
+   eruptions leave and scroll in it. */
 .approach-list {
-  max-height: min(42vh, 480px);
+  flex: 0 1 auto;
+  min-height: 0;
   padding: 16px 12px 10px;
   overflow-y: auto;
 }
@@ -488,6 +589,34 @@ p {
     grid-template-columns: 1fr;
     gap: 10px;
     padding: 10px 14px;
+  }
+}
+
+/* Phones (after the rule above, which it refines): upright, the controls on one row and the two sliders under them;
+   sideways, all on one row, since height is what a sideways phone lacks. */
+@media (max-width: 599.98px), (max-height: 500px) and (max-width: 1099.98px) {
+  .timeline {
+    grid-template-columns: 1fr auto;
+    gap: 8px 12px;
+    padding: 8px 12px;
+  }
+
+  .timeline .transport {
+    grid-column: 1 / -1;
+  }
+
+  .rate-slider input[type='range'] {
+    width: 96px;
+  }
+}
+
+@media (max-height: 500px) and (max-width: 1099.98px) {
+  .timeline {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .timeline .transport {
+    grid-column: auto;
   }
 }
 
@@ -716,8 +845,10 @@ p {
 }
 
 /* Eruptions (Phase 6 Task 4): the mockup's space-weather card and a list beside the approaches. */
+/* Capped low enough that the approaches, the longer list and the column's lead, keep the larger share. */
 .approach-list.cme-list {
-  max-height: min(36vh, 340px);
+  flex-shrink: 0;
+  max-height: min(28vh, 300px);
 }
 
 .cme-rows {
