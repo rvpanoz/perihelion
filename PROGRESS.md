@@ -1,6 +1,6 @@
 # PROGRESS
 
-**Current phase:** Phase 6: Shot 3: The Eruption (in progress)
+**Current phase:** Phase 7: Polish & ship (not started)
 **Last updated:** 2026-10-02
 
 ## Phase status
@@ -13,7 +13,7 @@
 | 3. Scene foundation           | ✅ Done        |
 | 4. Shot 1: The Swarm          | ✅ Done        |
 | 5. Shot 2: The Close Approach | ✅ Done        |
-| 6. Shot 3: The Eruption       | 🟨 In progress |
+| 6. Shot 3: The Eruption       | ✅ Done        |
 | 7. Polish & ship              | ⬜ Not started |
 
 Legend: ⬜ not started · 🟨 in progress · ✅ done (all exit criteria verified)
@@ -286,7 +286,27 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-6-the-eruption.md` (part 1: Task 
 - [x] Earth look: day/night terminator and rim glow (#104)
 - [x] Earth impact: magnetosphere hint and aurora, labelled illustrative (#105)
 - [x] Shot choreography: camera and playback synced to the event time (#106)
-- [ ] Exit verification: CME geometry and timing vs DONKI; 60 fps (#107)
+- [x] Exit verification: CME geometry and timing vs DONKI; 60 fps (#107)
+
+Exit criteria verified on `main` at `b6ea5fd` (CI green), measured on `phase-6/exit-verification` (the same app code
+plus the exit check, `PROGRESS.md` and the plan), in Chrome in a foreground window (1920 × 809 canvas at DPR 1) on the
+Dell S2721HN (75 Hz), Apple M3, macOS 26.5, Node 24.7, live data (`/api/cmes` origin `fresh`, 77 CMEs). The shots were
+started from the console (dev only, no app code) by pressing Watch eruption on the selected CME.
+
+- Direction, cone width and timing vs DONKI, for all 77 recorded CMEs, through the app's own drawing path
+  (`apps/web/src/scene/eruption/cmeExitCheck.test.ts`): the shell axis sits at DONKI's angle from Earth (worst
+  4.4e-16 rad); no particle leaves DONKI's half-angle and the widest reaches ≥ 0.99999 of it; the front is at
+  21.5 R☉ at `time21_5` and at Earth's distance at ENLIL's arrival exactly (13 CMEs); the card shows DONKI's speed and
+  half-angle verbatim, and the shot's impact beat brackets ENLIL's arrival (none without one). Rows in "Calibrated
+  tolerances".
+- Full sequence ≥ 60 fps: run A (2026-09-02T19:36, 1,323 km/s, ENLIL arrival, glancing blow): 39.5 s, 2,964 frames,
+  13.34 ms mean, p99 14.3 ms, max 14.4 ms, none over 16.7 ms; paused at arrival + 14 h (Sep 6 08:00 UTC) as designed.
+  Run B (2026-10-01T03:12, 432 km/s, ENLIL ran without an Earth arrival): 23.3 s, 1,745 frames, 13.34 ms mean, max
+  14.4 ms, none over 16.7 ms; no impact beat, card "ENLIL: no Earth arrival predicted". A third run
+  (2026-09-05T11:09) earlier gave 13.35 ms mean with two frames over 16.7 ms, both during screenshot captures.
+- GPU vs CPU: the shell's shader is the same formula as `shellParticleOffsetAu` in float32; at 1 AU its rounding is
+  ~1e-7 relative (~15 km), far below a pixel. Not measured separately.
+- Screenshot-worthy: five stills (burst, cruise, impact, Sun close-up, aurora), attached to the v0.6.0 release.
 
 ## Phase 7
 
@@ -322,6 +342,9 @@ Checklist will be expanded from `PLAN.md` when the phase starts.
 | CME front vs DONKI: 21.5 R☉ at time21_5 | exact                        | Measured 0 over 77 recorded CMEs (2026-10-01); holds by construction                         |
 | CME front vs DONKI: Earth at ENLIL time | exact                        | Measured 0 over the 13 CMEs with an ENLIL Earth arrival; mean transit speed meets both times |
 | CME front vs DONKI: measured speed      | exact                        | Measured 0 over the 64 CMEs without an ENLIL Earth arrival                                   |
+| Exit: drawn CME axis vs DONKI angle     | 5.6e-16 rad                  | Measured 4.4e-16 rad × 1.25 over 77 recorded CMEs (float64 rounding of one rotation)         |
+| Exit: shell vs DONKI half-angle         | ≤ α; widest ≥ 0.9999895 α    | Measured: none outside (worst 1.4e-6 rad inside); widest ≥ 0.9999916 α, shortfall × 1.25     |
+| Exit: drawn front vs DONKI/ENLIL times  | exact                        | Measured 0 at time21_5 (77) and at ENLIL's arrival (13), through the web's time conversion   |
 
 Planet tolerances are heliocentric longitude / latitude / distance, the units of Standish's accuracy table
 (https://ssd.jpl.nasa.gov/planets/approx_pos.html): the worst case over the 27 fixture dates × 1.25
@@ -756,3 +779,6 @@ _None._
   impact 10 s around ENLIL's arrival; no impact beat without one), each with a side-on camera. Flights gained an
   optional end `direction` (`DirectedAim`, shared with the chase). The fixed-size Earth marker moved to
   `scene/markers/` and shows during eruptions. Whole shot: 13.34 ms mean, p99 14.3 ms.
+- **2026-10-02:** Task 10 (#107): exit verified (see Phase 6). The exit check's tolerances follow the approved rule
+  (measured × 1.25, exact if 0) and were set without a separate stop, under the user's go-ahead for the whole phase.
+  Phase 6 done; v0.6.0.
