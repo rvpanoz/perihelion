@@ -65,6 +65,19 @@ describe('ApproachList', () => {
     expect(markup.match(/aria-pressed="true"/g)).toHaveLength(1);
     expect(markup).toMatch(/<button[^>]*aria-pressed="true"[^>]*>(?:(?!<\/button>).)*\(2026 BB2\)/);
   });
+
+  it('is one Tab stop: the selected row, else the first listed', () => {
+    const tabStops = (markup: string) => markup.match(/<button[^>]*tabindex="0"[^>]*>/g) ?? [];
+    const selected = tabStops(listMarkup(readyState(ROWS), ROWS[0]));
+    expect(selected).toHaveLength(1);
+    expect(selected[0]).toContain('aria-pressed="true"');
+    const unselected = listMarkup(readyState(ROWS));
+    expect(tabStops(unselected)).toHaveLength(1);
+    expect(unselected.match(/tabindex="-1"/g)).toHaveLength(2);
+    expect(tabStops(unselected)[0]).toContain(
+      `data-row-key="${ROWS[1]?.designation} ${ROWS[1]?.approachJdTdb}"`,
+    );
+  });
 });
 
 describe('ApproachRow', () => {

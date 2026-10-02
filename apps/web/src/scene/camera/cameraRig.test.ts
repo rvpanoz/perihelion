@@ -111,4 +111,18 @@ describe('CameraRig', () => {
     rig.flyTo({ focus: 'sun' });
     expect(rig.flightSerial).toBe(serial + 1);
   });
+
+  it('cuts instead of flying when the viewer prefers reduced motion (decision 10)', () => {
+    const rig = new CameraRig({
+      initialDistanceAu: 3,
+      nowSeconds: () => 0,
+      reducedMotion: () => true,
+    });
+    const positions = { ...createBodyPositions(), asteroid: [0, 0, 0] as Vector3 };
+    rig.flyTo({ focus: 'mars', distanceAu: 0.5, durationSeconds: 2.5, chase: true });
+    const pose = rig.update({ positions, cameraDistanceAu: 3 });
+    expect(pose).toEqual({ originAu: [...positions.mars], distanceAu: 0.5 });
+    expect(rig.flying).toBe(false);
+    expect(rig.chasing).toBe(true);
+  });
 });

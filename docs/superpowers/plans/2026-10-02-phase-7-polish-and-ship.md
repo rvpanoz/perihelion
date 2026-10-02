@@ -868,8 +868,36 @@ has an accessible name; the pill has `aria-live`.
 **Acceptance:**
 
 - [ ] With macOS "Reduce motion" on, Play approach and Watch eruption cut instead of fly; the opening is skipped.
-- [ ] The app can be operated from the keyboard alone: pick an approach, play it, pick a CME, watch it, change speed.
-- [ ] Lighthouse Accessibility ≥ 90 (local preview).
+- [x] The app can be operated from the keyboard alone: pick an approach, play it, pick a CME, watch it, change speed.
+- [x] Lighthouse Accessibility ≥ 90 (local preview).
+
+**As built** (review proposals 1–9, approved 2026-10-03):
+
+1. `CameraRigOptions.reducedMotion` (default false, so the tests need no `matchMedia`); the singleton passes
+   `prefersReducedMotion`, and `flyTo` makes every flight 0 s long, which `flightProgress` already lands on its first
+   frame. Play approach, Watch eruption, the focus picker and body clicks all cut through this one place.
+2. `scene/camera/motionPreference.ts`: `prefersReducedMotion()` reads `matchMedia` on every call, so a change applies
+   to the next flight without a listener; it is false where there is no `matchMedia`. `openingSkip.ts` uses it.
+3. The pill's `<summary>` no longer has `aria-live`: its age changes every minute and would be re-read each time. A
+   visually hidden `aria-live="polite"` span beside the pill says only "Data status: <head word>". The planned "pill
+   has aria-live" test became "only the head word is announced".
+4. Each event list is one Tab stop (roving `tabIndex`), with ↑/↓/Home/End inside it (no wrap). The stop is the last
+   focused row while it is listed, else the selected row, else the first. Pure `shell/rovingRows.ts`
+   (`nextRowIndex`, `tabStopKey`) plus `shell/useRovingRows.ts`; rows carry `data-row-key`.
+5. `aria-valuetext` on the scrubber (the formatted date instead of a Julian Date) and the speed slider (`formatRate`).
+6. No key handlers in this task: Esc comes with Task 8's `<dialog>`.
+7. `shell/accessibleNames.test.tsx` renders the time controls, focus picker, both lists, both cards and the Display
+   panel, and checks that every button, input and select has a name (text without `aria-hidden` parts,
+   `aria-label`, or a wrapping `<label>`). `FocusPicker` gained a server snapshot (the same reader) to render there.
+8. Lighthouse first: `main` had Accessibility 98 (Task 1), losing only "Document does not have a main landmark". The
+   scene is now wrapped in `<main class="shell-scene">`; the header and footer stay outside it.
+9. The swarm fade-in and the caption fades stay under reduced motion: they do not move anything on screen.
+
+Verified 2026-10-03 in Chrome (dev, live data): Tab order is focus picker → pill → approach list (one stop) → CME
+list (one stop) → card → Display → time bar; picking an approach, playing it, picking a CME, watching it and
+changing the speed all worked from the keyboard alone. With `matchMedia` stubbed to reduced motion, a flight landed
+within two frames (a normal flight was still at eased progress ≈ 0); the macOS setting itself was not toggled, so the
+first acceptance box stays open. Lighthouse on `vite preview`: Accessibility 100 (was 98), Performance 100.
 
 ## Task 8: Help dialog, legend, hint, credits (light)
 
