@@ -23,7 +23,12 @@ export default defineConfig(
     languageOptions: { globals: globals.browser },
   },
   {
-    files: ['apps/server/**/*.ts', 'packages/fixtures/**/*.ts', 'scripts/**/*.mjs'],
+    files: [
+      'apps/server/**/*.ts',
+      'packages/fixtures/**/*.ts',
+      'tools/**/*.ts',
+      'scripts/**/*.mjs',
+    ],
     languageOptions: { globals: globals.node },
   },
   {

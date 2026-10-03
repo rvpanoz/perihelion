@@ -1,0 +1,313 @@
+[
+  {
+    "id": "real-commit-771664d",
+    "kind": "commit",
+    "text": "Give phones exclusive bottom sheets, scroll each event list on its own, and theme thin scrollbars",
+    "expected": {
+      "functionalOnly": true,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "real-commit-af7cc32",
+    "kind": "commit",
+    "text": "Fall back to the snapshot after 4 s, retry the server and swap to live data, and show a notice without WebGL2\n\nThe first load waits 4 s for the server's headers, then uses the bundled snapshot and shows a banner. Every dataset,\nthe NEO catalog included, keeps asking the server in the background (4, 8, 16, 32 s, then every 60 s) and swaps to\nits answer; the selected approach and CME follow by key. Without WebGL2 a notice page with three release stills\nreplaces the app (?webgl=off in dev).",
+    "expected": {
+      "functionalOnly": true,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "real-commit-3a4bffd",
+    "kind": "commit",
+    "text": "Cut camera flights under reduced motion, make each event list one Tab stop and add a main landmark\n\nReduced motion is read on every flyTo and turns each flight into a cut; the opening uses the same helper.\nThe status pill announces only its head word through a hidden live region instead of re-reading its age.\nApproach and CME lists use a roving tabindex with arrow, Home and End keys. Both time sliders speak their\nvalues. A test checks that every control in the shell panels has an accessible name.",
+    "expected": {
+      "functionalOnly": true,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "real-commit-9d2f898",
+    "kind": "commit",
+    "text": "Record the merged Phase 7 plan and README rewrite in PROGRESS.md\n\nAdd a Phase 7 status line (plan merged, development paused, next is Task 1), log the README rewrite as a decision, and update the bundle-size note to today's build.",
+    "expected": {
+      "functionalOnly": true,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "real-commit-89576d1",
+    "kind": "commit",
+    "text": "Draw the selected CME as a GPU particle shell following DONKI's cone model\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+    "expected": {
+      "functionalOnly": true,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "real-commit-17ef8a5",
+    "kind": "commit",
+    "text": "Validate each cached dataset against its schema on first read and drop entries that no longer fit",
+    "expected": {
+      "functionalOnly": true,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "real-commit-c2812a4",
+    "kind": "commit",
+    "text": "Mark Earth during a close approach",
+    "expected": {
+      "functionalOnly": true,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "real-commit-59d5655",
+    "kind": "commit",
+    "text": "Add the app shell layout and a data-status pill",
+    "expected": {
+      "functionalOnly": true,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "real-commit-f1440c3",
+    "kind": "commit",
+    "text": "Add faint orbit trails to the swarm",
+    "expected": {
+      "functionalOnly": true,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "real-commit-14d59a5",
+    "kind": "commit",
+    "text": "Mark Phase 3 done in PROGRESS.md and move the current phase to Phase 4",
+    "expected": {
+      "functionalOnly": true,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "real-commit-f91733f",
+    "kind": "commit",
+    "text": "Skip unplaceable CME analyses and tighten SBDB and CAD envelope checks",
+    "expected": {
+      "functionalOnly": true,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "real-commit-4d2e187",
+    "kind": "commit",
+    "text": "Record Horizons provenance in the fixtures and pin VEC_CORR to geometric states",
+    "expected": {
+      "functionalOnly": true,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "real-commit-4496253",
+    "kind": "commit",
+    "text": "Add Horizons query builders for heliocentric ecliptic J2000 vectors and elements",
+    "expected": {
+      "functionalOnly": true,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "real-commit-bd26290",
+    "kind": "commit",
+    "text": "Add project plan, progress tracker and agent instructions",
+    "expected": {
+      "functionalOnly": true,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "real-commit-a13ca40",
+    "kind": "commit",
+    "text": "Add the review workspace and a validated, retrying TypeSafe Jev client",
+    "expected": {
+      "functionalOnly": true,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "real-pr-146",
+    "kind": "pr",
+    "text": "Closes #132\n\n## What changed\n\n- **Server timeout.** The first load waits 4 s for our server's response headers, then uses the bundled snapshot. Only the wait for headers is timed, so a slow 4 MB NEO body from a live server is never cut off.\n- **Background retries.** While a dataset shows the snapshot (or nothing), it asks the server again after 4, 8, 16, 32 s and then every 60 s, with 30 s per attempt, and swaps to the answer without a reload. The NEO catalog does the same through its worker, so the swarm also goes live. Any answer from the server ends the retries, even the server's own snapshot when JPL is down.\n- **Banner.** One line under the top bar while any dataset is on the snapshot: \"Live JPL data unavailable · showing the snapshot from <date>\". It disappears after the swap.\n- **Selection survives the swap.** The selected approach and CME move to their rows in the new list, by key, with no camera flight. A row the new list no longer has is cleared (an approach through `clearApproach`, so the camera returns to Earth).\n- **No WebGL2.** A notice page replaces the app: what Perihelion is, why it cannot run, three release stills (WebP, at most 173 KB each) and links to the data sources. `?webgl=off` forces it in dev, and in that case no WebGL context is created.\n\nThe review proposals and what was built are recorded in the plan's Task 5 section. There is no wake-up `/api/health` call: the server only answers `/health`, and the first dataset request wakes Render anyway. A note was added to Task 9.\n\n## Verification\n\n- `npm run check` green: 1,508 tests; initial JS 372,826 B gzip (budget 380,000 B).\n- Chrome, dev, 1920×809 canvas at DPR 1 on the S2721HN (75 Hz). A listener that accepts connections and never answers stood in for an asleep server.\n  - The snapshot and banner appeared at 4.6 s.\n  - 2026 RP39 and 2024 SH7 played through their passes from the snapshot. The card values match the snapshot rows (Phase 5 deferred check).\n  - With the real server started, all three datasets went live within 26 s. The banner went away, and 2024 SH7 stayed selected and highlighted.\n  - Frame times across the swap: 1,920 frames over 26 s, none over 16.7 ms (worst 14.5 ms).\n- `?webgl=off` showed the notice with no canvas and no data requests.",
+    "expected": {
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "real-pr-145",
+    "kind": "pr",
+    "text": "Closes #134\n\nPlan Task 7: accessibility and reduced motion, with review proposals 1–9 (plan Task 7, \"As built\").\n\n## Changes\n\n- **Reduced motion.** `CameraRig.flyTo` makes every flight a cut when `prefers-reduced-motion: reduce` matches. It is read on every call, so a change applies to the next flight without a listener. The opening's skip uses the same helper (`scene/camera/motionPreference.ts`). Fades stay, since they move nothing.\n- **Status pill.** The `<summary>` no longer has `aria-live`, because its age changes every minute. A hidden polite live region beside the pill says only \"Data status: <head word>\".\n- **Event lists.** The approach and CME lists are one Tab stop each (roving `tabIndex`), with ↑/↓/Home/End inside. The Tab stop is the last focused row, else the selected row, else the first.\n- **Sliders.** The scrubber speaks the date instead of a Julian Date number, and the speed slider speaks its rate (`aria-valuetext`).\n- **Landmark.** The scene is wrapped in `<main>`, which was the only audit Lighthouse failed on `main`.\n- **Tests.** New tests cover the rig cutting under reduced motion, the motion helper, the roving-row logic, one Tab stop per list, the pill announcing only its head word, the `<main>` landmark, and accessible names for every button, input and select in seven panels. `FocusPicker` gained a server snapshot (the same reader) so it renders in that last test.\n\nThe planned test \"the pill has `aria-live`\" became \"only the head word is announced\" (proposal 3, approved).\n\n## Verification\n\n- `npm run check` passes: 1,464 tests; initial JS 371,194 B gzip (budget 380,000 B).\n- Keyboard only (Chrome, dev, live data): pick an approach, play it, pick a CME, watch it and change the speed all worked from the keyboard. A full Tab cycle is 19 stops with 100 approach rows listed.\n- Lighthouse desktop on `vite preview`: Accessibility 100 (was 98), Performance 100, TBT 0 ms, CLS 0.015.\n- Reduced motion: checked by stubbing `matchMedia` in the page. A flight had landed two frames after `flyTo`, while the same flight without the stub was still at eased progress ≈ 0. The macOS setting itself was not toggled, so that acceptance box is still open.",
+    "expected": {
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "bad-review-comments",
+    "kind": "commit",
+    "text": "Address review comments",
+    "expected": {
+      "functionalOnly": false,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "bad-wip",
+    "kind": "commit",
+    "text": "WIP on the fallback banner",
+    "expected": {
+      "functionalOnly": false,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "bad-make-tests-pass",
+    "kind": "commit",
+    "text": "Make the failing tests pass",
+    "expected": {
+      "functionalOnly": false,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "bad-attribution-trailer",
+    "kind": "commit",
+    "text": "Add the review workspace\n\nCo-Authored-By: Claude <noreply@anthropic.com>",
+    "expected": {
+      "functionalOnly": false,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "bad-greek",
+    "kind": "commit",
+    "text": "Προσθήκη του πελάτη Jev με επαναλήψεις",
+    "expected": {
+      "functionalOnly": true,
+      "plainEnglish": false
+    }
+  },
+  {
+    "id": "bad-french",
+    "kind": "commit",
+    "text": "Ajouter la légende des classes d'orbite",
+    "expected": {
+      "functionalOnly": true,
+      "plainEnglish": false
+    }
+  },
+  {
+    "id": "bad-as-discussed",
+    "kind": "commit",
+    "text": "As discussed with the team, tweak the Sun shader",
+    "expected": {
+      "functionalOnly": false,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "bad-emoji-only",
+    "kind": "commit",
+    "text": "🚀🚀🚀",
+    "expected": {
+      "functionalOnly": false,
+      "plainEnglish": false
+    }
+  },
+  {
+    "id": "bad-agent-task",
+    "kind": "commit",
+    "text": "Claude: implement task 5 from the plan",
+    "expected": {
+      "functionalOnly": false,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "bad-reviewer-feedback",
+    "kind": "commit",
+    "text": "Update per feedback from the reviewer",
+    "expected": {
+      "functionalOnly": false,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "bad-another-attempt",
+    "kind": "commit",
+    "text": "Try another approach to the governor probe, the previous one did not work",
+    "expected": {
+      "functionalOnly": false,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "bad-shorthand",
+    "kind": "commit",
+    "text": "upd cfg, rm dbg logs, misc fx",
+    "expected": {
+      "functionalOnly": true,
+      "plainEnglish": false
+    }
+  },
+  {
+    "id": "bad-user-disliked",
+    "kind": "commit",
+    "text": "Revert the bloom change because the user did not like it",
+    "expected": {
+      "functionalOnly": false,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "bad-code-review-suggestions",
+    "kind": "commit",
+    "text": "Apply suggestions from code review",
+    "expected": {
+      "functionalOnly": false,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "vague-fix-stuff",
+    "kind": "commit",
+    "text": "fix stuff",
+    "expected": {
+      "functionalOnly": true,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "short-fix-lint",
+    "kind": "commit",
+    "text": "Fix lint errors in the swarm shader loader",
+    "expected": {
+      "functionalOnly": true,
+      "plainEnglish": true
+    }
+  },
+  {
+    "id": "bad-pr-shorthand",
+    "kind": "pr",
+    "text": "wip pls rvw asap thx, closes #12",
+    "expected": {
+      "plainEnglish": false
+    }
+  },
+  {
+    "id": "short-pr-link-only",
+    "kind": "pr",
+    "text": "Closes #12",
+    "expected": {
+      "plainEnglish": true
+    }
+  }
+]

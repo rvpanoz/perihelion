@@ -1,0 +1,1586 @@
+[
+  {
+    "id": "upper-kepler-looser",
+    "expectedKind": "upper-bound",
+    "change": {
+      "path": "apps/web/src/scene/swarm/swarmKepler.test.ts",
+      "newLineNumber": 22,
+      "oldLine": "const KEPLER_RESIDUAL_TOLERANCE_RAD = 1e-5;",
+      "newLine": "const KEPLER_RESIDUAL_TOLERANCE_RAD = 1e-4;",
+      "oldText": "1e-5",
+      "newText": "1e-4",
+      "oldValue": 0.00001,
+      "newValue": 0.0001,
+      "numberPosition": 1,
+      "nearbyLines": [
+        " * About 40 float32 steps at E = π. Converged answers sit near 1e-7; one Newton step short of converged at",
+        " * e = 0.99 is ~1e-3, so this separates the two cleanly.",
+        " */",
+        "const KEPLER_RESIDUAL_TOLERANCE_RAD = 1e-4;",
+        "",
+        "/** Kepler's equation, in float64, on the solver's float32 answer; M is centred on [−π, π) as the solver does. */",
+        "function keplerResidualRad(meanAnomalyRad: number, eccentricity: number): number {"
+      ]
+    }
+  },
+  {
+    "id": "upper-kepler-tighter",
+    "expectedKind": "upper-bound",
+    "change": {
+      "path": "apps/web/src/scene/swarm/swarmKepler.test.ts",
+      "newLineNumber": 22,
+      "oldLine": "const KEPLER_RESIDUAL_TOLERANCE_RAD = 1e-5;",
+      "newLine": "const KEPLER_RESIDUAL_TOLERANCE_RAD = 1e-6;",
+      "oldText": "1e-5",
+      "newText": "1e-6",
+      "oldValue": 0.00001,
+      "newValue": 0.000001,
+      "numberPosition": 1,
+      "nearbyLines": [
+        " * About 40 float32 steps at E = π. Converged answers sit near 1e-7; one Newton step short of converged at",
+        " * e = 0.99 is ~1e-3, so this separates the two cleanly.",
+        " */",
+        "const KEPLER_RESIDUAL_TOLERANCE_RAD = 1e-6;",
+        "",
+        "/** Kepler's equation, in float64, on the solver's float32 answer; M is centred on [−π, π) as the solver does. */",
+        "function keplerResidualRad(meanAnomalyRad: number, eccentricity: number): number {"
+      ]
+    }
+  },
+  {
+    "id": "upper-unit-looser",
+    "expectedKind": "upper-bound",
+    "change": {
+      "path": "apps/web/src/scene/eruption/cmeShellGeometry.test.ts",
+      "newLineNumber": 8,
+      "oldLine": "const UNIT_TOLERANCE = 1e-12;",
+      "newLine": "const UNIT_TOLERANCE = 1e-10;",
+      "oldText": "1e-12",
+      "newText": "1e-10",
+      "oldValue": 1e-12,
+      "newValue": 1e-10,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "import { CME_SHELL_LOOK } from './cmeShellLook';",
+        "import { createShellSeeds, mulberry32, shellSeedAt } from './cmeShellSeeds';",
+        "",
+        "const UNIT_TOLERANCE = 1e-10;",
+        "const COUNT = CME_SHELL_LOOK.particleCount;",
+        "const seeds = createShellSeeds(COUNT, mulberry32(20_261_002));",
+        ""
+      ]
+    }
+  },
+  {
+    "id": "upper-unit-tighter",
+    "expectedKind": "upper-bound",
+    "change": {
+      "path": "apps/web/src/scene/eruption/cmeShellGeometry.test.ts",
+      "newLineNumber": 8,
+      "oldLine": "const UNIT_TOLERANCE = 1e-12;",
+      "newLine": "const UNIT_TOLERANCE = 1e-13;",
+      "oldText": "1e-12",
+      "newText": "1e-13",
+      "oldValue": 1e-12,
+      "newValue": 1e-13,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "import { CME_SHELL_LOOK } from './cmeShellLook';",
+        "import { createShellSeeds, mulberry32, shellSeedAt } from './cmeShellSeeds';",
+        "",
+        "const UNIT_TOLERANCE = 1e-13;",
+        "const COUNT = CME_SHELL_LOOK.particleCount;",
+        "const seeds = createShellSeeds(COUNT, mulberry32(20_261_002));",
+        ""
+      ]
+    }
+  },
+  {
+    "id": "upper-eros-looser",
+    "expectedKind": "upper-bound",
+    "change": {
+      "path": "packages/orbit/src/asteroids.golden.test.ts",
+      "newLineNumber": 25,
+      "oldLine": "eros: 5.65e-5,",
+      "newLine": "eros: 6.5e-5,",
+      "oldText": "5.65e-5",
+      "newText": "6.5e-5",
+      "oldValue": 0.0000565,
+      "newValue": 0.000065,
+      "numberPosition": 1,
+      "nearbyLines": [
+        " * See \"Calibrated tolerances\" in PROGRESS.md.",
+        " */",
+        "const MEASURED_MAX_ERROR_AU: Readonly<Record<AsteroidName, number>> = {",
+        "  eros: 6.5e-5,",
+        "  apophis: 1.95e-5,",
+        "  bennu: 3.45e-5,",
+        "  ryugu: 2.36e-5,"
+      ]
+    }
+  },
+  {
+    "id": "upper-eros-tighter",
+    "expectedKind": "upper-bound",
+    "change": {
+      "path": "packages/orbit/src/asteroids.golden.test.ts",
+      "newLineNumber": 25,
+      "oldLine": "eros: 5.65e-5,",
+      "newLine": "eros: 5.2e-5,",
+      "oldText": "5.65e-5",
+      "newText": "5.2e-5",
+      "oldValue": 0.0000565,
+      "newValue": 0.000052,
+      "numberPosition": 1,
+      "nearbyLines": [
+        " * See \"Calibrated tolerances\" in PROGRESS.md.",
+        " */",
+        "const MEASURED_MAX_ERROR_AU: Readonly<Record<AsteroidName, number>> = {",
+        "  eros: 5.2e-5,",
+        "  apophis: 1.95e-5,",
+        "  bennu: 3.45e-5,",
+        "  ryugu: 2.36e-5,"
+      ]
+    }
+  },
+  {
+    "id": "upper-eccentricity-looser",
+    "expectedKind": "upper-bound",
+    "change": {
+      "path": "packages/orbit/src/elements.test.ts",
+      "newLineNumber": 165,
+      "oldLine": "expect(Math.abs(recovered.eccentricity - elements.eccentricity)).toBeLessThan(1e-11);",
+      "newLine": "expect(Math.abs(recovered.eccentricity - elements.eccentricity)).toBeLessThan(1e-9);",
+      "oldText": "1e-11",
+      "newText": "1e-9",
+      "oldValue": 1e-11,
+      "newValue": 1e-9,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "      fc.property(wellDefinedElements, (elements) => {",
+        "        const recovered = elementsFromState(stateFromElements(elements), elements.epochJdTdb);",
+        "        expect(recovered.semiMajorAxisAu / elements.semiMajorAxisAu).toBeCloseTo(1, 11);",
+        "        expect(Math.abs(recovered.eccentricity - elements.eccentricity)).toBeLessThan(1e-9);",
+        "        expect(recovered.epochJdTdb).toBe(elements.epochJdTdb);",
+        "        for (const angle of [",
+        "          'inclinationRad',"
+      ]
+    }
+  },
+  {
+    "id": "upper-eccentricity-tighter",
+    "expectedKind": "upper-bound",
+    "change": {
+      "path": "packages/orbit/src/elements.test.ts",
+      "newLineNumber": 165,
+      "oldLine": "expect(Math.abs(recovered.eccentricity - elements.eccentricity)).toBeLessThan(1e-11);",
+      "newLine": "expect(Math.abs(recovered.eccentricity - elements.eccentricity)).toBeLessThan(1e-12);",
+      "oldText": "1e-11",
+      "newText": "1e-12",
+      "oldValue": 1e-11,
+      "newValue": 1e-12,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "      fc.property(wellDefinedElements, (elements) => {",
+        "        const recovered = elementsFromState(stateFromElements(elements), elements.epochJdTdb);",
+        "        expect(recovered.semiMajorAxisAu / elements.semiMajorAxisAu).toBeCloseTo(1, 11);",
+        "        expect(Math.abs(recovered.eccentricity - elements.eccentricity)).toBeLessThan(1e-12);",
+        "        expect(recovered.epochJdTdb).toBe(elements.epochJdTdb);",
+        "        for (const angle of [",
+        "          'inclinationRad',"
+      ]
+    }
+  },
+  {
+    "id": "upper-published-looser",
+    "expectedKind": "upper-bound",
+    "change": {
+      "path": "packages/orbit/src/heliographic.test.ts",
+      "newLineNumber": 21,
+      "oldLine": "const PUBLISHED_CONSTANT_TOLERANCE_DEG = 0.01;",
+      "newLine": "const PUBLISHED_CONSTANT_TOLERANCE_DEG = 0.05;",
+      "oldText": "0.01",
+      "newText": "0.05",
+      "oldValue": 0.01,
+      "newValue": 0.05,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "// (73.6667° + 0.013958° per year since 1850 → 75.76°): published constants the IAU pole must reproduce.",
+        "const SOLAR_EQUATOR_TILT_DEG = 7.25;",
+        "const ASCENDING_NODE_J2000_DEG = 75.76;",
+        "const PUBLISHED_CONSTANT_TOLERANCE_DEG = 0.05;",
+        "",
+        "const latitude = fc.double({ min: -Math.PI / 2, max: Math.PI / 2, noNaN: true });",
+        "const longitude = fc.double({ min: -Math.PI, max: Math.PI, noNaN: true });"
+      ]
+    }
+  },
+  {
+    "id": "upper-published-tighter",
+    "expectedKind": "upper-bound",
+    "change": {
+      "path": "packages/orbit/src/heliographic.test.ts",
+      "newLineNumber": 21,
+      "oldLine": "const PUBLISHED_CONSTANT_TOLERANCE_DEG = 0.01;",
+      "newLine": "const PUBLISHED_CONSTANT_TOLERANCE_DEG = 0.005;",
+      "oldText": "0.01",
+      "newText": "0.005",
+      "oldValue": 0.01,
+      "newValue": 0.005,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "// (73.6667° + 0.013958° per year since 1850 → 75.76°): published constants the IAU pole must reproduce.",
+        "const SOLAR_EQUATOR_TILT_DEG = 7.25;",
+        "const ASCENDING_NODE_J2000_DEG = 75.76;",
+        "const PUBLISHED_CONSTANT_TOLERANCE_DEG = 0.005;",
+        "",
+        "const latitude = fc.double({ min: -Math.PI / 2, max: Math.PI / 2, noNaN: true });",
+        "const longitude = fc.double({ min: -Math.PI, max: Math.PI, noNaN: true });"
+      ]
+    }
+  },
+  {
+    "id": "upper-arrival-looser",
+    "expectedKind": "upper-bound",
+    "change": {
+      "path": "packages/orbit/src/cmeKinematics.test.ts",
+      "newLineNumber": 14,
+      "oldLine": "const ARRIVAL_DISTANCE_TOLERANCE_AU = 1e-12;",
+      "newLine": "const ARRIVAL_DISTANCE_TOLERANCE_AU = 1e-9;",
+      "oldText": "1e-12",
+      "newText": "1e-9",
+      "oldValue": 1e-12,
+      "newValue": 1e-9,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "",
+        "const TIME21_5_JD_TDB = 2_461_300.25;",
+        "const NOMINAL_SOLAR_RADIUS_KM = 695_700;",
+        "const ARRIVAL_DISTANCE_TOLERANCE_AU = 1e-9;",
+        "const unusedEarthDistance = (): number => {",
+        "  throw new Error('Earth distance is not needed without an ENLIL arrival.');",
+        "};"
+      ]
+    }
+  },
+  {
+    "id": "digits-angles-looser",
+    "expectedKind": "closeness-digits",
+    "change": {
+      "path": "packages/orbit/src/angles.test.ts",
+      "newLineNumber": 14,
+      "oldLine": "expect(normalizeAngleRad(angleRad)).toBeCloseTo(expectedRad, 12);",
+      "newLine": "expect(normalizeAngleRad(angleRad)).toBeCloseTo(expectedRad, 10);",
+      "oldText": "12",
+      "newText": "10",
+      "oldValue": 12,
+      "newValue": 10,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "    [-Math.PI / 2, 1.5 * Math.PI],",
+        "    [5 * Math.PI, Math.PI],",
+        "  ])('wraps %d to %d', (angleRad, expectedRad) => {",
+        "    expect(normalizeAngleRad(angleRad)).toBeCloseTo(expectedRad, 10);",
+        "  });",
+        "",
+        "  it('never returns 2π, even for a tiny negative angle', () => {"
+      ]
+    }
+  },
+  {
+    "id": "digits-angles-tighter",
+    "expectedKind": "closeness-digits",
+    "change": {
+      "path": "packages/orbit/src/angles.test.ts",
+      "newLineNumber": 14,
+      "oldLine": "expect(normalizeAngleRad(angleRad)).toBeCloseTo(expectedRad, 12);",
+      "newLine": "expect(normalizeAngleRad(angleRad)).toBeCloseTo(expectedRad, 13);",
+      "oldText": "12",
+      "newText": "13",
+      "oldValue": 12,
+      "newValue": 13,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "    [-Math.PI / 2, 1.5 * Math.PI],",
+        "    [5 * Math.PI, Math.PI],",
+        "  ])('wraps %d to %d', (angleRad, expectedRad) => {",
+        "    expect(normalizeAngleRad(angleRad)).toBeCloseTo(expectedRad, 13);",
+        "  });",
+        "",
+        "  it('never returns 2π, even for a tiny negative angle', () => {"
+      ]
+    }
+  },
+  {
+    "id": "digits-pole-looser",
+    "expectedKind": "closeness-digits",
+    "change": {
+      "path": "packages/orbit/src/earthOrientation.test.ts",
+      "newLineNumber": 45,
+      "oldLine": "expect(dot(greenwich, pole)).toBeCloseTo(0, 14);",
+      "newLine": "expect(dot(greenwich, pole)).toBeCloseTo(0, 10);",
+      "oldText": "14",
+      "newText": "10",
+      "oldValue": 14,
+      "newValue": 10,
+      "numberPosition": 2,
+      "nearbyLines": [
+        "        const { greenwich, east, pole } = earthBodyAxesEcliptic(jd);",
+        "        for (const axis of [greenwich, east, pole]) expect(norm(axis)).toBeCloseTo(1, 14);",
+        "        expect(dot(greenwich, east)).toBeCloseTo(0, 14);",
+        "        expect(dot(greenwich, pole)).toBeCloseTo(0, 10);",
+        "        const handedness = cross(greenwich, east);",
+        "        for (const index of [0, 1, 2] as const)",
+        "          expect(handedness[index]).toBeCloseTo(pole[index], 14);"
+      ]
+    }
+  },
+  {
+    "id": "digits-pole-tighter",
+    "expectedKind": "closeness-digits",
+    "change": {
+      "path": "packages/orbit/src/earthOrientation.test.ts",
+      "newLineNumber": 45,
+      "oldLine": "expect(dot(greenwich, pole)).toBeCloseTo(0, 14);",
+      "newLine": "expect(dot(greenwich, pole)).toBeCloseTo(0, 15);",
+      "oldText": "14",
+      "newText": "15",
+      "oldValue": 14,
+      "newValue": 15,
+      "numberPosition": 2,
+      "nearbyLines": [
+        "        const { greenwich, east, pole } = earthBodyAxesEcliptic(jd);",
+        "        for (const axis of [greenwich, east, pole]) expect(norm(axis)).toBeCloseTo(1, 14);",
+        "        expect(dot(greenwich, east)).toBeCloseTo(0, 14);",
+        "        expect(dot(greenwich, pole)).toBeCloseTo(0, 15);",
+        "        const handedness = cross(greenwich, east);",
+        "        for (const index of [0, 1, 2] as const)",
+        "          expect(handedness[index]).toBeCloseTo(pole[index], 14);"
+      ]
+    }
+  },
+  {
+    "id": "digits-blend-looser",
+    "expectedKind": "closeness-digits",
+    "change": {
+      "path": "apps/web/src/scene/approach/approachCamera.test.ts",
+      "newLineNumber": 131,
+      "oldLine": "expect(Math.acos(dot(blended, fromDirection))).toBeCloseTo(eased * angleRad, 9);",
+      "newLine": "expect(Math.acos(dot(blended, fromDirection))).toBeCloseTo(eased * angleRad, 6);",
+      "oldText": "9",
+      "newText": "6",
+      "oldValue": 9,
+      "newValue": 6,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "    for (const eased of [0.25, 0.5, 0.75]) {",
+        "      const blend = { fromDirection, toDirection: nearlyOpposite, eased };",
+        "      const blended = writeDirectionBlend(blend, [0, 0, 0]);",
+        "      expect(Math.acos(dot(blended, fromDirection))).toBeCloseTo(eased * angleRad, 6);",
+        "    }",
+        "  });",
+        "});"
+      ]
+    }
+  },
+  {
+    "id": "digits-cosine-looser",
+    "expectedKind": "closeness-digits",
+    "change": {
+      "path": "packages/orbit/src/heliographic.test.ts",
+      "newLineNumber": 111,
+      "oldLine": "expect(dot(a, b)).toBeCloseTo(expectedCosine, 12);",
+      "newLine": "expect(dot(a, b)).toBeCloseTo(expectedCosine, 8);",
+      "oldText": "12",
+      "newText": "8",
+      "oldValue": 12,
+      "newValue": 8,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "            Math.cos(second.latitudeRad) *",
+        "            Math.cos(first.longitudeRad - second.longitudeRad);",
+        "        expect(norm(a)).toBeCloseTo(1, 12);",
+        "        expect(dot(a, b)).toBeCloseTo(expectedCosine, 8);",
+        "      }),",
+        "    );",
+        "  });"
+      ]
+    }
+  },
+  {
+    "id": "digits-own-line-looser",
+    "expectedKind": "closeness-digits",
+    "change": {
+      "path": "apps/web/src/approaches/closeUpModel.test.ts",
+      "newLineNumber": 38,
+      "oldLine": "15,",
+      "newLine": "10,",
+      "oldText": "15",
+      "newText": "10",
+      "oldValue": 15,
+      "newValue": 10,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "    );",
+        "    expect(Math.abs(trailOffsetDays(closestIndex, HALF_WINDOW_DAYS))).toBeCloseTo(",
+        "      Math.min(...offsets),",
+        "      10,",
+        "    );",
+        "  });",
+        ""
+      ]
+    }
+  },
+  {
+    "id": "margin-asteroids-looser",
+    "expectedKind": "margin-multiplier",
+    "change": {
+      "path": "packages/orbit/src/asteroids.golden.test.ts",
+      "newLineNumber": 35,
+      "oldLine": "const TOLERANCE_MARGIN = 1.25;",
+      "newLine": "const TOLERANCE_MARGIN = 1.5;",
+      "oldText": "1.25",
+      "newText": "1.5",
+      "oldValue": 1.25,
+      "newValue": 1.5,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "};",
+        "",
+        "/** Room for harmless numeric changes (solver iterations, operation order); real bugs move far more. */",
+        "const TOLERANCE_MARGIN = 1.5;",
+        "",
+        "/** The Phase 1 target in PLAN.md: two-body position within 1e-3 AU inside ±60 days of the epoch. */",
+        "const PLAN_TARGET_AU = 1e-3;"
+      ]
+    }
+  },
+  {
+    "id": "margin-asteroids-tighter",
+    "expectedKind": "margin-multiplier",
+    "change": {
+      "path": "packages/orbit/src/asteroids.golden.test.ts",
+      "newLineNumber": 35,
+      "oldLine": "const TOLERANCE_MARGIN = 1.25;",
+      "newLine": "const TOLERANCE_MARGIN = 1.1;",
+      "oldText": "1.25",
+      "newText": "1.1",
+      "oldValue": 1.25,
+      "newValue": 1.1,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "};",
+        "",
+        "/** Room for harmless numeric changes (solver iterations, operation order); real bugs move far more. */",
+        "const TOLERANCE_MARGIN = 1.1;",
+        "",
+        "/** The Phase 1 target in PLAN.md: two-body position within 1e-3 AU inside ±60 days of the epoch. */",
+        "const PLAN_TARGET_AU = 1e-3;"
+      ]
+    }
+  },
+  {
+    "id": "margin-swarm-looser",
+    "expectedKind": "margin-multiplier",
+    "change": {
+      "path": "apps/web/src/scene/swarm/swarmCrossCheck.test.ts",
+      "newLineNumber": 89,
+      "oldLine": "const TOLERANCE_MARGIN = 1.25;",
+      "newLine": "const TOLERANCE_MARGIN = 2;",
+      "oldText": "1.25",
+      "newText": "2",
+      "oldValue": 1.25,
+      "newValue": 2,
+      "numberPosition": 1,
+      "nearbyLines": [
+        " * a solver or precision bug moves far more.",
+        " */",
+        "const MEASURED_MAX_ERROR_AU = { near: 1.37e-5, rangeEnds: 3.78e-4 };",
+        "const TOLERANCE_MARGIN = 2;",
+        "",
+        "describe('GPU vs CPU cross-check', () => {",
+        "  it('matches the engine within ten years of the reference epoch', () => {"
+      ]
+    }
+  },
+  {
+    "id": "margin-swarm-tighter",
+    "expectedKind": "margin-multiplier",
+    "change": {
+      "path": "apps/web/src/scene/swarm/swarmCrossCheck.test.ts",
+      "newLineNumber": 89,
+      "oldLine": "const TOLERANCE_MARGIN = 1.25;",
+      "newLine": "const TOLERANCE_MARGIN = 1.2;",
+      "oldText": "1.25",
+      "newText": "1.2",
+      "oldValue": 1.25,
+      "newValue": 1.2,
+      "numberPosition": 1,
+      "nearbyLines": [
+        " * a solver or precision bug moves far more.",
+        " */",
+        "const MEASURED_MAX_ERROR_AU = { near: 1.37e-5, rangeEnds: 3.78e-4 };",
+        "const TOLERANCE_MARGIN = 1.2;",
+        "",
+        "describe('GPU vs CPU cross-check', () => {",
+        "  it('matches the engine within ten years of the reference epoch', () => {"
+      ]
+    }
+  },
+  {
+    "id": "margin-planets-looser",
+    "expectedKind": "margin-multiplier",
+    "change": {
+      "path": "packages/orbit/src/planets.golden.test.ts",
+      "newLineNumber": 45,
+      "oldLine": "const TOLERANCE_MARGIN = 1.25;",
+      "newLine": "const TOLERANCE_MARGIN = 1.4;",
+      "oldText": "1.25",
+      "newText": "1.4",
+      "oldValue": 1.25,
+      "newValue": 1.4,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "};",
+        "",
+        "/** Room for harmless numeric changes (solver iterations, operation order); real bugs move far more. */",
+        "const TOLERANCE_MARGIN = 1.4;",
+        "",
+        "const NO_ERROR: HeliocentricError = {",
+        "  longitudeArcsec: 0,"
+      ]
+    }
+  },
+  {
+    "id": "lower-pole-looser",
+    "expectedKind": "lower-bound",
+    "change": {
+      "path": "apps/web/src/scene/eruption/impact/impactMaterials.test.ts",
+      "newLineNumber": 41,
+      "oldLine": "expect(pole.z).toBeGreaterThan(0);",
+      "newLine": "expect(pole.z).toBeGreaterThan(-0.1);",
+      "oldText": "0",
+      "newText": "-0.1",
+      "oldValue": 0,
+      "newValue": -0.1,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "      (IMPACT_LOOK.geomagneticPoleLatitudeDeg * Math.PI) / 180,",
+        "      14,",
+        "    );",
+        "    expect(pole.z).toBeGreaterThan(-0.1);",
+        "  });",
+        "});",
+        ""
+      ]
+    }
+  },
+  {
+    "id": "lower-pole-tighter",
+    "expectedKind": "lower-bound",
+    "change": {
+      "path": "apps/web/src/scene/eruption/impact/impactMaterials.test.ts",
+      "newLineNumber": 41,
+      "oldLine": "expect(pole.z).toBeGreaterThan(0);",
+      "newLine": "expect(pole.z).toBeGreaterThan(0.5);",
+      "oldText": "0",
+      "newText": "0.5",
+      "oldValue": 0,
+      "newValue": 0.5,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "      (IMPACT_LOOK.geomagneticPoleLatitudeDeg * Math.PI) / 180,",
+        "      14,",
+        "    );",
+        "    expect(pole.z).toBeGreaterThan(0.5);",
+        "  });",
+        "});",
+        ""
+      ]
+    }
+  },
+  {
+    "id": "lower-camera-looser",
+    "expectedKind": "lower-bound",
+    "change": {
+      "path": "apps/web/src/scene/canvasConfig.test.ts",
+      "newLineNumber": 23,
+      "oldLine": "expect(CAMERA_SETTINGS.position[1]).toBeGreaterThan(0);",
+      "newLine": "expect(CAMERA_SETTINGS.position[1]).toBeGreaterThan(-1);",
+      "oldText": "0",
+      "newText": "-1",
+      "oldValue": 0,
+      "newValue": -1,
+      "numberPosition": 2,
+      "nearbyLines": [
+        "",
+        "  it('starts the camera about 3 AU from the Sun, above the ecliptic', () => {",
+        "    expect(Math.hypot(...CAMERA_SETTINGS.position)).toBeCloseTo(3, 3);",
+        "    expect(CAMERA_SETTINGS.position[1]).toBeGreaterThan(-1);",
+        "  });",
+        "});",
+        ""
+      ]
+    }
+  },
+  {
+    "id": "lower-azimuth-looser",
+    "expectedKind": "lower-bound",
+    "change": {
+      "path": "apps/web/src/scene/eruption/cmeShellSeeds.test.ts",
+      "newLineNumber": 19,
+      "oldLine": "expect(seed.azimuthRad).toBeGreaterThanOrEqual(0);",
+      "newLine": "expect(seed.azimuthRad).toBeGreaterThanOrEqual(-0.01);",
+      "oldText": "0",
+      "newText": "-0.01",
+      "oldValue": 0,
+      "newValue": -0.01,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "    for (const seed of all) {",
+        "      expect(seed.capFraction).toBeGreaterThanOrEqual(0);",
+        "      expect(seed.capFraction).toBeLessThan(1);",
+        "      expect(seed.azimuthRad).toBeGreaterThanOrEqual(-0.01);",
+        "      expect(seed.azimuthRad).toBeLessThan(2 * Math.PI);",
+        "      expect(seed.radiusFraction).toBeGreaterThanOrEqual(flankStartFraction);",
+        "      expect(seed.radiusFraction).toBeLessThanOrEqual(1);"
+      ]
+    }
+  },
+  {
+    "id": "lower-enlil-looser",
+    "expectedKind": "lower-bound",
+    "change": {
+      "path": "apps/server/src/datasets/cmeCrossCheck.test.ts",
+      "newLineNumber": 62,
+      "oldLine": "expect(enlilRows.length).toBeGreaterThan(0);",
+      "newLine": "expect(enlilRows.length).toBeGreaterThan(-1);",
+      "oldText": "0",
+      "newText": "-1",
+      "oldValue": 0,
+      "newValue": -1,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "  const measuredSpeedRows = rows.filter((row) => row.timing.earthArrivalJdTdb === null);",
+        "",
+        "  it('covers CMEs with and without an ENLIL Earth arrival', () => {",
+        "    expect(enlilRows.length).toBeGreaterThan(-1);",
+        "    expect(measuredSpeedRows.length).toBeGreaterThan(0);",
+        "  });",
+        ""
+      ]
+    }
+  },
+  {
+    "id": "lower-enlil-tighter",
+    "expectedKind": "lower-bound",
+    "change": {
+      "path": "apps/server/src/datasets/cmeCrossCheck.test.ts",
+      "newLineNumber": 62,
+      "oldLine": "expect(enlilRows.length).toBeGreaterThan(0);",
+      "newLine": "expect(enlilRows.length).toBeGreaterThan(2);",
+      "oldText": "0",
+      "newText": "2",
+      "oldValue": 0,
+      "newValue": 2,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "  const measuredSpeedRows = rows.filter((row) => row.timing.earthArrivalJdTdb === null);",
+        "",
+        "  it('covers CMEs with and without an ENLIL Earth arrival', () => {",
+        "    expect(enlilRows.length).toBeGreaterThan(2);",
+        "    expect(measuredSpeedRows.length).toBeGreaterThan(0);",
+        "  });",
+        ""
+      ]
+    }
+  },
+  {
+    "id": "term-divisor-looser",
+    "expectedKind": "bound-term",
+    "change": {
+      "path": "apps/web/src/scene/approach/approachTrail.test.ts",
+      "newLineNumber": 32,
+      "oldLine": "expect(centreStep).toBeLessThan(edgeStep / 1000);",
+      "newLine": "expect(centreStep).toBeLessThan(edgeStep / 100);",
+      "oldText": "1000",
+      "newText": "100",
+      "oldValue": 1000,
+      "newValue": 100,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "    const middle = TRAIL_POINTS / 2;",
+        "    const centreStep = trailOffsetDays(middle, 1) - trailOffsetDays(middle - 1, 1);",
+        "    const edgeStep = trailOffsetDays(TRAIL_POINTS - 1, 1) - trailOffsetDays(TRAIL_POINTS - 2, 1);",
+        "    expect(centreStep).toBeLessThan(edgeStep / 100);",
+        "  });",
+        "});",
+        ""
+      ]
+    }
+  },
+  {
+    "id": "term-divisor-tighter",
+    "expectedKind": "bound-term",
+    "change": {
+      "path": "apps/web/src/scene/approach/approachTrail.test.ts",
+      "newLineNumber": 32,
+      "oldLine": "expect(centreStep).toBeLessThan(edgeStep / 1000);",
+      "newLine": "expect(centreStep).toBeLessThan(edgeStep / 10_000);",
+      "oldText": "1000",
+      "newText": "10_000",
+      "oldValue": 1000,
+      "newValue": 10000,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "    const middle = TRAIL_POINTS / 2;",
+        "    const centreStep = trailOffsetDays(middle, 1) - trailOffsetDays(middle - 1, 1);",
+        "    const edgeStep = trailOffsetDays(TRAIL_POINTS - 1, 1) - trailOffsetDays(TRAIL_POINTS - 2, 1);",
+        "    expect(centreStep).toBeLessThan(edgeStep / 10_000);",
+        "  });",
+        "});",
+        ""
+      ]
+    }
+  },
+  {
+    "id": "term-orbit-slack-looser",
+    "expectedKind": "bound-term",
+    "change": {
+      "path": "packages/orbit/src/planets.test.ts",
+      "newLineNumber": 101,
+      "oldLine": "expect(distanceAu).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-12));",
+      "newLine": "expect(distanceAu).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-10));",
+      "oldText": "1e-12",
+      "newText": "1e-10",
+      "oldValue": 1e-12,
+      "newValue": 1e-10,
+      "numberPosition": 3,
+      "nearbyLines": [
+        "      fc.property(planet, validJdTdb, (body, jdTdb) => {",
+        "        const { semiMajorAxisAu: a, eccentricity: e } = planetElementsAt(body, jdTdb);",
+        "        const distanceAu = norm(planetStateAt(body, jdTdb).positionAu);",
+        "        expect(distanceAu).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-10));",
+        "        expect(distanceAu).toBeLessThanOrEqual(a * (1 + e) * (1 + 1e-12));",
+        "      }),",
+        "    );"
+      ]
+    }
+  },
+  {
+    "id": "term-path-slack-looser",
+    "expectedKind": "bound-term",
+    "change": {
+      "path": "apps/web/src/scene/bodies/orbitPath.test.ts",
+      "newLineNumber": 27,
+      "oldLine": "expect(radiusAt(path, index)).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-6));",
+      "newLine": "expect(radiusAt(path, index)).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-4));",
+      "oldText": "1e-6",
+      "newText": "1e-4",
+      "oldValue": 0.000001,
+      "newValue": 0.0001,
+      "numberPosition": 3,
+      "nearbyLines": [
+        "      );",
+        "      expect(radiusAt(path, 0) / (a * (1 - e))).toBeCloseTo(1, 6);",
+        "      for (let index = 0; index < ORBIT_PATH_POINTS; index += 1) {",
+        "        expect(radiusAt(path, index)).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-4));",
+        "        expect(radiusAt(path, index)).toBeLessThanOrEqual(a * (1 + e) * (1 + 1e-6));",
+        "      }",
+        "    },"
+      ]
+    }
+  },
+  {
+    "id": "term-perihelion-factor-looser",
+    "expectedKind": "bound-term",
+    "change": {
+      "path": "apps/web/src/scene/swarm/swarmKepler.test.ts",
+      "newLineNumber": 95,
+      "oldLine": "expect(distanceAu).toBeGreaterThan(semiMajorAxisAu * (1 - eccentricity) - float32SlackAu);",
+      "newLine": "expect(distanceAu).toBeGreaterThan(semiMajorAxisAu * (0.9 - eccentricity) - float32SlackAu);",
+      "oldText": "1",
+      "newText": "0.9",
+      "oldValue": 1,
+      "newValue": 0.9,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "          const orbit = swarmOrbitAt(buildSwarmAttributes(catalog, J2000_JD_TDB), 0);",
+        "          const distanceAu = Math.hypot(...swarmHeliocentricPosition(orbit, elapsedDays));",
+        "          const float32SlackAu = 1e-6 * semiMajorAxisAu;",
+        "          expect(distanceAu).toBeGreaterThan(semiMajorAxisAu * (0.9 - eccentricity) - float32SlackAu);",
+        "          expect(distanceAu).toBeLessThan(semiMajorAxisAu * (1 + eccentricity) + float32SlackAu);",
+        "        },",
+        "      ),"
+      ]
+    }
+  },
+  {
+    "id": "term-aphelion-factor-looser",
+    "expectedKind": "bound-term",
+    "change": {
+      "path": "apps/web/src/scene/swarm/swarmKepler.test.ts",
+      "newLineNumber": 96,
+      "oldLine": "expect(distanceAu).toBeLessThan(semiMajorAxisAu * (1 + eccentricity) + float32SlackAu);",
+      "newLine": "expect(distanceAu).toBeLessThan(semiMajorAxisAu * (1.1 + eccentricity) + float32SlackAu);",
+      "oldText": "1",
+      "newText": "1.1",
+      "oldValue": 1,
+      "newValue": 1.1,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "          const distanceAu = Math.hypot(...swarmHeliocentricPosition(orbit, elapsedDays));",
+        "          const float32SlackAu = 1e-6 * semiMajorAxisAu;",
+        "          expect(distanceAu).toBeGreaterThan(semiMajorAxisAu * (1 - eccentricity) - float32SlackAu);",
+        "          expect(distanceAu).toBeLessThan(semiMajorAxisAu * (1.1 + eccentricity) + float32SlackAu);",
+        "        },",
+        "      ),",
+        "    );"
+      ]
+    }
+  },
+  {
+    "id": "mixed-progress-digits-looser",
+    "expectedKind": "closeness-digits",
+    "change": {
+      "path": "apps/web/src/scene/camera/cameraRig.test.ts",
+      "newLineNumber": 107,
+      "oldLine": "expect(rig.flightEasedProgress).toBeCloseTo(0.5, 15);",
+      "newLine": "expect(rig.flightEasedProgress).toBeCloseTo(0.5, 10);",
+      "oldText": "15",
+      "newText": "10",
+      "oldValue": 15,
+      "newValue": 10,
+      "numberPosition": 2,
+      "nearbyLines": [
+        "    expect(rig.flightEasedProgress).toBe(0);",
+        "    setNow(1);",
+        "    frame();",
+        "    expect(rig.flightEasedProgress).toBeCloseTo(0.5, 10);",
+        "    setNow(2);",
+        "    frame();",
+        "    expect(rig.flightEasedProgress).toBe(1);"
+      ]
+    }
+  },
+  {
+    "id": "mixed-progress-expected",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/scene/camera/cameraRig.test.ts",
+      "newLineNumber": 107,
+      "oldLine": "expect(rig.flightEasedProgress).toBeCloseTo(0.5, 15);",
+      "newLine": "expect(rig.flightEasedProgress).toBeCloseTo(0.6, 15);",
+      "oldText": "0.5",
+      "newText": "0.6",
+      "oldValue": 0.5,
+      "newValue": 0.6,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "    expect(rig.flightEasedProgress).toBe(0);",
+        "    setNow(1);",
+        "    frame();",
+        "    expect(rig.flightEasedProgress).toBeCloseTo(0.6, 15);",
+        "    setNow(2);",
+        "    frame();",
+        "    expect(rig.flightEasedProgress).toBe(1);"
+      ]
+    }
+  },
+  {
+    "id": "value-infinity-speed",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/server/src/datasets/approachOrbitJoin.test.ts",
+      "newLineNumber": 30,
+      "oldLine": "infinityVelocityKmPerS: 8.9,",
+      "newLine": "infinityVelocityKmPerS: 9.1,",
+      "oldText": "8.9",
+      "newText": "9.1",
+      "oldValue": 8.9,
+      "newValue": 9.1,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "    distanceMinAu: 0.0099,",
+        "    distanceMaxAu: 0.0101,",
+        "    relativeVelocityKmPerS: 9,",
+        "    infinityVelocityKmPerS: 9.1,",
+        "    timeUncertainty: '< 00:01',",
+        "    absoluteMagnitude: 26,",
+        "    diameterKm: null,"
+      ]
+    }
+  },
+  {
+    "id": "value-status-code",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/server/src/routes/datasetRoutes.test.ts",
+      "newLineNumber": 50,
+      "oldLine": "expect(response.statusCode).toBe(200);",
+      "newLine": "expect(response.statusCode).toBe(201);",
+      "oldText": "200",
+      "newText": "201",
+      "oldValue": 200,
+      "newValue": 201,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "  it('serves validated approaches for today ± 7 days by default', async () => {",
+        "    const { upstream } = await start();",
+        "    const response = await get('/api/close-approaches');",
+        "    expect(response.statusCode).toBe(201);",
+        "    datasetResponseSchema('close-approaches').parse(response.json());",
+        "    expect(upstream.requests[0]?.searchParams.get('date-min')).toBe('2026-09-21');",
+        "  });"
+      ]
+    }
+  },
+  {
+    "id": "value-albedo-diameter",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/approaches/diameter.test.ts",
+      "newLineNumber": 33,
+      "oldLine": "expect(range.minKm).toBe(diameterAtAlbedoKm(15, ALBEDO_RANGE.bright));",
+      "newLine": "expect(range.minKm).toBe(diameterAtAlbedoKm(18, ALBEDO_RANGE.bright));",
+      "oldText": "15",
+      "newText": "18",
+      "oldValue": 15,
+      "newValue": 18,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "describe('estimatedDiameterRangeKm', () => {",
+        "  it('runs from the bright (small) to the dark (large) albedo', () => {",
+        "    const range = estimatedDiameterRangeKm(15);",
+        "    expect(range.minKm).toBe(diameterAtAlbedoKm(18, ALBEDO_RANGE.bright));",
+        "    expect(range.maxKm).toBe(diameterAtAlbedoKm(15, ALBEDO_RANGE.dark));",
+        "    // √(0.25 / 0.05) = √5: every estimate spans the same factor.",
+        "    expect(range.maxKm / range.minKm).toBeCloseTo(Math.sqrt(5), 12);"
+      ]
+    }
+  },
+  {
+    "id": "value-catalog-count",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/data/neoCatalogMessage.test.ts",
+      "newLineNumber": 27,
+      "oldLine": "count: 3,",
+      "newLine": "count: 4,",
+      "oldText": "3",
+      "newText": "4",
+      "oldValue": 3,
+      "newValue": 4,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "  it('counts the NEOs in each orbit class, zero for a class with none', () => {",
+        "    const catalog = catalogOf({",
+        "      ...THREE_NEO_CATALOG,",
+        "      count: 4,",
+        "      orbitClass: ['APO', 'APO', 'AMO'],",
+        "    });",
+        "    const { message } = neoCatalogMessage({ ...RESPONSE, data: catalog }, J2000_JD_TDB);"
+      ]
+    }
+  },
+  {
+    "id": "value-retry-tick",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/data/serverRetry.test.ts",
+      "newLineNumber": 44,
+      "oldLine": "await vi.advanceTimersByTimeAsync(1);",
+      "newLine": "await vi.advanceTimersByTimeAsync(2);",
+      "oldText": "1",
+      "newText": "2",
+      "oldValue": 1,
+      "newValue": 2,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "    await vi.advanceTimersByTimeAsync(4_000 + 8_000 + 16_000 - 1);",
+        "    expect(attempt).toHaveBeenCalledTimes(2);",
+        "    expect(onAnswer).not.toHaveBeenCalled();",
+        "    await vi.advanceTimersByTimeAsync(2);",
+        "    expect(onAnswer).toHaveBeenCalledExactlyOnceWith('live');",
+        "    await vi.advanceTimersByTimeAsync(10 * 60_000);",
+        "    expect(attempt).toHaveBeenCalledTimes(3);"
+      ]
+    }
+  },
+  {
+    "id": "value-fallback-wait",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/data/useDataset.test.tsx",
+      "newLineNumber": 116,
+      "oldLine": "await advance(4_000);",
+      "newLine": "await advance(3_999);",
+      "oldText": "4_000",
+      "newText": "3_999",
+      "oldValue": 4000,
+      "newValue": 3999,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "    vi.useFakeTimers();",
+        "    const loadFromServer = vi.fn(async () => Promise.reject(new Error('asleep')));",
+        "    const { renderer } = await mountProbe({ load: async () => RESPONSE, loadFromServer });",
+        "    await advance(3_999);",
+        "    await renderer.unmount();",
+        "    await advance(10 * 60_000);",
+        "    expect(loadFromServer).toHaveBeenCalledOnce();"
+      ]
+    }
+  },
+  {
+    "id": "value-frame-input",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/dev/frameTimes.test.ts",
+      "newLineNumber": 16,
+      "oldLine": "expect(summarizeFrameTimes([20, 20]).hitches).toBe(0);",
+      "newLine": "expect(summarizeFrameTimes([20, 25]).hitches).toBe(0);",
+      "oldText": "20",
+      "newText": "25",
+      "oldValue": 20,
+      "newValue": 25,
+      "numberPosition": 2,
+      "nearbyLines": [
+        "  });",
+        "",
+        "  it('does not count a frame of exactly 20 ms as a hitch', () => {",
+        "    expect(summarizeFrameTimes([20, 25]).hitches).toBe(0);",
+        "  });",
+        "",
+        "  it('reports zeros for no frames', () => {"
+      ]
+    }
+  },
+  {
+    "id": "value-stress-copies",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/dev/swarmStress.test.ts",
+      "newLineNumber": 38,
+      "oldLine": "for (let copy = 0; copy < 4; copy += 1) {",
+      "newLine": "for (let copy = 0; copy < 5; copy += 1) {",
+      "oldText": "4",
+      "newText": "5",
+      "oldValue": 4,
+      "newValue": 5,
+      "numberPosition": 2,
+      "nearbyLines": [
+        "    const replicated = replicateSwarmAttributes(attributes, 4);",
+        "    expect(replicated.count).toBe(attributes.count * 4);",
+        "    expect(replicated.referenceJdTdb).toBe(attributes.referenceJdTdb);",
+        "    for (let copy = 0; copy < 5; copy += 1) {",
+        "      const offset = copy * attributes.perihelionAxisAu.length;",
+        "      const slice = replicated.perihelionAxisAu.subarray(",
+        "        offset,"
+      ]
+    }
+  },
+  {
+    "id": "value-half-angle",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/eruptions/cmeGeometry.test.ts",
+      "newLineNumber": 25,
+      "oldLine": "halfAngleDeg: 10,",
+      "newLine": "halfAngleDeg: 12,",
+      "oldText": "10",
+      "newText": "12",
+      "oldValue": 10,
+      "newValue": 12,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "      earthArrival: null,",
+        "      latitudeDeg: 0,",
+        "      longitudeDeg: 0,",
+        "      halfAngleDeg: 12,",
+        "    });",
+        "    expect(earthTag(cme)).toBe('insideCone');",
+        "  });"
+      ]
+    }
+  },
+  {
+    "id": "value-particle-count",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/quality/qualityTiers.test.ts",
+      "newLineNumber": 24,
+      "oldLine": "expect(QUALITY_TIERS.high.cmeParticleCount).toBe(24_000);",
+      "newLine": "expect(QUALITY_TIERS.high.cmeParticleCount).toBe(12_000);",
+      "oldText": "24_000",
+      "newText": "12_000",
+      "oldValue": 24000,
+      "newValue": 12000,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "  });",
+        "",
+        "  it('keeps the Phase 6 exit check layout at High', () => {",
+        "    expect(QUALITY_TIERS.high.cmeParticleCount).toBe(12_000);",
+        "    expect(QUALITY_TIERS.high.cmeParticleCount).toBe(CME_SHELL_LOOK.particleCount);",
+        "  });",
+        ""
+      ]
+    }
+  },
+  {
+    "id": "value-governor-frame",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/quality/tierGovernor.test.ts",
+      "newLineNumber": 66,
+      "oldLine": "expect(feed(governor, { ms: 13, forMs: warmUpMs + steadyMsBeforeProbe + windowMs })).toEqual([",
+      "newLine": "expect(feed(governor, { ms: 15, forMs: warmUpMs + steadyMsBeforeProbe + windowMs })).toEqual([",
+      "oldText": "13",
+      "newText": "15",
+      "oldValue": 13,
+      "newValue": 15,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "",
+        "  it('probes one tier up after a steady minute', () => {",
+        "    const governor = new TierGovernor('medium');",
+        "    expect(feed(governor, { ms: 15, forMs: warmUpMs + steadyMsBeforeProbe + windowMs })).toEqual([",
+        "      'high',",
+        "    ]);",
+        "  });"
+      ]
+    }
+  },
+  {
+    "id": "value-marker-size",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/scene/approach/ApproachScene.test.tsx",
+      "newLineNumber": 37,
+      "oldLine": "expect(marker.material.size).toBe(8);",
+      "newLine": "expect(marker.material.size).toBe(6);",
+      "oldText": "8",
+      "newText": "6",
+      "oldValue": 8,
+      "newValue": 6,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "    expect(marker.position.toArray()).toEqual(",
+        "      sceneAxesFromEcliptic(bodyPositions.earthMoonBarycenter),",
+        "    );",
+        "    expect(marker.material.size).toBe(6);",
+        "    expect(marker.material.sizeAttenuation).toBe(false);",
+        "    // A dark (night-side) disc would otherwise hide the marker.",
+        "    expect(marker.material.depthTest).toBe(false);"
+      ]
+    }
+  },
+  {
+    "id": "value-tiny-input-vector",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/scene/approach/approachCamera.test.ts",
+      "newLineNumber": 95,
+      "oldLine": "expect(writeChaseDirection([0, 0, 1e-3], [0, 0, 1], [0, 0, 0])).toEqual([0, 0, 1]);",
+      "newLine": "expect(writeChaseDirection([0, 0, 1e-2], [0, 0, 1], [0, 0, 0])).toEqual([0, 0, 1]);",
+      "oldText": "1e-3",
+      "newText": "1e-2",
+      "oldValue": 0.001,
+      "newValue": 0.01,
+      "numberPosition": 3,
+      "nearbyLines": [
+        "  });",
+        "",
+        "  it('looks straight along the line when the line is along the pass normal', () => {",
+        "    expect(writeChaseDirection([0, 0, 1e-2], [0, 0, 1], [0, 0, 0])).toEqual([0, 0, 1]);",
+        "  });",
+        "});",
+        ""
+      ]
+    }
+  },
+  {
+    "id": "value-daylight-expected",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/scene/bodies/earth/earthLook.test.ts",
+      "newLineNumber": 7,
+      "oldLine": "expect(daylightFactor(0)).toBe(0.5);",
+      "newLine": "expect(daylightFactor(0)).toBe(0.6);",
+      "oldText": "0.5",
+      "newText": "0.6",
+      "oldValue": 0.5,
+      "newValue": 0.6,
+      "numberPosition": 2,
+      "nearbyLines": [
+        "describe('daylightFactor', () => {",
+        "  it('is 0 at night, ½ on the terminator and 1 in daylight', () => {",
+        "    expect(daylightFactor(-0.5)).toBe(0);",
+        "    expect(daylightFactor(0)).toBe(0.6);",
+        "    expect(daylightFactor(0.5)).toBe(1);",
+        "  });",
+        ""
+      ]
+    }
+  },
+  {
+    "id": "value-stale-days",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/scene/bodies/orbitPath.test.ts",
+      "newLineNumber": 37,
+      "oldLine": "expect(orbitPathIsStale(J2000_JD_TDB, J2000_JD_TDB + 30)).toBe(false);",
+      "newLine": "expect(orbitPathIsStale(J2000_JD_TDB, J2000_JD_TDB + 31)).toBe(false);",
+      "oldText": "30",
+      "newText": "31",
+      "oldValue": 30,
+      "newValue": 31,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "    expect(orbitPathIsStale(undefined, J2000_JD_TDB)).toBe(true);",
+        "    expect(orbitPathIsStale(J2000_JD_TDB, J2000_JD_TDB + ORBIT_PATH_REFRESH_DAYS)).toBe(true);",
+        "    expect(orbitPathIsStale(J2000_JD_TDB, J2000_JD_TDB - ORBIT_PATH_REFRESH_DAYS)).toBe(true);",
+        "    expect(orbitPathIsStale(J2000_JD_TDB, J2000_JD_TDB + 31)).toBe(false);",
+        "  });",
+        "});",
+        ""
+      ]
+    }
+  },
+  {
+    "id": "value-clock-now",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/scene/camera/cameraRig.test.ts",
+      "newLineNumber": 50,
+      "oldLine": "setNow(5);",
+      "newLine": "setNow(6);",
+      "oldText": "5",
+      "newText": "6",
+      "oldValue": 5,
+      "newValue": 6,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "    rig.flyTo({ focus: 'mars', durationSeconds: 0 });",
+        "    frame();",
+        "    positions.mars = [-1.3, 0.7, 0.05];",
+        "    setNow(6);",
+        "    expect(frame(0.01).originAu).toEqual([-1.3, 0.7, 0.05]);",
+        "  });",
+        ""
+      ]
+    }
+  },
+  {
+    "id": "value-shell-angle",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/scene/eruption/cmeShellGeometry.test.ts",
+      "newLineNumber": 44,
+      "oldLine": "const halfAngleRad = (38 * Math.PI) / 180;",
+      "newLine": "const halfAngleRad = (40 * Math.PI) / 180;",
+      "oldText": "38",
+      "newText": "40",
+      "oldValue": 38,
+      "newValue": 40,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "});",
+        "",
+        "describe('shellParticleOffsetAu', () => {",
+        "  const halfAngleRad = (40 * Math.PI) / 180;",
+        "  const shape: ShellShape = {",
+        "    basis: coneBasis([0.6, 0.48, -0.64]),",
+        "    cosHalfAngle: Math.cos(halfAngleRad),"
+      ]
+    }
+  },
+  {
+    "id": "value-instance-count",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/scene/swarm/Swarm.test.tsx",
+      "newLineNumber": 65,
+      "oldLine": "expect(trails.geometry.instanceCount).toBe(3);",
+      "newLine": "expect(trails.geometry.instanceCount).toBe(4);",
+      "oldText": "3",
+      "newText": "4",
+      "oldValue": 3,
+      "newValue": 4,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "    if (!(trails?.geometry instanceof InstancedBufferGeometry))",
+        "      throw new Error('The trails are not instanced');",
+        "    expect(trails.geometry.getAttribute('position').count).toBe(SWARM_TRAIL_VERTEX_COUNT);",
+        "    expect(trails.geometry.instanceCount).toBe(4);",
+        "    expect(swarmUniforms(trails)).toBe(swarmUniforms(swarmPoints(renderer)));",
+        "    await renderer.unmount();",
+        "  });"
+      ]
+    }
+  },
+  {
+    "id": "value-mean-anomaly",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/scene/swarm/swarmAttributes.test.ts",
+      "newLineNumber": 21,
+      "oldLine": "meanAnomalyDeg: [270],",
+      "newLine": "meanAnomalyDeg: [90],",
+      "oldText": "270",
+      "newText": "90",
+      "oldValue": 270,
+      "newValue": 90,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "      inclinationDeg: [90],",
+        "      longitudeOfAscendingNodeDeg: [180],",
+        "      argumentOfPerihelionDeg: [45],",
+        "      meanAnomalyDeg: [90],",
+        "    });",
+        "    expect(neoElementsAt(catalog, 0)).toEqual({",
+        "      semiMajorAxisAu: 1.5,"
+      ]
+    }
+  },
+  {
+    "id": "value-inclination",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/scene/swarm/swarmCrossCheck.test.ts",
+      "newLineNumber": 31,
+      "oldLine": "inclinationDeg: [22.3],",
+      "newLine": "inclinationDeg: [23.1],",
+      "oldText": "22.3",
+      "newText": "23.1",
+      "oldValue": 22.3,
+      "newValue": 23.1,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "  'Apollo, q = 0.14 AU (Phaethon-like)': {",
+        "    semiMajorAxisAu: [1.271],",
+        "    eccentricity: [0.89],",
+        "    inclinationDeg: [23.1],",
+        "  },",
+        "  Atira: { semiMajorAxisAu: [0.74], eccentricity: [0.32], inclinationDeg: [25] },",
+        "  'eccentricity at the clamp': { semiMajorAxisAu: [2], eccentricity: [0.99], inclinationDeg: [5] },"
+      ]
+    }
+  },
+  {
+    "id": "value-property-runs",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/scene/swarm/swarmKepler.test.ts",
+      "newLineNumber": 44,
+      "oldLine": "{ numRuns: 10_000 },",
+      "newLine": "{ numRuns: 1_000 },",
+      "oldText": "10_000",
+      "newText": "1_000",
+      "oldValue": 10000,
+      "newValue": 1000,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "          KEPLER_RESIDUAL_TOLERANCE_RAD,",
+        "        );",
+        "      }),",
+        "      { numRuns: 1_000 },",
+        "    );",
+        "  });",
+        ""
+      ]
+    }
+  },
+  {
+    "id": "value-generator-max",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/scene/swarm/swarmLook.test.ts",
+      "newLineNumber": 55,
+      "oldLine": "fc.double({ min: 0, max: 1, noNaN: true }),",
+      "newLine": "fc.double({ min: 0, max: 2, noNaN: true }),",
+      "oldText": "1",
+      "newText": "2",
+      "oldValue": 1,
+      "newValue": 2,
+      "numberPosition": 2,
+      "nearbyLines": [
+        "    fc.assert(",
+        "      fc.property(",
+        "        fc.double({ min: -1, max: 3, noNaN: true }),",
+        "        fc.double({ min: 0, max: 2, noNaN: true }),",
+        "        (from, step) => {",
+        "          expect(swarmFadeIn(from + step)).toBeGreaterThanOrEqual(swarmFadeIn(from));",
+        "        },"
+      ]
+    }
+  },
+  {
+    "id": "value-stale-age",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/shell/dataStatus.test.ts",
+      "newLineNumber": 34,
+      "oldLine": "const status = statusOf(neos(ready('fresh', 4)), approaches(ready('stale', 180)));",
+      "newLine": "const status = statusOf(neos(ready('fresh', 4)), approaches(ready('stale', 200)));",
+      "oldText": "180",
+      "newText": "200",
+      "oldValue": 180,
+      "newValue": 200,
+      "numberPosition": 2,
+      "nearbyLines": [
+        "  });",
+        "",
+        "  it('says the data is cached while one dataset is stale', () => {",
+        "    const status = statusOf(neos(ready('fresh', 4)), approaches(ready('stale', 200)));",
+        "    expect(status.tone).toBe('stale');",
+        "    expect(status.text).toBe('Cached · JPL · updated 3 h ago');",
+        "  });"
+      ]
+    }
+  },
+  {
+    "id": "value-row-index",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/shell/rovingRows.test.ts",
+      "newLineNumber": 15,
+      "oldLine": "expect(nextRowIndex('ArrowDown', { index: 3, count: 4 })).toBe(3);",
+      "newLine": "expect(nextRowIndex('ArrowDown', { index: 3, count: 4 })).toBe(2);",
+      "oldText": "3",
+      "newText": "2",
+      "oldValue": 3,
+      "newValue": 2,
+      "numberPosition": 3,
+      "nearbyLines": [
+        "  });",
+        "",
+        "  it('stops at both ends rather than wrapping', () => {",
+        "    expect(nextRowIndex('ArrowDown', { index: 3, count: 4 })).toBe(2);",
+        "    expect(nextRowIndex('ArrowUp', { index: 0, count: 4 })).toBe(0);",
+        "  });",
+        ""
+      ]
+    }
+  },
+  {
+    "id": "value-rate-input",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/web/src/time/timeDisplay.test.ts",
+      "newLineNumber": 58,
+      "oldLine": "expect(formatRate(1 / 24)).toBe('1.0 h/s');",
+      "newLine": "expect(formatRate(1 / 12)).toBe('1.0 h/s');",
+      "oldText": "24",
+      "newText": "12",
+      "oldValue": 24,
+      "newValue": 12,
+      "numberPosition": 2,
+      "nearbyLines": [
+        "",
+        "  it('labels rates in the largest whole unit', () => {",
+        "    expect(formatRate(RATE_LIMITS_DAYS_PER_SECOND.min)).toBe('real time');",
+        "    expect(formatRate(1 / 12)).toBe('1.0 h/s');",
+        "    expect(formatRate(1)).toBe('1.0 d/s');",
+        "    expect(formatRate(3_652.5)).toBe('10 yr/s');",
+        "  });"
+      ]
+    }
+  },
+  {
+    "id": "value-semi-major-axis",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "packages/data/src/approachOrbits.test.ts",
+      "newLineNumber": 11,
+      "oldLine": "semiMajorAxisAu: [1.458121, 2.77035359],",
+      "newLine": "semiMajorAxisAu: [1.458122, 2.77035359],",
+      "oldText": "1.458121",
+      "newText": "1.458122",
+      "oldValue": 1.458121,
+      "newValue": 1.458122,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "  name: ['Eros', null],",
+        "  epochJdTdb: [2461000.5, 2461200.5],",
+        "  eccentricity: [0.22283594, 0.63756517],",
+        "  semiMajorAxisAu: [1.458122, 2.77035359],",
+        "  inclinationDeg: [10.828467, 4.1],",
+        "  longitudeOfAscendingNodeDeg: [304.270103, 12.5],",
+        "  argumentOfPerihelionDeg: [178.929754, 250.25],"
+      ]
+    }
+  },
+  {
+    "id": "value-diameter-sigma",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "packages/data/src/upstream/cad.test.ts",
+      "newLineNumber": 85,
+      "oldLine": "diameterSigmaKm: 0.05,",
+      "newLine": "diameterSigmaKm: 0.06,",
+      "oldText": "0.05",
+      "newText": "0.06",
+      "oldValue": 0.05,
+      "newValue": 0.06,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "    });",
+        "    expect(toCloseApproaches(cadResponse([withDiameter]))[0]).toMatchObject({",
+        "      diameterKm: 0.32,",
+        "      diameterSigmaKm: 0.06,",
+        "    });",
+        "  });",
+        ""
+      ]
+    }
+  },
+  {
+    "id": "value-retry-after",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "apps/server/src/upstream/httpClient.test.ts",
+      "newLineNumber": 38,
+      "oldLine": "expect((await failureOf(tooManyRequests('120').getJson(URL_WITH_KEY))).retryAfterMs).toBe(",
+      "newLine": "expect((await failureOf(tooManyRequests('90').getJson(URL_WITH_KEY))).retryAfterMs).toBe(",
+      "oldText": "120",
+      "newText": "90",
+      "oldValue": 120,
+      "newValue": 90,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "  });",
+        "",
+        "  it('turns HTTP 429 into a back-off using Retry-After seconds, or a minute without it', async () => {",
+        "    expect((await failureOf(tooManyRequests('90').getJson(URL_WITH_KEY))).retryAfterMs).toBe(",
+        "      120_000,",
+        "    );",
+        "    const without = clientAnswering(() => new Response('', { status: 429 }));"
+      ]
+    }
+  },
+  {
+    "id": "history-cme-count",
+    "expectedKind": "not-a-tolerance",
+    "change": {
+      "path": "packages/data/src/upstream/donki.test.ts",
+      "newLineNumber": 32,
+      "oldLine": "expect(cmes).toHaveLength(86);",
+      "newLine": "expect(cmes).toHaveLength(77);",
+      "oldText": "86",
+      "newText": "77",
+      "oldValue": 86,
+      "newValue": 77,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "    const cmes = toCmes(parse(RECORDED_DONKI_CME_WINDOW));",
+        "    // The 2026-10-01 recording (CCMC) has 110 CMEs; 33 have no longitude in their flagged analysis and are",
+        "    // left out. Re-recording changes this number, so revisit it then.",
+        "    expect(cmes).toHaveLength(77);",
+        "    for (const cme of cmes) cmeSchema.parse(cme);",
+        "    const starts = cmes.map((cme) => cme.startTime);",
+        "    expect(starts).toEqual(starts.toSorted());"
+      ]
+    }
+  }
+]

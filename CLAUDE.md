@@ -41,6 +41,7 @@ apps/server     Fastify data server (fetch, normalize, cache NASA/JPL)
 packages/orbit  Pure TS orbit engine
 packages/data   zod schemas + shared normalized types
 packages/fixtures  Horizons ground-truth fixtures + generator
+tools/review    Dev-only PR review (fixtures, tolerances, messages); never shipped
 ```
 
 ## Engine conventions (`packages/orbit`)

@@ -1,0 +1,34 @@
+name: Review
+
+# Dev-only check (tools/review): blocks fixture, recording and loosened-tolerance changes until the user applies
+# `ground-truth:approved`, and advises on commit and PR messages. Separate from ci.yml so `npm run check` never
+# calls Jev.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, labeled, unlabeled]
+
+# Label and push events can arrive together; only the newest run should write the comment.
+concurrency:
+  group: review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run review --workspace @perihelion/review
+        env:
+          TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

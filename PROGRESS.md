@@ -321,12 +321,13 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 - [x] Accessibility and reduced motion (#134)
 - [ ] Help dialog, orbit-class legend, first-visit hint and credits (#135)
 - [ ] Deploy: Netlify and Render (#136)
+- [x] Jev PR review: fixtures, tolerances and commit messages (#148)
 - [ ] Exit verification (#137)
 
 Status (2026-10-03): plan merged in #138, with issues #128–#137 on the board. README rewritten for the current state
 in #139. Task 1 (#128) merged in #141, Task 2 (#129) in #142, Task 3 (#130) in #143, Task 4 (#131) in #144, Task 7
 (#134) in #145, Task 5 (#132) in #146. Task 6 (#133) on `phase-7/responsive`, review proposals 1–10 included (plan
-Task 6, "As built"); the device-emulation check is the user's.
+Task 6, "As built"); the device-emulation check is the user's. Jev PR review (#148) in #149.
 
 ### Phase 7 baseline
 
@@ -465,6 +466,38 @@ then frames over 20 ms.
   bar). Opening Display closed Events and back (native `<details name>`). Sideways the time bar is one 62 px row.
 - Not checked by me: touch rotate and pinch, the 44 px targets under `(pointer: coarse)`, and page scroll while
   dragging, all of which need Chrome's device emulation (DevTools).
+
+### Jev PR review (#148)
+
+- Recorded on 2026-10-04 from `jev-1.13.0` (pinned): 66 labelled test-number edits and 35 messages, about 72k input
+  tokens. Labels reviewed by the user before recording (the six `bound-term` edits added after the branch review, with
+  the user's go-ahead). `npm run evaluate --workspace @perihelion/review` replays them offline.
+- Number kinds: 65/66 right, including all six numbers inside a bound expression (`edgeStep / 1000`,
+  `(1 - 1e-12)`, `(1 + eccentricity)`), which block on any change. Every loosening blocks at every cutoff from 0.50 to
+  0.99. The one miss is a fast-check generator range (`max: 1` → `2`) read as an upper bound (0.54), so it blocks: a
+  false alarm, not a gap. Harmless edits that block: 1 of 31 at 0.50, 3 at 0.80, 5 at 0.90, 13 at 0.99.
+- History has a single pure number edit in an existing test line (`toHaveLength(86)` → `77`), so the harmless set is
+  realistic edits of real current lines, with their real surrounding lines.
+- Jev is not fully deterministic: re-asking the same 66 message questions moved the answers by a median of 0.01 and
+  at most 0.08. Answers near 0.5 can flip between runs, which only affects advice; the approval fingerprint uses the
+  diff, never Jev's answers.
+- Messages: "only the functional change" agrees with the labels on 29/31, "plain English" on 33/35. Every
+  process-talk example is flagged. Disagreements: `89576d1` on `main` ends with a `Co-Authored-By:` trailer, which
+  Jev rightly flagged (the label was wrong); "fix stuff" (0.48 and 0.45), vague enough to argue either way; and
+  `4d2e187`'s plain English at 0.49 (0.53 in the first recording).
+- Verified end to end on GitHub (2026-10-04, PR #149 and throwaway draft #150 against the review branch, closed and
+  deleted). #149 with `ground-truth:approved` passed and Jev answered with the CI secret. #150 changed one byte in
+  `cad-empty.json` and `toBeCloseTo(…, 12)` → `11` in `angles.test.ts`, committed as "Address review comments": no
+  label → blocked (fixture listed; `12` → `11` read as closeness-digits at 1.00, loosened); label added → passed, the
+  same comment edited to Approved; label removed → blocked again, same comment. Each run took 18–20 s, of which the
+  review step about 2 s. Jev token usage per run is not known: the client parses `usage` but the check does not log it.
+- Message advice is weak on real PRs: "Address review comments" scored 0.12 for process talk, the same as three good
+  messages on #149 (0.12–0.19), so it does not separate them. It never blocks.
+- Deferred minors (user: leave for now): a comment over 65,536 characters fails and leaves a stale comment; Jev
+  calls have unbounded concurrency and retry without jitter or `Retry-After`; every label change reruns the review;
+  local git config (no prefix, colour, external diff) can break diff parsing; `base.sha` can be stale on label or edit
+  events after merging `main`; checkout keeps credentials; `Closes: #N`, `owner/repo#N` and issue URLs are not seen
+  as closing links; the table header says "Why it blocks" when approved.
 
 ## Calibrated tolerances
 
@@ -783,6 +816,15 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
   marker has no physical size, so nothing closer would show more.
 - **2026-10-01:** A chase turns the camera to face its focus every frame, because the controls that otherwise do it
   are off during flights; without it the view kept its take-off facing and snapped at landing.
+- **2026-10-03:** The Jev review's "not a tolerance" cutoff is 0.50, the lowest that let no loosened example
+  through (spec rule); re-checked on the 2026-10-04 recordings. Higher cutoffs block more harmless edits (3 of 31 at
+  0.80) and Jev never called a loosening "not a tolerance", so the margin is untested either way.
+- **2026-10-04:** A number inside a bound expression (`edgeStep / 1000`, `(1 - 1e-12)`) is its own kind,
+  `bound-term`, and any change to it blocks: its direction depends on the expression, so code does not guess (branch
+  review finding).
+- **2026-10-04:** The approval label counts only for the exact changes it was applied to (a fingerprint of the
+  protected-file diff and every changed test number, kept in the review comment). A later change to either removes
+  the label and blocks. The review check's own files are protected paths.
 
 ## Open questions
 

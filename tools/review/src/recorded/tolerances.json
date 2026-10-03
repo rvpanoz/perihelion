@@ -1,0 +1,3302 @@
+[
+  {
+    "id": "upper-kepler-looser",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/swarm/swarmKepler.test.ts",
+        "oldLine": "const KEPLER_RESIDUAL_TOLERANCE_RAD = 1e-5;",
+        "newLine": "const KEPLER_RESIDUAL_TOLERANCE_RAD = 1e-4;",
+        "oldNumber": "1e-5",
+        "newNumber": "1e-4",
+        "numberPosition": 1,
+        "nearbyLines": " * About 40 float32 steps at E = π. Converged answers sit near 1e-7; one Newton step short of converged at\n * e = 0.99 is ~1e-3, so this separates the two cleanly.\n */\nconst KEPLER_RESIDUAL_TOLERANCE_RAD = 1e-4;\n\n/** Kepler's equation, in float64, on the solver's float32 answer; M is centred on [−π, π) as the solver does. */\nfunction keplerResidualRad(meanAnomalyRad: number, eccentricity: number): number {"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "upper-bound",
+          "confidence": 1,
+          "probabilities": {
+            "closeness-digits": 0,
+            "not-a-tolerance": 0,
+            "bound-term": 0,
+            "margin-multiplier": 0,
+            "lower-bound": 0,
+            "upper-bound": 1
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 881,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "upper-kepler-tighter",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/swarm/swarmKepler.test.ts",
+        "oldLine": "const KEPLER_RESIDUAL_TOLERANCE_RAD = 1e-5;",
+        "newLine": "const KEPLER_RESIDUAL_TOLERANCE_RAD = 1e-6;",
+        "oldNumber": "1e-5",
+        "newNumber": "1e-6",
+        "numberPosition": 1,
+        "nearbyLines": " * About 40 float32 steps at E = π. Converged answers sit near 1e-7; one Newton step short of converged at\n * e = 0.99 is ~1e-3, so this separates the two cleanly.\n */\nconst KEPLER_RESIDUAL_TOLERANCE_RAD = 1e-6;\n\n/** Kepler's equation, in float64, on the solver's float32 answer; M is centred on [−π, π) as the solver does. */\nfunction keplerResidualRad(meanAnomalyRad: number, eccentricity: number): number {"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "upper-bound",
+          "confidence": 1,
+          "probabilities": {
+            "closeness-digits": 0,
+            "upper-bound": 1,
+            "not-a-tolerance": 0,
+            "bound-term": 0,
+            "margin-multiplier": 0,
+            "lower-bound": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 881,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "upper-unit-looser",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/eruption/cmeShellGeometry.test.ts",
+        "oldLine": "const UNIT_TOLERANCE = 1e-12;",
+        "newLine": "const UNIT_TOLERANCE = 1e-10;",
+        "oldNumber": "1e-12",
+        "newNumber": "1e-10",
+        "numberPosition": 1,
+        "nearbyLines": "import { CME_SHELL_LOOK } from './cmeShellLook';\nimport { createShellSeeds, mulberry32, shellSeedAt } from './cmeShellSeeds';\n\nconst UNIT_TOLERANCE = 1e-10;\nconst COUNT = CME_SHELL_LOOK.particleCount;\nconst seeds = createShellSeeds(COUNT, mulberry32(20_261_002));\n"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "upper-bound",
+          "confidence": 1,
+          "probabilities": {
+            "upper-bound": 1,
+            "not-a-tolerance": 0,
+            "closeness-digits": 0,
+            "lower-bound": 0,
+            "margin-multiplier": 0,
+            "bound-term": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 834,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "upper-unit-tighter",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/eruption/cmeShellGeometry.test.ts",
+        "oldLine": "const UNIT_TOLERANCE = 1e-12;",
+        "newLine": "const UNIT_TOLERANCE = 1e-13;",
+        "oldNumber": "1e-12",
+        "newNumber": "1e-13",
+        "numberPosition": 1,
+        "nearbyLines": "import { CME_SHELL_LOOK } from './cmeShellLook';\nimport { createShellSeeds, mulberry32, shellSeedAt } from './cmeShellSeeds';\n\nconst UNIT_TOLERANCE = 1e-13;\nconst COUNT = CME_SHELL_LOOK.particleCount;\nconst seeds = createShellSeeds(COUNT, mulberry32(20_261_002));\n"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "upper-bound",
+          "confidence": 1,
+          "probabilities": {
+            "lower-bound": 0,
+            "not-a-tolerance": 0,
+            "closeness-digits": 0,
+            "upper-bound": 1,
+            "margin-multiplier": 0,
+            "bound-term": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 834,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "upper-eros-looser",
+    "request": {
+      "state": {
+        "file": "packages/orbit/src/asteroids.golden.test.ts",
+        "oldLine": "eros: 5.65e-5,",
+        "newLine": "eros: 6.5e-5,",
+        "oldNumber": "5.65e-5",
+        "newNumber": "6.5e-5",
+        "numberPosition": 1,
+        "nearbyLines": " * See \"Calibrated tolerances\" in PROGRESS.md.\n */\nconst MEASURED_MAX_ERROR_AU: Readonly<Record<AsteroidName, number>> = {\n  eros: 6.5e-5,\n  apophis: 1.95e-5,\n  bennu: 3.45e-5,\n  ryugu: 2.36e-5,"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "upper-bound",
+          "confidence": 1,
+          "probabilities": {
+            "bound-term": 0,
+            "not-a-tolerance": 0,
+            "lower-bound": 0,
+            "margin-multiplier": 0,
+            "upper-bound": 1,
+            "closeness-digits": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 818,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "upper-eros-tighter",
+    "request": {
+      "state": {
+        "file": "packages/orbit/src/asteroids.golden.test.ts",
+        "oldLine": "eros: 5.65e-5,",
+        "newLine": "eros: 5.2e-5,",
+        "oldNumber": "5.65e-5",
+        "newNumber": "5.2e-5",
+        "numberPosition": 1,
+        "nearbyLines": " * See \"Calibrated tolerances\" in PROGRESS.md.\n */\nconst MEASURED_MAX_ERROR_AU: Readonly<Record<AsteroidName, number>> = {\n  eros: 5.2e-5,\n  apophis: 1.95e-5,\n  bennu: 3.45e-5,\n  ryugu: 2.36e-5,"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "upper-bound",
+          "confidence": 1,
+          "probabilities": {
+            "lower-bound": 0,
+            "upper-bound": 1,
+            "not-a-tolerance": 0,
+            "bound-term": 0,
+            "closeness-digits": 0,
+            "margin-multiplier": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 818,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "upper-eccentricity-looser",
+    "request": {
+      "state": {
+        "file": "packages/orbit/src/elements.test.ts",
+        "oldLine": "expect(Math.abs(recovered.eccentricity - elements.eccentricity)).toBeLessThan(1e-11);",
+        "newLine": "expect(Math.abs(recovered.eccentricity - elements.eccentricity)).toBeLessThan(1e-9);",
+        "oldNumber": "1e-11",
+        "newNumber": "1e-9",
+        "numberPosition": 1,
+        "nearbyLines": "      fc.property(wellDefinedElements, (elements) => {\n        const recovered = elementsFromState(stateFromElements(elements), elements.epochJdTdb);\n        expect(recovered.semiMajorAxisAu / elements.semiMajorAxisAu).toBeCloseTo(1, 11);\n        expect(Math.abs(recovered.eccentricity - elements.eccentricity)).toBeLessThan(1e-9);\n        expect(recovered.epochJdTdb).toBe(elements.epochJdTdb);\n        for (const angle of [\n          'inclinationRad',"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "upper-bound",
+          "confidence": 1,
+          "probabilities": {
+            "bound-term": 0,
+            "upper-bound": 1,
+            "not-a-tolerance": 0,
+            "margin-multiplier": 0,
+            "lower-bound": 0,
+            "closeness-digits": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 904,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "upper-eccentricity-tighter",
+    "request": {
+      "state": {
+        "file": "packages/orbit/src/elements.test.ts",
+        "oldLine": "expect(Math.abs(recovered.eccentricity - elements.eccentricity)).toBeLessThan(1e-11);",
+        "newLine": "expect(Math.abs(recovered.eccentricity - elements.eccentricity)).toBeLessThan(1e-12);",
+        "oldNumber": "1e-11",
+        "newNumber": "1e-12",
+        "numberPosition": 1,
+        "nearbyLines": "      fc.property(wellDefinedElements, (elements) => {\n        const recovered = elementsFromState(stateFromElements(elements), elements.epochJdTdb);\n        expect(recovered.semiMajorAxisAu / elements.semiMajorAxisAu).toBeCloseTo(1, 11);\n        expect(Math.abs(recovered.eccentricity - elements.eccentricity)).toBeLessThan(1e-12);\n        expect(recovered.epochJdTdb).toBe(elements.epochJdTdb);\n        for (const angle of [\n          'inclinationRad',"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "upper-bound",
+          "confidence": 1,
+          "probabilities": {
+            "closeness-digits": 0,
+            "upper-bound": 1,
+            "margin-multiplier": 0,
+            "not-a-tolerance": 0,
+            "lower-bound": 0,
+            "bound-term": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 907,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "upper-published-looser",
+    "request": {
+      "state": {
+        "file": "packages/orbit/src/heliographic.test.ts",
+        "oldLine": "const PUBLISHED_CONSTANT_TOLERANCE_DEG = 0.01;",
+        "newLine": "const PUBLISHED_CONSTANT_TOLERANCE_DEG = 0.05;",
+        "oldNumber": "0.01",
+        "newNumber": "0.05",
+        "numberPosition": 1,
+        "nearbyLines": "// (73.6667° + 0.013958° per year since 1850 → 75.76°): published constants the IAU pole must reproduce.\nconst SOLAR_EQUATOR_TILT_DEG = 7.25;\nconst ASCENDING_NODE_J2000_DEG = 75.76;\nconst PUBLISHED_CONSTANT_TOLERANCE_DEG = 0.05;\n\nconst latitude = fc.double({ min: -Math.PI / 2, max: Math.PI / 2, noNaN: true });\nconst longitude = fc.double({ min: -Math.PI, max: Math.PI, noNaN: true });"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "upper-bound",
+          "confidence": 1,
+          "probabilities": {
+            "closeness-digits": 0,
+            "upper-bound": 1,
+            "not-a-tolerance": 0,
+            "lower-bound": 0,
+            "margin-multiplier": 0,
+            "bound-term": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 893,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "upper-published-tighter",
+    "request": {
+      "state": {
+        "file": "packages/orbit/src/heliographic.test.ts",
+        "oldLine": "const PUBLISHED_CONSTANT_TOLERANCE_DEG = 0.01;",
+        "newLine": "const PUBLISHED_CONSTANT_TOLERANCE_DEG = 0.005;",
+        "oldNumber": "0.01",
+        "newNumber": "0.005",
+        "numberPosition": 1,
+        "nearbyLines": "// (73.6667° + 0.013958° per year since 1850 → 75.76°): published constants the IAU pole must reproduce.\nconst SOLAR_EQUATOR_TILT_DEG = 7.25;\nconst ASCENDING_NODE_J2000_DEG = 75.76;\nconst PUBLISHED_CONSTANT_TOLERANCE_DEG = 0.005;\n\nconst latitude = fc.double({ min: -Math.PI / 2, max: Math.PI / 2, noNaN: true });\nconst longitude = fc.double({ min: -Math.PI, max: Math.PI, noNaN: true });"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "upper-bound",
+          "confidence": 1,
+          "probabilities": {
+            "closeness-digits": 0,
+            "bound-term": 0,
+            "not-a-tolerance": 0,
+            "margin-multiplier": 0,
+            "lower-bound": 0,
+            "upper-bound": 1
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 896,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "upper-arrival-looser",
+    "request": {
+      "state": {
+        "file": "packages/orbit/src/cmeKinematics.test.ts",
+        "oldLine": "const ARRIVAL_DISTANCE_TOLERANCE_AU = 1e-12;",
+        "newLine": "const ARRIVAL_DISTANCE_TOLERANCE_AU = 1e-9;",
+        "oldNumber": "1e-12",
+        "newNumber": "1e-9",
+        "numberPosition": 1,
+        "nearbyLines": "\nconst TIME21_5_JD_TDB = 2_461_300.25;\nconst NOMINAL_SOLAR_RADIUS_KM = 695_700;\nconst ARRIVAL_DISTANCE_TOLERANCE_AU = 1e-9;\nconst unusedEarthDistance = (): number => {\n  throw new Error('Earth distance is not needed without an ENLIL arrival.');\n};"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "upper-bound",
+          "confidence": 1,
+          "probabilities": {
+            "margin-multiplier": 0,
+            "bound-term": 0,
+            "not-a-tolerance": 0,
+            "closeness-digits": 0,
+            "upper-bound": 1,
+            "lower-bound": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 826,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "digits-angles-looser",
+    "request": {
+      "state": {
+        "file": "packages/orbit/src/angles.test.ts",
+        "oldLine": "expect(normalizeAngleRad(angleRad)).toBeCloseTo(expectedRad, 12);",
+        "newLine": "expect(normalizeAngleRad(angleRad)).toBeCloseTo(expectedRad, 10);",
+        "oldNumber": "12",
+        "newNumber": "10",
+        "numberPosition": 1,
+        "nearbyLines": "    [-Math.PI / 2, 1.5 * Math.PI],\n    [5 * Math.PI, Math.PI],\n  ])('wraps %d to %d', (angleRad, expectedRad) => {\n    expect(normalizeAngleRad(angleRad)).toBeCloseTo(expectedRad, 10);\n  });\n\n  it('never returns 2π, even for a tiny negative angle', () => {"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "closeness-digits",
+          "confidence": 1,
+          "probabilities": {
+            "upper-bound": 0,
+            "closeness-digits": 1,
+            "margin-multiplier": 0,
+            "lower-bound": 0,
+            "not-a-tolerance": 0,
+            "bound-term": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 847,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "digits-angles-tighter",
+    "request": {
+      "state": {
+        "file": "packages/orbit/src/angles.test.ts",
+        "oldLine": "expect(normalizeAngleRad(angleRad)).toBeCloseTo(expectedRad, 12);",
+        "newLine": "expect(normalizeAngleRad(angleRad)).toBeCloseTo(expectedRad, 13);",
+        "oldNumber": "12",
+        "newNumber": "13",
+        "numberPosition": 1,
+        "nearbyLines": "    [-Math.PI / 2, 1.5 * Math.PI],\n    [5 * Math.PI, Math.PI],\n  ])('wraps %d to %d', (angleRad, expectedRad) => {\n    expect(normalizeAngleRad(angleRad)).toBeCloseTo(expectedRad, 13);\n  });\n\n  it('never returns 2π, even for a tiny negative angle', () => {"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "closeness-digits",
+          "confidence": 1,
+          "probabilities": {
+            "closeness-digits": 1,
+            "lower-bound": 0,
+            "margin-multiplier": 0,
+            "not-a-tolerance": 0,
+            "upper-bound": 0,
+            "bound-term": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 847,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "digits-pole-looser",
+    "request": {
+      "state": {
+        "file": "packages/orbit/src/earthOrientation.test.ts",
+        "oldLine": "expect(dot(greenwich, pole)).toBeCloseTo(0, 14);",
+        "newLine": "expect(dot(greenwich, pole)).toBeCloseTo(0, 10);",
+        "oldNumber": "14",
+        "newNumber": "10",
+        "numberPosition": 2,
+        "nearbyLines": "        const { greenwich, east, pole } = earthBodyAxesEcliptic(jd);\n        for (const axis of [greenwich, east, pole]) expect(norm(axis)).toBeCloseTo(1, 14);\n        expect(dot(greenwich, east)).toBeCloseTo(0, 14);\n        expect(dot(greenwich, pole)).toBeCloseTo(0, 10);\n        const handedness = cross(greenwich, east);\n        for (const index of [0, 1, 2] as const)\n          expect(handedness[index]).toBeCloseTo(pole[index], 14);"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "closeness-digits",
+          "confidence": 1,
+          "probabilities": {
+            "lower-bound": 0,
+            "bound-term": 0,
+            "not-a-tolerance": 0,
+            "closeness-digits": 1,
+            "upper-bound": 0,
+            "margin-multiplier": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 884,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "digits-pole-tighter",
+    "request": {
+      "state": {
+        "file": "packages/orbit/src/earthOrientation.test.ts",
+        "oldLine": "expect(dot(greenwich, pole)).toBeCloseTo(0, 14);",
+        "newLine": "expect(dot(greenwich, pole)).toBeCloseTo(0, 15);",
+        "oldNumber": "14",
+        "newNumber": "15",
+        "numberPosition": 2,
+        "nearbyLines": "        const { greenwich, east, pole } = earthBodyAxesEcliptic(jd);\n        for (const axis of [greenwich, east, pole]) expect(norm(axis)).toBeCloseTo(1, 14);\n        expect(dot(greenwich, east)).toBeCloseTo(0, 14);\n        expect(dot(greenwich, pole)).toBeCloseTo(0, 15);\n        const handedness = cross(greenwich, east);\n        for (const index of [0, 1, 2] as const)\n          expect(handedness[index]).toBeCloseTo(pole[index], 14);"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "closeness-digits",
+          "confidence": 1,
+          "probabilities": {
+            "lower-bound": 0,
+            "bound-term": 0,
+            "not-a-tolerance": 0,
+            "closeness-digits": 1,
+            "upper-bound": 0,
+            "margin-multiplier": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 884,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "digits-blend-looser",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/approach/approachCamera.test.ts",
+        "oldLine": "expect(Math.acos(dot(blended, fromDirection))).toBeCloseTo(eased * angleRad, 9);",
+        "newLine": "expect(Math.acos(dot(blended, fromDirection))).toBeCloseTo(eased * angleRad, 6);",
+        "oldNumber": "9",
+        "newNumber": "6",
+        "numberPosition": 1,
+        "nearbyLines": "    for (const eased of [0.25, 0.5, 0.75]) {\n      const blend = { fromDirection, toDirection: nearlyOpposite, eased };\n      const blended = writeDirectionBlend(blend, [0, 0, 0]);\n      expect(Math.acos(dot(blended, fromDirection))).toBeCloseTo(eased * angleRad, 6);\n    }\n  });\n});"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "closeness-digits",
+          "confidence": 1,
+          "probabilities": {
+            "upper-bound": 0,
+            "bound-term": 0,
+            "margin-multiplier": 0,
+            "not-a-tolerance": 0,
+            "closeness-digits": 1,
+            "lower-bound": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 856,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "digits-cosine-looser",
+    "request": {
+      "state": {
+        "file": "packages/orbit/src/heliographic.test.ts",
+        "oldLine": "expect(dot(a, b)).toBeCloseTo(expectedCosine, 12);",
+        "newLine": "expect(dot(a, b)).toBeCloseTo(expectedCosine, 8);",
+        "oldNumber": "12",
+        "newNumber": "8",
+        "numberPosition": 1,
+        "nearbyLines": "            Math.cos(second.latitudeRad) *\n            Math.cos(first.longitudeRad - second.longitudeRad);\n        expect(norm(a)).toBeCloseTo(1, 12);\n        expect(dot(a, b)).toBeCloseTo(expectedCosine, 8);\n      }),\n    );\n  });"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "closeness-digits",
+          "confidence": 1,
+          "probabilities": {
+            "lower-bound": 0,
+            "upper-bound": 0,
+            "closeness-digits": 1,
+            "bound-term": 0,
+            "not-a-tolerance": 0,
+            "margin-multiplier": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 802,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "digits-own-line-looser",
+    "request": {
+      "state": {
+        "file": "apps/web/src/approaches/closeUpModel.test.ts",
+        "oldLine": "15,",
+        "newLine": "10,",
+        "oldNumber": "15",
+        "newNumber": "10",
+        "numberPosition": 1,
+        "nearbyLines": "    );\n    expect(Math.abs(trailOffsetDays(closestIndex, HALF_WINDOW_DAYS))).toBeCloseTo(\n      Math.min(...offsets),\n      10,\n    );\n  });\n"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "closeness-digits",
+          "confidence": 0.98,
+          "probabilities": {
+            "closeness-digits": 0.99,
+            "bound-term": 0,
+            "margin-multiplier": 0,
+            "lower-bound": 0,
+            "upper-bound": 0,
+            "not-a-tolerance": 0.01
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 746,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "margin-asteroids-looser",
+    "request": {
+      "state": {
+        "file": "packages/orbit/src/asteroids.golden.test.ts",
+        "oldLine": "const TOLERANCE_MARGIN = 1.25;",
+        "newLine": "const TOLERANCE_MARGIN = 1.5;",
+        "oldNumber": "1.25",
+        "newNumber": "1.5",
+        "numberPosition": 1,
+        "nearbyLines": "};\n\n/** Room for harmless numeric changes (solver iterations, operation order); real bugs move far more. */\nconst TOLERANCE_MARGIN = 1.5;\n\n/** The Phase 1 target in PLAN.md: two-body position within 1e-3 AU inside ±60 days of the epoch. */\nconst PLAN_TARGET_AU = 1e-3;"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "margin-multiplier",
+          "confidence": 0.99,
+          "probabilities": {
+            "bound-term": 0,
+            "margin-multiplier": 1,
+            "upper-bound": 0,
+            "lower-bound": 0,
+            "not-a-tolerance": 0,
+            "closeness-digits": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 801,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "margin-asteroids-tighter",
+    "request": {
+      "state": {
+        "file": "packages/orbit/src/asteroids.golden.test.ts",
+        "oldLine": "const TOLERANCE_MARGIN = 1.25;",
+        "newLine": "const TOLERANCE_MARGIN = 1.1;",
+        "oldNumber": "1.25",
+        "newNumber": "1.1",
+        "numberPosition": 1,
+        "nearbyLines": "};\n\n/** Room for harmless numeric changes (solver iterations, operation order); real bugs move far more. */\nconst TOLERANCE_MARGIN = 1.1;\n\n/** The Phase 1 target in PLAN.md: two-body position within 1e-3 AU inside ±60 days of the epoch. */\nconst PLAN_TARGET_AU = 1e-3;"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "margin-multiplier",
+          "confidence": 0.99,
+          "probabilities": {
+            "not-a-tolerance": 0,
+            "closeness-digits": 0,
+            "margin-multiplier": 1,
+            "lower-bound": 0,
+            "bound-term": 0,
+            "upper-bound": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 801,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "margin-swarm-looser",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/swarm/swarmCrossCheck.test.ts",
+        "oldLine": "const TOLERANCE_MARGIN = 1.25;",
+        "newLine": "const TOLERANCE_MARGIN = 2;",
+        "oldNumber": "1.25",
+        "newNumber": "2",
+        "numberPosition": 1,
+        "nearbyLines": " * a solver or precision bug moves far more.\n */\nconst MEASURED_MAX_ERROR_AU = { near: 1.37e-5, rangeEnds: 3.78e-4 };\nconst TOLERANCE_MARGIN = 2;\n\ndescribe('GPU vs CPU cross-check', () => {\n  it('matches the engine within ten years of the reference epoch', () => {"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "margin-multiplier",
+          "confidence": 1,
+          "probabilities": {
+            "upper-bound": 0,
+            "bound-term": 0,
+            "margin-multiplier": 1,
+            "closeness-digits": 0,
+            "not-a-tolerance": 0,
+            "lower-bound": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 806,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "margin-swarm-tighter",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/swarm/swarmCrossCheck.test.ts",
+        "oldLine": "const TOLERANCE_MARGIN = 1.25;",
+        "newLine": "const TOLERANCE_MARGIN = 1.2;",
+        "oldNumber": "1.25",
+        "newNumber": "1.2",
+        "numberPosition": 1,
+        "nearbyLines": " * a solver or precision bug moves far more.\n */\nconst MEASURED_MAX_ERROR_AU = { near: 1.37e-5, rangeEnds: 3.78e-4 };\nconst TOLERANCE_MARGIN = 1.2;\n\ndescribe('GPU vs CPU cross-check', () => {\n  it('matches the engine within ten years of the reference epoch', () => {"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "margin-multiplier",
+          "confidence": 1,
+          "probabilities": {
+            "closeness-digits": 0,
+            "upper-bound": 0,
+            "not-a-tolerance": 0,
+            "bound-term": 0,
+            "margin-multiplier": 1,
+            "lower-bound": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 812,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "margin-planets-looser",
+    "request": {
+      "state": {
+        "file": "packages/orbit/src/planets.golden.test.ts",
+        "oldLine": "const TOLERANCE_MARGIN = 1.25;",
+        "newLine": "const TOLERANCE_MARGIN = 1.4;",
+        "oldNumber": "1.25",
+        "newNumber": "1.4",
+        "numberPosition": 1,
+        "nearbyLines": "};\n\n/** Room for harmless numeric changes (solver iterations, operation order); real bugs move far more. */\nconst TOLERANCE_MARGIN = 1.4;\n\nconst NO_ERROR: HeliocentricError = {\n  longitudeArcsec: 0,"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "margin-multiplier",
+          "confidence": 0.99,
+          "probabilities": {
+            "not-a-tolerance": 0,
+            "upper-bound": 0.01,
+            "lower-bound": 0,
+            "bound-term": 0,
+            "margin-multiplier": 0.99,
+            "closeness-digits": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 781,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "lower-pole-looser",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/eruption/impact/impactMaterials.test.ts",
+        "oldLine": "expect(pole.z).toBeGreaterThan(0);",
+        "newLine": "expect(pole.z).toBeGreaterThan(-0.1);",
+        "oldNumber": "0",
+        "newNumber": "-0.1",
+        "numberPosition": 1,
+        "nearbyLines": "      (IMPACT_LOOK.geomagneticPoleLatitudeDeg * Math.PI) / 180,\n      14,\n    );\n    expect(pole.z).toBeGreaterThan(-0.1);\n  });\n});\n"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "lower-bound",
+          "confidence": 0.99,
+          "probabilities": {
+            "not-a-tolerance": 0,
+            "margin-multiplier": 0,
+            "lower-bound": 1,
+            "closeness-digits": 0,
+            "upper-bound": 0,
+            "bound-term": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 784,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "lower-pole-tighter",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/eruption/impact/impactMaterials.test.ts",
+        "oldLine": "expect(pole.z).toBeGreaterThan(0);",
+        "newLine": "expect(pole.z).toBeGreaterThan(0.5);",
+        "oldNumber": "0",
+        "newNumber": "0.5",
+        "numberPosition": 1,
+        "nearbyLines": "      (IMPACT_LOOK.geomagneticPoleLatitudeDeg * Math.PI) / 180,\n      14,\n    );\n    expect(pole.z).toBeGreaterThan(0.5);\n  });\n});\n"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "lower-bound",
+          "confidence": 1,
+          "probabilities": {
+            "lower-bound": 1,
+            "bound-term": 0,
+            "not-a-tolerance": 0,
+            "closeness-digits": 0,
+            "upper-bound": 0,
+            "margin-multiplier": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 783,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "lower-camera-looser",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/canvasConfig.test.ts",
+        "oldLine": "expect(CAMERA_SETTINGS.position[1]).toBeGreaterThan(0);",
+        "newLine": "expect(CAMERA_SETTINGS.position[1]).toBeGreaterThan(-1);",
+        "oldNumber": "0",
+        "newNumber": "-1",
+        "numberPosition": 2,
+        "nearbyLines": "\n  it('starts the camera about 3 AU from the Sun, above the ecliptic', () => {\n    expect(Math.hypot(...CAMERA_SETTINGS.position)).toBeCloseTo(3, 3);\n    expect(CAMERA_SETTINGS.position[1]).toBeGreaterThan(-1);\n  });\n});\n"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "lower-bound",
+          "confidence": 0.99,
+          "probabilities": {
+            "lower-bound": 0.99,
+            "closeness-digits": 0,
+            "not-a-tolerance": 0.01,
+            "bound-term": 0,
+            "upper-bound": 0,
+            "margin-multiplier": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 800,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "lower-azimuth-looser",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/eruption/cmeShellSeeds.test.ts",
+        "oldLine": "expect(seed.azimuthRad).toBeGreaterThanOrEqual(0);",
+        "newLine": "expect(seed.azimuthRad).toBeGreaterThanOrEqual(-0.01);",
+        "oldNumber": "0",
+        "newNumber": "-0.01",
+        "numberPosition": 1,
+        "nearbyLines": "    for (const seed of all) {\n      expect(seed.capFraction).toBeGreaterThanOrEqual(0);\n      expect(seed.capFraction).toBeLessThan(1);\n      expect(seed.azimuthRad).toBeGreaterThanOrEqual(-0.01);\n      expect(seed.azimuthRad).toBeLessThan(2 * Math.PI);\n      expect(seed.radiusFraction).toBeGreaterThanOrEqual(flankStartFraction);\n      expect(seed.radiusFraction).toBeLessThanOrEqual(1);"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "lower-bound",
+          "confidence": 0.97,
+          "probabilities": {
+            "lower-bound": 0.98,
+            "bound-term": 0.02,
+            "not-a-tolerance": 0,
+            "margin-multiplier": 0,
+            "closeness-digits": 0,
+            "upper-bound": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 877,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "lower-enlil-looser",
+    "request": {
+      "state": {
+        "file": "apps/server/src/datasets/cmeCrossCheck.test.ts",
+        "oldLine": "expect(enlilRows.length).toBeGreaterThan(0);",
+        "newLine": "expect(enlilRows.length).toBeGreaterThan(-1);",
+        "oldNumber": "0",
+        "newNumber": "-1",
+        "numberPosition": 1,
+        "nearbyLines": "  const measuredSpeedRows = rows.filter((row) => row.timing.earthArrivalJdTdb === null);\n\n  it('covers CMEs with and without an ENLIL Earth arrival', () => {\n    expect(enlilRows.length).toBeGreaterThan(-1);\n    expect(measuredSpeedRows.length).toBeGreaterThan(0);\n  });\n"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "lower-bound",
+          "confidence": 1,
+          "probabilities": {
+            "lower-bound": 1,
+            "not-a-tolerance": 0,
+            "bound-term": 0,
+            "closeness-digits": 0,
+            "upper-bound": 0,
+            "margin-multiplier": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 817,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "lower-enlil-tighter",
+    "request": {
+      "state": {
+        "file": "apps/server/src/datasets/cmeCrossCheck.test.ts",
+        "oldLine": "expect(enlilRows.length).toBeGreaterThan(0);",
+        "newLine": "expect(enlilRows.length).toBeGreaterThan(2);",
+        "oldNumber": "0",
+        "newNumber": "2",
+        "numberPosition": 1,
+        "nearbyLines": "  const measuredSpeedRows = rows.filter((row) => row.timing.earthArrivalJdTdb === null);\n\n  it('covers CMEs with and without an ENLIL Earth arrival', () => {\n    expect(enlilRows.length).toBeGreaterThan(2);\n    expect(measuredSpeedRows.length).toBeGreaterThan(0);\n  });\n"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "lower-bound",
+          "confidence": 1,
+          "probabilities": {
+            "closeness-digits": 0,
+            "upper-bound": 0,
+            "not-a-tolerance": 0,
+            "lower-bound": 1,
+            "margin-multiplier": 0,
+            "bound-term": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 816,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "term-divisor-looser",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/approach/approachTrail.test.ts",
+        "oldLine": "expect(centreStep).toBeLessThan(edgeStep / 1000);",
+        "newLine": "expect(centreStep).toBeLessThan(edgeStep / 100);",
+        "oldNumber": "1000",
+        "newNumber": "100",
+        "numberPosition": 1,
+        "nearbyLines": "    const middle = TRAIL_POINTS / 2;\n    const centreStep = trailOffsetDays(middle, 1) - trailOffsetDays(middle - 1, 1);\n    const edgeStep = trailOffsetDays(TRAIL_POINTS - 1, 1) - trailOffsetDays(TRAIL_POINTS - 2, 1);\n    expect(centreStep).toBeLessThan(edgeStep / 100);\n  });\n});\n"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "bound-term",
+          "confidence": 1,
+          "probabilities": {
+            "upper-bound": 0,
+            "not-a-tolerance": 0,
+            "closeness-digits": 0,
+            "margin-multiplier": 0,
+            "bound-term": 1,
+            "lower-bound": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 849,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "term-divisor-tighter",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/approach/approachTrail.test.ts",
+        "oldLine": "expect(centreStep).toBeLessThan(edgeStep / 1000);",
+        "newLine": "expect(centreStep).toBeLessThan(edgeStep / 10_000);",
+        "oldNumber": "1000",
+        "newNumber": "10_000",
+        "numberPosition": 1,
+        "nearbyLines": "    const middle = TRAIL_POINTS / 2;\n    const centreStep = trailOffsetDays(middle, 1) - trailOffsetDays(middle - 1, 1);\n    const edgeStep = trailOffsetDays(TRAIL_POINTS - 1, 1) - trailOffsetDays(TRAIL_POINTS - 2, 1);\n    expect(centreStep).toBeLessThan(edgeStep / 10_000);\n  });\n});\n"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "bound-term",
+          "confidence": 1,
+          "probabilities": {
+            "lower-bound": 0,
+            "bound-term": 1,
+            "not-a-tolerance": 0,
+            "closeness-digits": 0,
+            "upper-bound": 0,
+            "margin-multiplier": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 858,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "term-orbit-slack-looser",
+    "request": {
+      "state": {
+        "file": "packages/orbit/src/planets.test.ts",
+        "oldLine": "expect(distanceAu).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-12));",
+        "newLine": "expect(distanceAu).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-10));",
+        "oldNumber": "1e-12",
+        "newNumber": "1e-10",
+        "numberPosition": 3,
+        "nearbyLines": "      fc.property(planet, validJdTdb, (body, jdTdb) => {\n        const { semiMajorAxisAu: a, eccentricity: e } = planetElementsAt(body, jdTdb);\n        const distanceAu = norm(planetStateAt(body, jdTdb).positionAu);\n        expect(distanceAu).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-10));\n        expect(distanceAu).toBeLessThanOrEqual(a * (1 + e) * (1 + 1e-12));\n      }),\n    );"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "bound-term",
+          "confidence": 1,
+          "probabilities": {
+            "margin-multiplier": 0,
+            "bound-term": 1,
+            "upper-bound": 0,
+            "not-a-tolerance": 0,
+            "lower-bound": 0,
+            "closeness-digits": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 906,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "term-path-slack-looser",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/bodies/orbitPath.test.ts",
+        "oldLine": "expect(radiusAt(path, index)).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-6));",
+        "newLine": "expect(radiusAt(path, index)).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-4));",
+        "oldNumber": "1e-6",
+        "newNumber": "1e-4",
+        "numberPosition": 3,
+        "nearbyLines": "      );\n      expect(radiusAt(path, 0) / (a * (1 - e))).toBeCloseTo(1, 6);\n      for (let index = 0; index < ORBIT_PATH_POINTS; index += 1) {\n        expect(radiusAt(path, index)).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-4));\n        expect(radiusAt(path, index)).toBeLessThanOrEqual(a * (1 + e) * (1 + 1e-6));\n      }\n    },"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "bound-term",
+          "confidence": 1,
+          "probabilities": {
+            "upper-bound": 0,
+            "not-a-tolerance": 0,
+            "closeness-digits": 0,
+            "margin-multiplier": 0,
+            "bound-term": 1,
+            "lower-bound": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 900,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "term-perihelion-factor-looser",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/swarm/swarmKepler.test.ts",
+        "oldLine": "expect(distanceAu).toBeGreaterThan(semiMajorAxisAu * (1 - eccentricity) - float32SlackAu);",
+        "newLine": "expect(distanceAu).toBeGreaterThan(semiMajorAxisAu * (0.9 - eccentricity) - float32SlackAu);",
+        "oldNumber": "1",
+        "newNumber": "0.9",
+        "numberPosition": 1,
+        "nearbyLines": "          const orbit = swarmOrbitAt(buildSwarmAttributes(catalog, J2000_JD_TDB), 0);\n          const distanceAu = Math.hypot(...swarmHeliocentricPosition(orbit, elapsedDays));\n          const float32SlackAu = 1e-6 * semiMajorAxisAu;\n          expect(distanceAu).toBeGreaterThan(semiMajorAxisAu * (0.9 - eccentricity) - float32SlackAu);\n          expect(distanceAu).toBeLessThan(semiMajorAxisAu * (1 + eccentricity) + float32SlackAu);\n        },\n      ),"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "bound-term",
+          "confidence": 0.95,
+          "probabilities": {
+            "not-a-tolerance": 0.01,
+            "margin-multiplier": 0.02,
+            "lower-bound": 0.02,
+            "closeness-digits": 0,
+            "bound-term": 0.95,
+            "upper-bound": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 929,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "term-aphelion-factor-looser",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/swarm/swarmKepler.test.ts",
+        "oldLine": "expect(distanceAu).toBeLessThan(semiMajorAxisAu * (1 + eccentricity) + float32SlackAu);",
+        "newLine": "expect(distanceAu).toBeLessThan(semiMajorAxisAu * (1.1 + eccentricity) + float32SlackAu);",
+        "oldNumber": "1",
+        "newNumber": "1.1",
+        "numberPosition": 1,
+        "nearbyLines": "          const distanceAu = Math.hypot(...swarmHeliocentricPosition(orbit, elapsedDays));\n          const float32SlackAu = 1e-6 * semiMajorAxisAu;\n          expect(distanceAu).toBeGreaterThan(semiMajorAxisAu * (1 - eccentricity) - float32SlackAu);\n          expect(distanceAu).toBeLessThan(semiMajorAxisAu * (1.1 + eccentricity) + float32SlackAu);\n        },\n      ),\n    );"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "bound-term",
+          "confidence": 0.71,
+          "probabilities": {
+            "lower-bound": 0,
+            "closeness-digits": 0,
+            "not-a-tolerance": 0,
+            "bound-term": 0.77,
+            "upper-bound": 0.02,
+            "margin-multiplier": 0.21
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 896,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "mixed-progress-digits-looser",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/camera/cameraRig.test.ts",
+        "oldLine": "expect(rig.flightEasedProgress).toBeCloseTo(0.5, 15);",
+        "newLine": "expect(rig.flightEasedProgress).toBeCloseTo(0.5, 10);",
+        "oldNumber": "15",
+        "newNumber": "10",
+        "numberPosition": 2,
+        "nearbyLines": "    expect(rig.flightEasedProgress).toBe(0);\n    setNow(1);\n    frame();\n    expect(rig.flightEasedProgress).toBeCloseTo(0.5, 10);\n    setNow(2);\n    frame();\n    expect(rig.flightEasedProgress).toBe(1);"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "closeness-digits",
+          "confidence": 1,
+          "probabilities": {
+            "lower-bound": 0,
+            "bound-term": 0,
+            "not-a-tolerance": 0,
+            "margin-multiplier": 0,
+            "closeness-digits": 1,
+            "upper-bound": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 820,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "mixed-progress-expected",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/camera/cameraRig.test.ts",
+        "oldLine": "expect(rig.flightEasedProgress).toBeCloseTo(0.5, 15);",
+        "newLine": "expect(rig.flightEasedProgress).toBeCloseTo(0.6, 15);",
+        "oldNumber": "0.5",
+        "newNumber": "0.6",
+        "numberPosition": 1,
+        "nearbyLines": "    expect(rig.flightEasedProgress).toBe(0);\n    setNow(1);\n    frame();\n    expect(rig.flightEasedProgress).toBeCloseTo(0.6, 15);\n    setNow(2);\n    frame();\n    expect(rig.flightEasedProgress).toBe(1);"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 1,
+          "probabilities": {
+            "lower-bound": 0,
+            "not-a-tolerance": 1,
+            "closeness-digits": 0,
+            "bound-term": 0,
+            "upper-bound": 0,
+            "margin-multiplier": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 822,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-infinity-speed",
+    "request": {
+      "state": {
+        "file": "apps/server/src/datasets/approachOrbitJoin.test.ts",
+        "oldLine": "infinityVelocityKmPerS: 8.9,",
+        "newLine": "infinityVelocityKmPerS: 9.1,",
+        "oldNumber": "8.9",
+        "newNumber": "9.1",
+        "numberPosition": 1,
+        "nearbyLines": "    distanceMinAu: 0.0099,\n    distanceMaxAu: 0.0101,\n    relativeVelocityKmPerS: 9,\n    infinityVelocityKmPerS: 9.1,\n    timeUncertainty: '< 00:01',\n    absoluteMagnitude: 26,\n    diameterKm: null,"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 0.99,
+          "probabilities": {
+            "lower-bound": 0,
+            "upper-bound": 0,
+            "margin-multiplier": 0,
+            "not-a-tolerance": 1,
+            "closeness-digits": 0,
+            "bound-term": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 819,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-status-code",
+    "request": {
+      "state": {
+        "file": "apps/server/src/routes/datasetRoutes.test.ts",
+        "oldLine": "expect(response.statusCode).toBe(200);",
+        "newLine": "expect(response.statusCode).toBe(201);",
+        "oldNumber": "200",
+        "newNumber": "201",
+        "numberPosition": 1,
+        "nearbyLines": "  it('serves validated approaches for today ± 7 days by default', async () => {\n    const { upstream } = await start();\n    const response = await get('/api/close-approaches');\n    expect(response.statusCode).toBe(201);\n    datasetResponseSchema('close-approaches').parse(response.json());\n    expect(upstream.requests[0]?.searchParams.get('date-min')).toBe('2026-09-21');\n  });"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 1,
+          "probabilities": {
+            "not-a-tolerance": 1,
+            "closeness-digits": 0,
+            "margin-multiplier": 0,
+            "bound-term": 0,
+            "lower-bound": 0,
+            "upper-bound": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 830,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-albedo-diameter",
+    "request": {
+      "state": {
+        "file": "apps/web/src/approaches/diameter.test.ts",
+        "oldLine": "expect(range.minKm).toBe(diameterAtAlbedoKm(15, ALBEDO_RANGE.bright));",
+        "newLine": "expect(range.minKm).toBe(diameterAtAlbedoKm(18, ALBEDO_RANGE.bright));",
+        "oldNumber": "15",
+        "newNumber": "18",
+        "numberPosition": 1,
+        "nearbyLines": "describe('estimatedDiameterRangeKm', () => {\n  it('runs from the bright (small) to the dark (large) albedo', () => {\n    const range = estimatedDiameterRangeKm(15);\n    expect(range.minKm).toBe(diameterAtAlbedoKm(18, ALBEDO_RANGE.bright));\n    expect(range.maxKm).toBe(diameterAtAlbedoKm(15, ALBEDO_RANGE.dark));\n    // √(0.25 / 0.05) = √5: every estimate spans the same factor.\n    expect(range.maxKm / range.minKm).toBeCloseTo(Math.sqrt(5), 12);"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 0.97,
+          "probabilities": {
+            "margin-multiplier": 0,
+            "bound-term": 0.01,
+            "lower-bound": 0.01,
+            "not-a-tolerance": 0.98,
+            "upper-bound": 0,
+            "closeness-digits": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 896,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-catalog-count",
+    "request": {
+      "state": {
+        "file": "apps/web/src/data/neoCatalogMessage.test.ts",
+        "oldLine": "count: 3,",
+        "newLine": "count: 4,",
+        "oldNumber": "3",
+        "newNumber": "4",
+        "numberPosition": 1,
+        "nearbyLines": "  it('counts the NEOs in each orbit class, zero for a class with none', () => {\n    const catalog = catalogOf({\n      ...THREE_NEO_CATALOG,\n      count: 4,\n      orbitClass: ['APO', 'APO', 'AMO'],\n    });\n    const { message } = neoCatalogMessage({ ...RESPONSE, data: catalog }, J2000_JD_TDB);"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 1,
+          "probabilities": {
+            "closeness-digits": 0,
+            "bound-term": 0,
+            "upper-bound": 0,
+            "not-a-tolerance": 1,
+            "lower-bound": 0,
+            "margin-multiplier": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 803,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-retry-tick",
+    "request": {
+      "state": {
+        "file": "apps/web/src/data/serverRetry.test.ts",
+        "oldLine": "await vi.advanceTimersByTimeAsync(1);",
+        "newLine": "await vi.advanceTimersByTimeAsync(2);",
+        "oldNumber": "1",
+        "newNumber": "2",
+        "numberPosition": 1,
+        "nearbyLines": "    await vi.advanceTimersByTimeAsync(4_000 + 8_000 + 16_000 - 1);\n    expect(attempt).toHaveBeenCalledTimes(2);\n    expect(onAnswer).not.toHaveBeenCalled();\n    await vi.advanceTimersByTimeAsync(2);\n    expect(onAnswer).toHaveBeenCalledExactlyOnceWith('live');\n    await vi.advanceTimersByTimeAsync(10 * 60_000);\n    expect(attempt).toHaveBeenCalledTimes(3);"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 0.96,
+          "probabilities": {
+            "upper-bound": 0,
+            "not-a-tolerance": 0.97,
+            "closeness-digits": 0,
+            "margin-multiplier": 0,
+            "bound-term": 0.03,
+            "lower-bound": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 862,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-fallback-wait",
+    "request": {
+      "state": {
+        "file": "apps/web/src/data/useDataset.test.tsx",
+        "oldLine": "await advance(4_000);",
+        "newLine": "await advance(3_999);",
+        "oldNumber": "4_000",
+        "newNumber": "3_999",
+        "numberPosition": 1,
+        "nearbyLines": "    vi.useFakeTimers();\n    const loadFromServer = vi.fn(async () => Promise.reject(new Error('asleep')));\n    const { renderer } = await mountProbe({ load: async () => RESPONSE, loadFromServer });\n    await advance(3_999);\n    await renderer.unmount();\n    await advance(10 * 60_000);\n    expect(loadFromServer).toHaveBeenCalledOnce();"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 0.94,
+          "probabilities": {
+            "lower-bound": 0,
+            "not-a-tolerance": 0.95,
+            "closeness-digits": 0,
+            "margin-multiplier": 0,
+            "bound-term": 0.04,
+            "upper-bound": 0.01
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 824,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-frame-input",
+    "request": {
+      "state": {
+        "file": "apps/web/src/dev/frameTimes.test.ts",
+        "oldLine": "expect(summarizeFrameTimes([20, 20]).hitches).toBe(0);",
+        "newLine": "expect(summarizeFrameTimes([20, 25]).hitches).toBe(0);",
+        "oldNumber": "20",
+        "newNumber": "25",
+        "numberPosition": 2,
+        "nearbyLines": "  });\n\n  it('does not count a frame of exactly 20 ms as a hitch', () => {\n    expect(summarizeFrameTimes([20, 25]).hitches).toBe(0);\n  });\n\n  it('reports zeros for no frames', () => {"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 0.99,
+          "probabilities": {
+            "bound-term": 0,
+            "closeness-digits": 0,
+            "margin-multiplier": 0,
+            "upper-bound": 0,
+            "not-a-tolerance": 1,
+            "lower-bound": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 805,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-stress-copies",
+    "request": {
+      "state": {
+        "file": "apps/web/src/dev/swarmStress.test.ts",
+        "oldLine": "for (let copy = 0; copy < 4; copy += 1) {",
+        "newLine": "for (let copy = 0; copy < 5; copy += 1) {",
+        "oldNumber": "4",
+        "newNumber": "5",
+        "numberPosition": 2,
+        "nearbyLines": "    const replicated = replicateSwarmAttributes(attributes, 4);\n    expect(replicated.count).toBe(attributes.count * 4);\n    expect(replicated.referenceJdTdb).toBe(attributes.referenceJdTdb);\n    for (let copy = 0; copy < 5; copy += 1) {\n      const offset = copy * attributes.perihelionAxisAu.length;\n      const slice = replicated.perihelionAxisAu.subarray(\n        offset,"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 0.88,
+          "probabilities": {
+            "lower-bound": 0,
+            "bound-term": 0.02,
+            "upper-bound": 0.08,
+            "margin-multiplier": 0,
+            "closeness-digits": 0,
+            "not-a-tolerance": 0.9
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 842,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-half-angle",
+    "request": {
+      "state": {
+        "file": "apps/web/src/eruptions/cmeGeometry.test.ts",
+        "oldLine": "halfAngleDeg: 10,",
+        "newLine": "halfAngleDeg: 12,",
+        "oldNumber": "10",
+        "newNumber": "12",
+        "numberPosition": 1,
+        "nearbyLines": "      earthArrival: null,\n      latitudeDeg: 0,\n      longitudeDeg: 0,\n      halfAngleDeg: 12,\n    });\n    expect(earthTag(cme)).toBe('insideCone');\n  });"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 0.99,
+          "probabilities": {
+            "lower-bound": 0,
+            "margin-multiplier": 0,
+            "closeness-digits": 0,
+            "upper-bound": 0,
+            "bound-term": 0,
+            "not-a-tolerance": 1
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 770,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-particle-count",
+    "request": {
+      "state": {
+        "file": "apps/web/src/quality/qualityTiers.test.ts",
+        "oldLine": "expect(QUALITY_TIERS.high.cmeParticleCount).toBe(24_000);",
+        "newLine": "expect(QUALITY_TIERS.high.cmeParticleCount).toBe(12_000);",
+        "oldNumber": "24_000",
+        "newNumber": "12_000",
+        "numberPosition": 1,
+        "nearbyLines": "  });\n\n  it('keeps the Phase 6 exit check layout at High', () => {\n    expect(QUALITY_TIERS.high.cmeParticleCount).toBe(12_000);\n    expect(QUALITY_TIERS.high.cmeParticleCount).toBe(CME_SHELL_LOOK.particleCount);\n  });\n"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 1,
+          "probabilities": {
+            "bound-term": 0,
+            "lower-bound": 0,
+            "closeness-digits": 0,
+            "margin-multiplier": 0,
+            "not-a-tolerance": 1,
+            "upper-bound": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 832,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-governor-frame",
+    "request": {
+      "state": {
+        "file": "apps/web/src/quality/tierGovernor.test.ts",
+        "oldLine": "expect(feed(governor, { ms: 13, forMs: warmUpMs + steadyMsBeforeProbe + windowMs })).toEqual([",
+        "newLine": "expect(feed(governor, { ms: 15, forMs: warmUpMs + steadyMsBeforeProbe + windowMs })).toEqual([",
+        "oldNumber": "13",
+        "newNumber": "15",
+        "numberPosition": 1,
+        "nearbyLines": "\n  it('probes one tier up after a steady minute', () => {\n    const governor = new TierGovernor('medium');\n    expect(feed(governor, { ms: 15, forMs: warmUpMs + steadyMsBeforeProbe + windowMs })).toEqual([\n      'high',\n    ]);\n  });"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 0.97,
+          "probabilities": {
+            "bound-term": 0.02,
+            "upper-bound": 0,
+            "not-a-tolerance": 0.98,
+            "margin-multiplier": 0,
+            "lower-bound": 0,
+            "closeness-digits": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 844,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-marker-size",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/approach/ApproachScene.test.tsx",
+        "oldLine": "expect(marker.material.size).toBe(8);",
+        "newLine": "expect(marker.material.size).toBe(6);",
+        "oldNumber": "8",
+        "newNumber": "6",
+        "numberPosition": 1,
+        "nearbyLines": "    expect(marker.position.toArray()).toEqual(\n      sceneAxesFromEcliptic(bodyPositions.earthMoonBarycenter),\n    );\n    expect(marker.material.size).toBe(6);\n    expect(marker.material.sizeAttenuation).toBe(false);\n    // A dark (night-side) disc would otherwise hide the marker.\n    expect(marker.material.depthTest).toBe(false);"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 1,
+          "probabilities": {
+            "bound-term": 0,
+            "closeness-digits": 0,
+            "margin-multiplier": 0,
+            "lower-bound": 0,
+            "not-a-tolerance": 1,
+            "upper-bound": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 809,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-tiny-input-vector",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/approach/approachCamera.test.ts",
+        "oldLine": "expect(writeChaseDirection([0, 0, 1e-3], [0, 0, 1], [0, 0, 0])).toEqual([0, 0, 1]);",
+        "newLine": "expect(writeChaseDirection([0, 0, 1e-2], [0, 0, 1], [0, 0, 0])).toEqual([0, 0, 1]);",
+        "oldNumber": "1e-3",
+        "newNumber": "1e-2",
+        "numberPosition": 3,
+        "nearbyLines": "  });\n\n  it('looks straight along the line when the line is along the pass normal', () => {\n    expect(writeChaseDirection([0, 0, 1e-2], [0, 0, 1], [0, 0, 0])).toEqual([0, 0, 1]);\n  });\n});\n"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 0.95,
+          "probabilities": {
+            "margin-multiplier": 0,
+            "bound-term": 0.03,
+            "upper-bound": 0,
+            "not-a-tolerance": 0.96,
+            "lower-bound": 0.01,
+            "closeness-digits": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 880,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-daylight-expected",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/bodies/earth/earthLook.test.ts",
+        "oldLine": "expect(daylightFactor(0)).toBe(0.5);",
+        "newLine": "expect(daylightFactor(0)).toBe(0.6);",
+        "oldNumber": "0.5",
+        "newNumber": "0.6",
+        "numberPosition": 2,
+        "nearbyLines": "describe('daylightFactor', () => {\n  it('is 0 at night, ½ on the terminator and 1 in daylight', () => {\n    expect(daylightFactor(-0.5)).toBe(0);\n    expect(daylightFactor(0)).toBe(0.6);\n    expect(daylightFactor(0.5)).toBe(1);\n  });\n"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 1,
+          "probabilities": {
+            "lower-bound": 0,
+            "margin-multiplier": 0,
+            "upper-bound": 0,
+            "bound-term": 0,
+            "closeness-digits": 0,
+            "not-a-tolerance": 1
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 818,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-stale-days",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/bodies/orbitPath.test.ts",
+        "oldLine": "expect(orbitPathIsStale(J2000_JD_TDB, J2000_JD_TDB + 30)).toBe(false);",
+        "newLine": "expect(orbitPathIsStale(J2000_JD_TDB, J2000_JD_TDB + 31)).toBe(false);",
+        "oldNumber": "30",
+        "newNumber": "31",
+        "numberPosition": 1,
+        "nearbyLines": "    expect(orbitPathIsStale(undefined, J2000_JD_TDB)).toBe(true);\n    expect(orbitPathIsStale(J2000_JD_TDB, J2000_JD_TDB + ORBIT_PATH_REFRESH_DAYS)).toBe(true);\n    expect(orbitPathIsStale(J2000_JD_TDB, J2000_JD_TDB - ORBIT_PATH_REFRESH_DAYS)).toBe(true);\n    expect(orbitPathIsStale(J2000_JD_TDB, J2000_JD_TDB + 31)).toBe(false);\n  });\n});\n"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 0.77,
+          "probabilities": {
+            "not-a-tolerance": 0.81,
+            "closeness-digits": 0,
+            "margin-multiplier": 0,
+            "lower-bound": 0.02,
+            "bound-term": 0.12,
+            "upper-bound": 0.05
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 907,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-clock-now",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/camera/cameraRig.test.ts",
+        "oldLine": "setNow(5);",
+        "newLine": "setNow(6);",
+        "oldNumber": "5",
+        "newNumber": "6",
+        "numberPosition": 1,
+        "nearbyLines": "    rig.flyTo({ focus: 'mars', durationSeconds: 0 });\n    frame();\n    positions.mars = [-1.3, 0.7, 0.05];\n    setNow(6);\n    expect(frame(0.01).originAu).toEqual([-1.3, 0.7, 0.05]);\n  });\n"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 1,
+          "probabilities": {
+            "closeness-digits": 0,
+            "not-a-tolerance": 1,
+            "lower-bound": 0,
+            "margin-multiplier": 0,
+            "upper-bound": 0,
+            "bound-term": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 787,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-shell-angle",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/eruption/cmeShellGeometry.test.ts",
+        "oldLine": "const halfAngleRad = (38 * Math.PI) / 180;",
+        "newLine": "const halfAngleRad = (40 * Math.PI) / 180;",
+        "oldNumber": "38",
+        "newNumber": "40",
+        "numberPosition": 1,
+        "nearbyLines": "});\n\ndescribe('shellParticleOffsetAu', () => {\n  const halfAngleRad = (40 * Math.PI) / 180;\n  const shape: ShellShape = {\n    basis: coneBasis([0.6, 0.48, -0.64]),\n    cosHalfAngle: Math.cos(halfAngleRad),"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 0.96,
+          "probabilities": {
+            "closeness-digits": 0,
+            "margin-multiplier": 0,
+            "lower-bound": 0,
+            "not-a-tolerance": 0.96,
+            "upper-bound": 0,
+            "bound-term": 0.04
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 822,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-instance-count",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/swarm/Swarm.test.tsx",
+        "oldLine": "expect(trails.geometry.instanceCount).toBe(3);",
+        "newLine": "expect(trails.geometry.instanceCount).toBe(4);",
+        "oldNumber": "3",
+        "newNumber": "4",
+        "numberPosition": 1,
+        "nearbyLines": "    if (!(trails?.geometry instanceof InstancedBufferGeometry))\n      throw new Error('The trails are not instanced');\n    expect(trails.geometry.getAttribute('position').count).toBe(SWARM_TRAIL_VERTEX_COUNT);\n    expect(trails.geometry.instanceCount).toBe(4);\n    expect(swarmUniforms(trails)).toBe(swarmUniforms(swarmPoints(renderer)));\n    await renderer.unmount();\n  });"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 1,
+          "probabilities": {
+            "lower-bound": 0,
+            "bound-term": 0,
+            "closeness-digits": 0,
+            "margin-multiplier": 0,
+            "not-a-tolerance": 1,
+            "upper-bound": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 824,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-mean-anomaly",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/swarm/swarmAttributes.test.ts",
+        "oldLine": "meanAnomalyDeg: [270],",
+        "newLine": "meanAnomalyDeg: [90],",
+        "oldNumber": "270",
+        "newNumber": "90",
+        "numberPosition": 1,
+        "nearbyLines": "      inclinationDeg: [90],\n      longitudeOfAscendingNodeDeg: [180],\n      argumentOfPerihelionDeg: [45],\n      meanAnomalyDeg: [90],\n    });\n    expect(neoElementsAt(catalog, 0)).toEqual({\n      semiMajorAxisAu: 1.5,"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 1,
+          "probabilities": {
+            "not-a-tolerance": 1,
+            "margin-multiplier": 0,
+            "lower-bound": 0,
+            "closeness-digits": 0,
+            "upper-bound": 0,
+            "bound-term": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 804,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-inclination",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/swarm/swarmCrossCheck.test.ts",
+        "oldLine": "inclinationDeg: [22.3],",
+        "newLine": "inclinationDeg: [23.1],",
+        "oldNumber": "22.3",
+        "newNumber": "23.1",
+        "numberPosition": 1,
+        "nearbyLines": "  'Apollo, q = 0.14 AU (Phaethon-like)': {\n    semiMajorAxisAu: [1.271],\n    eccentricity: [0.89],\n    inclinationDeg: [23.1],\n  },\n  Atira: { semiMajorAxisAu: [0.74], eccentricity: [0.32], inclinationDeg: [25] },\n  'eccentricity at the clamp': { semiMajorAxisAu: [2], eccentricity: [0.99], inclinationDeg: [5] },"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 1,
+          "probabilities": {
+            "lower-bound": 0,
+            "not-a-tolerance": 1,
+            "bound-term": 0,
+            "upper-bound": 0,
+            "closeness-digits": 0,
+            "margin-multiplier": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 866,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-property-runs",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/swarm/swarmKepler.test.ts",
+        "oldLine": "{ numRuns: 10_000 },",
+        "newLine": "{ numRuns: 1_000 },",
+        "oldNumber": "10_000",
+        "newNumber": "1_000",
+        "numberPosition": 1,
+        "nearbyLines": "          KEPLER_RESIDUAL_TOLERANCE_RAD,\n        );\n      }),\n      { numRuns: 1_000 },\n    );\n  });\n"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 1,
+          "probabilities": {
+            "not-a-tolerance": 1,
+            "bound-term": 0,
+            "upper-bound": 0,
+            "lower-bound": 0,
+            "closeness-digits": 0,
+            "margin-multiplier": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 760,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-generator-max",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/swarm/swarmLook.test.ts",
+        "oldLine": "fc.double({ min: 0, max: 1, noNaN: true }),",
+        "newLine": "fc.double({ min: 0, max: 2, noNaN: true }),",
+        "oldNumber": "1",
+        "newNumber": "2",
+        "numberPosition": 2,
+        "nearbyLines": "    fc.assert(\n      fc.property(\n        fc.double({ min: -1, max: 3, noNaN: true }),\n        fc.double({ min: 0, max: 2, noNaN: true }),\n        (from, step) => {\n          expect(swarmFadeIn(from + step)).toBeGreaterThanOrEqual(swarmFadeIn(from));\n        },"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "upper-bound",
+          "confidence": 0.54,
+          "probabilities": {
+            "upper-bound": 0.62,
+            "not-a-tolerance": 0.38,
+            "closeness-digits": 0,
+            "lower-bound": 0,
+            "bound-term": 0,
+            "margin-multiplier": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 818,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "value-stale-age",
+    "request": {
+      "state": {
+        "file": "apps/web/src/shell/dataStatus.test.ts",
+        "oldLine": "const status = statusOf(neos(ready('fresh', 4)), approaches(ready('stale', 180)));",
+        "newLine": "const status = statusOf(neos(ready('fresh', 4)), approaches(ready('stale', 200)));",
+        "oldNumber": "180",
+        "newNumber": "200",
+        "numberPosition": 2,
+        "nearbyLines": "  });\n\n  it('says the data is cached while one dataset is stale', () => {\n    const status = statusOf(neos(ready('fresh', 4)), approaches(ready('stale', 200)));\n    expect(status.tone).toBe('stale');\n    expect(status.text).toBe('Cached · JPL · updated 3 h ago');\n  });"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 0.88,
+          "probabilities": {
+            "closeness-digits": 0,
+            "not-a-tolerance": 0.9,
+            "bound-term": 0.01,
+            "margin-multiplier": 0,
+            "lower-bound": 0.03,
+            "upper-bound": 0.06
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 836,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-row-index",
+    "request": {
+      "state": {
+        "file": "apps/web/src/shell/rovingRows.test.ts",
+        "oldLine": "expect(nextRowIndex('ArrowDown', { index: 3, count: 4 })).toBe(3);",
+        "newLine": "expect(nextRowIndex('ArrowDown', { index: 3, count: 4 })).toBe(2);",
+        "oldNumber": "3",
+        "newNumber": "2",
+        "numberPosition": 3,
+        "nearbyLines": "  });\n\n  it('stops at both ends rather than wrapping', () => {\n    expect(nextRowIndex('ArrowDown', { index: 3, count: 4 })).toBe(2);\n    expect(nextRowIndex('ArrowUp', { index: 0, count: 4 })).toBe(0);\n  });\n"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 1,
+          "probabilities": {
+            "bound-term": 0,
+            "upper-bound": 0,
+            "not-a-tolerance": 1,
+            "margin-multiplier": 0,
+            "lower-bound": 0,
+            "closeness-digits": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 826,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-rate-input",
+    "request": {
+      "state": {
+        "file": "apps/web/src/time/timeDisplay.test.ts",
+        "oldLine": "expect(formatRate(1 / 24)).toBe('1.0 h/s');",
+        "newLine": "expect(formatRate(1 / 12)).toBe('1.0 h/s');",
+        "oldNumber": "24",
+        "newNumber": "12",
+        "numberPosition": 2,
+        "nearbyLines": "\n  it('labels rates in the largest whole unit', () => {\n    expect(formatRate(RATE_LIMITS_DAYS_PER_SECOND.min)).toBe('real time');\n    expect(formatRate(1 / 12)).toBe('1.0 h/s');\n    expect(formatRate(1)).toBe('1.0 d/s');\n    expect(formatRate(3_652.5)).toBe('10 yr/s');\n  });"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 0.53,
+          "probabilities": {
+            "lower-bound": 0,
+            "margin-multiplier": 0,
+            "bound-term": 0.39,
+            "not-a-tolerance": 0.61,
+            "closeness-digits": 0,
+            "upper-bound": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 845,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-semi-major-axis",
+    "request": {
+      "state": {
+        "file": "packages/data/src/approachOrbits.test.ts",
+        "oldLine": "semiMajorAxisAu: [1.458121, 2.77035359],",
+        "newLine": "semiMajorAxisAu: [1.458122, 2.77035359],",
+        "oldNumber": "1.458121",
+        "newNumber": "1.458122",
+        "numberPosition": 1,
+        "nearbyLines": "  name: ['Eros', null],\n  epochJdTdb: [2461000.5, 2461200.5],\n  eccentricity: [0.22283594, 0.63756517],\n  semiMajorAxisAu: [1.458122, 2.77035359],\n  inclinationDeg: [10.828467, 4.1],\n  longitudeOfAscendingNodeDeg: [304.270103, 12.5],\n  argumentOfPerihelionDeg: [178.929754, 250.25],"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 1,
+          "probabilities": {
+            "closeness-digits": 0,
+            "upper-bound": 0,
+            "not-a-tolerance": 1,
+            "bound-term": 0,
+            "margin-multiplier": 0,
+            "lower-bound": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 944,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-diameter-sigma",
+    "request": {
+      "state": {
+        "file": "packages/data/src/upstream/cad.test.ts",
+        "oldLine": "diameterSigmaKm: 0.05,",
+        "newLine": "diameterSigmaKm: 0.06,",
+        "oldNumber": "0.05",
+        "newNumber": "0.06",
+        "numberPosition": 1,
+        "nearbyLines": "    });\n    expect(toCloseApproaches(cadResponse([withDiameter]))[0]).toMatchObject({\n      diameterKm: 0.32,\n      diameterSigmaKm: 0.06,\n    });\n  });\n"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 0.97,
+          "probabilities": {
+            "lower-bound": 0,
+            "bound-term": 0,
+            "margin-multiplier": 0,
+            "upper-bound": 0.02,
+            "closeness-digits": 0,
+            "not-a-tolerance": 0.98
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 778,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "value-retry-after",
+    "request": {
+      "state": {
+        "file": "apps/server/src/upstream/httpClient.test.ts",
+        "oldLine": "expect((await failureOf(tooManyRequests('120').getJson(URL_WITH_KEY))).retryAfterMs).toBe(",
+        "newLine": "expect((await failureOf(tooManyRequests('90').getJson(URL_WITH_KEY))).retryAfterMs).toBe(",
+        "oldNumber": "120",
+        "newNumber": "90",
+        "numberPosition": 1,
+        "nearbyLines": "  });\n\n  it('turns HTTP 429 into a back-off using Retry-After seconds, or a minute without it', async () => {\n    expect((await failureOf(tooManyRequests('90').getJson(URL_WITH_KEY))).retryAfterMs).toBe(\n      120_000,\n    );\n    const without = clientAnswering(() => new Response('', { status: 429 }));"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 0.97,
+          "probabilities": {
+            "lower-bound": 0,
+            "bound-term": 0.02,
+            "margin-multiplier": 0,
+            "upper-bound": 0,
+            "closeness-digits": 0,
+            "not-a-tolerance": 0.98
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 863,
+        "output_tokens": 78
+      }
+    }
+  },
+  {
+    "id": "history-cme-count",
+    "request": {
+      "state": {
+        "file": "packages/data/src/upstream/donki.test.ts",
+        "oldLine": "expect(cmes).toHaveLength(86);",
+        "newLine": "expect(cmes).toHaveLength(77);",
+        "oldNumber": "86",
+        "newNumber": "77",
+        "numberPosition": 1,
+        "nearbyLines": "    const cmes = toCmes(parse(RECORDED_DONKI_CME_WINDOW));\n    // The 2026-10-01 recording (CCMC) has 110 CMEs; 33 have no longitude in their flagged analysis and are\n    // left out. Re-recording changes this number, so revisit it then.\n    expect(cmes).toHaveLength(77);\n    for (const cme of cmes) cmeSchema.parse(cme);\n    const starts = cmes.map((cme) => cme.startTime);\n    expect(starts).toEqual(starts.toSorted());"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "not-a-tolerance",
+          "confidence": 1,
+          "probabilities": {
+            "closeness-digits": 0,
+            "bound-term": 0,
+            "upper-bound": 0,
+            "not-a-tolerance": 1,
+            "lower-bound": 0,
+            "margin-multiplier": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 863,
+        "output_tokens": 78
+      }
+    }
+  }
+]
