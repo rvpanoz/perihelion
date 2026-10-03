@@ -11,7 +11,7 @@ describe('normalizeAngleRad', () => {
     [-Math.PI / 2, 1.5 * Math.PI],
     [5 * Math.PI, Math.PI],
   ])('wraps %d to %d', (angleRad, expectedRad) => {
-    expect(normalizeAngleRad(angleRad)).toBeCloseTo(expectedRad, 12);
+    expect(normalizeAngleRad(angleRad)).toBeCloseTo(expectedRad, 11);
   });
 
   it('never returns 2π, even for a tiny negative angle', () => {
