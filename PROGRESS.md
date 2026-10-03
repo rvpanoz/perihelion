@@ -1,7 +1,7 @@
 # PROGRESS
 
 **Current phase:** Phase 7: Polish & ship (in progress)
-**Last updated:** 2026-10-03
+**Last updated:** 2026-10-04
 
 ## Phase status
 
@@ -320,6 +320,7 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 - [x] Responsive layout, touch and scrollbars (#133)
 - [x] Accessibility and reduced motion (#134)
 - [x] Help dialog, orbit-class legend, first-visit hint and credits (#135)
+- [ ] Visual polish: soft sprites, Line2 orbits, real starfield, anti-aliasing (#152)
 - [ ] Deploy: Netlify and Render (#136)
 - [x] Jev PR review: fixtures, tolerances and commit messages (#148)
 - [ ] Exit verification (#137)
