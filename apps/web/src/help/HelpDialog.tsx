@@ -57,7 +57,7 @@ export interface HelpTabsProps {
 /** The WAI-ARIA APG tabs pattern. Every panel is rendered and the unselected ones hidden, so each tab controls one. */
 export function HelpTabs({ selectedId, onSelect }: HelpTabsProps) {
   const baseId = useId();
-  const onKeyDown = useTabKeys({ selectedId, onSelect, baseId });
+  const onKeyDown = tabKeyHandler({ selectedId, onSelect, baseId });
   return (
     <div className="help-tabs">
       <div role="tablist" aria-label="Guide sections" onKeyDown={onKeyDown}>
@@ -79,7 +79,7 @@ export function HelpTabs({ selectedId, onSelect }: HelpTabsProps) {
 }
 
 /** Arrows, Home and End select and focus another tab; the tabs are found by id, so no refs are threaded through. */
-function useTabKeys({ selectedId, onSelect, baseId }: HelpTabsProps & { baseId: string }) {
+function tabKeyHandler({ selectedId, onSelect, baseId }: HelpTabsProps & { baseId: string }) {
   return (event: KeyboardEvent<HTMLElement>) => {
     const index = HELP_TABS.findIndex((tab) => tab.id === selectedId);
     const next = nextTabIndex(event.key, { index, count: HELP_TABS.length });

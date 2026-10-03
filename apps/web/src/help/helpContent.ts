@@ -136,7 +136,9 @@ const GLOSSARY: HelpTab = {
 const CREDITS: HelpTab = {
   id: 'credits',
   title: 'Credits',
-  intro: ['Perihelion uses no API keys and calls these services only through its own data server.'],
+  intro: [
+    'The data, imagery and software Perihelion is built on. Live data reaches the app only through Perihelion’s own server, and none of these sources needs an API key.',
+  ],
   entries: [
     ...LIVE_DATA_SOURCES.map(({ name, href, use }) => ({ term: name, text: use, link: href })),
     {
