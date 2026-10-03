@@ -16,7 +16,7 @@ describe('isBlocked', () => {
   });
 
   it('never blocks on message findings or an empty review', () => {
-    const messages = { findings: [MESSAGE_FINDING], jevUnavailable: true };
+    const messages = { findings: [MESSAGE_FINDING], jevUnavailable: true, jevFailure: null };
 
     expect(isBlocked(reviewResult({ messages }))).toBe(false);
     expect(isBlocked(reviewResult())).toBe(false);

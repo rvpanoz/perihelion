@@ -18,6 +18,8 @@ export interface MessageFinding {
 export interface MessageReview {
   findings: MessageFinding[];
   jevUnavailable: boolean;
+  /** Why Jev could not answer (never the key): tells a bad secret from an outage. */
+  jevFailure: string | null;
 }
 
 interface MessageInput {
@@ -41,7 +43,13 @@ export async function reviewMessages(input: MessageInput, jev: JevClient): Promi
   return {
     findings: [...codeFindings(input), ...judged],
     jevUnavailable: results.some((result) => !result.ok),
+    jevFailure: firstFailure(results),
   };
+}
+
+function firstFailure(results: readonly JevResult[]): string | null {
+  for (const result of results) if (!result.ok) return result.reason;
+  return null;
 }
 
 function questionsFor({ commits, prBody }: MessageInput): Question[] {

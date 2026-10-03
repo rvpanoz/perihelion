@@ -26,6 +26,7 @@ describe('reviewMessages', () => {
 
     expect(review).toEqual({
       jevUnavailable: false,
+      jevFailure: null,
       findings: [
         {
           subject: '0123456 Address review comments',
@@ -98,6 +99,7 @@ describe('reviewMessages', () => {
     const review = await reviewMessages({ commits: [COMMIT], prBody: 'No link' }, down);
 
     expect(review.jevUnavailable).toBe(true);
+    expect(review.jevFailure).toBe('HTTP 529');
     expect(review.findings.map((finding) => finding.problem)).toEqual([
       'has no `Closes #N` link to its issue',
     ]);

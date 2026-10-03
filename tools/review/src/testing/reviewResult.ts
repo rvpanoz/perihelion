@@ -13,7 +13,7 @@ export function reviewResult(overrides: Partial<ReviewResult> = {}): ReviewResul
   return {
     fixtureFiles: [],
     tolerances: [],
-    messages: { findings: [], jevUnavailable: false },
+    messages: { findings: [], jevUnavailable: false, jevFailure: null },
     approved: false,
     approvedFingerprint: null,
     approvalRevoked: false,

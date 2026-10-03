@@ -75,7 +75,10 @@ function toleranceRow({ change, judgement, reason, detail }: ToleranceFinding): 
 }
 
 function messageSection(messages: MessageReview): string[] {
-  const skipped = messages.jevUnavailable ? ['Message check skipped: Jev unavailable.'] : [];
+  const reason = messages.jevFailure ? ` (${messages.jevFailure})` : '';
+  const skipped = messages.jevUnavailable
+    ? [`Message check skipped: Jev unavailable${reason}.`]
+    : [];
   if (messages.findings.length === 0 && skipped.length === 0) return [];
   return [
     '### Advice on commit and PR messages (never blocks)',

@@ -57,6 +57,7 @@ describe('renderReport', () => {
   it('gives message findings as advice, with Jev probabilities when judged', () => {
     const messages = {
       jevUnavailable: false,
+      jevFailure: null,
       findings: [
         { subject: '0123456 WIP', problem: 'may not be plain English', probability: 0.2 },
         { subject: 'PR description', problem: 'has no `Closes #N` link', probability: null },
@@ -71,9 +72,16 @@ describe('renderReport', () => {
   });
 
   it('says when the message check could not ask Jev', () => {
-    const messages = { findings: [], jevUnavailable: true };
+    const messages = { findings: [], jevUnavailable: true, jevFailure: null };
     expect(renderReport(reviewResult({ messages }))).toContain(
       'Message check skipped: Jev unavailable.',
+    );
+  });
+
+  it('gives the reason Jev could not answer, so a bad key or outage can be told apart', () => {
+    const messages = { findings: [], jevUnavailable: true, jevFailure: 'HTTP 401' };
+    expect(renderReport(reviewResult({ messages }))).toContain(
+      'Message check skipped: Jev unavailable (HTTP 401).',
     );
   });
 });
