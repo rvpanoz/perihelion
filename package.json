@@ -7,7 +7,8 @@
   "description": "A web-based 3D solar system VFX showcase driven by live NASA/JPL data.",
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "tools/*"
   ],
   "engines": {
     "node": ">=24"

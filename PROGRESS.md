@@ -321,6 +321,7 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 - [x] Accessibility and reduced motion (#134)
 - [ ] Help dialog, orbit-class legend, first-visit hint and credits (#135)
 - [ ] Deploy: Netlify and Render (#136)
+- [ ] Jev PR review: fixtures, tolerances and commit messages (#148)
 - [ ] Exit verification (#137)
 
 Status (2026-10-03): plan merged in #138, with issues #128–#137 on the board. README rewritten for the current state
