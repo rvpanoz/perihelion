@@ -46,6 +46,7 @@ None of these need an API key.
 | JPL Close Approach Data API      | This week's close approaches                |
 | JPL Horizons                     | Ground-truth positions for tests (dev only) |
 | DONKI (CCMC `DONKI-API`)         | CME speed, direction, width and timing      |
+| WSA-ENLIL (via DONKI)            | Forecasts of when a CME reaches Earth       |
 | NASA Blue Marble Next Generation | The Earth texture                           |
 
 ### Server endpoints

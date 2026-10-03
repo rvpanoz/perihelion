@@ -97,13 +97,13 @@ parts):
 | #   | Task                                         | Issue | Format    | Status |
 | --- | -------------------------------------------- | ----- | --------- | ------ |
 | 1   | Baseline harness: frame times + bundle size  | #128  | light     | ✅     |
-| 2   | Quality tiers                                | #129  | full code | ⬜     |
-| 3   | Tier governor + Display panel                | #130  | full code | ⬜     |
-| 4   | Progressive loading: worker + code splitting | #131  | light     | ⬜     |
+| 2   | Quality tiers                                | #129  | full code | ✅     |
+| 3   | Tier governor + Display panel                | #130  | full code | ✅     |
+| 4   | Progressive loading: worker + code splitting | #131  | light     | ✅     |
 | 5   | Fallbacks: no WebGL2, server timeout         | #132  | light     | ✅     |
-| 6   | Responsive, touch and scrollbars             | #133  | light     | ⬜     |
-| 7   | Accessibility and reduced motion             | #134  | light     | ⬜     |
-| 8   | Help dialog, legend, hint, credits           | #135  | light     | ⬜     |
+| 6   | Responsive, touch and scrollbars             | #133  | light     | ✅     |
+| 7   | Accessibility and reduced motion             | #134  | light     | ✅     |
+| 8   | Help dialog, legend, hint, credits           | #135  | light     | ✅     |
 | 9   | Deploy: Netlify + Render                     | #136  | light     | ⬜     |
 | 10  | Exit verification                            | #137  | light     | ⬜     |
 
@@ -989,9 +989,36 @@ stays dismissed, and still works when storage throws (Review Focus 4).
 
 **Acceptance:**
 
-- [ ] A first-time visitor sees the hint after the opening; the dialog explains the swarm, the three shots and which
+- [x] A first-time visitor sees the hint after the opening; the dialog explains the swarm, the three shots and which
       parts are illustrative; Credits lists every data source the app uses.
-- [ ] The legend's counts match `/api/neos`.
+- [x] The legend's counts match `/api/neos`.
+
+**As built** (review proposals 1–11, approved 2026-10-04):
+
+1. No DOM in the web tests, so the dialog's behaviour is tested through its parts: `isHelpShortcut(event)` (`?` only;
+   not with Ctrl/Meta/Alt, on auto-repeat, or in an input, textarea, select or editable text), a key listener on an
+   injected target, the button's `onClick` from the element tree, and the tabs' markup. Esc, the focus trap and focus
+   return are the native `<dialog>`'s (`showModal()`), checked in the browser.
+2. `HelpDialog` and its copy load with `React.lazy` on first open and stay mounted, so the chosen tab survives a close.
+   Initial JS 375,017 B gzip lazy against 376,365 B eager (dialog chunk 3.3 KB gzip); before the task, 372,907 B.
+3. Tabs follow the WAI-ARIA APG pattern: one Tab stop, Left/Right wrap, Home/End (`help/helpTabs.ts`,
+   `nextTabIndex`). Every panel is rendered and the unselected ones `hidden`, so each tab controls its own panel.
+4. `ClassSwatch` moved from `ApproachList` to `shell/ClassSwatch.tsx`, shared with the legend. The legend lists the
+   classes in `NEO_ORBIT_CLASSES` order (Atira → Amor), not by count, so rows never reorder on a data swap. Its total
+   is the catalog's `count`; the schema already makes every column `count` long, so the class counts add up to it.
+5. The legend sits at the foot of the left column (`flex-shrink: 0`), shown once the catalog is ready. Below 1100 px
+   it is in the Events drawer or sheet.
+6. `help/helpStore.ts` holds whether help is open and whether the hint was seen (`perihelion.helpHintSeen`). Opening
+   help counts as seeing the hint. The hint takes the opening caption's place and fades in after the caption has gone
+   (4.5 s), so the two never overlap.
+7. Credits: the three live sources (now shared with `NoWebGlNotice` in `shell/dataSources.ts`), the SBDB object API,
+   WSA-ENLIL, Horizons, Standish's planetary elements, Blue Marble NG, the 3D libraries and the GPL notice with the
+   repository link. The stills moved to `shell/releaseStills.ts` for the shots tab. README gains WSA-ENLIL.
+8. `accessibleNames.test.tsx` covers the help button, the dialog (every tab) and the hint's dismiss button.
+9. Glossary bounds are CNEOS's (cneos.jpl.nasa.gov/about/neo_groups.html); au and LD come from `KM_PER_AU` and
+   `KM_PER_LUNAR_DISTANCE`, the close-approach cut from `CAD_MAX_DISTANCE_AU`.
+10. The shots tab shows the three release stills, `loading="lazy"`.
+11. Task table statuses brought up to date.
 
 ## Task 9: Deploy: Netlify + Render (light)
 
