@@ -34,8 +34,17 @@ export function parseCommitLog(text: string): CommitMessage[] {
   });
 }
 
+/**
+ * Every command runs from the repository root: `npm run --workspace` starts in tools/review, where git would read
+ * `-- packages/fixtures/…` relative to that folder and match nothing (found on PR #149: an empty protected diff).
+ */
 function git(args: string[]): string {
-  return execFileSync('git', args, { encoding: 'utf8', maxBuffer: MAX_GIT_OUTPUT_BYTES });
+  const root = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
+  return execFileSync('git', args, {
+    cwd: root,
+    encoding: 'utf8',
+    maxBuffer: MAX_GIT_OUTPUT_BYTES,
+  });
 }
 
 function rangeOf({ baseSha, headSha }: CommitRange): string {
