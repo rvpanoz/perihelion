@@ -989,9 +989,9 @@ stays dismissed, and still works when storage throws (Review Focus 4).
 
 **Acceptance:**
 
-- [ ] A first-time visitor sees the hint after the opening; the dialog explains the swarm, the three shots and which
+- [x] A first-time visitor sees the hint after the opening; the dialog explains the swarm, the three shots and which
       parts are illustrative; Credits lists every data source the app uses.
-- [ ] The legend's counts match `/api/neos`.
+- [x] The legend's counts match `/api/neos`.
 
 **As built** (review proposals 1–11, approved 2026-10-04):
 

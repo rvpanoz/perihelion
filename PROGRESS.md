@@ -327,7 +327,11 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 Status (2026-10-03): plan merged in #138, with issues #128–#137 on the board. README rewritten for the current state
 in #139. Task 1 (#128) merged in #141, Task 2 (#129) in #142, Task 3 (#130) in #143, Task 4 (#131) in #144, Task 7
 (#134) in #145, Task 5 (#132) in #146, Task 6 (#133) in #147 (the device-emulation check is the user's). Jev PR
-review (#148) in #149. Task 8 (#135) on `phase-7/help`, review proposals 1–11 included (plan Task 8, "As built").
+review (#148) in #149. Task 8 (#135) on `phase-7/help`, review proposals 1–11 included (plan Task 8, "As built");
+acceptance verified in Chrome on 2026-10-04 against the dev server with storage cleared: the hint appears once the
+opening's caption has gone, `?` opens the guide and Esc closes it, the tab list wraps on Left/Right and keeps the
+chosen tab across a close, all five tabs render, and the legend reads 38 / 3,467 / 24,194 / 14,859 of 42,558, the
+Atira / Aten / Apollo / Amor counts of `/api/neos`.
 
 ### Phase 7 baseline
 
