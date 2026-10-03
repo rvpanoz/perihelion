@@ -321,13 +321,13 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 - [x] Accessibility and reduced motion (#134)
 - [ ] Help dialog, orbit-class legend, first-visit hint and credits (#135)
 - [ ] Deploy: Netlify and Render (#136)
-- [ ] Jev PR review: fixtures, tolerances and commit messages (#148)
+- [x] Jev PR review: fixtures, tolerances and commit messages (#148)
 - [ ] Exit verification (#137)
 
 Status (2026-10-03): plan merged in #138, with issues #128–#137 on the board. README rewritten for the current state
 in #139. Task 1 (#128) merged in #141, Task 2 (#129) in #142, Task 3 (#130) in #143, Task 4 (#131) in #144, Task 7
 (#134) in #145, Task 5 (#132) in #146. Task 6 (#133) on `phase-7/responsive`, review proposals 1–10 included (plan
-Task 6, "As built"); the device-emulation check is the user's.
+Task 6, "As built"); the device-emulation check is the user's. Jev PR review (#148) in #149.
 
 ### Phase 7 baseline
 
@@ -485,6 +485,19 @@ then frames over 20 ms.
   process-talk example is flagged. Disagreements: `89576d1` on `main` ends with a `Co-Authored-By:` trailer, which
   Jev rightly flagged (the label was wrong); "fix stuff" (0.48 and 0.45), vague enough to argue either way; and
   `4d2e187`'s plain English at 0.49 (0.53 in the first recording).
+- Verified end to end on GitHub (2026-10-04, PR #149 and throwaway draft #150 against the review branch, closed and
+  deleted). #149 with `ground-truth:approved` passed and Jev answered with the CI secret. #150 changed one byte in
+  `cad-empty.json` and `toBeCloseTo(…, 12)` → `11` in `angles.test.ts`, committed as "Address review comments": no
+  label → blocked (fixture listed; `12` → `11` read as closeness-digits at 1.00, loosened); label added → passed, the
+  same comment edited to Approved; label removed → blocked again, same comment. Each run took 18–20 s, of which the
+  review step about 2 s. Jev token usage per run is not known: the client parses `usage` but the check does not log it.
+- Message advice is weak on real PRs: "Address review comments" scored 0.12 for process talk, the same as three good
+  messages on #149 (0.12–0.19), so it does not separate them. It never blocks.
+- Deferred minors (user: leave for now): a comment over 65,536 characters fails and leaves a stale comment; Jev
+  calls have unbounded concurrency and retry without jitter or `Retry-After`; every label change reruns the review;
+  local git config (no prefix, colour, external diff) can break diff parsing; `base.sha` can be stale on label or edit
+  events after merging `main`; checkout keeps credentials; `Closes: #N`, `owner/repo#N` and issue URLs are not seen
+  as closing links; the table header says "Why it blocks" when approved.
 
 ## Calibrated tolerances
 
