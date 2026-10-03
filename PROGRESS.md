@@ -467,6 +467,21 @@ then frames over 20 ms.
 - Not checked by me: touch rotate and pinch, the 44 px targets under `(pointer: coarse)`, and page scroll while
   dragging, all of which need Chrome's device emulation (DevTools).
 
+### Jev PR review (#148)
+
+- Recorded on 2026-10-03 from `jev-1.13.0` (pinned): 60 labelled test-number edits and 35 messages, about 61k input
+  tokens. Labels reviewed by the user before recording. `npm run evaluate --workspace @perihelion/review` replays
+  them offline.
+- Number kinds: 59/60 right. Every loosened example blocks at every cutoff from 0.50 to 0.99. The one miss is a
+  fast-check generator range (`max: 1` → `2`) read as an upper bound (0.62), so it blocks: a false alarm, not a gap.
+  Harmless edits that block: 1 of 31 up to a cutoff of 0.86, 2 at 0.90, 7 at 0.99.
+- History has a single pure number edit in an existing test line (`toHaveLength(86)` → `77`), so the harmless set is
+  realistic edits of real current lines, with their real surrounding lines.
+- Messages: "only the functional change" agrees with the labels on 29/31, "plain English" on 34/35. Every
+  process-talk example is flagged. The two disagreements on the first question: `89576d1` on `main` ends with a
+  `Co-Authored-By:` trailer, which Jev rightly flagged (the label was wrong), and "fix stuff" (0.48), which is
+  vague enough to argue either way.
+
 ## Calibrated tolerances
 
 | Test                                    | Tolerance                    | Rationale                                                                                    |
@@ -784,6 +799,10 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
   marker has no physical size, so nothing closer would show more.
 - **2026-10-01:** A chase turns the camera to face its focus every frame, because the controls that otherwise do it
   are off during flights; without it the view kept its take-off facing and snapped at landing.
+- **2026-10-03:** The Jev review's "not a tolerance" cutoff is 0.50, the lowest that let no loosened example
+  through (spec rule). Any cutoff up to 0.86 blocks the same single harmless example, so raising it later costs
+  nothing on these examples; there is no example where Jev called a loosening "not a tolerance", so the margin is
+  untested either way.
 
 ## Open questions
 

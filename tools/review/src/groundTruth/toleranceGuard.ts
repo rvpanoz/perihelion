@@ -3,8 +3,12 @@ import { directionOf, isToleranceKind } from './loosening.js';
 import type { NumberChange } from './numberChanges.js';
 import { type KindJudgement, kindJudgementOf, numberKindRequest } from './toleranceKind.js';
 
-/** Provisional: Task 6 replaces it with the lowest cutoff that blocks every loosened example. */
-export const NOT_A_TOLERANCE_MIN_CONFIDENCE = 0.9;
+/**
+ * The lowest cutoff that let no loosened example through on the recorded jev-1.13.0 answers (2026-10-03, 60
+ * labelled edits: 59 kinds right, every loosening blocked at every cutoff from 0.50 to 0.99; `npm run evaluate`).
+ * Below it a "not a tolerance" answer is too unsure to trust and the change blocks.
+ */
+export const NOT_A_TOLERANCE_MIN_CONFIDENCE = 0.5;
 /** Plan deviation 4: a reformat must not fan out into hundreds of calls; the rest fail closed. */
 export const MAX_JUDGED_CHANGES = 40;
 
