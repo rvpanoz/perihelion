@@ -59,24 +59,20 @@ function judgedFindings(subject: string, result: JevResult | undefined): Message
 }
 
 function codeFindings({ commits, prBody }: MessageInput): MessageFinding[] {
-  const trailers = commits.flatMap((commit) => {
-    const lines = trailerLines(commit.message);
-    if (lines.length === 0) return [];
-    return [
-      {
-        subject: subjectOf(commit),
-        problem: `ends with trailers: ${lines.join('; ')}`,
-        probability: null,
-      },
-    ];
-  });
-  if (CLOSES_ISSUE.test(prBody ?? '')) return trailers;
-  const missingLink = {
-    subject: PR_SUBJECT,
-    problem: 'has no `Closes #N` link to its issue',
-    probability: null,
-  };
-  return [...trailers, missingLink];
+  return [...commits.flatMap(trailerFindings), ...issueLinkFindings(prBody)];
+}
+
+function trailerFindings(commit: CommitMessage): MessageFinding[] {
+  const lines = trailerLines(commit.message);
+  if (lines.length === 0) return [];
+  const problem = `ends with trailers: ${lines.join('; ')}`;
+  return [{ subject: subjectOf(commit), problem, probability: null }];
+}
+
+function issueLinkFindings(prBody: string | null): MessageFinding[] {
+  if (CLOSES_ISSUE.test(prBody ?? '')) return [];
+  const problem = 'has no `Closes #N` link to its issue';
+  return [{ subject: PR_SUBJECT, problem, probability: null }];
 }
 
 function subjectOf(commit: CommitMessage): string {
