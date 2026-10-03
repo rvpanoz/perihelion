@@ -53,9 +53,14 @@ function judgedFindings(change: NumberChange, judgement: KindJudgement): Toleran
     const detail = `not-a-tolerance at confidence ${confidence}, below the ${NOT_A_TOLERANCE_MIN_CONFIDENCE} cutoff`;
     return [{ change, reason: 'uncertain', judgement, detail }];
   }
-  if (directionOf(kind, change) !== 'looser') return [];
-  const detail = `${kind} ${change.oldText} → ${change.newText} is looser`;
-  return [{ change, reason: 'loosened', judgement, detail }];
+  const direction = directionOf(kind, change);
+  const values = `${kind} ${change.oldText} → ${change.newText}`;
+  if (direction === 'unknown') {
+    const detail = `${values}: a term inside a bound; its direction is not judged`;
+    return [{ change, reason: 'uncertain', judgement, detail }];
+  }
+  if (direction !== 'looser') return [];
+  return [{ change, reason: 'loosened', judgement, detail: `${values} is looser` }];
 }
 
 function tooMany(change: NumberChange): ToleranceFinding {

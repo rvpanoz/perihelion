@@ -469,18 +469,22 @@ then frames over 20 ms.
 
 ### Jev PR review (#148)
 
-- Recorded on 2026-10-03 from `jev-1.13.0` (pinned): 60 labelled test-number edits and 35 messages, about 61k input
-  tokens. Labels reviewed by the user before recording. `npm run evaluate --workspace @perihelion/review` replays
-  them offline.
-- Number kinds: 59/60 right. Every loosened example blocks at every cutoff from 0.50 to 0.99. The one miss is a
-  fast-check generator range (`max: 1` → `2`) read as an upper bound (0.62), so it blocks: a false alarm, not a gap.
-  Harmless edits that block: 1 of 31 up to a cutoff of 0.86, 2 at 0.90, 7 at 0.99.
+- Recorded on 2026-10-04 from `jev-1.13.0` (pinned): 66 labelled test-number edits and 35 messages, about 72k input
+  tokens. Labels reviewed by the user before recording (the six `bound-term` edits added after the branch review, with
+  the user's go-ahead). `npm run evaluate --workspace @perihelion/review` replays them offline.
+- Number kinds: 65/66 right, including all six numbers inside a bound expression (`edgeStep / 1000`,
+  `(1 - 1e-12)`, `(1 + eccentricity)`), which block on any change. Every loosening blocks at every cutoff from 0.50 to
+  0.99. The one miss is a fast-check generator range (`max: 1` → `2`) read as an upper bound (0.54), so it blocks: a
+  false alarm, not a gap. Harmless edits that block: 1 of 31 at 0.50, 3 at 0.80, 5 at 0.90, 13 at 0.99.
 - History has a single pure number edit in an existing test line (`toHaveLength(86)` → `77`), so the harmless set is
   realistic edits of real current lines, with their real surrounding lines.
-- Messages: "only the functional change" agrees with the labels on 29/31, "plain English" on 34/35. Every
-  process-talk example is flagged. The two disagreements on the first question: `89576d1` on `main` ends with a
-  `Co-Authored-By:` trailer, which Jev rightly flagged (the label was wrong), and "fix stuff" (0.48), which is
-  vague enough to argue either way.
+- Jev is not fully deterministic: re-asking the same 66 message questions moved the answers by a median of 0.01 and
+  at most 0.08. Answers near 0.5 can flip between runs, which only affects advice; the approval fingerprint uses the
+  diff, never Jev's answers.
+- Messages: "only the functional change" agrees with the labels on 29/31, "plain English" on 33/35. Every
+  process-talk example is flagged. Disagreements: `89576d1` on `main` ends with a `Co-Authored-By:` trailer, which
+  Jev rightly flagged (the label was wrong); "fix stuff" (0.48 and 0.45), vague enough to argue either way; and
+  `4d2e187`'s plain English at 0.49 (0.53 in the first recording).
 
 ## Calibrated tolerances
 
@@ -800,9 +804,14 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
 - **2026-10-01:** A chase turns the camera to face its focus every frame, because the controls that otherwise do it
   are off during flights; without it the view kept its take-off facing and snapped at landing.
 - **2026-10-03:** The Jev review's "not a tolerance" cutoff is 0.50, the lowest that let no loosened example
-  through (spec rule). Any cutoff up to 0.86 blocks the same single harmless example, so raising it later costs
-  nothing on these examples; there is no example where Jev called a loosening "not a tolerance", so the margin is
-  untested either way.
+  through (spec rule); re-checked on the 2026-10-04 recordings. Higher cutoffs block more harmless edits (3 of 31 at
+  0.80) and Jev never called a loosening "not a tolerance", so the margin is untested either way.
+- **2026-10-04:** A number inside a bound expression (`edgeStep / 1000`, `(1 - 1e-12)`) is its own kind,
+  `bound-term`, and any change to it blocks: its direction depends on the expression, so code does not guess (branch
+  review finding).
+- **2026-10-04:** The approval label counts only for the exact changes it was applied to (a fingerprint of the
+  protected-file diff and every changed test number, kept in the review comment). A later change to either removes
+  the label and blocks. The review check's own files are protected paths.
 
 ## Open questions
 

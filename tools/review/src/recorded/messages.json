@@ -29,7 +29,7 @@
       "answers": {
         "functionalOnly": {
           "type": "noul",
-          "noul": 0.93
+          "noul": 0.92
         },
         "plainEnglish": {
           "type": "noul",
@@ -115,11 +115,11 @@
       "answers": {
         "functionalOnly": {
           "type": "noul",
-          "noul": 0.73
+          "noul": 0.79
         },
         "plainEnglish": {
           "type": "noul",
-          "noul": 0.69
+          "noul": 0.71
         }
       },
       "usage": {
@@ -158,11 +158,11 @@
       "answers": {
         "functionalOnly": {
           "type": "noul",
-          "noul": 0.85
+          "noul": 0.87
         },
         "plainEnglish": {
           "type": "noul",
-          "noul": 0.89
+          "noul": 0.88
         }
       },
       "usage": {
@@ -201,7 +201,7 @@
       "answers": {
         "functionalOnly": {
           "type": "noul",
-          "noul": 0.26
+          "noul": 0.31
         },
         "plainEnglish": {
           "type": "noul",
@@ -287,7 +287,7 @@
       "answers": {
         "functionalOnly": {
           "type": "noul",
-          "noul": 0.84
+          "noul": 0.82
         },
         "plainEnglish": {
           "type": "noul",
@@ -373,7 +373,7 @@
       "answers": {
         "functionalOnly": {
           "type": "noul",
-          "noul": 0.95
+          "noul": 0.94
         },
         "plainEnglish": {
           "type": "noul",
@@ -416,7 +416,7 @@
       "answers": {
         "functionalOnly": {
           "type": "noul",
-          "noul": 0.91
+          "noul": 0.9
         },
         "plainEnglish": {
           "type": "noul",
@@ -463,7 +463,7 @@
         },
         "plainEnglish": {
           "type": "noul",
-          "noul": 0.57
+          "noul": 0.51
         }
       },
       "usage": {
@@ -506,7 +506,7 @@
         },
         "plainEnglish": {
           "type": "noul",
-          "noul": 0.53
+          "noul": 0.49
         }
       },
       "usage": {
@@ -549,7 +549,7 @@
         },
         "plainEnglish": {
           "type": "noul",
-          "noul": 0.87
+          "noul": 0.86
         }
       },
       "usage": {
@@ -588,11 +588,11 @@
       "answers": {
         "functionalOnly": {
           "type": "noul",
-          "noul": 0.93
+          "noul": 0.92
         },
         "plainEnglish": {
           "type": "noul",
-          "noul": 0.87
+          "noul": 0.86
         }
       },
       "usage": {
@@ -631,11 +631,11 @@
       "answers": {
         "functionalOnly": {
           "type": "noul",
-          "noul": 0.73
+          "noul": 0.77
         },
         "plainEnglish": {
           "type": "noul",
-          "noul": 0.8
+          "noul": 0.79
         }
       },
       "usage": {
@@ -697,7 +697,7 @@
       "answers": {
         "plainEnglish": {
           "type": "noul",
-          "noul": 0.88
+          "noul": 0.87
         }
       },
       "usage": {
@@ -736,11 +736,11 @@
       "answers": {
         "functionalOnly": {
           "type": "noul",
-          "noul": 0.12
+          "noul": 0.13
         },
         "plainEnglish": {
           "type": "noul",
-          "noul": 0.82
+          "noul": 0.83
         }
       },
       "usage": {
@@ -822,7 +822,7 @@
       "answers": {
         "functionalOnly": {
           "type": "noul",
-          "noul": 0.11
+          "noul": 0.1
         },
         "plainEnglish": {
           "type": "noul",
@@ -865,11 +865,11 @@
       "answers": {
         "functionalOnly": {
           "type": "noul",
-          "noul": 0.18
+          "noul": 0.16
         },
         "plainEnglish": {
           "type": "noul",
-          "noul": 0.9
+          "noul": 0.91
         }
       },
       "usage": {
@@ -908,7 +908,7 @@
       "answers": {
         "functionalOnly": {
           "type": "noul",
-          "noul": 0.89
+          "noul": 0.9
         },
         "plainEnglish": {
           "type": "noul",
@@ -994,7 +994,7 @@
       "answers": {
         "functionalOnly": {
           "type": "noul",
-          "noul": 0.1
+          "noul": 0.11
         },
         "plainEnglish": {
           "type": "noul",
@@ -1037,7 +1037,7 @@
       "answers": {
         "functionalOnly": {
           "type": "noul",
-          "noul": 0.34
+          "noul": 0.33
         },
         "plainEnglish": {
           "type": "noul",
@@ -1080,11 +1080,11 @@
       "answers": {
         "functionalOnly": {
           "type": "noul",
-          "noul": 0.32
+          "noul": 0.3
         },
         "plainEnglish": {
           "type": "noul",
-          "noul": 0.85
+          "noul": 0.84
         }
       },
       "usage": {
@@ -1207,13 +1207,13 @@
     "response": {
       "model": "jev-1.13.0",
       "answers": {
+        "functionalOnly": {
+          "type": "noul",
+          "noul": 0.91
+        },
         "plainEnglish": {
           "type": "noul",
           "noul": 0.13
-        },
-        "functionalOnly": {
-          "type": "noul",
-          "noul": 0.9
         }
       },
       "usage": {
@@ -1256,7 +1256,7 @@
         },
         "plainEnglish": {
           "type": "noul",
-          "noul": 0.9
+          "noul": 0.91
         }
       },
       "usage": {
@@ -1299,7 +1299,7 @@
         },
         "plainEnglish": {
           "type": "noul",
-          "noul": 0.93
+          "noul": 0.94
         }
       },
       "usage": {
@@ -1338,11 +1338,11 @@
       "answers": {
         "functionalOnly": {
           "type": "noul",
-          "noul": 0.48
+          "noul": 0.49
         },
         "plainEnglish": {
           "type": "noul",
-          "noul": 0.45
+          "noul": 0.48
         }
       },
       "usage": {
@@ -1381,7 +1381,7 @@
       "answers": {
         "functionalOnly": {
           "type": "noul",
-          "noul": 0.92
+          "noul": 0.93
         },
         "plainEnglish": {
           "type": "noul",
@@ -1447,7 +1447,7 @@
       "answers": {
         "plainEnglish": {
           "type": "noul",
-          "noul": 0.58
+          "noul": 0.5
         }
       },
       "usage": {

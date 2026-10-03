@@ -16,10 +16,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -33,17 +34,18 @@
           "choice": "upper-bound",
           "confidence": 1,
           "probabilities": {
+            "closeness-digits": 0,
             "not-a-tolerance": 0,
+            "bound-term": 0,
             "margin-multiplier": 0,
             "lower-bound": 0,
-            "closeness-digits": 0,
             "upper-bound": 1
           }
         }
       },
       "usage": {
-        "input_tokens": 783,
-        "output_tokens": 67
+        "input_tokens": 881,
+        "output_tokens": 75
       }
     }
   },
@@ -64,10 +66,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -81,17 +84,18 @@
           "choice": "upper-bound",
           "confidence": 1,
           "probabilities": {
-            "not-a-tolerance": 0,
             "closeness-digits": 0,
+            "upper-bound": 1,
+            "not-a-tolerance": 0,
+            "bound-term": 0,
             "margin-multiplier": 0,
-            "lower-bound": 0,
-            "upper-bound": 1
+            "lower-bound": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 783,
-        "output_tokens": 67
+        "input_tokens": 881,
+        "output_tokens": 75
       }
     }
   },
@@ -112,10 +116,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -127,19 +132,20 @@
         "kind": {
           "type": "choice",
           "choice": "upper-bound",
-          "confidence": 0.99,
+          "confidence": 1,
           "probabilities": {
-            "margin-multiplier": 0,
-            "not-a-tolerance": 0,
             "upper-bound": 1,
+            "not-a-tolerance": 0,
+            "closeness-digits": 0,
             "lower-bound": 0,
-            "closeness-digits": 0
+            "margin-multiplier": 0,
+            "bound-term": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 736,
-        "output_tokens": 67
+        "input_tokens": 834,
+        "output_tokens": 75
       }
     }
   },
@@ -160,10 +166,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -177,17 +184,18 @@
           "choice": "upper-bound",
           "confidence": 1,
           "probabilities": {
+            "lower-bound": 0,
+            "not-a-tolerance": 0,
             "closeness-digits": 0,
             "upper-bound": 1,
-            "not-a-tolerance": 0,
             "margin-multiplier": 0,
-            "lower-bound": 0
+            "bound-term": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 736,
-        "output_tokens": 67
+        "input_tokens": 834,
+        "output_tokens": 75
       }
     }
   },
@@ -208,10 +216,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -225,17 +234,18 @@
           "choice": "upper-bound",
           "confidence": 1,
           "probabilities": {
+            "bound-term": 0,
+            "not-a-tolerance": 0,
             "lower-bound": 0,
             "margin-multiplier": 0,
             "upper-bound": 1,
-            "closeness-digits": 0,
-            "not-a-tolerance": 0
+            "closeness-digits": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 720,
-        "output_tokens": 67
+        "input_tokens": 818,
+        "output_tokens": 75
       }
     }
   },
@@ -256,10 +266,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -273,17 +284,18 @@
           "choice": "upper-bound",
           "confidence": 1,
           "probabilities": {
-            "closeness-digits": 0,
-            "margin-multiplier": 0,
             "lower-bound": 0,
             "upper-bound": 1,
-            "not-a-tolerance": 0
+            "not-a-tolerance": 0,
+            "bound-term": 0,
+            "closeness-digits": 0,
+            "margin-multiplier": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 720,
-        "output_tokens": 67
+        "input_tokens": 818,
+        "output_tokens": 75
       }
     }
   },
@@ -304,10 +316,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -321,17 +334,18 @@
           "choice": "upper-bound",
           "confidence": 1,
           "probabilities": {
-            "closeness-digits": 0,
+            "bound-term": 0,
+            "upper-bound": 1,
             "not-a-tolerance": 0,
             "margin-multiplier": 0,
-            "upper-bound": 1,
-            "lower-bound": 0
+            "lower-bound": 0,
+            "closeness-digits": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 806,
-        "output_tokens": 67
+        "input_tokens": 904,
+        "output_tokens": 75
       }
     }
   },
@@ -352,10 +366,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -370,16 +385,17 @@
           "confidence": 1,
           "probabilities": {
             "closeness-digits": 0,
-            "margin-multiplier": 0,
             "upper-bound": 1,
+            "margin-multiplier": 0,
             "not-a-tolerance": 0,
-            "lower-bound": 0
+            "lower-bound": 0,
+            "bound-term": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 809,
-        "output_tokens": 67
+        "input_tokens": 907,
+        "output_tokens": 75
       }
     }
   },
@@ -400,10 +416,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -417,17 +434,18 @@
           "choice": "upper-bound",
           "confidence": 1,
           "probabilities": {
-            "lower-bound": 0,
-            "upper-bound": 1,
             "closeness-digits": 0,
+            "upper-bound": 1,
             "not-a-tolerance": 0,
-            "margin-multiplier": 0
+            "lower-bound": 0,
+            "margin-multiplier": 0,
+            "bound-term": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 795,
-        "output_tokens": 67
+        "input_tokens": 893,
+        "output_tokens": 75
       }
     }
   },
@@ -448,10 +466,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -465,17 +484,18 @@
           "choice": "upper-bound",
           "confidence": 1,
           "probabilities": {
+            "closeness-digits": 0,
+            "bound-term": 0,
             "not-a-tolerance": 0,
             "margin-multiplier": 0,
             "lower-bound": 0,
-            "closeness-digits": 0,
             "upper-bound": 1
           }
         }
       },
       "usage": {
-        "input_tokens": 798,
-        "output_tokens": 67
+        "input_tokens": 896,
+        "output_tokens": 75
       }
     }
   },
@@ -496,10 +516,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -513,17 +534,18 @@
           "choice": "upper-bound",
           "confidence": 1,
           "probabilities": {
-            "lower-bound": 0,
+            "margin-multiplier": 0,
+            "bound-term": 0,
             "not-a-tolerance": 0,
-            "upper-bound": 1,
             "closeness-digits": 0,
-            "margin-multiplier": 0
+            "upper-bound": 1,
+            "lower-bound": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 728,
-        "output_tokens": 67
+        "input_tokens": 826,
+        "output_tokens": 75
       }
     }
   },
@@ -544,10 +566,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -561,17 +584,18 @@
           "choice": "closeness-digits",
           "confidence": 1,
           "probabilities": {
-            "not-a-tolerance": 0,
             "upper-bound": 0,
-            "lower-bound": 0,
             "closeness-digits": 1,
-            "margin-multiplier": 0
+            "margin-multiplier": 0,
+            "lower-bound": 0,
+            "not-a-tolerance": 0,
+            "bound-term": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 749,
-        "output_tokens": 70
+        "input_tokens": 847,
+        "output_tokens": 78
       }
     }
   },
@@ -592,10 +616,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -609,17 +634,18 @@
           "choice": "closeness-digits",
           "confidence": 1,
           "probabilities": {
-            "lower-bound": 0,
-            "not-a-tolerance": 0,
             "closeness-digits": 1,
+            "lower-bound": 0,
             "margin-multiplier": 0,
-            "upper-bound": 0
+            "not-a-tolerance": 0,
+            "upper-bound": 0,
+            "bound-term": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 749,
-        "output_tokens": 70
+        "input_tokens": 847,
+        "output_tokens": 78
       }
     }
   },
@@ -640,10 +666,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -657,17 +684,18 @@
           "choice": "closeness-digits",
           "confidence": 1,
           "probabilities": {
-            "closeness-digits": 1,
-            "margin-multiplier": 0,
             "lower-bound": 0,
+            "bound-term": 0,
             "not-a-tolerance": 0,
-            "upper-bound": 0
+            "closeness-digits": 1,
+            "upper-bound": 0,
+            "margin-multiplier": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 786,
-        "output_tokens": 70
+        "input_tokens": 884,
+        "output_tokens": 78
       }
     }
   },
@@ -688,10 +716,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -705,17 +734,18 @@
           "choice": "closeness-digits",
           "confidence": 1,
           "probabilities": {
-            "upper-bound": 0,
             "lower-bound": 0,
-            "margin-multiplier": 0,
+            "bound-term": 0,
             "not-a-tolerance": 0,
-            "closeness-digits": 1
+            "closeness-digits": 1,
+            "upper-bound": 0,
+            "margin-multiplier": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 786,
-        "output_tokens": 70
+        "input_tokens": 884,
+        "output_tokens": 78
       }
     }
   },
@@ -736,10 +766,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -754,16 +785,17 @@
           "confidence": 1,
           "probabilities": {
             "upper-bound": 0,
+            "bound-term": 0,
             "margin-multiplier": 0,
-            "lower-bound": 0,
             "not-a-tolerance": 0,
-            "closeness-digits": 1
+            "closeness-digits": 1,
+            "lower-bound": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 758,
-        "output_tokens": 70
+        "input_tokens": 856,
+        "output_tokens": 78
       }
     }
   },
@@ -784,10 +816,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -801,17 +834,18 @@
           "choice": "closeness-digits",
           "confidence": 1,
           "probabilities": {
-            "margin-multiplier": 0,
-            "not-a-tolerance": 0,
+            "lower-bound": 0,
             "upper-bound": 0,
             "closeness-digits": 1,
-            "lower-bound": 0
+            "bound-term": 0,
+            "not-a-tolerance": 0,
+            "margin-multiplier": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 704,
-        "output_tokens": 70
+        "input_tokens": 802,
+        "output_tokens": 78
       }
     }
   },
@@ -832,10 +866,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -847,19 +882,20 @@
         "kind": {
           "type": "choice",
           "choice": "closeness-digits",
-          "confidence": 0.96,
+          "confidence": 0.98,
           "probabilities": {
-            "not-a-tolerance": 0.02,
+            "closeness-digits": 0.99,
+            "bound-term": 0,
             "margin-multiplier": 0,
-            "upper-bound": 0.01,
-            "closeness-digits": 0.97,
-            "lower-bound": 0
+            "lower-bound": 0,
+            "upper-bound": 0,
+            "not-a-tolerance": 0.01
           }
         }
       },
       "usage": {
-        "input_tokens": 648,
-        "output_tokens": 70
+        "input_tokens": 746,
+        "output_tokens": 78
       }
     }
   },
@@ -880,10 +916,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -895,19 +932,20 @@
         "kind": {
           "type": "choice",
           "choice": "margin-multiplier",
-          "confidence": 1,
+          "confidence": 0.99,
           "probabilities": {
-            "not-a-tolerance": 0,
-            "lower-bound": 0,
-            "closeness-digits": 0,
+            "bound-term": 0,
             "margin-multiplier": 1,
-            "upper-bound": 0
+            "upper-bound": 0,
+            "lower-bound": 0,
+            "not-a-tolerance": 0,
+            "closeness-digits": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 703,
-        "output_tokens": 70
+        "input_tokens": 801,
+        "output_tokens": 78
       }
     }
   },
@@ -928,10 +966,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -945,17 +984,18 @@
           "choice": "margin-multiplier",
           "confidence": 0.99,
           "probabilities": {
-            "lower-bound": 0,
-            "margin-multiplier": 1,
             "not-a-tolerance": 0,
-            "upper-bound": 0,
-            "closeness-digits": 0
+            "closeness-digits": 0,
+            "margin-multiplier": 1,
+            "lower-bound": 0,
+            "bound-term": 0,
+            "upper-bound": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 703,
-        "output_tokens": 70
+        "input_tokens": 801,
+        "output_tokens": 78
       }
     }
   },
@@ -976,10 +1016,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -994,16 +1035,17 @@
           "confidence": 1,
           "probabilities": {
             "upper-bound": 0,
+            "bound-term": 0,
             "margin-multiplier": 1,
-            "lower-bound": 0,
+            "closeness-digits": 0,
             "not-a-tolerance": 0,
-            "closeness-digits": 0
+            "lower-bound": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 708,
-        "output_tokens": 70
+        "input_tokens": 806,
+        "output_tokens": 78
       }
     }
   },
@@ -1024,10 +1066,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -1041,17 +1084,18 @@
           "choice": "margin-multiplier",
           "confidence": 1,
           "probabilities": {
-            "lower-bound": 0,
             "closeness-digits": 0,
-            "margin-multiplier": 1,
+            "upper-bound": 0,
             "not-a-tolerance": 0,
-            "upper-bound": 0
+            "bound-term": 0,
+            "margin-multiplier": 1,
+            "lower-bound": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 714,
-        "output_tokens": 70
+        "input_tokens": 812,
+        "output_tokens": 78
       }
     }
   },
@@ -1072,10 +1116,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -1087,19 +1132,20 @@
         "kind": {
           "type": "choice",
           "choice": "margin-multiplier",
-          "confidence": 1,
+          "confidence": 0.99,
           "probabilities": {
-            "closeness-digits": 0,
-            "lower-bound": 0,
-            "margin-multiplier": 1,
             "not-a-tolerance": 0,
-            "upper-bound": 0
+            "upper-bound": 0.01,
+            "lower-bound": 0,
+            "bound-term": 0,
+            "margin-multiplier": 0.99,
+            "closeness-digits": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 683,
-        "output_tokens": 70
+        "input_tokens": 781,
+        "output_tokens": 78
       }
     }
   },
@@ -1120,10 +1166,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -1135,19 +1182,20 @@
         "kind": {
           "type": "choice",
           "choice": "lower-bound",
-          "confidence": 1,
+          "confidence": 0.99,
           "probabilities": {
-            "margin-multiplier": 0,
             "not-a-tolerance": 0,
+            "margin-multiplier": 0,
+            "lower-bound": 1,
             "closeness-digits": 0,
             "upper-bound": 0,
-            "lower-bound": 1
+            "bound-term": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 686,
-        "output_tokens": 67
+        "input_tokens": 784,
+        "output_tokens": 75
       }
     }
   },
@@ -1168,10 +1216,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -1185,17 +1234,18 @@
           "choice": "lower-bound",
           "confidence": 1,
           "probabilities": {
-            "upper-bound": 0,
-            "not-a-tolerance": 0,
             "lower-bound": 1,
+            "bound-term": 0,
+            "not-a-tolerance": 0,
             "closeness-digits": 0,
+            "upper-bound": 0,
             "margin-multiplier": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 685,
-        "output_tokens": 67
+        "input_tokens": 783,
+        "output_tokens": 75
       }
     }
   },
@@ -1216,10 +1266,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -1231,19 +1282,20 @@
         "kind": {
           "type": "choice",
           "choice": "lower-bound",
-          "confidence": 1,
+          "confidence": 0.99,
           "probabilities": {
+            "lower-bound": 0.99,
             "closeness-digits": 0,
-            "margin-multiplier": 0,
+            "not-a-tolerance": 0.01,
+            "bound-term": 0,
             "upper-bound": 0,
-            "not-a-tolerance": 0,
-            "lower-bound": 1
+            "margin-multiplier": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 702,
-        "output_tokens": 67
+        "input_tokens": 800,
+        "output_tokens": 75
       }
     }
   },
@@ -1264,10 +1316,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -1279,19 +1332,20 @@
         "kind": {
           "type": "choice",
           "choice": "lower-bound",
-          "confidence": 1,
+          "confidence": 0.97,
           "probabilities": {
-            "lower-bound": 1,
+            "lower-bound": 0.98,
+            "bound-term": 0.02,
             "not-a-tolerance": 0,
-            "closeness-digits": 0,
             "margin-multiplier": 0,
+            "closeness-digits": 0,
             "upper-bound": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 779,
-        "output_tokens": 67
+        "input_tokens": 877,
+        "output_tokens": 75
       }
     }
   },
@@ -1312,10 +1366,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -1330,16 +1385,17 @@
           "confidence": 1,
           "probabilities": {
             "lower-bound": 1,
-            "closeness-digits": 0,
-            "margin-multiplier": 0,
             "not-a-tolerance": 0,
-            "upper-bound": 0
+            "bound-term": 0,
+            "closeness-digits": 0,
+            "upper-bound": 0,
+            "margin-multiplier": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 719,
-        "output_tokens": 67
+        "input_tokens": 817,
+        "output_tokens": 75
       }
     }
   },
@@ -1360,10 +1416,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -1377,17 +1434,318 @@
           "choice": "lower-bound",
           "confidence": 1,
           "probabilities": {
-            "lower-bound": 1,
+            "closeness-digits": 0,
             "upper-bound": 0,
-            "margin-multiplier": 0,
             "not-a-tolerance": 0,
+            "lower-bound": 1,
+            "margin-multiplier": 0,
+            "bound-term": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 816,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "term-divisor-looser",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/approach/approachTrail.test.ts",
+        "oldLine": "expect(centreStep).toBeLessThan(edgeStep / 1000);",
+        "newLine": "expect(centreStep).toBeLessThan(edgeStep / 100);",
+        "oldNumber": "1000",
+        "newNumber": "100",
+        "numberPosition": 1,
+        "nearbyLines": "    const middle = TRAIL_POINTS / 2;\n    const centreStep = trailOffsetDays(middle, 1) - trailOffsetDays(middle - 1, 1);\n    const edgeStep = trailOffsetDays(TRAIL_POINTS - 1, 1) - trailOffsetDays(TRAIL_POINTS - 2, 1);\n    expect(centreStep).toBeLessThan(edgeStep / 100);\n  });\n});\n"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "bound-term",
+          "confidence": 1,
+          "probabilities": {
+            "upper-bound": 0,
+            "not-a-tolerance": 0,
+            "closeness-digits": 0,
+            "margin-multiplier": 0,
+            "bound-term": 1,
+            "lower-bound": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 849,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "term-divisor-tighter",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/approach/approachTrail.test.ts",
+        "oldLine": "expect(centreStep).toBeLessThan(edgeStep / 1000);",
+        "newLine": "expect(centreStep).toBeLessThan(edgeStep / 10_000);",
+        "oldNumber": "1000",
+        "newNumber": "10_000",
+        "numberPosition": 1,
+        "nearbyLines": "    const middle = TRAIL_POINTS / 2;\n    const centreStep = trailOffsetDays(middle, 1) - trailOffsetDays(middle - 1, 1);\n    const edgeStep = trailOffsetDays(TRAIL_POINTS - 1, 1) - trailOffsetDays(TRAIL_POINTS - 2, 1);\n    expect(centreStep).toBeLessThan(edgeStep / 10_000);\n  });\n});\n"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "bound-term",
+          "confidence": 1,
+          "probabilities": {
+            "lower-bound": 0,
+            "bound-term": 1,
+            "not-a-tolerance": 0,
+            "closeness-digits": 0,
+            "upper-bound": 0,
+            "margin-multiplier": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 858,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "term-orbit-slack-looser",
+    "request": {
+      "state": {
+        "file": "packages/orbit/src/planets.test.ts",
+        "oldLine": "expect(distanceAu).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-12));",
+        "newLine": "expect(distanceAu).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-10));",
+        "oldNumber": "1e-12",
+        "newNumber": "1e-10",
+        "numberPosition": 3,
+        "nearbyLines": "      fc.property(planet, validJdTdb, (body, jdTdb) => {\n        const { semiMajorAxisAu: a, eccentricity: e } = planetElementsAt(body, jdTdb);\n        const distanceAu = norm(planetStateAt(body, jdTdb).positionAu);\n        expect(distanceAu).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-10));\n        expect(distanceAu).toBeLessThanOrEqual(a * (1 + e) * (1 + 1e-12));\n      }),\n    );"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "bound-term",
+          "confidence": 1,
+          "probabilities": {
+            "margin-multiplier": 0,
+            "bound-term": 1,
+            "upper-bound": 0,
+            "not-a-tolerance": 0,
+            "lower-bound": 0,
             "closeness-digits": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 718,
-        "output_tokens": 67
+        "input_tokens": 906,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "term-path-slack-looser",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/bodies/orbitPath.test.ts",
+        "oldLine": "expect(radiusAt(path, index)).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-6));",
+        "newLine": "expect(radiusAt(path, index)).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-4));",
+        "oldNumber": "1e-6",
+        "newNumber": "1e-4",
+        "numberPosition": 3,
+        "nearbyLines": "      );\n      expect(radiusAt(path, 0) / (a * (1 - e))).toBeCloseTo(1, 6);\n      for (let index = 0; index < ORBIT_PATH_POINTS; index += 1) {\n        expect(radiusAt(path, index)).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-4));\n        expect(radiusAt(path, index)).toBeLessThanOrEqual(a * (1 + e) * (1 + 1e-6));\n      }\n    },"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "bound-term",
+          "confidence": 1,
+          "probabilities": {
+            "upper-bound": 0,
+            "not-a-tolerance": 0,
+            "closeness-digits": 0,
+            "margin-multiplier": 0,
+            "bound-term": 1,
+            "lower-bound": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 900,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "term-perihelion-factor-looser",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/swarm/swarmKepler.test.ts",
+        "oldLine": "expect(distanceAu).toBeGreaterThan(semiMajorAxisAu * (1 - eccentricity) - float32SlackAu);",
+        "newLine": "expect(distanceAu).toBeGreaterThan(semiMajorAxisAu * (0.9 - eccentricity) - float32SlackAu);",
+        "oldNumber": "1",
+        "newNumber": "0.9",
+        "numberPosition": 1,
+        "nearbyLines": "          const orbit = swarmOrbitAt(buildSwarmAttributes(catalog, J2000_JD_TDB), 0);\n          const distanceAu = Math.hypot(...swarmHeliocentricPosition(orbit, elapsedDays));\n          const float32SlackAu = 1e-6 * semiMajorAxisAu;\n          expect(distanceAu).toBeGreaterThan(semiMajorAxisAu * (0.9 - eccentricity) - float32SlackAu);\n          expect(distanceAu).toBeLessThan(semiMajorAxisAu * (1 + eccentricity) + float32SlackAu);\n        },\n      ),"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "bound-term",
+          "confidence": 0.95,
+          "probabilities": {
+            "not-a-tolerance": 0.01,
+            "margin-multiplier": 0.02,
+            "lower-bound": 0.02,
+            "closeness-digits": 0,
+            "bound-term": 0.95,
+            "upper-bound": 0
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 929,
+        "output_tokens": 75
+      }
+    }
+  },
+  {
+    "id": "term-aphelion-factor-looser",
+    "request": {
+      "state": {
+        "file": "apps/web/src/scene/swarm/swarmKepler.test.ts",
+        "oldLine": "expect(distanceAu).toBeLessThan(semiMajorAxisAu * (1 + eccentricity) + float32SlackAu);",
+        "newLine": "expect(distanceAu).toBeLessThan(semiMajorAxisAu * (1.1 + eccentricity) + float32SlackAu);",
+        "oldNumber": "1",
+        "newNumber": "1.1",
+        "numberPosition": 1,
+        "nearbyLines": "          const distanceAu = Math.hypot(...swarmHeliocentricPosition(orbit, elapsedDays));\n          const float32SlackAu = 1e-6 * semiMajorAxisAu;\n          expect(distanceAu).toBeGreaterThan(semiMajorAxisAu * (1 - eccentricity) - float32SlackAu);\n          expect(distanceAu).toBeLessThan(semiMajorAxisAu * (1.1 + eccentricity) + float32SlackAu);\n        },\n      ),\n    );"
+      },
+      "questions": {
+        "kind": {
+          "type": "choice",
+          "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
+          "criteria": {
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
+            "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
+            "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
+          }
+        }
+      }
+    },
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "kind": {
+          "type": "choice",
+          "choice": "bound-term",
+          "confidence": 0.71,
+          "probabilities": {
+            "lower-bound": 0,
+            "closeness-digits": 0,
+            "not-a-tolerance": 0,
+            "bound-term": 0.77,
+            "upper-bound": 0.02,
+            "margin-multiplier": 0.21
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 896,
+        "output_tokens": 75
       }
     }
   },
@@ -1408,10 +1766,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -1425,17 +1784,18 @@
           "choice": "closeness-digits",
           "confidence": 1,
           "probabilities": {
-            "margin-multiplier": 0,
-            "upper-bound": 0,
             "lower-bound": 0,
+            "bound-term": 0,
             "not-a-tolerance": 0,
-            "closeness-digits": 1
+            "margin-multiplier": 0,
+            "closeness-digits": 1,
+            "upper-bound": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 722,
-        "output_tokens": 70
+        "input_tokens": 820,
+        "output_tokens": 78
       }
     }
   },
@@ -1456,10 +1816,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -1473,17 +1834,18 @@
           "choice": "not-a-tolerance",
           "confidence": 1,
           "probabilities": {
-            "closeness-digits": 0,
-            "upper-bound": 0,
-            "margin-multiplier": 0,
+            "lower-bound": 0,
             "not-a-tolerance": 1,
-            "lower-bound": 0
+            "closeness-digits": 0,
+            "bound-term": 0,
+            "upper-bound": 0,
+            "margin-multiplier": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 724,
-        "output_tokens": 70
+        "input_tokens": 822,
+        "output_tokens": 78
       }
     }
   },
@@ -1504,10 +1866,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -1521,17 +1884,18 @@
           "choice": "not-a-tolerance",
           "confidence": 0.99,
           "probabilities": {
+            "lower-bound": 0,
             "upper-bound": 0,
             "margin-multiplier": 0,
             "not-a-tolerance": 1,
             "closeness-digits": 0,
-            "lower-bound": 0
+            "bound-term": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 721,
-        "output_tokens": 70
+        "input_tokens": 819,
+        "output_tokens": 78
       }
     }
   },
@@ -1552,10 +1916,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -1569,17 +1934,18 @@
           "choice": "not-a-tolerance",
           "confidence": 1,
           "probabilities": {
-            "upper-bound": 0,
-            "lower-bound": 0,
-            "margin-multiplier": 0,
             "not-a-tolerance": 1,
-            "closeness-digits": 0
+            "closeness-digits": 0,
+            "margin-multiplier": 0,
+            "bound-term": 0,
+            "lower-bound": 0,
+            "upper-bound": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 732,
-        "output_tokens": 70
+        "input_tokens": 830,
+        "output_tokens": 78
       }
     }
   },
@@ -1600,10 +1966,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -1618,16 +1985,17 @@
           "confidence": 0.97,
           "probabilities": {
             "margin-multiplier": 0,
+            "bound-term": 0.01,
+            "lower-bound": 0.01,
+            "not-a-tolerance": 0.98,
             "upper-bound": 0,
-            "lower-bound": 0.02,
-            "closeness-digits": 0,
-            "not-a-tolerance": 0.98
+            "closeness-digits": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 798,
-        "output_tokens": 70
+        "input_tokens": 896,
+        "output_tokens": 78
       }
     }
   },
@@ -1648,10 +2016,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -1666,16 +2035,17 @@
           "confidence": 1,
           "probabilities": {
             "closeness-digits": 0,
-            "not-a-tolerance": 1,
-            "margin-multiplier": 0,
+            "bound-term": 0,
             "upper-bound": 0,
-            "lower-bound": 0
+            "not-a-tolerance": 1,
+            "lower-bound": 0,
+            "margin-multiplier": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 705,
-        "output_tokens": 70
+        "input_tokens": 803,
+        "output_tokens": 78
       }
     }
   },
@@ -1696,10 +2066,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -1711,19 +2082,20 @@
         "kind": {
           "type": "choice",
           "choice": "not-a-tolerance",
-          "confidence": 0.99,
+          "confidence": 0.96,
           "probabilities": {
             "upper-bound": 0,
-            "not-a-tolerance": 1,
+            "not-a-tolerance": 0.97,
             "closeness-digits": 0,
-            "lower-bound": 0,
-            "margin-multiplier": 0
+            "margin-multiplier": 0,
+            "bound-term": 0.03,
+            "lower-bound": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 764,
-        "output_tokens": 70
+        "input_tokens": 862,
+        "output_tokens": 78
       }
     }
   },
@@ -1744,10 +2116,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -1759,19 +2132,20 @@
         "kind": {
           "type": "choice",
           "choice": "not-a-tolerance",
-          "confidence": 0.99,
+          "confidence": 0.94,
           "probabilities": {
+            "lower-bound": 0,
+            "not-a-tolerance": 0.95,
             "closeness-digits": 0,
-            "upper-bound": 0.01,
-            "not-a-tolerance": 0.99,
             "margin-multiplier": 0,
-            "lower-bound": 0
+            "bound-term": 0.04,
+            "upper-bound": 0.01
           }
         }
       },
       "usage": {
-        "input_tokens": 726,
-        "output_tokens": 70
+        "input_tokens": 824,
+        "output_tokens": 78
       }
     }
   },
@@ -1792,10 +2166,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -1809,17 +2184,18 @@
           "choice": "not-a-tolerance",
           "confidence": 0.99,
           "probabilities": {
-            "lower-bound": 0,
+            "bound-term": 0,
+            "closeness-digits": 0,
             "margin-multiplier": 0,
             "upper-bound": 0,
             "not-a-tolerance": 1,
-            "closeness-digits": 0
+            "lower-bound": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 707,
-        "output_tokens": 70
+        "input_tokens": 805,
+        "output_tokens": 78
       }
     }
   },
@@ -1840,10 +2216,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -1855,19 +2232,20 @@
         "kind": {
           "type": "choice",
           "choice": "not-a-tolerance",
-          "confidence": 0.95,
+          "confidence": 0.88,
           "probabilities": {
             "lower-bound": 0,
-            "upper-bound": 0.04,
+            "bound-term": 0.02,
+            "upper-bound": 0.08,
             "margin-multiplier": 0,
-            "not-a-tolerance": 0.96,
-            "closeness-digits": 0
+            "closeness-digits": 0,
+            "not-a-tolerance": 0.9
           }
         }
       },
       "usage": {
-        "input_tokens": 744,
-        "output_tokens": 70
+        "input_tokens": 842,
+        "output_tokens": 78
       }
     }
   },
@@ -1888,10 +2266,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -1903,19 +2282,20 @@
         "kind": {
           "type": "choice",
           "choice": "not-a-tolerance",
-          "confidence": 1,
+          "confidence": 0.99,
           "probabilities": {
-            "upper-bound": 0,
+            "lower-bound": 0,
             "margin-multiplier": 0,
             "closeness-digits": 0,
-            "not-a-tolerance": 1,
-            "lower-bound": 0
+            "upper-bound": 0,
+            "bound-term": 0,
+            "not-a-tolerance": 1
           }
         }
       },
       "usage": {
-        "input_tokens": 672,
-        "output_tokens": 70
+        "input_tokens": 770,
+        "output_tokens": 78
       }
     }
   },
@@ -1936,10 +2316,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -1953,17 +2334,18 @@
           "choice": "not-a-tolerance",
           "confidence": 1,
           "probabilities": {
-            "upper-bound": 0,
-            "not-a-tolerance": 1,
+            "bound-term": 0,
             "lower-bound": 0,
             "closeness-digits": 0,
-            "margin-multiplier": 0
+            "margin-multiplier": 0,
+            "not-a-tolerance": 1,
+            "upper-bound": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 734,
-        "output_tokens": 70
+        "input_tokens": 832,
+        "output_tokens": 78
       }
     }
   },
@@ -1984,10 +2366,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -1999,19 +2382,20 @@
         "kind": {
           "type": "choice",
           "choice": "not-a-tolerance",
-          "confidence": 0.99,
+          "confidence": 0.97,
           "probabilities": {
-            "closeness-digits": 0,
+            "bound-term": 0.02,
             "upper-bound": 0,
-            "not-a-tolerance": 1,
+            "not-a-tolerance": 0.98,
             "margin-multiplier": 0,
-            "lower-bound": 0
+            "lower-bound": 0,
+            "closeness-digits": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 746,
-        "output_tokens": 70
+        "input_tokens": 844,
+        "output_tokens": 78
       }
     }
   },
@@ -2032,10 +2416,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -2049,17 +2434,18 @@
           "choice": "not-a-tolerance",
           "confidence": 1,
           "probabilities": {
-            "upper-bound": 0,
-            "not-a-tolerance": 1,
-            "lower-bound": 0,
+            "bound-term": 0,
             "closeness-digits": 0,
-            "margin-multiplier": 0
+            "margin-multiplier": 0,
+            "lower-bound": 0,
+            "not-a-tolerance": 1,
+            "upper-bound": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 711,
-        "output_tokens": 70
+        "input_tokens": 809,
+        "output_tokens": 78
       }
     }
   },
@@ -2080,10 +2466,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -2095,19 +2482,20 @@
         "kind": {
           "type": "choice",
           "choice": "not-a-tolerance",
-          "confidence": 0.98,
+          "confidence": 0.95,
           "probabilities": {
-            "lower-bound": 0.01,
             "margin-multiplier": 0,
-            "not-a-tolerance": 0.98,
-            "upper-bound": 0.01,
+            "bound-term": 0.03,
+            "upper-bound": 0,
+            "not-a-tolerance": 0.96,
+            "lower-bound": 0.01,
             "closeness-digits": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 782,
-        "output_tokens": 70
+        "input_tokens": 880,
+        "output_tokens": 78
       }
     }
   },
@@ -2128,10 +2516,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -2145,17 +2534,18 @@
           "choice": "not-a-tolerance",
           "confidence": 1,
           "probabilities": {
-            "closeness-digits": 0,
-            "upper-bound": 0,
-            "not-a-tolerance": 1,
+            "lower-bound": 0,
             "margin-multiplier": 0,
-            "lower-bound": 0
+            "upper-bound": 0,
+            "bound-term": 0,
+            "closeness-digits": 0,
+            "not-a-tolerance": 1
           }
         }
       },
       "usage": {
-        "input_tokens": 720,
-        "output_tokens": 70
+        "input_tokens": 818,
+        "output_tokens": 78
       }
     }
   },
@@ -2176,10 +2566,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -2191,19 +2582,20 @@
         "kind": {
           "type": "choice",
           "choice": "not-a-tolerance",
-          "confidence": 0.9,
+          "confidence": 0.77,
           "probabilities": {
+            "not-a-tolerance": 0.81,
             "closeness-digits": 0,
             "margin-multiplier": 0,
             "lower-bound": 0.02,
-            "not-a-tolerance": 0.92,
-            "upper-bound": 0.06
+            "bound-term": 0.12,
+            "upper-bound": 0.05
           }
         }
       },
       "usage": {
-        "input_tokens": 809,
-        "output_tokens": 70
+        "input_tokens": 907,
+        "output_tokens": 78
       }
     }
   },
@@ -2224,10 +2616,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -2242,16 +2635,17 @@
           "confidence": 1,
           "probabilities": {
             "closeness-digits": 0,
-            "upper-bound": 0,
             "not-a-tolerance": 1,
+            "lower-bound": 0,
             "margin-multiplier": 0,
-            "lower-bound": 0
+            "upper-bound": 0,
+            "bound-term": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 689,
-        "output_tokens": 70
+        "input_tokens": 787,
+        "output_tokens": 78
       }
     }
   },
@@ -2272,10 +2666,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -2287,19 +2682,20 @@
         "kind": {
           "type": "choice",
           "choice": "not-a-tolerance",
-          "confidence": 1,
+          "confidence": 0.96,
           "probabilities": {
-            "lower-bound": 0,
             "closeness-digits": 0,
             "margin-multiplier": 0,
-            "not-a-tolerance": 1,
-            "upper-bound": 0
+            "lower-bound": 0,
+            "not-a-tolerance": 0.96,
+            "upper-bound": 0,
+            "bound-term": 0.04
           }
         }
       },
       "usage": {
-        "input_tokens": 724,
-        "output_tokens": 70
+        "input_tokens": 822,
+        "output_tokens": 78
       }
     }
   },
@@ -2320,10 +2716,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -2337,17 +2734,18 @@
           "choice": "not-a-tolerance",
           "confidence": 1,
           "probabilities": {
-            "not-a-tolerance": 1,
             "lower-bound": 0,
-            "upper-bound": 0,
+            "bound-term": 0,
+            "closeness-digits": 0,
             "margin-multiplier": 0,
-            "closeness-digits": 0
+            "not-a-tolerance": 1,
+            "upper-bound": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 726,
-        "output_tokens": 70
+        "input_tokens": 824,
+        "output_tokens": 78
       }
     }
   },
@@ -2368,10 +2766,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -2385,17 +2784,18 @@
           "choice": "not-a-tolerance",
           "confidence": 1,
           "probabilities": {
-            "margin-multiplier": 0,
             "not-a-tolerance": 1,
-            "upper-bound": 0,
+            "margin-multiplier": 0,
             "lower-bound": 0,
-            "closeness-digits": 0
+            "closeness-digits": 0,
+            "upper-bound": 0,
+            "bound-term": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 706,
-        "output_tokens": 70
+        "input_tokens": 804,
+        "output_tokens": 78
       }
     }
   },
@@ -2416,10 +2816,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -2431,19 +2832,20 @@
         "kind": {
           "type": "choice",
           "choice": "not-a-tolerance",
-          "confidence": 0.99,
+          "confidence": 1,
           "probabilities": {
             "lower-bound": 0,
+            "not-a-tolerance": 1,
+            "bound-term": 0,
             "upper-bound": 0,
             "closeness-digits": 0,
-            "not-a-tolerance": 1,
             "margin-multiplier": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 768,
-        "output_tokens": 70
+        "input_tokens": 866,
+        "output_tokens": 78
       }
     }
   },
@@ -2464,10 +2866,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -2482,16 +2885,17 @@
           "confidence": 1,
           "probabilities": {
             "not-a-tolerance": 1,
-            "margin-multiplier": 0,
+            "bound-term": 0,
+            "upper-bound": 0,
             "lower-bound": 0,
             "closeness-digits": 0,
-            "upper-bound": 0
+            "margin-multiplier": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 662,
-        "output_tokens": 70
+        "input_tokens": 760,
+        "output_tokens": 78
       }
     }
   },
@@ -2512,10 +2916,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -2527,19 +2932,20 @@
         "kind": {
           "type": "choice",
           "choice": "upper-bound",
-          "confidence": 0.62,
+          "confidence": 0.54,
           "probabilities": {
+            "upper-bound": 0.62,
+            "not-a-tolerance": 0.38,
+            "closeness-digits": 0,
             "lower-bound": 0,
-            "margin-multiplier": 0,
-            "not-a-tolerance": 0.3,
-            "upper-bound": 0.7,
-            "closeness-digits": 0
+            "bound-term": 0,
+            "margin-multiplier": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 720,
-        "output_tokens": 67
+        "input_tokens": 818,
+        "output_tokens": 75
       }
     }
   },
@@ -2560,10 +2966,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -2575,19 +2982,20 @@
         "kind": {
           "type": "choice",
           "choice": "not-a-tolerance",
-          "confidence": 0.86,
+          "confidence": 0.88,
           "probabilities": {
+            "closeness-digits": 0,
+            "not-a-tolerance": 0.9,
+            "bound-term": 0.01,
             "margin-multiplier": 0,
-            "upper-bound": 0.09,
-            "lower-bound": 0.02,
-            "not-a-tolerance": 0.89,
-            "closeness-digits": 0
+            "lower-bound": 0.03,
+            "upper-bound": 0.06
           }
         }
       },
       "usage": {
-        "input_tokens": 738,
-        "output_tokens": 70
+        "input_tokens": 836,
+        "output_tokens": 78
       }
     }
   },
@@ -2608,10 +3016,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -2625,17 +3034,18 @@
           "choice": "not-a-tolerance",
           "confidence": 1,
           "probabilities": {
-            "margin-multiplier": 0,
+            "bound-term": 0,
             "upper-bound": 0,
+            "not-a-tolerance": 1,
+            "margin-multiplier": 0,
             "lower-bound": 0,
-            "closeness-digits": 0,
-            "not-a-tolerance": 1
+            "closeness-digits": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 728,
-        "output_tokens": 70
+        "input_tokens": 826,
+        "output_tokens": 78
       }
     }
   },
@@ -2656,10 +3066,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -2671,19 +3082,20 @@
         "kind": {
           "type": "choice",
           "choice": "not-a-tolerance",
-          "confidence": 1,
+          "confidence": 0.53,
           "probabilities": {
             "lower-bound": 0,
             "margin-multiplier": 0,
-            "upper-bound": 0,
+            "bound-term": 0.39,
+            "not-a-tolerance": 0.61,
             "closeness-digits": 0,
-            "not-a-tolerance": 1
+            "upper-bound": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 747,
-        "output_tokens": 70
+        "input_tokens": 845,
+        "output_tokens": 78
       }
     }
   },
@@ -2704,10 +3116,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -2721,17 +3134,18 @@
           "choice": "not-a-tolerance",
           "confidence": 1,
           "probabilities": {
+            "closeness-digits": 0,
             "upper-bound": 0,
             "not-a-tolerance": 1,
-            "closeness-digits": 0,
-            "lower-bound": 0,
-            "margin-multiplier": 0
+            "bound-term": 0,
+            "margin-multiplier": 0,
+            "lower-bound": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 846,
-        "output_tokens": 70
+        "input_tokens": 944,
+        "output_tokens": 78
       }
     }
   },
@@ -2752,10 +3166,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -2767,19 +3182,20 @@
         "kind": {
           "type": "choice",
           "choice": "not-a-tolerance",
-          "confidence": 0.98,
+          "confidence": 0.97,
           "probabilities": {
-            "closeness-digits": 0,
             "lower-bound": 0,
-            "not-a-tolerance": 0.99,
-            "upper-bound": 0.01,
-            "margin-multiplier": 0
+            "bound-term": 0,
+            "margin-multiplier": 0,
+            "upper-bound": 0.02,
+            "closeness-digits": 0,
+            "not-a-tolerance": 0.98
           }
         }
       },
       "usage": {
-        "input_tokens": 680,
-        "output_tokens": 70
+        "input_tokens": 778,
+        "output_tokens": 78
       }
     }
   },
@@ -2800,10 +3216,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -2815,19 +3232,20 @@
         "kind": {
           "type": "choice",
           "choice": "not-a-tolerance",
-          "confidence": 1,
+          "confidence": 0.97,
           "probabilities": {
             "lower-bound": 0,
-            "not-a-tolerance": 1,
-            "closeness-digits": 0,
+            "bound-term": 0.02,
+            "margin-multiplier": 0,
             "upper-bound": 0,
-            "margin-multiplier": 0
+            "closeness-digits": 0,
+            "not-a-tolerance": 0.98
           }
         }
       },
       "usage": {
-        "input_tokens": 765,
-        "output_tokens": 70
+        "input_tokens": 863,
+        "output_tokens": 78
       }
     }
   },
@@ -2848,10 +3266,11 @@
           "type": "choice",
           "instructions": "In a test file, `oldLine` became `newLine`: the number at position `numberPosition` on the line changed from `oldNumber` to `newNumber`. `nearbyLines` shows the surrounding code. What role does that number play in the test?",
           "criteria": {
-            "upper-bound": "The largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
+            "upper-bound": "The number is itself the largest error, difference or value the test allows, such as a toBeLessThan limit or a named tolerance.",
             "closeness-digits": "The number-of-digits precision argument of toBeCloseTo (the second argument).",
             "margin-multiplier": "A factor that widens a measured error into the allowed error, such as a tolerance margin of 1.25.",
-            "lower-bound": "The smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "lower-bound": "The number is itself the smallest value the test requires, such as a toBeGreaterThan minimum on an accuracy or count.",
+            "bound-term": "The number is part of a larger expression that forms a limit, not the limit itself: a divisor, a factor, or a small slack added to or subtracted from a limit, such as the 1000 in `edgeStep / 1000` or the 1e-12 in `(1 - 1e-12)`.",
             "not-a-tolerance": "Anything else: an expected value, an input, a count, an index, a time or a size used by the test."
           }
         }
@@ -2866,16 +3285,17 @@
           "confidence": 1,
           "probabilities": {
             "closeness-digits": 0,
-            "margin-multiplier": 0,
-            "lower-bound": 0,
+            "bound-term": 0,
+            "upper-bound": 0,
             "not-a-tolerance": 1,
-            "upper-bound": 0
+            "lower-bound": 0,
+            "margin-multiplier": 0
           }
         }
       },
       "usage": {
-        "input_tokens": 765,
-        "output_tokens": 70
+        "input_tokens": 863,
+        "output_tokens": 78
       }
     }
   }

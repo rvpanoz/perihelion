@@ -696,6 +696,150 @@
     }
   },
   {
+    "id": "term-divisor-looser",
+    "expectedKind": "bound-term",
+    "change": {
+      "path": "apps/web/src/scene/approach/approachTrail.test.ts",
+      "newLineNumber": 32,
+      "oldLine": "expect(centreStep).toBeLessThan(edgeStep / 1000);",
+      "newLine": "expect(centreStep).toBeLessThan(edgeStep / 100);",
+      "oldText": "1000",
+      "newText": "100",
+      "oldValue": 1000,
+      "newValue": 100,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "    const middle = TRAIL_POINTS / 2;",
+        "    const centreStep = trailOffsetDays(middle, 1) - trailOffsetDays(middle - 1, 1);",
+        "    const edgeStep = trailOffsetDays(TRAIL_POINTS - 1, 1) - trailOffsetDays(TRAIL_POINTS - 2, 1);",
+        "    expect(centreStep).toBeLessThan(edgeStep / 100);",
+        "  });",
+        "});",
+        ""
+      ]
+    }
+  },
+  {
+    "id": "term-divisor-tighter",
+    "expectedKind": "bound-term",
+    "change": {
+      "path": "apps/web/src/scene/approach/approachTrail.test.ts",
+      "newLineNumber": 32,
+      "oldLine": "expect(centreStep).toBeLessThan(edgeStep / 1000);",
+      "newLine": "expect(centreStep).toBeLessThan(edgeStep / 10_000);",
+      "oldText": "1000",
+      "newText": "10_000",
+      "oldValue": 1000,
+      "newValue": 10000,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "    const middle = TRAIL_POINTS / 2;",
+        "    const centreStep = trailOffsetDays(middle, 1) - trailOffsetDays(middle - 1, 1);",
+        "    const edgeStep = trailOffsetDays(TRAIL_POINTS - 1, 1) - trailOffsetDays(TRAIL_POINTS - 2, 1);",
+        "    expect(centreStep).toBeLessThan(edgeStep / 10_000);",
+        "  });",
+        "});",
+        ""
+      ]
+    }
+  },
+  {
+    "id": "term-orbit-slack-looser",
+    "expectedKind": "bound-term",
+    "change": {
+      "path": "packages/orbit/src/planets.test.ts",
+      "newLineNumber": 101,
+      "oldLine": "expect(distanceAu).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-12));",
+      "newLine": "expect(distanceAu).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-10));",
+      "oldText": "1e-12",
+      "newText": "1e-10",
+      "oldValue": 1e-12,
+      "newValue": 1e-10,
+      "numberPosition": 3,
+      "nearbyLines": [
+        "      fc.property(planet, validJdTdb, (body, jdTdb) => {",
+        "        const { semiMajorAxisAu: a, eccentricity: e } = planetElementsAt(body, jdTdb);",
+        "        const distanceAu = norm(planetStateAt(body, jdTdb).positionAu);",
+        "        expect(distanceAu).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-10));",
+        "        expect(distanceAu).toBeLessThanOrEqual(a * (1 + e) * (1 + 1e-12));",
+        "      }),",
+        "    );"
+      ]
+    }
+  },
+  {
+    "id": "term-path-slack-looser",
+    "expectedKind": "bound-term",
+    "change": {
+      "path": "apps/web/src/scene/bodies/orbitPath.test.ts",
+      "newLineNumber": 27,
+      "oldLine": "expect(radiusAt(path, index)).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-6));",
+      "newLine": "expect(radiusAt(path, index)).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-4));",
+      "oldText": "1e-6",
+      "newText": "1e-4",
+      "oldValue": 0.000001,
+      "newValue": 0.0001,
+      "numberPosition": 3,
+      "nearbyLines": [
+        "      );",
+        "      expect(radiusAt(path, 0) / (a * (1 - e))).toBeCloseTo(1, 6);",
+        "      for (let index = 0; index < ORBIT_PATH_POINTS; index += 1) {",
+        "        expect(radiusAt(path, index)).toBeGreaterThanOrEqual(a * (1 - e) * (1 - 1e-4));",
+        "        expect(radiusAt(path, index)).toBeLessThanOrEqual(a * (1 + e) * (1 + 1e-6));",
+        "      }",
+        "    },"
+      ]
+    }
+  },
+  {
+    "id": "term-perihelion-factor-looser",
+    "expectedKind": "bound-term",
+    "change": {
+      "path": "apps/web/src/scene/swarm/swarmKepler.test.ts",
+      "newLineNumber": 95,
+      "oldLine": "expect(distanceAu).toBeGreaterThan(semiMajorAxisAu * (1 - eccentricity) - float32SlackAu);",
+      "newLine": "expect(distanceAu).toBeGreaterThan(semiMajorAxisAu * (0.9 - eccentricity) - float32SlackAu);",
+      "oldText": "1",
+      "newText": "0.9",
+      "oldValue": 1,
+      "newValue": 0.9,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "          const orbit = swarmOrbitAt(buildSwarmAttributes(catalog, J2000_JD_TDB), 0);",
+        "          const distanceAu = Math.hypot(...swarmHeliocentricPosition(orbit, elapsedDays));",
+        "          const float32SlackAu = 1e-6 * semiMajorAxisAu;",
+        "          expect(distanceAu).toBeGreaterThan(semiMajorAxisAu * (0.9 - eccentricity) - float32SlackAu);",
+        "          expect(distanceAu).toBeLessThan(semiMajorAxisAu * (1 + eccentricity) + float32SlackAu);",
+        "        },",
+        "      ),"
+      ]
+    }
+  },
+  {
+    "id": "term-aphelion-factor-looser",
+    "expectedKind": "bound-term",
+    "change": {
+      "path": "apps/web/src/scene/swarm/swarmKepler.test.ts",
+      "newLineNumber": 96,
+      "oldLine": "expect(distanceAu).toBeLessThan(semiMajorAxisAu * (1 + eccentricity) + float32SlackAu);",
+      "newLine": "expect(distanceAu).toBeLessThan(semiMajorAxisAu * (1.1 + eccentricity) + float32SlackAu);",
+      "oldText": "1",
+      "newText": "1.1",
+      "oldValue": 1,
+      "newValue": 1.1,
+      "numberPosition": 1,
+      "nearbyLines": [
+        "          const distanceAu = Math.hypot(...swarmHeliocentricPosition(orbit, elapsedDays));",
+        "          const float32SlackAu = 1e-6 * semiMajorAxisAu;",
+        "          expect(distanceAu).toBeGreaterThan(semiMajorAxisAu * (1 - eccentricity) - float32SlackAu);",
+        "          expect(distanceAu).toBeLessThan(semiMajorAxisAu * (1.1 + eccentricity) + float32SlackAu);",
+        "        },",
+        "      ),",
+        "    );"
+      ]
+    }
+  },
+  {
     "id": "mixed-progress-digits-looser",
     "expectedKind": "closeness-digits",
     "change": {

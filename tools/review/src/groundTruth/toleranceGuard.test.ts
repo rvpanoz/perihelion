@@ -37,6 +37,15 @@ describe('blockingTolerances', () => {
     ]);
   });
 
+  it('blocks any change to a term inside a bound, whichever way it moves', async () => {
+    const findings = await blockingTolerances([LOOSENED, TIGHTENED], answering('bound-term'));
+
+    expect(findings.map(({ reason, detail }) => [reason, detail])).toEqual([
+      ['uncertain', 'bound-term 1e-11 → 1e-9: a term inside a bound; its direction is not judged'],
+      ['uncertain', 'bound-term 1e-9 → 1e-11: a term inside a bound; its direction is not judged'],
+    ]);
+  });
+
   it('blocks an answer that is not one of the kinds', async () => {
     expect(await reasonsFor([LOOSENED], answering('precision'))).toEqual(['uncertain']);
   });

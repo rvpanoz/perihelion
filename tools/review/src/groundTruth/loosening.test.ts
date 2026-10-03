@@ -18,6 +18,12 @@ describe('directionOf', () => {
     expect(directionOf(kind, { oldValue, newValue })).toBe(expected);
   });
 
+  it('cannot tell the direction of a term inside a bound, so any change is unknown', () => {
+    expect(directionOf('bound-term', { oldValue: 1000, newValue: 100 })).toBe('unknown');
+    expect(directionOf('bound-term', { oldValue: 1000, newValue: 10_000 })).toBe('unknown');
+    expect(directionOf('bound-term', { oldValue: 1000, newValue: 1000 })).toBe('equal');
+  });
+
   it('calls an unchanged value equal for every kind', () => {
     for (const [kind] of CASES)
       expect(directionOf(kind, { oldValue: 2, newValue: 2 })).toBe('equal');

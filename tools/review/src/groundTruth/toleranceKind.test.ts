@@ -35,6 +35,7 @@ describe('numberKindRequest', () => {
       'closeness-digits',
       'margin-multiplier',
       'lower-bound',
+      'bound-term',
       'not-a-tolerance',
     ]);
   });

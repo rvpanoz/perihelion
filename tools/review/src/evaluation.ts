@@ -1,5 +1,5 @@
 import type { MessageExample, Recording, ToleranceExample } from './examples.js';
-import { directionOf, isToleranceKind } from './groundTruth/loosening.js';
+import { directionBlocks, directionOf, isToleranceKind } from './groundTruth/loosening.js';
 import { type KindJudgement, kindJudgementOf } from './groundTruth/toleranceKind.js';
 import { noulOf } from './typesafe/jevResponse.js';
 
@@ -25,7 +25,7 @@ export function judgedExamples(
 }
 
 function isLoosening({ expectedKind, change }: ToleranceExample): boolean {
-  return isToleranceKind(expectedKind) && directionOf(expectedKind, change) === 'looser';
+  return isToleranceKind(expectedKind) && directionBlocks(directionOf(expectedKind, change));
 }
 
 /** Mirrors the guard's rule with the cutoff as a parameter. */
@@ -33,7 +33,7 @@ export function blocksAt(judged: JudgedExample, cutoff: number): boolean {
   const { judgement, example } = judged;
   if (!judgement) return true;
   if (!isToleranceKind(judgement.kind)) return judgement.confidence < cutoff;
-  return directionOf(judgement.kind, example.change) === 'looser';
+  return directionBlocks(directionOf(judgement.kind, example.change));
 }
 
 export interface CutoffOutcome {
