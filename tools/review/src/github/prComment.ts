@@ -21,30 +21,40 @@ export interface CommentTarget {
 }
 
 interface GitHubRequest {
-  method: 'GET' | 'POST' | 'PATCH';
+  method: 'GET' | 'POST' | 'PATCH' | 'DELETE';
   path: string;
   body?: string;
 }
 
 /** One review comment per PR, edited in place; a PR has far fewer than 100 comments here. */
 export async function upsertComment(target: CommentTarget, body: string): Promise<void> {
-  const existingId = await findReviewComment(target);
+  const existing = await findReviewComment(target);
   const issuePath = `/repos/${target.repository}/issues`;
   const request: GitHubRequest =
-    existingId === null
+    existing === null
       ? { method: 'POST', path: `${issuePath}/${target.issueNumber}/comments` }
-      : { method: 'PATCH', path: `${issuePath}/comments/${existingId}` };
+      : { method: 'PATCH', path: `${issuePath}/comments/${existing.id}` };
   await callGitHub(target, { ...request, body: JSON.stringify({ body }) });
 }
 
-async function findReviewComment(target: CommentTarget): Promise<number | null> {
+export interface ReviewComment {
+  id: number;
+  body: string;
+}
+
+export async function findReviewComment(target: CommentTarget): Promise<ReviewComment | null> {
   const path = `/repos/${target.repository}/issues/${target.issueNumber}/comments?per_page=100`;
   const comments = commentListSchema.parse(await callGitHub(target, { method: 'GET', path }));
   const ours = comments.find(
     (comment) =>
       comment.user?.login === WORKFLOW_BOT_LOGIN && (comment.body ?? '').includes(COMMENT_MARKER),
   );
-  return ours?.id ?? null;
+  return ours ? { id: ours.id, body: ours.body ?? '' } : null;
+}
+
+export async function removeLabel(target: CommentTarget, label: string): Promise<void> {
+  const path = `/repos/${target.repository}/issues/${target.issueNumber}/labels/${encodeURIComponent(label)}`;
+  await callGitHub(target, { method: 'DELETE', path });
 }
 
 async function callGitHub(target: CommentTarget, request: GitHubRequest): Promise<unknown> {

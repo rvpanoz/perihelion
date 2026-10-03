@@ -15,6 +15,8 @@ export function reviewResult(overrides: Partial<ReviewResult> = {}): ReviewResul
     tolerances: [],
     messages: { findings: [], jevUnavailable: false },
     approved: false,
+    approvedFingerprint: null,
+    approvalRevoked: false,
     ...overrides,
   };
 }

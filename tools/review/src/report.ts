@@ -1,3 +1,4 @@
+import { approvedFingerprintMarker } from './approval.js';
 import type { ToleranceFinding } from './groundTruth/toleranceGuard.js';
 import type { MessageFinding, MessageReview } from './messages/messageCheck.js';
 import {
@@ -15,23 +16,36 @@ const TOLERANCE_TABLE_HEADER = [
 export function renderReport(result: ReviewResult): string {
   const sections = [groundTruthSections(result), messageSection(result.messages)].flat();
   const body = sections.length > 0 ? sections : ['Nothing to flag.'];
-  return [COMMENT_MARKER, '## Ground-truth and message review', '', ...body].join('\n');
+  const approvalRecord = result.approvedFingerprint
+    ? [approvedFingerprintMarker(result.approvedFingerprint)]
+    : [];
+  return [
+    COMMENT_MARKER,
+    ...approvalRecord,
+    '## Ground-truth and message review',
+    '',
+    ...body,
+  ].join('\n');
 }
 
 function groundTruthSections(result: ReviewResult): string[] {
   if (!hasGroundTruthFindings(result)) return [];
   return [
-    statusLine(result.approved),
+    statusLine(result),
     '',
     ...fixtureSection(result.fixtureFiles),
     ...toleranceSection(result.tolerances),
   ];
 }
 
-function statusLine(approved: boolean): string {
-  return approved
-    ? `**Approved** with \`${APPROVAL_LABEL}\`: the user reviewed the changes below.`
-    : `**Blocked** until the changes below are undone or the user applies \`${APPROVAL_LABEL}\`.`;
+function statusLine({ approved, approvalRevoked }: ReviewResult): string {
+  if (approved) {
+    return `**Approved** with \`${APPROVAL_LABEL}\`: the user reviewed the changes below.`;
+  }
+  if (approvalRevoked) {
+    return `**Blocked**: the changes below changed since \`${APPROVAL_LABEL}\` was applied, so the label was removed. Review them and apply it again.`;
+  }
+  return `**Blocked** until the changes below are undone or the user applies \`${APPROVAL_LABEL}\`.`;
 }
 
 function fixtureSection(files: readonly string[]): string[] {

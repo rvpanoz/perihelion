@@ -1,3 +1,4 @@
+import type { Approval } from './approval.js';
 import type { ToleranceFinding } from './groundTruth/toleranceGuard.js';
 import type { MessageReview } from './messages/messageCheck.js';
 
@@ -6,11 +7,10 @@ export const APPROVAL_LABEL = 'ground-truth:approved';
 /** Hidden in the rendered comment; finds the review's own comment so each run edits it instead of adding one. */
 export const COMMENT_MARKER = '<!-- perihelion-review -->';
 
-export interface ReviewResult {
+export interface ReviewResult extends Approval {
   fixtureFiles: string[];
   tolerances: ToleranceFinding[];
   messages: MessageReview;
-  approved: boolean;
 }
 
 export function hasGroundTruthFindings(result: ReviewResult): boolean {

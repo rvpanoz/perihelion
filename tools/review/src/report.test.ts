@@ -38,6 +38,22 @@ describe('renderReport', () => {
     expect(report).toContain(FIXTURE);
   });
 
+  it('carries the approved fingerprint so later runs can check it', () => {
+    const fingerprint = 'a'.repeat(64);
+    const report = renderReport(
+      reviewResult({ fixtureFiles: [FIXTURE], approved: true, approvedFingerprint: fingerprint }),
+    );
+    expect(report).toContain(`<!-- perihelion-review-approved: ${fingerprint} -->`);
+  });
+
+  it('explains a revoked approval', () => {
+    const report = renderReport(reviewResult({ fixtureFiles: [FIXTURE], approvalRevoked: true }));
+
+    expect(report).toContain('**Blocked**');
+    expect(report).toContain('changed since `ground-truth:approved` was applied');
+    expect(report).not.toContain('perihelion-review-approved');
+  });
+
   it('gives message findings as advice, with Jev probabilities when judged', () => {
     const messages = {
       jevUnavailable: false,

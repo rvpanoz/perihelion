@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { COMMENT_MARKER } from '../review.js';
-import { upsertComment } from './prComment.js';
+import { findReviewComment, removeLabel, upsertComment } from './prComment.js';
 
 interface Call {
   url: string;
@@ -67,5 +67,31 @@ describe('upsertComment', () => {
   it('rejects with the status when GitHub refuses', async () => {
     const { target } = github([], 403);
     await expect(upsertComment(target, REPORT)).rejects.toThrow('HTTP 403');
+  });
+});
+
+describe('findReviewComment', () => {
+  it('returns the bot comment carrying the marker, with its body', async () => {
+    const { target } = github([{ id: 2, body: REPORT, user: BOT }]);
+    expect(await findReviewComment(target)).toEqual({ id: 2, body: REPORT });
+  });
+
+  it('returns null when there is none', async () => {
+    const { target } = github([]);
+    expect(await findReviewComment(target)).toBeNull();
+  });
+});
+
+describe('removeLabel', () => {
+  it('deletes the label from the PR', async () => {
+    const { calls, target } = github([]);
+    await removeLabel(target, 'ground-truth:approved');
+
+    expect(calls.map(({ method, url }) => [method, url])).toEqual([
+      [
+        'DELETE',
+        'https://api.github.com/repos/rvpanoz/perihelion/issues/149/labels/ground-truth%3Aapproved',
+      ],
+    ]);
   });
 });

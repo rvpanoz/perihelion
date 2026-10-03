@@ -21,3 +21,14 @@ export const pullRequestEventSchema = z
   }));
 
 export type PullRequest = z.output<typeof pullRequestEventSchema>;
+
+const labeledEventSchema = z.object({
+  action: z.literal('labeled'),
+  label: z.object({ name: z.string() }),
+});
+
+/** The label a `labeled` event just added; null for every other event. */
+export function labelJustAppliedIn(event: unknown): string | null {
+  const parsed = labeledEventSchema.safeParse(event);
+  return parsed.success ? parsed.data.label.name : null;
+}

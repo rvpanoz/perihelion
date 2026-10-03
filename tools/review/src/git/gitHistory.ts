@@ -13,7 +13,12 @@ const MAX_GIT_OUTPUT_BYTES = 64 * 1024 * 1024;
 
 /** Three dots: only what the PR's commits changed since they left the base branch. */
 export function readDiff({ baseSha, headSha }: CommitRange): string {
-  return git(['diff', '--unified=3', '--find-renames', `${baseSha}...${headSha}`]);
+  return git(['diff', '--unified=3', '--find-renames', rangeOf({ baseSha, headSha })]);
+}
+
+/** Full blob ids, so a changed binary recording changes the text too (it feeds the approval fingerprint). */
+export function readProtectedDiff(range: CommitRange, paths: readonly string[]): string {
+  return git(['diff', '--full-index', '--no-color', rangeOf(range), '--', ...paths]);
 }
 
 export function readCommits({ baseSha, headSha }: CommitRange): CommitMessage[] {
@@ -31,4 +36,8 @@ export function parseCommitLog(text: string): CommitMessage[] {
 
 function git(args: string[]): string {
   return execFileSync('git', args, { encoding: 'utf8', maxBuffer: MAX_GIT_OUTPUT_BYTES });
+}
+
+function rangeOf({ baseSha, headSha }: CommitRange): string {
+  return `${baseSha}...${headSha}`;
 }
