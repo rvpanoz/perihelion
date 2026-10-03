@@ -18,6 +18,8 @@ import { CmeCard } from './eruptions/CmeCard';
 import { CmeList } from './eruptions/CmeList';
 import { useSelectedCme } from './eruptions/cmeSelection';
 import { watchEruption } from './eruptions/watchEruption';
+import { FirstVisitHint } from './help/FirstVisitHint';
+import { HelpControl } from './help/HelpControl';
 import { SceneCanvas } from './scene/SceneCanvas';
 import { FocusPicker } from './scene/camera/FocusPicker';
 import { OpeningCaption } from './scene/opening/OpeningCaption';
@@ -25,6 +27,7 @@ import { AppShell } from './shell/AppShell';
 import { Brand } from './shell/Brand';
 import { DataStatusPill } from './shell/DataStatusPill';
 import { DisplayPanel } from './shell/DisplayPanel';
+import { OrbitClassLegend } from './shell/OrbitClassLegend';
 import { ShellColumn } from './shell/ShellColumn';
 import { SnapshotBanner } from './shell/SnapshotBanner';
 import type { NamedDatasetState } from './shell/dataStatus';
@@ -55,23 +58,24 @@ export function App() {
   return (
     <AppShell
       top={<ShellTop neoCatalog={neoCatalog} closeApproaches={closeApproaches} cmes={cmes} />}
-      left={<ShellLeft closeApproaches={closeApproaches} cmes={cmes} />}
+      left={<ShellLeft neoCatalog={neoCatalog} closeApproaches={closeApproaches} cmes={cmes} />}
       right={<ShellRight />}
       bottom={<TimeControls />}
     >
       <SceneCanvas swarm={swarm} openingCanStart={neoCatalog.status !== 'loading'} />
       <OpeningCaption neoCount={neoCatalog.status === 'ready' ? neoCatalog.count : undefined} />
+      <FirstVisitHint />
     </AppShell>
   );
 }
 
-interface ShellTopProps {
+interface ShellDataProps {
   neoCatalog: NeoCatalogState;
   closeApproaches: CloseApproachesState;
   cmes: CmesState;
 }
 
-function ShellTop({ neoCatalog, closeApproaches, cmes }: ShellTopProps) {
+function ShellTop({ neoCatalog, closeApproaches, cmes }: ShellDataProps) {
   const datasets = [
     neoCatalogStatus(neoCatalog),
     { label: 'Close approaches', state: closeApproaches },
@@ -81,7 +85,10 @@ function ShellTop({ neoCatalog, closeApproaches, cmes }: ShellTopProps) {
     <>
       <Brand />
       <FocusPicker />
-      <DataStatusPill datasets={datasets} />
+      <div className="shell-top-end">
+        <DataStatusPill datasets={datasets} />
+        <HelpControl />
+      </div>
       <SnapshotBanner datasets={datasets} />
     </>
   );
@@ -89,15 +96,9 @@ function ShellTop({ neoCatalog, closeApproaches, cmes }: ShellTopProps) {
 
 /**
  * Passed and Coming split on the wall clock, refreshed every 30 s, not on the scrubbed time, so the groups never
- * jump while the viewer scrubs.
+ * jump while the viewer scrubs. The swarm's legend sits under the lists, where the mockup has it.
  */
-function ShellLeft({
-  closeApproaches,
-  cmes,
-}: {
-  closeApproaches: CloseApproachesState;
-  cmes: CmesState;
-}) {
+function ShellLeft({ neoCatalog, closeApproaches, cmes }: ShellDataProps) {
   const nowMs = useNowMs(APPROACH_GROUPING_INTERVAL_MS);
   const selected = useSelectedApproach();
   const selectedCme = useSelectedCme();
@@ -110,6 +111,7 @@ function ShellLeft({
         onSelect={chooseApproach}
       />
       <CmeList state={cmes} selected={selectedCme} onSelect={chooseCme} />
+      {neoCatalog.status === 'ready' && <OrbitClassLegend {...neoCatalog} />}
     </ShellColumn>
   );
 }

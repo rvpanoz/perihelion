@@ -317,17 +317,17 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 - [x] Tier governor and Display panel (#130)
 - [x] Progressive loading: worker and code splitting (#131)
 - [x] Fallbacks: no WebGL2, server timeout (#132)
-- [ ] Responsive layout, touch and scrollbars (#133)
+- [x] Responsive layout, touch and scrollbars (#133)
 - [x] Accessibility and reduced motion (#134)
-- [ ] Help dialog, orbit-class legend, first-visit hint and credits (#135)
+- [x] Help dialog, orbit-class legend, first-visit hint and credits (#135)
 - [ ] Deploy: Netlify and Render (#136)
 - [x] Jev PR review: fixtures, tolerances and commit messages (#148)
 - [ ] Exit verification (#137)
 
 Status (2026-10-03): plan merged in #138, with issues #128–#137 on the board. README rewritten for the current state
 in #139. Task 1 (#128) merged in #141, Task 2 (#129) in #142, Task 3 (#130) in #143, Task 4 (#131) in #144, Task 7
-(#134) in #145, Task 5 (#132) in #146. Task 6 (#133) on `phase-7/responsive`, review proposals 1–10 included (plan
-Task 6, "As built"); the device-emulation check is the user's. Jev PR review (#148) in #149.
+(#134) in #145, Task 5 (#132) in #146, Task 6 (#133) in #147 (the device-emulation check is the user's). Jev PR
+review (#148) in #149. Task 8 (#135) on `phase-7/help`, review proposals 1–11 included (plan Task 8, "As built").
 
 ### Phase 7 baseline
 
@@ -466,6 +466,13 @@ then frames over 20 ms.
   bar). Opening Display closed Events and back (native `<details name>`). Sideways the time bar is one 62 px row.
 - Not checked by me: touch rotate and pinch, the 44 px targets under `(pointer: coarse)`, and page scroll while
   dragging, all of which need Chrome's device emulation (DevTools).
+
+### Help, legend and hint (#135)
+
+- Legend against `/api/neos` (2026-10-04, origin `fresh`, fetched 21:52Z): 42,558 asteroids; Atira 38, Aten 3,467,
+  Apollo 24,194, Amor 14,859, adding up to the total.
+- Initial JS 375,017 B gzip (budget 380,000 B): +2,110 B for the legend, hint, help button and store. The dialog and
+  its copy load on first open (3.3 KB gzip); eager, the first download would be 376,365 B.
 
 ### Jev PR review (#148)
 
@@ -1037,3 +1044,8 @@ _None._
   `rotateSpeed` unchanged: OrbitControls already scales rotation by canvas height and sets `touch-action: none`.
   Touch targets are 44 px only under `(pointer: coarse)`; the focus picker is one scrolling row on phones; `body`
   has `overscroll-behavior: none`.
+- **2026-10-04:** Task 8 (#135): the guide is a native `<dialog>` loaded on first open (`React.lazy`), opened by the
+  top bar's `?` button or the `?` key (not in form controls, not with modifiers). Its five tabs follow the WAI-ARIA
+  tabs pattern. The orbit-class legend lists the classes from the Sun outwards, not by count, so rows never reorder on
+  a data swap. The first-visit hint shows after the opening, once the caption has faded; dismissing it or opening help
+  hides it for good (`perihelion.helpHintSeen`), and it still works for the session when storage throws.

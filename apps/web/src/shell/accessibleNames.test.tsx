@@ -4,6 +4,9 @@ import { ApproachCard } from '../approaches/ApproachCard';
 import { ApproachList } from '../approaches/ApproachList';
 import { CmeCard } from '../eruptions/CmeCard';
 import { CmeList } from '../eruptions/CmeList';
+import { FirstVisitHintView } from '../help/FirstVisitHint';
+import { HelpButton } from '../help/HelpControl';
+import HelpDialog from '../help/HelpDialog';
 import { FocusPicker } from '../scene/camera/FocusPicker';
 import { closeApproachRow } from '../test/closeApproachRow';
 import { cmeRow } from '../test/cmeRow';
@@ -48,6 +51,9 @@ const PANELS = {
       onShowTrailsChange={ignore}
     />
   ),
+  HelpButton: <HelpButton onOpen={ignore} />,
+  HelpDialog: <HelpDialog open={false} onClose={ignore} />,
+  FirstVisitHint: <FirstVisitHintView onDismiss={ignore} />,
 };
 
 /** Visible text a screen reader would read: tags dropped, `aria-hidden` parts (glyphs, swatches) removed first. */

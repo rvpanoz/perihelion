@@ -1,11 +1,6 @@
-import {
-  type CloseApproach,
-  DEFAULT_CLOSE_APPROACH_DAYS,
-  NEO_ORBIT_CLASSES,
-  type NeoOrbitClass,
-} from '@perihelion/data';
+import { type CloseApproach, DEFAULT_CLOSE_APPROACH_DAYS } from '@perihelion/data';
 import type { DatasetState } from '../data/useDataset';
-import { SWARM_CLASS_COLORS } from '../scene/swarm/swarmLook';
+import { ClassSwatch } from '../shell/ClassSwatch';
 import { tabStopKey } from '../shell/rovingRows';
 import { useRovingRows } from '../shell/useRovingRows';
 import {
@@ -156,11 +151,4 @@ function ApproachRowMeta({ approach }: { approach: CloseApproach }) {
       </span>
     </span>
   );
-}
-
-/** The swarm's colour for the class, so a row matches its asteroid's dot in the scene. */
-function ClassSwatch({ orbitClass }: { orbitClass: NeoOrbitClass | null }) {
-  if (orbitClass === null) return null;
-  const color = SWARM_CLASS_COLORS[NEO_ORBIT_CLASSES.indexOf(orbitClass)];
-  return <span className="swatch" style={{ background: color }} aria-hidden="true" />;
 }
