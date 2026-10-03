@@ -77,6 +77,16 @@ describe('numberChanges', () => {
     );
   });
 
+  it('reads shared test helpers, where a default tolerance can loosen many assertions', () => {
+    for (const path of [
+      'apps/web/src/scene/swarm/swarmTestSupport.ts',
+      'apps/server/src/testing/testConstants.ts',
+    ]) {
+      const text = oneLineChange(path, { from: '  digits = 6,', to: '  digits = 3,' });
+      expect(numberChanges(parseDiff(text)).map((change) => change.path)).toEqual([path]);
+    }
+  });
+
   it('only reads test files', () => {
     const text = oneLineChange('packages/orbit/src/angles.ts', { from: 'x(1);', to: 'x(2);' });
     expect(numberChanges(parseDiff(text))).toEqual([]);

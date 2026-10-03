@@ -31,7 +31,9 @@ interface Literal {
 
 type ChangedLiteral = Omit<NumberChange, 'path' | 'nearbyLines'>;
 
-const TEST_FILE = /\.test\.tsx?$/;
+// Test files, and shared test helpers: a default tolerance there (`digits = 6` in swarmTestSupport.ts) loosens every
+// assertion that uses it.
+const TEST_CODE = /(?:\.test\.tsx?|TestSupport\.tsx?|\/testing\/[^/]+\.tsx?)$/;
 // A literal not glued to an identifier, member access or call result: `vec3`, `x.5` and `f()-1` are not numbers
 // here, `(-1`, `1e-12`, `1_000` and `.5` are.
 const NUMBER_LITERAL =
@@ -40,7 +42,7 @@ const NEARBY_LINES = 3;
 
 export function numberChanges(files: readonly FileDiff[]): NumberChange[] {
   return files.flatMap((file) =>
-    file.newPath !== null && TEST_FILE.test(file.newPath) ? changesInFile(file, file.newPath) : [],
+    file.newPath !== null && TEST_CODE.test(file.newPath) ? changesInFile(file, file.newPath) : [],
   );
 }
 

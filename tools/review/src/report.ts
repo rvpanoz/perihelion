@@ -36,7 +36,12 @@ function statusLine(approved: boolean): string {
 
 function fixtureSection(files: readonly string[]): string[] {
   if (files.length === 0) return [];
-  return ['### Fixture and recording changes', '', ...files.map((file) => `- \`${file}\``), ''];
+  return [
+    '### Protected files (fixtures, recordings and the review check)',
+    '',
+    ...files.map((file) => `- \`${file}\``),
+    '',
+  ];
 }
 
 function toleranceSection(findings: readonly ToleranceFinding[]): string[] {

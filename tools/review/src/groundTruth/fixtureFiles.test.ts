@@ -47,6 +47,20 @@ describe('protectedFiles', () => {
     ).toEqual(['packages/fixtures/data/planets.json', 'packages/fixtures/upstream/a.json']);
   });
 
+  it('protects the review check itself, so a PR cannot weaken it unseen', () => {
+    expect(
+      protectedIn(
+        modifiedFile('tools/review/src/groundTruth/loosening.ts', SMALL_HUNK),
+        modifiedFile('tools/review/examples/tolerances.json', SMALL_HUNK),
+        modifiedFile('.github/workflows/review.yml', SMALL_HUNK),
+      ),
+    ).toEqual([
+      '.github/workflows/review.yml',
+      'tools/review/examples/tolerances.json',
+      'tools/review/src/groundTruth/loosening.ts',
+    ]);
+  });
+
   it('leaves the web snapshot and the fixture package code alone', () => {
     expect(
       protectedIn(
