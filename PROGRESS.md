@@ -366,6 +366,14 @@ servers were idle on the machine. Cells: median / p90 / worst ms, then frames ov
 - Governor, Auto at `?dpr=2&swarmStress=4`, overview: logged `[quality] high → medium` during the run, which ended on Medium
   at DPR 1.5 (536 frames, median 15.9 ms; p90 37.5 and worst 131 ms are the High frames before the step and the step itself).
 
+### Exit verification: no WebGL2 (Task 10, check 4, part)
+
+Checked 2026-10-04 on the dev server (`?webgl=off`, which skips the probe so no WebGL context is created by the app), same
+Chrome 154 and 1920×900 window, driven over the DevTools protocol. After 5 s: no `<canvas>`; the "Perihelion needs WebGL 2"
+notice with its explanation; all three stills loaded (`swarm`, `close-approach`, `eruption`, each with its alt text); no
+request to `/api/*`, `/snapshot/*`, the star catalogue or the Earth texture (the only matches were Vite's own source
+modules). Still to run: reduced motion and the keyboard-only pass (the user), and the asleep-server visit (#136).
+
 ### Phase 7 baseline
 
 Measured 2026-10-02 on `phase-7/baseline` (`main` at `0f9d2ca` plus the harness), in Chrome in a foreground window
