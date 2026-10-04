@@ -1,0 +1,36 @@
+[build]
+  command = "npm ci && npm run build -w apps/web"
+  publish = "apps/web/dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+
+# The web app only asks relative paths, so the browser never sees the server's origin (no CORS).
+# TODO(deploy): replace perihelion-server with the Render service name once it exists.
+# The health check sits above /api/* because the server answers /health, not /api/health.
+[[redirects]]
+  from = "/api/health"
+  to = "https://perihelion-server.onrender.com/health"
+  status = 200
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://perihelion-server.onrender.com/api/:splat"
+  status = 200
+
+# Vite hashes everything under /assets, so it can be cached for good.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Snapshot filenames are not hashed, so they must be revalidated on every load.
+[[headers]]
+  for = "/snapshot/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

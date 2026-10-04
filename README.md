@@ -68,7 +68,7 @@ npm run dev    # start the web app and the data server together
 ```
 
 The data server listens on port 8787, and the web app's dev server forwards `/api` requests to it. Optional settings
-(`PORT`, `DATABASE_PATH`, `SNAPSHOT_DIR`) are listed in [`.env.example`](.env.example).
+(`PORT`, `HOST`, `DATABASE_PATH`, `SNAPSHOT_DIR`) are listed in [`.env.example`](.env.example).
 
 ## Commands
 
