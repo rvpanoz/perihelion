@@ -22,6 +22,7 @@
     "build": "npm run build --workspaces --if-present",
     "check": "npm run typecheck && npm run lint && npm run test && npm run build && node scripts/bundleBudget.mjs",
     "fixtures": "npm run generate --workspace @perihelion/fixtures",
+    "stars": "npm run stars --workspace @perihelion/web",
     "snapshot": "npm run snapshot --workspace @perihelion/server",
     "record": "npm run record --workspace @perihelion/server"
   },

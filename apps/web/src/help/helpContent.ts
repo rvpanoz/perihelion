@@ -75,7 +75,7 @@ const REAL: HelpTab = {
   entries: [
     {
       term: 'Illustrative',
-      text: 'Sizes and brightness of the swarm’s dots, their colours and trails, the planets’ colours, the motion of the Sun’s surface, the markers drawn over Earth, the close-up, the CME’s particle shell (DONKI’s cone model made visible), the magnetosphere and the aurora.',
+      text: 'Sizes and brightness of the swarm’s dots, their colours and trails, the planets’ colours, the motion of the Sun’s surface, the markers drawn over Earth, the close-up, the CME’s particle shell (DONKI’s cone model made visible), the magnetosphere, the aurora, and how big and bright each star is drawn — where the stars are is real.',
     },
   ],
 };
@@ -165,6 +165,11 @@ const CREDITS: HelpTab = {
       term: 'NASA Blue Marble Next Generation',
       text: 'the Earth texture (NASA Earth Observatory, public domain)',
       link: 'https://earthobservatory.nasa.gov/features/BlueMarble',
+    },
+    {
+      term: 'Yale Bright Star Catalogue (NASA HEASARC)',
+      text: 'the stars: every naked-eye star down to magnitude 6.5, at its real J2000 position',
+      link: 'https://heasarc.gsfc.nasa.gov/W3Browse/star-catalog/bsc5p.html',
     },
     {
       term: 'three.js, React Three Fiber, drei, postprocessing',

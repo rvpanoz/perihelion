@@ -4,6 +4,7 @@ import { SolarSystem } from './bodies/SolarSystem';
 import { CmeScene } from './eruption/CmeScene';
 import { EruptionDirector } from './eruption/EruptionDirector';
 import { SimulationClock } from './SimulationClock';
+import { Starfield } from './stars/Starfield';
 import { Swarm, type SwarmProps } from './swarm/Swarm';
 
 const AMBIENT_LIGHT_INTENSITY = 0.03;
@@ -15,6 +16,7 @@ export function SceneContents({ swarm }: { swarm: SwarmProps | undefined }) {
       <EruptionDirector />
       <SimulationClock />
       <ambientLight intensity={AMBIENT_LIGHT_INTENSITY} />
+      <Starfield />
       <SolarSystem />
       <ApproachScene />
       <CmeScene />

@@ -8,6 +8,7 @@ import { useQualityTier } from '../quality/qualityStore';
 import { pixelRatioFor } from '../quality/qualityTiers';
 import { CAMERA_SETTINGS, RENDERER_PARAMETERS, SCENE_BACKGROUND } from './canvasConfig';
 import { earthDayMap } from './bodies/earth/earthDayMap';
+import { starCatalog } from './stars/starCatalogStore';
 import { CameraControls } from './camera/CameraControls';
 import { EffectsWarmUp } from './effects/EffectsWarmUp';
 import { OpeningDirector } from './opening/OpeningDirector';
@@ -43,7 +44,10 @@ export interface SceneCanvasProps {
  * the scene tests don't have.
  */
 export function SceneCanvas({ swarm, openingCanStart }: SceneCanvasProps) {
-  useEffect(() => earthDayMap.load(), []);
+  useEffect(() => {
+    earthDayMap.load();
+    void starCatalog.load();
+  }, []);
   const pixelRatio = pixelRatioFor(useQualityTier(), DEV_PIXEL_RATIO ?? window.devicePixelRatio);
   const [effectsWarm, setEffectsWarm] = useState(false);
   return (

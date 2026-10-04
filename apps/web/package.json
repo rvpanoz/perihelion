@@ -8,8 +8,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.scripts.json",
+    "test": "vitest run",
+    "stars": "tsx scripts/generateStarfield.ts"
   },
   "dependencies": {
     "@perihelion/data": "^0.0.0",
