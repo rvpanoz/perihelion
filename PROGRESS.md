@@ -335,6 +335,37 @@ opening's caption has gone, `?` opens the guide and Esc closes it, the tab list 
 chosen tab across a close, all five tabs render, and the legend reads 38 / 3,467 / 24,194 / 14,859 of 42,558, the
 Atira / Aten / Apollo / Amor counts of `/api/neos`.
 
+### Exit verification: frame times (Task 10, check 3)
+
+Measured 2026-10-04 on `phase-7/exit-verification-runs` (`main` at `3bc443f` plus the repo-link PR), on the dev server (the bench
+switches are dev-only), in Chrome 154.0.8037.93 driven over the DevTools protocol by a throwaway script (no app code), in a
+foreground window with the canvas at 1920×900 CSS px (the baseline used 809), on an Apple M3 with 16 GB, macOS 26.5,
+Dell S2721HN at 75 Hz; live data, trails on, `?opening=off&bench=<scenario>`, 10 s per run, no idle between runs. Other dev
+servers were idle on the machine. Cells: median / p90 / worst ms, then frames over 20 ms. `?dpr=2` stands in for the device ratio.
+
+| Scenario | High, normal (DPR 1)      | `?dpr=2` Low              | `?dpr=2` Medium           | `?dpr=2` High               |
+| -------- | ------------------------- | ------------------------- | ------------------------- | --------------------------- |
+| overview | 13.3 / 13.7 / 14.7, 0/750 | 13.3 / 13.5 / 15.5, 0/750 | 13.3 / 14.3 / 14.6, 0/750 | 23.0 / 24.1 / 25.3, 432/432 |
+| earth    | 13.3 / 13.6 / 14.5, 0/750 | 13.3 / 13.6 / 14.4, 0/750 | 13.3 / 14.2 / 15.0, 0/750 | 18.1 / 19.2 / 20.4, 5/548   |
+| approach | 13.3 / 13.6 / 15.2, 0/750 | 13.3 / 13.8 / 14.5, 0/750 | 13.3 / 13.6 / 14.9, 0/750 | 18.2 / 19.4 / 22.1, 16/551  |
+| eruption | 13.3 / 13.5 / 15.1, 0/750 | 13.3 / 14.3 / 16.4, 0/750 | 13.3 / 13.6 / 14.5, 0/750 | 20.4 / 23.8 / 25.4, 309/474 |
+
+| Scenario | `?dpr=2&swarmStress=4` Low | … Medium                  | … High                      |
+| -------- | -------------------------- | ------------------------- | --------------------------- |
+| overview | 13.3 / 13.8 / 15.0, 0/750  | 15.8 / 16.9 / 18.0, 0/626 | 38.6 / 39.5 / 42.4, 260/260 |
+| earth    | 13.3 / 13.7 / 14.7, 0/750  | 13.3 / 14.0 / 16.0, 0/750 | 21.4 / 22.1 / 23.8, 464/469 |
+| approach | 13.3 / 13.7 / 14.6, 0/750  | 13.3 / 14.3 / 15.0, 0/750 | 19.3 / 22.7 / 24.5, 217/502 |
+| eruption | 13.3 / 13.8 / 14.6, 0/750  | 13.4 / 16.8 / 18.2, 0/699 | 29.1 / 39.9 / 40.9, 311/311 |
+
+- Normal settings (DPR 1, High): every scenario holds the display's 75 fps with no frame over 20 ms.
+- Low holds 75 fps in every run, including under the 4× swarm at `?dpr=2`. Medium holds it everywhere except the 4× overview
+  (15.8 ms median, 63 fps, no frame over 20 ms; Task 2 measured 14.3 ms with a smaller window).
+- High at `?dpr=2` is the case the governor exists for: overview 23.0 ms (baseline 23.3, Task 2 20.4), the rest 18–20 ms; under
+  the 4× swarm it misses in every scenario (overview 38.6 ms). The window is 11 % taller than Task 2's, which is a likely part
+  of the gap on High.
+- Governor, Auto at `?dpr=2&swarmStress=4`, overview: logged `[quality] high → medium` during the run, which ended on Medium
+  at DPR 1.5 (536 frames, median 15.9 ms; p90 37.5 and worst 131 ms are the High frames before the step and the step itself).
+
 ### Phase 7 baseline
 
 Measured 2026-10-02 on `phase-7/baseline` (`main` at `0f9d2ca` plus the harness), in Chrome in a foreground window
