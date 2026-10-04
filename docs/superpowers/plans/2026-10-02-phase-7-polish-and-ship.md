@@ -107,6 +107,7 @@ parts):
 | 11  | Visual polish: sprites, lines, stars, AA     | #152  | light     | ✅     |
 | 9   | Deploy: Netlify + Render                     | #136  | light     | ⬜     |
 | 10  | Exit verification                            | #137  | light     | ⬜     |
+| 12  | Link the GitHub repo in the app              | #156  | light     | ⬜     |
 
 Rows are in the order the tasks run; Task 11 was added after Task 8 and runs before Tasks 9 and 10.
 Branches: `phase-7/<short-name>` per task, one PR each. Task 3 needs Task 2; Task 4's bundle budget needs Task 1;
@@ -1059,11 +1060,11 @@ Branch `phase-7/exit-verification`. Files: `PROGRESS.md`, plan status.
 1. **Public URL** end to end: the opening, an approach, an eruption, the help dialog, on the deployed site.
 2. **Lighthouse desktop** on the public URL, three runs, median: Performance ≥ 85, TBT < 300 ms, Accessibility ≥ 90
    (decision 11). Record LCP and CLS too.
-3. **Frame times per tier** with `?bench` (`overview`, `earth`, `approach`, `eruption`): each tier at normal settings,
+3. **Frame times per tier** (dev server: the bench switches are dev-only) with `?bench` (`overview`, `earth`, `approach`, `eruption`): each tier at normal settings,
    and the proxy runs, against the baseline. The governor seen stepping down under the 4× proxy load.
 4. **Fallbacks:** no WebGL2, server asleep (snapshot then live), reduced motion, keyboard-only pass.
-5. **Recording:** `?bench=tour` on the public URL; the user captures it (60 s, 1080p); linked from the README and the
-   release.
+5. **Recording:** a manual walkthrough of the public URL (60 s, 1080p) that the user captures; linked from the README
+   and the release.
 6. **Release:** tag `v0.7.0` on the merge commit once CI on `main` is green, with the recording and stills; close the
    milestone.
 
@@ -1071,6 +1072,37 @@ Branch `phase-7/exit-verification`. Files: `PROGRESS.md`, plan status.
 
 - [ ] Every check above recorded in `PROGRESS.md` with screen, canvas size, DPR and browser version.
 - [ ] `npm run check` green.
+
+**As built** (review proposals 1–7, approved 2026-10-04):
+
+1. `?bench=`, `?tier=`, `?dpr=`, `?swarmStress=` and `?webgl=off` are `import.meta.env.DEV` only, so the public build
+   ignores them. The frame-time sweeps (check 3) and the no-WebGL2 check run on the dev server, as the baseline did.
+   The public site is measured through the Display panel and the governor's tier at DPR 1.
+2. The recording (check 5) is a manual walkthrough of the public site, not `?bench=tour`: the dev server draws the FPS
+   meter and other dev overlays.
+3. Lighthouse runs on the Netlify URL (desktop, three runs, median) with the Render state (warm or asleep) noted.
+4. Reduced motion and the keyboard-only pass run on the public site; the asleep-server first visit is recorded under
+   #136.
+5. Claude runs the dev-server sweeps and the `curl` checks; the user runs Lighthouse, the recording and the OS
+   reduced-motion toggle.
+6. Release: annotated `v0.7.0` on the merge commit once CI on `main` is green; stills and the recording link in the
+   release and the README; the Phase 7 milestone closed.
+
+## Task 12: Link the GitHub repo in the app (light)
+
+Branch `phase-7/repo-link`. Added 2026-10-04 at the user's request, after Task 9.
+
+**Scope:** show the repository URL, `https://github.com/rvpanoz/perihelion`, in the app so a visitor can find the
+source. The natural place is the credits tab of the help dialog (`apps/web/src/help/helpContent.ts`), as an ordinary
+external link (`rel="noopener noreferrer"`, opens in a new tab). The repo is private today, so the link would 404 for
+visitors: it ships only once the repo is public (the user's decision, pending a history and licence audit).
+
+**Tests:** the credits content includes the URL and the link renders with the right `href` and `rel`.
+
+**Acceptance:**
+
+- [ ] The link is in the credits and opens the repository in a new tab.
+- [ ] `npm run check` green; initial JS stays under budget.
 
 ## Task 11: Visual polish: sprites, lines, stars, anti-aliasing (light)
 
