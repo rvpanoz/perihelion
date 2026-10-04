@@ -15,10 +15,6 @@ import { SceneContents } from './SceneContents';
 import type { SwarmProps } from './swarm/Swarm';
 
 /**
- * Read once per load. It stands in for the device's ratio, so the tier still caps it and proxy runs show the tiers
- * apart; production builds drop it.
- */
-/**
  * Postprocessing is ~20 KB of the first download; as its own chunk it loads alongside the first frames, and the
  * scene draws without bloom until it lands. The opening waits for it (`EffectsWarmUp`), so its set-up frame never
  * falls inside the move.
@@ -27,6 +23,10 @@ const Effects = lazy(() =>
   import('./effects/Effects').then(({ Effects }) => ({ default: Effects })),
 );
 
+/**
+ * Read once per load. It stands in for the device's ratio, so the tier still caps it and proxy runs show the tiers
+ * apart; production builds drop it.
+ */
 const DEV_PIXEL_RATIO = import.meta.env.DEV
   ? devPixelRatioFromUrl(window.location.search)
   : undefined;
@@ -57,8 +57,12 @@ export function SceneCanvas({ swarm, openingCanStart }: SceneCanvasProps) {
         <EffectsWarmUp onWarm={() => setEffectsWarm(true)} />
       </Suspense>
       <QualityGovernor />
-      <Stats className="fps-meter" />
-      {import.meta.env.DEV && <DevProbes />}
+      {import.meta.env.DEV && (
+        <>
+          <Stats className="fps-meter" />
+          <DevProbes />
+        </>
+      )}
     </Canvas>
   );
 }

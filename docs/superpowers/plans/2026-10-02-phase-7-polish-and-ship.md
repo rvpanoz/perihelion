@@ -1097,25 +1097,31 @@ measured against a scene that is otherwise final.
   `logdepthbuf` chunks in both stages, since the logarithmic depth buffer is always on; normal blending, not
   additive — an over-body marker on a lit limb would otherwise blow out; `depthTest`/`depthWrite` from
   `look.overBody`, as today.
-- **Earth day map anisotropy.** The 2048 × 1024 map is sampled at a grazing angle across most of the disc and
-  smears. `EarthDayMapStore.load` takes `{ loader?, maxAnisotropy? }` and `#receive` sets
-  `texture.anisotropy = Math.min(maxAnisotropy, EARTH_LOOK.dayMapAnisotropy)` (8; the gain above that is invisible).
-  The store has no renderer, so the load moves into a one-line in-canvas component,
-  `scene/bodies/earth/EarthDayMapLoader.tsx`, reading `state.gl.capabilities.getMaxAnisotropy()`; `SceneCanvas`
-  renders it instead of calling `load()` in an effect. `SceneContents` is untouched, so the scene tests stay DOM-free.
+- ~~**Earth day map anisotropy.**~~ Tried and **dropped** (user decision, 2026-10-04): see the measurement below.
 
-**Tests:** `roundSprite.test.ts` — the chunk declares `roundSpriteAlpha` and `SWARM_FRAGMENT_SHADER` includes it;
-`markerMaterial.test.ts` — uniforms, `sizeAttenuation` arithmetic in the vertex source, the `logdepthbuf` chunks,
-and `depthTest`/`depthWrite` following `overBody`; `earthDayMap.test.ts` — anisotropy clamped to 8, left at the
-three.js default when no maximum is given, `colorSpace` still sRGB. The `Stats` gate has no test (neither does
-`DevProbes`): evidence is the production bundle, grepped for `showPanel`.
+**Tests:** `markerMaterial.test.ts` — the shared chunk comes before `main`, the uniforms, the pixel-ratio
+arithmetic in the vertex source, the `logdepthbuf` chunks, and `depthTest`/`depthWrite` following `overBody`;
+`swarmMesh.test.ts` — the swarm's fragment shader calls the shared chunk with core 0, so its look cannot drift. The
+`Stats` gate has no test (neither does `DevProbes`): evidence is the production bundle, grepped for `showPanel`.
 
 **Acceptance:**
 
-- [ ] No FPS meter in `vite preview`; `showPanel` absent from `dist`; initial JS gzip recorded.
-- [ ] Earth and asteroid markers are round with a soft edge, same size and colour as before; before/after stills.
-- [ ] Earth's day map reads sharp towards the limb; before/after stills.
-- [ ] Frame time unchanged at `?bench=overview` and `?bench=approach`.
+- [x] No FPS meter in `vite preview`; `showPanel` absent from `dist`; initial JS gzip recorded.
+- [x] Earth and asteroid markers are round with a soft edge, same size and colour as before; before/after stills.
+- [x] Frame time unchanged at `?bench=overview` and `?bench=approach`.
+
+**Measured 2026-10-04** (dev server, Chrome, Dell S2721HN 1080p 75 Hz, Apple M3 via ANGLE Metal, DPR 1, tier High):
+
+- `showPanel` appears in no file under `apps/web/dist`; it is drei's `Stats` (`@react-three/drei/core/Stats.js`).
+  Initial JS **374,431 B gzip** against the 380,000 B budget, down 586 B from Task 8's 375,017 B.
+- Frame times, 750 frames each, all vsync-bound at the display's 13.3 ms: `overview` median 13.3, p90 13.5,
+  worst 14.4, no hitches; `earth` median 13.3, p90 13.8, worst 14.7, no hitches; `approach` median 13.3, p90 13.7,
+  worst 21.9, one hitch. The baseline was 13.34 ms mean, so nothing changed.
+- **Anisotropic filtering of the day map was tried and dropped** (user decision). The renderer's maximum is 16, so
+  the map asked for 8 and really got it, but at the distances the shots use (Earth's disc ≈ 190 px wide) the map is
+  minified, not stretched, and the before/after stills are indistinguishable. It would only pay off zoomed in close,
+  which no shot does, so the code it needed — a wider `load` signature and an in-canvas loader for the renderer's
+  limit — is not worth carrying.
 
 ### Step 2 — Orbit lines as `Line2` (commit 2)
 
@@ -1151,7 +1157,7 @@ Draw the real naked-eye sky from the Yale Bright Star Catalogue. Verified source
 
 - NASA **HEASARC TAP** serves it and works:
   `curl -G https://heasarc.gsfc.nasa.gov/xamin/vo/tap/sync --data-urlencode REQUEST=doQuery
-  --data-urlencode LANG=ADQL --data-urlencode FORMAT=text --data-urlencode "QUERY=SELECT ... FROM bsc5p"`
+--data-urlencode LANG=ADQL --data-urlencode FORMAT=text --data-urlencode "QUERY=SELECT ... FROM bsc5p"`
   (`FORMAT=csv` is rejected; `text` works). 9,110 rows, **8,404 at `vmag <= 6.5`**. `ra` / `dec` are J2000 degrees.
   `vmag` is labelled "Photographic Magnitude" in the metadata but is visual: Sirius (HR 2491) reads
   ra 101.2871, dec −16.7161, vmag −1.46 — the check the generator asserts.

@@ -6,6 +6,7 @@ import {
   InstancedBufferGeometry,
   ShaderMaterial,
 } from 'three';
+import roundSprite from '../shaders/roundSprite.glsl?raw';
 import swarmFragmentShader from './swarm.frag?raw';
 import swarmVertexMain from './swarm.vert?raw';
 import {
@@ -21,7 +22,7 @@ import type { SwarmUniforms } from './swarmUniforms';
 
 /** Both vertex shaders call into the Kepler chunk, so the chunk comes first. */
 export const SWARM_VERTEX_SHADER = `${swarmKeplerGlsl}\n${swarmVertexMain}`;
-export const SWARM_FRAGMENT_SHADER = swarmFragmentShader;
+export const SWARM_FRAGMENT_SHADER = `${roundSprite}\n${swarmFragmentShader}`;
 export const SWARM_TRAIL_VERTEX_SHADER = `${swarmKeplerGlsl}\n${swarmTrailVertexMain}`;
 export const SWARM_TRAIL_FRAGMENT_SHADER = swarmTrailFragmentShader;
 

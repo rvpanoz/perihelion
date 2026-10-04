@@ -1,6 +1,7 @@
 import { useSelectedCme } from '../../eruptions/cmeSelection';
 import { bodyPositions } from '../bodies/bodyPositions';
-import { FixedSizeMarker, earthMarkerLook } from '../markers/FixedSizeMarker';
+import { FixedSizeMarker } from '../markers/FixedSizeMarker';
+import { earthMarkerLook } from '../markers/markerLook';
 import { CmeShell } from './CmeShell';
 import { EarthImpact } from './impact/EarthImpact';
 
