@@ -320,7 +320,7 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 - [x] Responsive layout, touch and scrollbars (#133)
 - [x] Accessibility and reduced motion (#134)
 - [x] Help dialog, orbit-class legend, first-visit hint and credits (#135)
-- [ ] Visual polish: soft sprites, Line2 orbits, real starfield, anti-aliasing (#152)
+- [x] Visual polish: soft sprites, Line2 orbits, real starfield, anti-aliasing (#152)
 - [ ] Deploy: Netlify and Render (#136)
 - [x] Jev PR review: fixtures, tolerances and commit messages (#148)
 - [ ] Exit verification (#137)
@@ -1070,3 +1070,8 @@ _None._
   ecliptic λ 104.07°, β −39.6°, and the Big Dipper's pointers 5.366° apart against 5.374° published. How big and
   bright each star is drawn is illustrative and the help dialog says so; the brightest stops at brightness 1, the
   same ceiling the swarm uses, so no star reaches bloom's threshold.
+- **2026-10-04:** Task 11 step 4 (anti-aliasing) was skipped and the quality tiers are unchanged (user decision): no
+  MSAA, FXAA or SMAA frame times were measured, so nothing justified moving off High 4×, Medium 2×, Low 0. A dev-only
+  `?aa=msaa4|msaa2|off|fxaa|smaa` stays in the tree for a later comparison; it folds out of production builds and
+  the SMAA area texture is tree-shaken out. Steps 2 and 3 were judged by eye by the user; frame time after them was
+  not measured, so the Phase 7 exit run (Task 10) is the first full measurement of the finished scene.

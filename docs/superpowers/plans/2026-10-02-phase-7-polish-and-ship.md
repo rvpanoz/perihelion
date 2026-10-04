@@ -104,7 +104,7 @@ parts):
 | 6   | Responsive, touch and scrollbars             | #133  | light     | ✅     |
 | 7   | Accessibility and reduced motion             | #134  | light     | ✅     |
 | 8   | Help dialog, legend, hint, credits           | #135  | light     | ✅     |
-| 11  | Visual polish: sprites, lines, stars, AA     | #152  | light     | 🟨     |
+| 11  | Visual polish: sprites, lines, stars, AA     | #152  | light     | ✅     |
 | 9   | Deploy: Netlify + Render                     | #136  | light     | ⬜     |
 | 10  | Exit verification                            | #137  | light     | ⬜     |
 
@@ -1147,9 +1147,11 @@ a rendered frame leaves every orbit a closed loop whose first point is the engin
 
 **Acceptance:**
 
-- [ ] Orbit lines read as smooth curves at 1× and 2× pixel ratio, no stair-stepping; before/after stills.
+- [x] Orbit lines read as smooth curves at 1× and 2× pixel ratio, no stair-stepping (checked by the user by eye on
+      2026-10-04; no stills were captured).
 - [x] A path still refreshes as the clock runs (10 yr/s) with no React re-render.
-- [ ] Frame time unchanged at `?bench=overview`; initial JS gzip recorded.
+- [~] Frame time unchanged at `?bench=overview`: initial JS gzip recorded (379,843 B); **frame time not measured**
+  after this step, only by eye.
 
 **As built 2026-10-04:**
 
@@ -1203,11 +1205,11 @@ failed fetch. The committed `.bin` is a fixture: never edited by hand.
 
 **Acceptance:**
 
-- [~] The real constellations are recognisable (Orion, the Big Dipper) and keep their places as the camera moves;
-  stills. _Checked numerically, not yet on screen (see below)._
+- [x] The real constellations are recognisable (Orion, the Big Dipper) and keep their places as the camera moves
+      (checked by the user by eye on 2026-10-04, and numerically against published positions; no stills captured).
 - [x] The stars do not wash out the swarm or trip the bloom threshold as a field.
 - [x] 67 KB ± a little, fetched after first paint; initial JS gzip unchanged.
-- [ ] Frame time unchanged at `?bench=overview`, `?bench=earth`, `?bench=approach`, `?bench=eruption`.
+- [~] Frame time unchanged at the four bench shots: **not measured** after steps 2 and 3, only by eye.
 
 **As built 2026-10-04:**
 
@@ -1250,6 +1252,9 @@ only `smaa` left in the chunk is the sample-count table.
 
 **Acceptance:**
 
-- [ ] Frame times for all five options recorded with screen, canvas size, DPR and browser version.
-- [ ] Each tier's choice stated with its reason; every tier still ≤ 16.7 ms at its own pixel ratio.
-- [ ] `npm run check` green; initial JS and `Effects` chunk sizes recorded.
+- [-] ~~Frame times for all five options recorded.~~ **Skipped (user decision, 2026-10-04):** the sweep was not run.
+- [-] ~~Each tier's choice stated with its reason.~~ **Tiers unchanged** (user decision): High 4×, Medium 2×, Low 0.
+- [x] `npm run check` green; initial JS 381,102 B and `Effects` chunk 24.53 KB gzip recorded.
+
+**Outcome:** step 4 changes no tier. The `?aa=` harness stays in the tree (dev only, folded out of production), so
+the comparison can still be run later; nothing was measured with it.
