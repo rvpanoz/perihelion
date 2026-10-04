@@ -67,6 +67,7 @@ describe('HELP_TABS', () => {
       'three.js',
       'React Three Fiber',
       'GPL-3.0-or-later',
+      'Perihelion on GitHub',
     ]) {
       expect(credits).toContain(source);
     }
@@ -76,5 +77,6 @@ describe('HELP_TABS', () => {
     const links = tab('credits').entries.map((entry) => entry.link);
     expect(links.every((link) => link?.startsWith('https://'))).toBe(true);
     expect(links).toContain('https://github.com/rvpanoz/perihelion');
+    expect(links).toContain('https://github.com/rvpanoz/perihelion/blob/main/LICENSE');
   });
 });
