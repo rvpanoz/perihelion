@@ -1,7 +1,7 @@
 # PROGRESS
 
 **Current phase:** Phase 7: Polish & ship (in progress)
-**Last updated:** 2026-10-04
+**Last updated:** 2026-10-05
 
 ## Phase status
 
@@ -1098,3 +1098,25 @@ _None._
   start and the log-space ramp are unchanged, so the ramp now spans 5.9 decades. The speed slider reads 10 d/s when the
   opening ends. The 2026-10-01 entry above recorded 30 d/s and stands as history. The frame-time baselines were
   measured with `?opening=off`, so they are unaffected.
+- **2026-10-05:** Architecture review of `main` at `63e2d27` (no code changed). The findings that matter on the free
+  plan: Render sleeps after ~15 min idle, so most first visits wait the full 4 s `SERVER_TIMEOUT_MS` and then show the
+  committed snapshot, which only changes when someone runs `npm run snapshot` (NEOs from 2026-09-29, the rest from
+  2026-10-01); the disk is ephemeral, so every wake refetches the full SBDB NEO query; nothing reports when live data
+  stops being live; `/api/*` sends no `Cache-Control` or `ETag`; browser retries have no jitter; and `?days=`, which the
+  web app never sends, allows up to 120 cache keys queued on the upstream gates. Measured on the M3 against the
+  committed NEO snapshot (4,264,766 B): `JSON.parse` 11.5 ms, zod 13–31 ms, `JSON.stringify` 18 ms, gzip 95 ms
+  (→ 1,425,926 B), brotli quality 11 4.4 s (→ 1,243,782 B). `/api/neos` gzips on every request.
+- **2026-10-05:** Hardening scope (user decisions, from the review): traffic is expected to be a trickle (< 100 visits a
+  day); Render stays on the free plan, moving to Starter only if traffic lasts; the parked comets and main belt are
+  "maybe, later", so the data format and the GPU Kepler solver stay as they are. After v0.7.0, a Phase 8 "Hardening" is
+  drafted for approval with, in order: a scheduled GitHub Action that refreshes the snapshot and opens a PR for the user
+  to merge (weekly for close approaches and CMEs, monthly for NEOs); `SERVER_TIMEOUT_MS` from 4 s to about 1.5 s, with
+  Lighthouse re-measured against a sleeping server (the Phase 7 baseline ran with it stopped, which falls back at once);
+  a daily workflow that fails, and so emails the user, when any `/api/*` answer is from the snapshot or older than twice
+  its TTL; `?days=` removed from `/api/close-approaches` and `/api/cmes`; `ETag`, 304 and a short `Cache-Control` (no
+  precompression); jitter on browser retries and `Retry-After` on the server's 503; and a Playwright smoke test in CI
+  (dev dependency approved). Not taken: precompressed bodies, a cap on the upstream queue, moving the snapshots out of
+  `apps/web/public`, a single shot store, a binary payload.
+- **2026-10-05:** The launch-window keep-awake ping (a local job calling the server's `/health` every 10 min since
+  2026-10-04) was switched off (user decision). The server sleeps when idle again, so the asleep-server first visit for
+  Task 9 (#136) can be checked once it has been idle for more than 15 min.
