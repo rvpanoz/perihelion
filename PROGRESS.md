@@ -1054,3 +1054,12 @@ _None._
   tabs pattern. The orbit-class legend lists the classes from the Sun outwards, not by count, so rows never reorder on
   a data swap. The first-visit hint shows after the opening, once the caption has faded; dismissing it or opening help
   hides it for good (`perihelion.helpHintSeen`), and it still works for the session when storage throws.
+- **2026-10-04:** Task 11 (#152), a visual pass added after a review of the scene and placed before deploy: the drei
+  FPS meter is dev-only (it had been shipping), body markers draw the swarm's round sprite from a shared
+  `roundSprite.glsl` chunk instead of a hard square, and the orbits are `LineSegments2` with three's `LineMaterial`
+  rather than one-pixel aliased hairlines. Anisotropic filtering of Earth's day map was tried and dropped (user
+  decision): at the distances the shots use, the map is minified rather than stretched, so it looked no different.
+- **2026-10-04:** The initial JS budget rose from 380,000 to 390,000 B (user decision): three's screen-space lines
+  cost 5.4 kB gzip and the orbits are on screen from the first frame, so they cannot move to a lazy chunk the way
+  postprocessing did. 390,000 is still below the 391,142 B Phase 7 started at, and the starfield's star data is
+  fetched at runtime rather than bundled.
