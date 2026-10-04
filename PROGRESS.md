@@ -324,7 +324,7 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 - [ ] Deploy: Netlify and Render (#136): both services are live; the browser checks (asleep-server first visit, page loads) are the user's
 - [x] Jev PR review: fixtures, tolerances and commit messages (#148)
 - [ ] Exit verification (#137)
-- [ ] Link the GitHub repo in the app (#156)
+- [x] Link the GitHub repo in the app (#156)
 
 Status (2026-10-03): plan merged in #138, with issues #128–#137 on the board. README rewritten for the current state
 in #139. Task 1 (#128) merged in #141, Task 2 (#129) in #142, Task 3 (#130) in #143, Task 4 (#131) in #144, Task 7

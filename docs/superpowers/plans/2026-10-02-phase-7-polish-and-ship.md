@@ -107,7 +107,7 @@ parts):
 | 11  | Visual polish: sprites, lines, stars, AA     | #152  | light     | ✅     |
 | 9   | Deploy: Netlify + Render                     | #136  | light     | ⬜     |
 | 10  | Exit verification                            | #137  | light     | ⬜     |
-| 12  | Link the GitHub repo in the app              | #156  | light     | ⬜     |
+| 12  | Link the GitHub repo in the app              | #156  | light     | ✅     |
 
 Rows are in the order the tasks run; Task 11 was added after Task 8 and runs before Tasks 9 and 10.
 Branches: `phase-7/<short-name>` per task, one PR each. Task 3 needs Task 2; Task 4's bundle budget needs Task 1;
@@ -1098,6 +1098,10 @@ external link (`rel="noopener noreferrer"`, opens in a new tab). The repo is pri
 visitors: it ships only once the repo is public (the user's decision, pending a history and licence audit).
 
 **Tests:** the credits content includes the URL and the link renders with the right `href` and `rel`.
+
+**As built:** the credits already linked the repo, but only from the GPL entry. They now have a dedicated "Perihelion on
+GitHub" entry (the repo URL) and the GPL entry links the `LICENSE` file. Links already open in a new tab with
+`rel="noreferrer"` (which implies `noopener`), so `HelpDialog.test.tsx` needed no change.
 
 **Acceptance:**
 

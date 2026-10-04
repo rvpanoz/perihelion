@@ -133,6 +133,7 @@ const GLOSSARY: HelpTab = {
   ],
 };
 
+const REPOSITORY_URL = 'https://github.com/rvpanoz/perihelion';
 const CREDITS: HelpTab = {
   id: 'credits',
   title: 'Credits',
@@ -177,9 +178,14 @@ const CREDITS: HelpTab = {
       link: 'https://threejs.org/',
     },
     {
+      term: 'Perihelion on GitHub',
+      text: 'the source code, the orbit engine tests and the issue tracker',
+      link: REPOSITORY_URL,
+    },
+    {
       term: 'GPL-3.0-or-later',
-      text: 'Perihelion is free software under the GNU General Public License, version 3 or later. The source is on GitHub.',
-      link: 'https://github.com/rvpanoz/perihelion',
+      text: 'Perihelion is free software under the GNU General Public License, version 3 or later.',
+      link: `${REPOSITORY_URL}/blob/main/LICENSE`,
     },
   ],
 };
