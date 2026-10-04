@@ -325,6 +325,7 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 - [x] Jev PR review: fixtures, tolerances and commit messages (#148)
 - [ ] Exit verification (#137)
 - [x] Link the GitHub repo in the app (#156)
+- [x] Share readiness: README visuals and accuracy, link-preview tags, NASA/JPL independence note
 
 Status (2026-10-03): plan merged in #138, with issues #128–#137 on the board. README rewritten for the current state
 in #139. Task 1 (#128) merged in #141, Task 2 (#129) in #142, Task 3 (#130) in #143, Task 4 (#131) in #144, Task 7
@@ -869,6 +870,9 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
 - **2026-10-04:** The approval label counts only for the exact changes it was applied to (a fingerprint of the
   protected-file diff and every changed test number, kept in the review comment). A later change to either removes
   the label and blocks. The review check's own files are protected paths.
+- **2026-10-04:** Before sharing publicly (and tagging NASA), the README and the Credits tab say the project is not
+  affiliated with or endorsed by NASA or JPL, following NASA's media usage guidelines. The link-preview tags use the
+  absolute Netlify URL, written into `index.html`, so a site rename means updating them there and in the README.
 
 ## Open questions
 

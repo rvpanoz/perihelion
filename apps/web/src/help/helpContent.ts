@@ -139,6 +139,7 @@ const CREDITS: HelpTab = {
   title: 'Credits',
   intro: [
     'The data, imagery and software Perihelion is built on. Live data reaches the app only through Perihelion’s own server, and none of these sources needs an API key.',
+    'Perihelion is an independent project. It is not affiliated with or endorsed by NASA or JPL.',
   ],
   entries: [
     ...LIVE_DATA_SOURCES.map(({ name, href, use }) => ({ term: name, text: use, link: href })),

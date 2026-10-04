@@ -73,6 +73,10 @@ describe('HELP_TABS', () => {
     }
   });
 
+  it('says the project is independent of NASA and JPL', () => {
+    expect(textOf(tab('credits'))).toContain('not affiliated with or endorsed by NASA or JPL');
+  });
+
   it('links the credits to their sources over https, the licence to the code', () => {
     const links = tab('credits').entries.map((entry) => entry.link);
     expect(links.every((link) => link?.startsWith('https://'))).toBe(true);
