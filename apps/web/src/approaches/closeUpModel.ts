@@ -3,7 +3,7 @@ import { KM_PER_AU, type Vector3 } from '@perihelion/orbit';
 import { trailForApproach, trailIndexAt } from '../scene/approach/approachTrail';
 import { KM_PER_LUNAR_DISTANCE } from './approachFormat';
 
-/** The mockup's close-up box (docs/design/perihelion-mockup.html, `#lens`). */
+/** The mockup's close-up box (docs/dev/design/perihelion-mockup.html, `#lens`). */
 export const CLOSE_UP_SIZE_PX = { width: 294, height: 172 } as const;
 export const CLOSE_UP_CENTRE_PX = {
   x: CLOSE_UP_SIZE_PX.width / 2,

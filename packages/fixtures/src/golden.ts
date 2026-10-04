@@ -1,5 +1,5 @@
 // Golden tests in packages/orbit import "@perihelion/fixtures/golden" rather than the package root:
-// orbit's tsconfig has no Node/DOM globals (CLAUDE.md non-negotiable #4), but the root entry re-exports
+// orbit's tsconfig has no Node/DOM globals (CONTRIBUTING.md non-negotiable #4), but the root entry re-exports
 // the generator, which uses URLSearchParams and would fail orbit's typecheck. This entry point re-exports
 // only the network-free, environment-free pieces a golden test needs: loaders, fixture spec constants,
 // and the fixture record types.

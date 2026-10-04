@@ -116,7 +116,7 @@ with 16 GB, with the 42,535-NEO catalog and trails on; 10 s per run after a 1 s 
 
 ## Phase 5: Shot 2: The Close Approach
 
-Plan: `docs/superpowers/plans/2026-10-01-phase-5-the-close-approach.md`. UI reference: `docs/design/perihelion-mockup.html`.
+Plan: `docs/dev/superpowers/plans/2026-10-01-phase-5-the-close-approach.md`. UI reference: `docs/dev/design/perihelion-mockup.html`.
 
 - [x] App shell: layout regions around the canvas + data-status pill (fresh / stale / snapshot)
 - [x] Close-approach rows carry an orbit (NEO catalog join, SBDB lookup for misses), orbit class and JPL's diameter
@@ -274,7 +274,7 @@ replay of two rows is deferred (user decision, 2026-10-02).
 
 ## Phase 6: Shot 3: The Eruption
 
-Plan: `docs/superpowers/plans/2026-10-02-phase-6-the-eruption.md` (part 1: Task 1). Tasks follow `PLAN.md`
+Plan: `docs/dev/superpowers/plans/2026-10-02-phase-6-the-eruption.md` (part 1: Task 1). Tasks follow `PLAN.md`
 (split into ten on 2026-10-02, PR #98).
 
 - [x] DONKI migration: new CME endpoint, validation, re-recorded fixtures and snapshot (#85)
@@ -310,7 +310,7 @@ started from the console (dev only, no app code) by pressing Watch eruption on t
 
 ## Phase 7: Polish & ship
 
-Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performance comes before graphics detail.
+Plan: `docs/dev/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performance comes before graphics detail.
 
 - [x] Baseline harness: frame times and bundle size (#128)
 - [x] Quality tiers (#129)
@@ -326,6 +326,7 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 - [ ] Exit verification (#137)
 - [x] Link the GitHub repo in the app (#156)
 - [x] Share readiness: README visuals and accuracy, link-preview tags, NASA/JPL independence note
+- [x] Repo tidy: public `CONTRIBUTING.md` and `docs/accuracy.md`; plan, log and design docs in `docs/dev/`
 
 Status (2026-10-03): plan merged in #138, with issues #128–#137 on the board. README rewritten for the current state
 in #139. Task 1 (#128) merged in #141, Task 2 (#129) in #142, Task 3 (#130) in #143, Task 4 (#131) in #144, Task 7
@@ -546,44 +547,7 @@ then frames over 20 ms.
 
 ## Calibrated tolerances
 
-| Test                                    | Tolerance                    | Rationale                                                                                    |
-| --------------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------- |
-| Planets vs Horizons: Mercury            | 31.4″ / 2.91″ / 2,250 km     | Measured 25.1″ / 2.33″ / 1,800 km × 1.25; Standish nominal 15″ / 1″ / 1,000 km               |
-| Planets vs Horizons: Venus              | 31.5″ / 1.88″ / 7,000 km     | Measured 25.2″ / 1.50″ / 5,600 km × 1.25; Standish nominal 20″ / 1″ / 4,000 km               |
-| Planets vs Horizons: EM barycentre      | 24.6″ / 2.03″ / 8,875 km     | Measured 19.7″ / 1.62″ / 7,100 km × 1.25; Standish nominal 20″ / 8″ / 6,000 km               |
-| Planets vs Horizons: Mars               | 73.5″ / 1.71″ / 30,125 km    | Measured 58.8″ / 1.37″ / 24,100 km × 1.25; Standish nominal 40″ / 2″ / 25,000 km             |
-| Planets vs Horizons: Jupiter            | 568″ / 8.88″ / 711,125 km    | Measured 454.6″ / 7.10″ / 568,900 km × 1.25; Standish nominal 400″ / 10″ / 600,000 km        |
-| Planets vs Horizons: Saturn             | 891″ / 28.7″ / 3,502,375 km  | Measured 712.7″ / 22.95″ / 2,801,900 km × 1.25; Standish nominal 600″ / 25″ / 1,500,000 km   |
-| Planets vs Horizons: Uranus             | 127″ / 4.39″ / 1,676,875 km  | Measured 101.9″ / 3.51″ / 1,341,500 km × 1.25; Standish nominal 50″ / 2″ / 1,000,000 km      |
-| Planets vs Horizons: Neptune            | 73.9″ / 2.09″ / 1,571,375 km | Measured 59.1″ / 1.67″ / 1,257,100 km × 1.25; Standish nominal 10″ / 1″ / 200,000 km         |
-| Asteroids vs Horizons: Eros             | 7.06e-5 AU over ±120 d       | Measured 5.65e-5 AU × 1.25 (JPL#659)                                                         |
-| Asteroids vs Horizons: Apophis          | 2.44e-5 AU over ±120 d       | Measured 1.95e-5 AU × 1.25 (JPL#220)                                                         |
-| Asteroids vs Horizons: Bennu            | 4.31e-5 AU over ±120 d       | Measured 3.45e-5 AU × 1.25 (ORX_merged_DE424)                                                |
-| Asteroids vs Horizons: Ryugu            | 2.95e-5 AU over ±120 d       | Measured 2.36e-5 AU × 1.25 (JPL#270)                                                         |
-| Asteroids vs Horizons: Phaethon         | 6.15e-5 AU over ±120 d       | Measured 4.92e-5 AU × 1.25 (JPL#1003; e = 0.89, q = 0.14 AU)                                 |
-| Asteroids vs Horizons: Aten             | 2.15e-5 AU over ±120 d       | Measured 1.72e-5 AU × 1.25 (JPL#149)                                                         |
-| Asteroids vs Horizons: Atira            | 4.18e-5 AU over ±120 d       | Measured 3.34e-5 AU × 1.25 (JPL#225)                                                         |
-| Asteroids vs Horizons: PLAN target      | 1e-3 AU within ±60 d         | PLAN.md target; worst measured 1.42e-5 AU (Eros), ~70× inside                                |
-| Asteroids: elements → state at epoch    | 1e-12 AU / 1e-12 AU/day      | Fixed bound (15 cm); measured ≤ 3e-15 AU / 6e-14 AU/day                                      |
-| Asteroids: Horizons Keplerian GM vs k²  | 1e-11 relative               | Measured 5e-12                                                                               |
-| Swarm float32 vs engine: within ±10 yr  | 1.71e-5 AU                   | Measured 1.37e-5 AU × 1.25 (2,006 NEOs, seed 20260930); 1 px ≈ 0.002 AU at the overview      |
-| Swarm float32 vs engine: 1800 / 2050    | 4.73e-4 AU                   | Measured 3.78e-4 AU × 1.25 (2,006 NEOs, seed 20260930); 1 px ≈ 0.002 AU at the overview      |
-| Close approach: engine vs CAD           | 15,700 km / 86 min           | Measured 12,509 km (2026 RN15) / 68.8 min (2026 SA8) × 1.25 over 19 recorded rows; absolute  |
-| B0 vs Horizons: pole (Horizons Earth)   | 8.7e-7°                      | Measured 6.96e-7° (2026-07-01) × 1.25 over 12 monthly 2026 dates; Horizons prints 6 decimals |
-| B0 vs Horizons: engine EMB end to end   | 7.3e-4°                      | Measured 5.84e-4° (2026-10-01) × 1.25 over 12 monthly 2026 dates                             |
-| CME front vs DONKI: 21.5 R☉ at time21_5 | exact                        | Measured 0 over 77 recorded CMEs (2026-10-01); holds by construction                         |
-| CME front vs DONKI: Earth at ENLIL time | exact                        | Measured 0 over the 13 CMEs with an ENLIL Earth arrival; mean transit speed meets both times |
-| CME front vs DONKI: measured speed      | exact                        | Measured 0 over the 64 CMEs without an ENLIL Earth arrival                                   |
-| Exit: drawn CME axis vs DONKI angle     | 5.6e-16 rad                  | Measured 4.4e-16 rad × 1.25 over 77 recorded CMEs (float64 rounding of one rotation)         |
-| Exit: shell vs DONKI half-angle         | ≤ α; widest ≥ 0.9999895 α    | Measured: none outside (worst 1.4e-6 rad inside); widest ≥ 0.9999916 α, shortfall × 1.25     |
-| Exit: drawn front vs DONKI/ENLIL times  | exact                        | Measured 0 at time21_5 (77) and at ENLIL's arrival (13), through the web's time conversion   |
-
-Planet tolerances are heliocentric longitude / latitude / distance, the units of Standish's accuracy table
-(https://ssd.jpl.nasa.gov/planets/approx_pos.html): the worst case over the 27 fixture dates × 1.25
-(`TOLERANCE_MARGIN` in `planets.golden.test.ts`). Why they exceed the published bounds: see the decisions log.
-
-Asteroid tolerances are the 3D heliocentric position error of two-body propagation from Horizons osculating elements at
-JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `asteroids.golden.test.ts`).
+Moved to [`docs/accuracy.md`](../accuracy.md), with the reasons from the decisions log below.
 
 ## Decisions log
 
@@ -873,6 +837,10 @@ JD 2461000.5, worst over the fixture offsets × 1.25 (`TOLERANCE_MARGIN` in `ast
 - **2026-10-04:** Before sharing publicly (and tagging NASA), the README and the Credits tab say the project is not
   affiliated with or endorsed by NASA or JPL, following NASA's media usage guidelines. The link-preview tags use the
   absolute Netlify URL, written into `index.html`, so a site rename means updating them there and in the README.
+- **2026-10-04:** The repo root holds only what a visitor needs. `PLAN.md`, `PROGRESS.md`, the agent plans and specs
+  and the UI mockup live in `docs/dev/`. The calibrated tolerances moved to `docs/accuracy.md`, the project rules to a
+  public `CONTRIBUTING.md` (same non-negotiable numbering, which code comments cite), and `CLAUDE.md` is local only
+  (ignored). Old commits still contain all of them; history is not rewritten.
 
 ## Open questions
 

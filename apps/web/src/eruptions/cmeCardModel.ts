@@ -21,7 +21,7 @@ export const EARTH_TAG_TEXT: Record<EarthTag, string> = {
 
 /**
  * Every number is DONKI's. The shell illustrates DONKI's cone model; the magnetosphere and aurora at Earth are
- * illustrations (CLAUDE.md: illustrative effects are labelled in the UI).
+ * illustrations (CONTRIBUTING.md: illustrative effects are labelled in the UI).
  */
 const SOURCE_TEXT =
   "NASA DONKI (CCMC) · the shell illustrates DONKI's cone model · magnetosphere and aurora are illustrative";

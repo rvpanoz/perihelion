@@ -23,7 +23,7 @@ import {
 } from '@perihelion/fixtures/upstream-manifest';
 import { redactedUrl, upstreamUrl } from '../src/upstream/upstreamUrl.js';
 
-// Recordings are test ground truth (CLAUDE.md non-negotiable 3): regenerate with this script, never edit.
+// Recordings are test ground truth (CONTRIBUTING.md non-negotiable 3): regenerate with this script, never edit.
 const RECORDINGS_DIR = new URL('../../../packages/fixtures/upstream/', import.meta.url);
 // JPL and NASA ask API users for one request at a time; a pause keeps us well inside that.
 const PAUSE_BETWEEN_REQUESTS_MS = 1_000;

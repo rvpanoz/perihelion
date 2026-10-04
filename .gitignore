@@ -13,3 +13,6 @@ coverage/
 
 # Local editor workspace
 perihelion.code-workspace
+
+# Local agent instructions; the public rules are in CONTRIBUTING.md
+CLAUDE.md

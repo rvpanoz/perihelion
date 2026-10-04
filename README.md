@@ -73,7 +73,8 @@ The orbit engine is checked against JPL Horizons in every test run, using commit
   Horizons.
 
 This is precise enough to draw the scene correctly, but it is not an ephemeris. Every distance, speed and time shown as
-a fact comes from JPL or DONKI, not from the engine.
+a fact comes from JPL or DONKI, not from the engine. Every tolerance, and where it comes from, is in
+[`docs/accuracy.md`](docs/accuracy.md).
 
 ### Data sources
 
@@ -129,6 +130,12 @@ Tests never use the network. They run against committed fixtures and recorded re
 The web app runs on Netlify, which forwards `/api` to the data server on Render's free plan. Both redeploy on every
 push to `main`. The steps to set it up again, and what to expect from the free plan, are in
 [`docs/deploy.md`](docs/deploy.md).
+
+## Contributing
+
+Issues and pull requests are welcome. The project's rules (no AI at runtime, tests never touch the network, fixtures are
+ground truth) and conventions are in [`CONTRIBUTING.md`](CONTRIBUTING.md). The development plan and log are in
+[`docs/dev/`](docs/dev/).
 
 ## License
 
