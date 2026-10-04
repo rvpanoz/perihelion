@@ -17,7 +17,7 @@ const CORONA_QUAD_SIZE = 2;
 
 /**
  * The photosphere and corona. Their motion is illustrative, so it runs on the render clock while the simulation
- * clock plays and freezes when it pauses; following the simulated rate would boil the surface at a month per second.
+ * clock plays and freezes when it pauses; following the simulated rate would boil the surface at ten days per second.
  */
 export function SunBody() {
   const uniforms = useMemo(() => createSunUniforms(), []);

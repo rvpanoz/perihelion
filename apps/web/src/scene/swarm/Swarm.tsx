@@ -47,7 +47,7 @@ export function Swarm({ attributes: built, showTrails, stressCopies = 1 }: Swarm
 
 /**
  * Timed by the wall clock from the swarm's first frame, not by the simulation clock, which may be paused or racing
- * through the opening at a month a second.
+ * through the opening at ten days a second.
  */
 function useSwarmFadeIn(uniforms: SwarmUniforms): void {
   const [clock] = useState(() => new FirstFrameClock());

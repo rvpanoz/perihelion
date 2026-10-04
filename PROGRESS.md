@@ -1091,3 +1091,7 @@ _None._
 - **2026-10-04:** Task 10 (#137) reviewed and approved (plan Task 10, "As built"): the bench switches are dev-only, so the
   frame-time sweeps and the no-WebGL2 check run on the dev server; the recording is a manual walkthrough of the public
   site. Task 12 (#156) added at the user's request: link the repo from the credits, shipping once the repo is public.
+- **2026-10-04:** The opening's final rate is 10 d/s, not 30 (user decision): `OPENING_FINAL_RATE_DAYS_PER_SECOND`. The
+  start and the log-space ramp are unchanged, so the ramp now spans 5.9 decades. The speed slider reads 10 d/s when the
+  opening ends. The 2026-10-01 entry above recorded 30 d/s and stands as history. The frame-time baselines were
+  measured with `?opening=off`, so they are unaffected.
