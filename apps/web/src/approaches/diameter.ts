@@ -84,7 +84,7 @@ export function diameterText(diameter: ApproachDiameter): string {
 }
 
 /**
- * JPL's figures are facts (CLAUDE.md), so never rounded: below 1 km they are rescaled exactly to metres, like the
+ * JPL's figures are facts (CONTRIBUTING.md), so never rounded: below 1 km they are rescaled exactly to metres, like the
  * estimates, and the sigma follows the value's unit so "370 ± 20 m" reads as one quantity.
  */
 function jplDiameterText(diameterKm: number, sigmaKm: number | null): string {

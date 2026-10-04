@@ -28,7 +28,7 @@ interface FixtureSample {
 /**
  * Worst error over the 27 fixture dates against Horizons (DE441, Sun-centred), measured on
  * 2026-09-28. Every planet exceeds Standish's nominal 1800–2050 errors somewhere, by 1.1–2.3×
- * (Neptune ~6×), with no engine bug found: see "Calibrated tolerances" in PROGRESS.md.
+ * (Neptune ~6×), with no engine bug found: see docs/accuracy.md.
  */
 const MEASURED_MAX_ERROR: Readonly<Record<Planet, HeliocentricError>> = {
   mercury: { longitudeArcsec: 25.1, latitudeArcsec: 2.33, distanceThousandKm: 1.8 },

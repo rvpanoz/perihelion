@@ -1,5 +1,5 @@
 // Entry point for the Review workflow (.github/workflows/review.yml). The only code that reaches the network:
-// Jev for judgements and GitHub for the comment. Never imported by apps/* or packages/* (CLAUDE.md #1).
+// Jev for judgements and GitHub for the comment. Never imported by apps/* or packages/* (CONTRIBUTING.md #1).
 import { appendFileSync, readFileSync } from 'node:fs';
 import { approvalFor, approvedFingerprintIn, fingerprintOf } from './approval.js';
 import { parseDiff } from './diff/parseDiff.js';

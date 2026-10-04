@@ -1,5 +1,5 @@
 /*
- * Tokens from docs/design/perihelion-mockup.html, adapted per Phase 5 decision 7: panels near-opaque with no
+ * Tokens from docs/dev/design/perihelion-mockup.html, adapted per Phase 5 decision 7: panels near-opaque with no
  * backdrop-filter (blur is a Phase 7 quality option), an ice-white accent that matches no orbit class, and
  * --faint lightened from #5b6378 (3.24:1) to 4.80:1 against --panel composited on --bg.
  */

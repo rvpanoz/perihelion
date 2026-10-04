@@ -6,7 +6,7 @@ export function upstreamUrl(query: UpstreamQuery): URL {
   return url;
 }
 
-/** Every URL we print goes through here, so a key in a query string never reaches a log (CLAUDE.md #6). */
+/** Every URL we print goes through here, so a key in a query string never reaches a log (CONTRIBUTING.md #6). */
 export function redactedUrl(url: URL): string {
   const copy = new URL(url);
   if (copy.searchParams.has('api_key')) copy.searchParams.set('api_key', 'REDACTED');

@@ -3,7 +3,7 @@ import { type Recording, messageExamplesSchema, toleranceExamplesSchema } from '
 import { messageExampleRequest, toleranceExampleRequest } from '../src/exampleRequests.js';
 import { type JevClient, type JevRequest, createJevClient } from '../src/typesafe/jevClient.js';
 
-// Recordings are test ground truth (CLAUDE.md non-negotiable 3): regenerate with this script, never edit.
+// Recordings are test ground truth (CONTRIBUTING.md non-negotiable 3): regenerate with this script, never edit.
 // Dev only, uses the network and TYPESAFE_API_KEY from ../../.env; commit the result with the user's approval.
 const EXAMPLES_DIR = new URL('../examples/', import.meta.url);
 const RECORDED_DIR = new URL('../src/recorded/', import.meta.url);

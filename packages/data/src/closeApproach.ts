@@ -3,7 +3,7 @@ import { approachOrbitSchema } from './approachOrbits';
 import { NEO_ORBIT_CLASSES } from './neoCatalog';
 
 /**
- * One CAD row. These values are shown to the user as facts (CLAUDE.md), so they are kept exactly as
+ * One CAD row. These values are shown to the user as facts (CONTRIBUTING.md), so they are kept exactly as
  * CAD printed them: never rounded, never recomputed by our engine. https://ssd-api.jpl.nasa.gov/doc/cad.html
  */
 export const cadApproachSchema = z.object({

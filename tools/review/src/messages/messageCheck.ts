@@ -33,7 +33,7 @@ interface Question {
 }
 
 const PR_SUBJECT = 'PR description';
-// GitHub's closing keywords (docs.github.com, "Linking a pull request to an issue"); CLAUDE.md asks for Closes #N.
+// GitHub's closing keywords (docs.github.com, "Linking a pull request to an issue"); CONTRIBUTING.md asks for Closes #N.
 const CLOSES_ISSUE = /\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?) #\d+/i;
 
 export async function reviewMessages(input: MessageInput, jev: JevClient): Promise<MessageReview> {

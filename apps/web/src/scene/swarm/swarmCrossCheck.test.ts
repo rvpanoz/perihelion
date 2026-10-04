@@ -81,8 +81,8 @@ function worstErrorAu(elapsedDays: readonly number[]): number {
 }
 
 /**
- * Worst float32 error (AU) over the seeded sample, measured on 2026-09-30. See "Calibrated tolerances" in
- * PROGRESS.md. The margin is room for harmless changes (statement order, a GPU's fused multiply-adds);
+ * Worst float32 error (AU) over the seeded sample, measured on 2026-09-30. See
+ * docs/accuracy.md. The margin is room for harmless changes (statement order, a GPU's fused multiply-adds);
  * a solver or precision bug moves far more.
  */
 const MEASURED_MAX_ERROR_AU = { near: 1.37e-5, rangeEnds: 3.78e-4 };

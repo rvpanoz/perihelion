@@ -19,7 +19,7 @@ const RAD_PER_DEG = Math.PI / 180;
 /**
  * Worst position error (AU) over ±120 days against Horizons, measured on 2026-09-28. It grows with
  * the square of the time from the epoch: planetary perturbations the two-body model leaves out.
- * See "Calibrated tolerances" in PROGRESS.md.
+ * See docs/accuracy.md.
  */
 const MEASURED_MAX_ERROR_AU: Readonly<Record<AsteroidName, number>> = {
   eros: 5.65e-5,

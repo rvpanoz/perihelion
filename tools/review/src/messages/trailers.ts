@@ -1,4 +1,4 @@
-// git interprets a closing paragraph of `Token: value` lines as trailers (git-interpret-trailers(1)); CLAUDE.md
+// git interprets a closing paragraph of `Token: value` lines as trailers (git-interpret-trailers(1)); CONTRIBUTING.md
 // forbids them in commit messages.
 const TRAILER_LINE = /^[A-Za-z][\w-]*: \S/;
 
