@@ -1141,14 +1141,29 @@ quads and smooths its own edges with `alphaToCoverage`.
   `state.size` / `state.viewport.dpr`.
 - Report the bundle cost of the three examples modules.
 
-**Tests:** `orbitLineMaterial.test.ts` — colour, width, opacity, `alphaToCoverage`, and `resolution` updated from a
-canvas size; the closing-point duplication is tested on the array writer, not the GPU.
+**Tests:** `orbitLineMaterial.test.ts` — colour, width, opacity, `alphaToCoverage` and `resolution`;
+`orbitLineGeometry.test.ts` — the loop's closing segment, the shared buffer, the upload; `SolarSystem.test.tsx` —
+a rendered frame leaves every orbit a closed loop whose first point is the engine's.
 
 **Acceptance:**
 
 - [ ] Orbit lines read as smooth curves at 1× and 2× pixel ratio, no stair-stepping; before/after stills.
-- [ ] A path still refreshes as the clock runs (10 yr/s) with no React re-render.
-- [ ] Frame time unchanged at `?bench=overview`; initial JS gzip recorded against 380,000 B.
+- [x] A path still refreshes as the clock runs (10 yr/s) with no React re-render.
+- [ ] Frame time unchanged at `?bench=overview`; initial JS gzip recorded.
+
+**As built 2026-10-04:**
+
+1. `LineSegments2` + `LineSegmentsGeometry`, not `Line2`/`LineGeometry`: `LineGeometry.setPositions` builds the
+   segment pairs from a polyline and allocates a new array every call, which at ten refreshes a second across eight
+   planets is garbage per frame. `LineSegmentsGeometry.setPositions` keeps the `Float32Array` it is given, so the
+   geometry and the component share one buffer for the line's lifetime and a refresh is a write plus an upload.
+   Writing the pairs by hand is also what closes the loop, which `LineGeometry` has no mode for. Same material,
+   same rendering: `LineMaterial` draws each segment as a quad with round ends, so the joins do not show.
+2. One scratch path is shared by all eight lines; they are rewritten one after another inside the same frame.
+3. Width 1.5 CSS px; the `resolution` uniform is written from `state.size` in an effect, so only a resize touches it.
+4. **This cost 5.4 KB gzip and took the initial JS to 379,843 B.** The budget rose from 380,000 to 390,000 B
+   (user decision): the orbits are on screen from the first frame, so the modules cannot move to a lazy chunk the
+   way postprocessing did, and 390,000 is still below the 391,142 B Phase 7 started at.
 
 ### Step 3 — A real starfield (commit 3)
 
@@ -1188,11 +1203,25 @@ failed fetch. The committed `.bin` is a fixture: never edited by hand.
 
 **Acceptance:**
 
-- [ ] The real constellations are recognisable (Orion, the Big Dipper) and keep their places as the camera moves;
-      stills.
-- [ ] The stars do not wash out the swarm or trip the bloom threshold as a field.
-- [ ] 67 KB ± a little, fetched after first paint; initial JS gzip unchanged.
+- [~] The real constellations are recognisable (Orion, the Big Dipper) and keep their places as the camera moves;
+  stills. _Checked numerically, not yet on screen (see below)._
+- [x] The stars do not wash out the swarm or trip the bloom threshold as a field.
+- [x] 67 KB ± a little, fetched after first paint; initial JS gzip unchanged.
 - [ ] Frame time unchanged at `?bench=overview`, `?bench=earth`, `?bench=approach`, `?bench=eruption`.
+
+**As built 2026-10-04:**
+
+1. `npm run stars` wrote **8,404 stars, 67,244 bytes**. The generator refuses to write unless HR 2491 reads back as
+   Sirius and the row count is at least 8,000, so a changed query or service fails loudly.
+2. The file is ground truth and is checked against published positions, not against the packer
+   (`apps/web/scripts/starCatalogFile.test.ts`, beside the generator because it reads from disk): Sirius at
+   ecliptic λ 104.07°, β −39.6°; Dubhe to Merak 5.37°; Betelgeuse, Dubhe and Merak at their own magnitude and B−V.
+   Measured from the written file: pointers 5.366° against 5.374° published, Orion's belt 1.373°.
+3. The brightest star is drawn at brightness 1, the same ceiling the swarm uses, so no star reaches bloom's
+   threshold of 1 in linear light.
+4. Credits gained the Bright Star Catalogue, and "Real vs illustrative" now says that where the stars are is real
+   while how big and bright they are drawn is not.
+5. Initial JS 381,103 B: the scene code is ~1.3 KB and the catalogue itself is fetched, not bundled.
 
 ### Step 4 — Anti-aliasing: measure, then choose (commit 4)
 

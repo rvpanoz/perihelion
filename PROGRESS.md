@@ -1063,3 +1063,10 @@ _None._
   cost 5.4 kB gzip and the orbits are on screen from the first frame, so they cannot move to a lazy chunk the way
   postprocessing did. 390,000 is still below the 391,142 B Phase 7 started at, and the starfield's star data is
   fetched at runtime rather than bundled.
+- **2026-10-04:** The starfield is the Yale Bright Star Catalogue from NASA HEASARC's TAP service: 8,404 stars to
+  visual magnitude 6.5, packed as an int16 ecliptic unit vector plus a magnitude and a B−V byte, 67,244 B, fetched
+  after first paint like the Earth map (`npm run stars` regenerates it; network, dev only, commit the result). The
+  committed file is ground truth and is checked against published positions, not against the packer: Sirius at
+  ecliptic λ 104.07°, β −39.6°, and the Big Dipper's pointers 5.366° apart against 5.374° published. How big and
+  bright each star is drawn is illustrative and the help dialog says so; the brightest stops at brightness 1, the
+  same ceiling the swarm uses, so no star reaches bloom's threshold.
