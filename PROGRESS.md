@@ -321,7 +321,7 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 - [x] Accessibility and reduced motion (#134)
 - [x] Help dialog, orbit-class legend, first-visit hint and credits (#135)
 - [x] Visual polish: soft sprites, Line2 orbits, real starfield, anti-aliasing (#152)
-- [ ] Deploy: Netlify and Render (#136): config written on `phase-7/deploy`; the services and the acceptance run are the user's
+- [ ] Deploy: Netlify and Render (#136): both services are live; the browser checks (asleep-server first visit, page loads) are the user's
 - [x] Jev PR review: fixtures, tolerances and commit messages (#148)
 - [ ] Exit verification (#137)
 
@@ -1080,3 +1080,10 @@ _None._
   Render Blueprint is the free plan in Frankfurt, service `perihelion-server`; Cloudflare was considered and rejected
   (its free tier cannot run the Node/SQLite server). The Render URL in `netlify.toml` assumes that name is free; the
   services, the URL check and the acceptance run follow once the user has created them (`docs/deploy.md`).
+- **2026-10-04:** Task 9 (#136) services created by the user: Render `https://perihelion-server.onrender.com` (Frankfurt),
+  Netlify `https://gilded-tartufo-9fde5f.netlify.app/`. Checked with `curl`: `/api/health` through Netlify returns
+  `{"status":"ok"}` (200); `/api/cmes`, `/api/close-approaches` and `/api/neos` (1.44 MB gzipped, 2.5 s) answer through
+  the proxy with origin `fresh`; `/` and `/snapshot/*` are 200; cache headers are `immutable` on `/assets/*` and
+  `must-revalidate` on `/` and `/snapshot/*`. The Netlify site was first behind Netlify's own login (project visibility
+  private, 401); it had to be set to public. Not yet checked: the page in a browser and the asleep-server first
+  visit (snapshot within about 4 s, then live).

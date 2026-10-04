@@ -4,6 +4,9 @@ A 3D solar system in the browser, driven by live NASA/JPL data. It shows the rea
 close approaches to Earth and recent solar eruptions (CMEs), on top of a small TypeScript orbit engine that is tested
 against JPL Horizons.
 
+Live: <https://gilded-tartufo-9fde5f.netlify.app/> (the data server sleeps when idle, so the first visit shows a bundled
+snapshot for a moment, then swaps to live data).
+
 ## What you can see
 
 - **The Swarm.** About 42,000 known near-Earth asteroids, moving on their real orbits. They are coloured by orbit
