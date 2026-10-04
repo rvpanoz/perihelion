@@ -16,7 +16,14 @@ snapshot for a moment, then swaps to live data).
 - **The Eruption.** Coronal mass ejections from the last 30 days. Pick one to watch it leave the Sun and travel out
   to Earth, using the speed, direction and width that DONKI reports.
 
-You can play, pause, speed up (up to 10 years per second) and scrub time, and orbit or zoom the camera freely.
+You can play, pause, speed up (up to 10 years per second) and scrub time, and orbit or zoom the camera freely. The sky
+behind it is the real one: every naked-eye star from the Yale Bright Star Catalogue, at its J2000 position.
+
+Press `?` for a short guide: what you are looking at, the three shots, what is real and what is illustrative, a
+glossary and the credits. An orbit-class legend sits beside the swarm. The app picks
+a quality tier (Low, Medium or High) from measured frame times and lets you change it in the Display panel. It works
+by keyboard, respects the reduced-motion setting, and has a layout for phones and touch. Without WebGL 2 it shows an
+explanation and stills of the three shots instead of a blank page.
 
 Distances, speeds and dates shown as facts come straight from JPL or DONKI. Some effects, such as the aurora and the
 magnetosphere, are only illustrations and are labelled that way in the app.
@@ -25,7 +32,8 @@ magnetosphere, are only illustrations and are labelled that way in the app.
 
 The web app never talks to NASA or JPL itself. It asks our own data server, which fetches, checks and caches the
 data. If the server or the upstream APIs are down, the app falls back to a snapshot bundled with it, and a status
-pill shows whether the data is live, stale or from the snapshot.
+pill shows whether the data is live, stale or from the snapshot. A server that is asleep or slow is not waited on for
+more than a few seconds: the app starts from the snapshot and swaps to live data when the server answers.
 
 ```
 apps/web           The app: Vite, React and React Three Fiber, with custom GLSL shaders
@@ -33,6 +41,7 @@ apps/server        The data server: Fastify, a SQLite cache and scheduled refres
 packages/orbit     The orbit engine: pure TypeScript, no dependencies, no DOM or Node APIs
 packages/data      Shared zod schemas and data types
 packages/fixtures  Ground-truth positions from JPL Horizons, and the script that makes them
+tools/review       Dev-only pull request checks for fixtures, tolerances and commit messages; never shipped
 ```
 
 The engine works out the positions of the planets, the camera and the selected asteroid on the CPU, in full
@@ -51,6 +60,7 @@ None of these need an API key.
 | DONKI (CCMC `DONKI-API`)         | CME speed, direction, width and timing      |
 | WSA-ENLIL (via DONKI)            | Forecasts of when a CME reaches Earth       |
 | NASA Blue Marble Next Generation | The Earth texture                           |
+| NASA HEASARC (Yale BSC5)         | The starfield (committed, dev-only refresh) |
 
 ### Server endpoints
 
@@ -80,17 +90,24 @@ npm run check     # typecheck, lint, test and build (must pass before any change
 npm test          # all unit and property tests
 npm run format    # format the code with Prettier
 npm run fixtures  # regenerate the Horizons fixtures (uses the network; dev only)
+npm run stars     # regenerate the starfield from NASA HEASARC (uses the network; dev only)
 npm run record    # re-record the upstream responses used by the server tests (uses the network; dev only)
 npm run snapshot  # refresh the data snapshot bundled with the web app
 ```
 
 Tests never use the network. They run against committed fixtures and recorded responses.
 
+## Deployment
+
+The web app runs on Netlify, which forwards `/api` to the data server on Render's free plan. Both redeploy on every
+push to `main`. The steps to set it up again, and what to expect from the free plan, are in
+[`docs/deploy.md`](docs/deploy.md).
+
 ## Project status
 
 Phases 0 to 6 are done: the foundations, the orbit engine, the data layer, the scene, and the three shots above.
-Phase 7 (polish and ship: performance tiers, loading, fallbacks, accessibility, help and deployment) is next. See
-[`PLAN.md`](PLAN.md) for the full plan and [`PROGRESS.md`](PROGRESS.md) for the current state, measurements and
+Phase 7 (polish and ship) is built and deployed: performance tiers, faster loading, fallbacks, accessibility, help, the
+real starfield and the live site. What remains is its final checks and the release. See [`PLAN.md`](PLAN.md) for the full plan and [`PROGRESS.md`](PROGRESS.md) for the current state, measurements and
 decisions.
 
 ## License
