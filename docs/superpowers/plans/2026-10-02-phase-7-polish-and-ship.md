@@ -1236,6 +1236,16 @@ chunk (24.5 KB gzip today), which `EffectsWarmUp` gates the opening on. Any AA p
 Deliverable: a table of frame times and stills, then one recommendation per tier, applied. If MSAA wins, the code
 change is nothing and the step is the measurement plus the note in `PROGRESS.md`.
 
+**Harness built 2026-10-04** (the measurements still need a browser): a dev-only `?aa=msaa4|msaa2|off|fxaa|smaa`
+(`dev/devAntialiasing.ts`), read once per load like `?tier=` and `?dpr=`, so one page load gives one configuration
+and `?bench=` reports it. MSAA is the composer's own `multisampling`; FXAA and SMAA mount after `ToneMapping` and
+turn multisampling off, since a post pass replaces it rather than adding to it. Confirmed in the production build:
+the `Effects` chunk is 24.53 KB gzip against 24.48 KB before, the SMAA area texture is tree-shaken out, and the
+only `smaa` left in the chunk is the sample-count table.
+
+**To measure:** each of the five at `?bench=overview|earth|approach|eruption`, `?dpr=1` and `?dpr=2`, e.g.
+`?bench=overview&aa=fxaa&dpr=2`.
+
 **Tests:** whatever the chosen configuration needs in `qualityTiers.test.ts` / `Effects`; no test if nothing changes.
 
 **Acceptance:**
