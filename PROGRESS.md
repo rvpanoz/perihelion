@@ -321,7 +321,7 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 - [x] Accessibility and reduced motion (#134)
 - [x] Help dialog, orbit-class legend, first-visit hint and credits (#135)
 - [x] Visual polish: soft sprites, Line2 orbits, real starfield, anti-aliasing (#152)
-- [ ] Deploy: Netlify and Render (#136)
+- [ ] Deploy: Netlify and Render (#136): config written on `phase-7/deploy`; the services and the acceptance run are the user's
 - [x] Jev PR review: fixtures, tolerances and commit messages (#148)
 - [ ] Exit verification (#137)
 
@@ -1075,3 +1075,8 @@ _None._
   `?aa=msaa4|msaa2|off|fxaa|smaa` stays in the tree for a later comparison; it folds out of production builds and
   the SMAA area texture is tree-shaken out. Steps 2 and 3 were judged by eye by the user; frame time after them was
   not measured, so the Phase 7 exit run (Task 10) is the first full measurement of the finished scene.
+- **2026-10-04:** Task 9 (#136) config: `HOST` joins `ServerConfig` (default `127.0.0.1`, `0.0.0.0` in `render.yaml`);
+  `netlify.toml` proxies `/api/*` to Render and `/api/health` to the server's `/health` (no new server route); the
+  Render Blueprint is the free plan in Frankfurt, service `perihelion-server`; Cloudflare was considered and rejected
+  (its free tier cannot run the Node/SQLite server). The Render URL in `netlify.toml` assumes that name is free; the
+  services, the URL check and the acceptance run follow once the user has created them (`docs/deploy.md`).

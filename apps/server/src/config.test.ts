@@ -9,6 +9,7 @@ describe('readServerConfig', () => {
   it('uses development defaults inside the server package', () => {
     expect(readServerConfig({})).toEqual({
       port: 8787,
+      host: '127.0.0.1',
       databasePath: serverPath('.cache/perihelion.sqlite'),
       snapshotDirectory: serverPath('../web/public/snapshot'),
     });
@@ -17,11 +18,13 @@ describe('readServerConfig', () => {
   it('reads the environment, treating blank values as unset', () => {
     const config = readServerConfig({
       PORT: '9000',
+      HOST: '0.0.0.0',
       DATABASE_PATH: '',
       SNAPSHOT_DIR: '/srv/snap',
     });
     expect(config).toMatchObject({
       port: 9000,
+      host: '0.0.0.0',
       snapshotDirectory: '/srv/snap',
     });
     expect(config.databasePath).toBe(serverPath('.cache/perihelion.sqlite'));

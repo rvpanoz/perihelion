@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: perihelion-server
+    runtime: node
+    plan: free
+    region: frankfurt
+    branch: main
+    buildCommand: npm ci && npm run build -w apps/server
+    startCommand: node apps/server/dist/main.js
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: '24'
+      # Render routes traffic to the container's public interface, not loopback.
+      - key: HOST
+        value: 0.0.0.0
