@@ -1,13 +1,26 @@
 # Perihelion
 
+[![CI](https://github.com/rvpanoz/perihelion/actions/workflows/ci.yml/badge.svg)](https://github.com/rvpanoz/perihelion/actions/workflows/ci.yml)
+[![License: GPL v3](https://img.shields.io/badge/license-GPL--3.0--or--later-blue.svg)](LICENSE)
+
+**[Open the live app →](https://gilded-tartufo-9fde5f.netlify.app/)**
+
+![Over 42,000 near-Earth asteroids on their real orbits around the Sun](apps/web/public/stills/swarm.webp)
+
 A 3D solar system in the browser, driven by live NASA/JPL data. It shows the real near-Earth asteroids, this week's
 close approaches to Earth and recent solar eruptions (CMEs), on top of a small TypeScript orbit engine that is tested
 against JPL Horizons.
 
-Live: <https://gilded-tartufo-9fde5f.netlify.app/> (the data server sleeps when idle, so the first visit shows a bundled
-snapshot for a moment, then swaps to live data).
+The data server sleeps when idle, so the first visit shows a bundled snapshot for a moment, then swaps to live data.
+
+_Perihelion is an independent project. It is not affiliated with or endorsed by NASA or JPL._
 
 ## What you can see
+
+<p>
+  <img src="apps/web/public/stills/close-approach.webp" alt="The close-approach view: a list of this week's passes and a card with JPL's distance, speed and size" width="49%" />
+  <img src="apps/web/public/stills/eruption.webp" alt="A coronal mass ejection leaving the Sun as a cone of particles" width="49%" />
+</p>
 
 - **The Swarm.** About 42,000 known near-Earth asteroids, moving on their real orbits. They are coloured by orbit
   class (Apollo, Aten, Amor, Atira). A short camera move opens the app; any click, scroll or key press skips it.
@@ -47,6 +60,20 @@ tools/review       Dev-only pull request checks for fixtures, tolerances and com
 The engine works out the positions of the planets, the camera and the selected asteroid on the CPU, in full
 precision. The tens of thousands of asteroids in the swarm are moved on the GPU instead, and a test checks that both
 agree.
+
+### Accuracy
+
+The orbit engine is checked against JPL Horizons in every test run, using committed ground-truth positions:
+
+- **Planets** follow JPL's approximate orbital elements (Standish), sampled every decade from 1800 to 2050. The inner
+  planets stay within 1 arcminute of Horizons in heliocentric longitude. The giants stay within about 12 arcminutes; most
+  of that error comes from the simplified elements, not from the engine.
+- **Asteroids** use two-body orbits from their osculating elements. Over ±120 days from the epoch, seven reference
+  asteroids (Eros, Apophis, Bennu, Ryugu, Phaethon, Aten and Atira) stay within 6 × 10⁻⁵ AU (about 9,000 km) of
+  Horizons.
+
+This is precise enough to draw the scene correctly, but it is not an ephemeris. Every distance, speed and time shown as
+a fact comes from JPL or DONKI, not from the engine.
 
 ### Data sources
 
@@ -108,4 +135,5 @@ push to `main`. The steps to set it up again, and what to expect from the free p
 Copyright (C) 2026 rvpanoz
 
 Licensed under the GNU General Public License v3.0 or later (`GPL-3.0-or-later`). See [LICENSE](LICENSE).
-NASA/JPL data is used under its own terms and is not covered by this license.
+NASA/JPL data is used under its own terms and is not covered by this license. Perihelion is an independent project and is
+not affiliated with or endorsed by NASA or JPL.
