@@ -103,13 +103,6 @@ The web app runs on Netlify, which forwards `/api` to the data server on Render'
 push to `main`. The steps to set it up again, and what to expect from the free plan, are in
 [`docs/deploy.md`](docs/deploy.md).
 
-## Project status
-
-Phases 0 to 6 are done: the foundations, the orbit engine, the data layer, the scene, and the three shots above.
-Phase 7 (polish and ship) is built and deployed: performance tiers, faster loading, fallbacks, accessibility, help, the
-real starfield and the live site. What remains is its final checks and the release. See [`PLAN.md`](PLAN.md) for the full plan and [`PROGRESS.md`](PROGRESS.md) for the current state, measurements and
-decisions.
-
 ## License
 
 Copyright (C) 2026 rvpanoz
