@@ -1,7 +1,7 @@
 # PROGRESS
 
 **Current phase:** Phase 7: Polish & ship (in progress)
-**Last updated:** 2026-10-03
+**Last updated:** 2026-10-04
 
 ## Phase status
 
@@ -320,6 +320,7 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 - [x] Responsive layout, touch and scrollbars (#133)
 - [x] Accessibility and reduced motion (#134)
 - [x] Help dialog, orbit-class legend, first-visit hint and credits (#135)
+- [x] Visual polish: soft sprites, Line2 orbits, real starfield, anti-aliasing (#152)
 - [ ] Deploy: Netlify and Render (#136)
 - [x] Jev PR review: fixtures, tolerances and commit messages (#148)
 - [ ] Exit verification (#137)
@@ -1053,3 +1054,24 @@ _None._
   tabs pattern. The orbit-class legend lists the classes from the Sun outwards, not by count, so rows never reorder on
   a data swap. The first-visit hint shows after the opening, once the caption has faded; dismissing it or opening help
   hides it for good (`perihelion.helpHintSeen`), and it still works for the session when storage throws.
+- **2026-10-04:** Task 11 (#152), a visual pass added after a review of the scene and placed before deploy: the drei
+  FPS meter is dev-only (it had been shipping), body markers draw the swarm's round sprite from a shared
+  `roundSprite.glsl` chunk instead of a hard square, and the orbits are `LineSegments2` with three's `LineMaterial`
+  rather than one-pixel aliased hairlines. Anisotropic filtering of Earth's day map was tried and dropped (user
+  decision): at the distances the shots use, the map is minified rather than stretched, so it looked no different.
+- **2026-10-04:** The initial JS budget rose from 380,000 to 390,000 B (user decision): three's screen-space lines
+  cost 5.4 kB gzip and the orbits are on screen from the first frame, so they cannot move to a lazy chunk the way
+  postprocessing did. 390,000 is still below the 391,142 B Phase 7 started at, and the starfield's star data is
+  fetched at runtime rather than bundled.
+- **2026-10-04:** The starfield is the Yale Bright Star Catalogue from NASA HEASARC's TAP service: 8,404 stars to
+  visual magnitude 6.5, packed as an int16 ecliptic unit vector plus a magnitude and a B−V byte, 67,244 B, fetched
+  after first paint like the Earth map (`npm run stars` regenerates it; network, dev only, commit the result). The
+  committed file is ground truth and is checked against published positions, not against the packer: Sirius at
+  ecliptic λ 104.07°, β −39.6°, and the Big Dipper's pointers 5.366° apart against 5.374° published. How big and
+  bright each star is drawn is illustrative and the help dialog says so; the brightest stops at brightness 1, the
+  same ceiling the swarm uses, so no star reaches bloom's threshold.
+- **2026-10-04:** Task 11 step 4 (anti-aliasing) was skipped and the quality tiers are unchanged (user decision): no
+  MSAA, FXAA or SMAA frame times were measured, so nothing justified moving off High 4×, Medium 2×, Low 0. A dev-only
+  `?aa=msaa4|msaa2|off|fxaa|smaa` stays in the tree for a later comparison; it folds out of production builds and
+  the SMAA area texture is tree-shaken out. Steps 2 and 3 were judged by eye by the user; frame time after them was
+  not measured, so the Phase 7 exit run (Task 10) is the first full measurement of the finished scene.

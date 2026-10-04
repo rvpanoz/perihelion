@@ -48,6 +48,14 @@ describe('swarm shaders', () => {
     );
   });
 
+  // The markers draw the same sprite, so the falloff lives in one chunk; `core` 0 is the swarm's own look.
+  it('draws the shared round sprite from the centre, with the chunk first', () => {
+    expect(SWARM_FRAGMENT_SHADER).toMatch(/\broundSpriteAlpha\(gl_PointCoord, 0\.0\)/);
+    expect(SWARM_FRAGMENT_SHADER.indexOf('float roundSpriteAlpha(')).toBeLessThan(
+      SWARM_FRAGMENT_SHADER.indexOf('void main()'),
+    );
+  });
+
   it('places each NEO with the Kepler chunk, which comes first', () => {
     expect(swarmVertexMain).toMatch(/\bswarmHeliocentricPosition\(/);
     expect(SWARM_VERTEX_SHADER.indexOf('vec3 swarmHeliocentricPosition(')).toBeLessThan(

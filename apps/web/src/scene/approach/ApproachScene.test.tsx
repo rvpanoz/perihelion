@@ -1,10 +1,11 @@
 import ReactThreeTestRenderer from '@react-three/test-renderer';
-import type { Points, PointsMaterial } from 'three';
+import type { Points, ShaderMaterial } from 'three';
 import { afterEach, describe, expect, it } from 'vitest';
 import { approachSelection } from '../../approaches/approachSelection';
 import { closeApproachRow } from '../../test/closeApproachRow';
 import { timeStore } from '../../time/timeStore';
 import { BODY_APPEARANCE } from '../bodies/bodyCatalog';
+import type { MarkerUniforms } from '../markers/markerMaterial';
 import { bodyPositions, updateBodyPositions } from '../bodies/bodyPositions';
 import { sceneAxesFromEcliptic } from '../sceneFrame';
 import { ApproachScene } from './ApproachScene';
@@ -30,18 +31,16 @@ describe('ApproachScene', () => {
 
   it('marks Earth at the Earth–Moon barycentre, at a fixed pixel size, in Earth’s colour, over its disc', async () => {
     const { renderer, earthMarkers } = await renderAtApproach();
-    const marker = earthMarkers()[0]?.instance as Points<never, PointsMaterial>;
+    const marker = earthMarkers()[0]?.instance as Points<never, ShaderMaterial>;
     expect(marker.position.toArray()).toEqual(
       sceneAxesFromEcliptic(bodyPositions.earthMoonBarycenter),
     );
-    expect(marker.material.size).toBe(8);
-    expect(marker.material.sizeAttenuation).toBe(false);
+    const { color, sizePx } = marker.material.uniforms as MarkerUniforms;
+    expect(sizePx.value).toBe(8);
     // A dark (night-side) disc would otherwise hide the marker.
     expect(marker.material.depthTest).toBe(false);
     expect(marker.renderOrder).toBeGreaterThan(0);
-    expect(`#${marker.material.color.getHexString()}`).toBe(
-      BODY_APPEARANCE.earthMoonBarycenter.color,
-    );
+    expect(`#${color.value.getHexString()}`).toBe(BODY_APPEARANCE.earthMoonBarycenter.color);
     await renderer.unmount();
   });
 

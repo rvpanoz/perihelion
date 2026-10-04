@@ -104,9 +104,11 @@ parts):
 | 6   | Responsive, touch and scrollbars             | #133  | light     | ✅     |
 | 7   | Accessibility and reduced motion             | #134  | light     | ✅     |
 | 8   | Help dialog, legend, hint, credits           | #135  | light     | ✅     |
+| 11  | Visual polish: sprites, lines, stars, AA     | #152  | light     | ✅     |
 | 9   | Deploy: Netlify + Render                     | #136  | light     | ⬜     |
 | 10  | Exit verification                            | #137  | light     | ⬜     |
 
+Rows are in the order the tasks run; Task 11 was added after Task 8 and runs before Tasks 9 and 10.
 Branches: `phase-7/<short-name>` per task, one PR each. Task 3 needs Task 2; Task 4's bundle budget needs Task 1;
 Task 10 needs the rest. Tasks 5–8 are independent of each other.
 
@@ -1069,3 +1071,190 @@ Branch `phase-7/exit-verification`. Files: `PROGRESS.md`, plan status.
 
 - [ ] Every check above recorded in `PROGRESS.md` with screen, canvas size, DPR and browser version.
 - [ ] `npm run check` green.
+
+## Task 11: Visual polish: sprites, lines, stars, anti-aliasing (light)
+
+Branch `phase-7/visual-polish`. **Runs before Tasks 9 and 10** (added 2026-10-04 after a visual review of the
+scene; the user approved the scope and this order). Four commits, one PR, one issue.
+
+Four things the scene gets wrong today. Anti-aliasing is last on purpose: it changes the composer, so it is
+measured against a scene that is otherwise final.
+
+**Baseline to beat:** frame time ≤ 16.7 ms on the Dell S2721HN (1080p, 75 Hz); initial JS gzip under 380,000 B
+(375,017 B after Task 8).
+
+### Step 1 — Dev-only FPS meter, soft markers, sharper Earth map (commit 1)
+
+- **`scene/SceneCanvas.tsx`.** `<Stats className="fps-meter" />` ships to production today. Gate it on
+  `import.meta.env.DEV`, like the `<DevProbes />` beside it. Report the initial-JS gzip change.
+- **`scene/shaders/roundSprite.glsl`.** `float roundSpriteAlpha(vec2 pointCoord)` — the falloff `swarm.frag` holds
+  inline today, moved to a shared chunk and prepended in `swarmMesh.ts`, the pattern `simplexNoise3d.glsl` already
+  uses for the Sun and the impact. The swarm's look must not change.
+- **`scene/markers/markerMaterial.ts` + `marker.vert` / `marker.frag`.** `FixedSizeMarker` draws
+  `pointsMaterial`, so every body marker is a hard square. Replace it with a `ShaderMaterial` on the same chunk:
+  uniforms `color` and `sizePx`; `gl_PointSize = sizePx * pixelRatio` (three multiplies `PointsMaterial.size` by the
+  pixel ratio itself, a custom material must do it — `Swarm.tsx` reads `useThree((state) => state.viewport.dpr)`);
+  `logdepthbuf` chunks in both stages, since the logarithmic depth buffer is always on; normal blending, not
+  additive — an over-body marker on a lit limb would otherwise blow out; `depthTest`/`depthWrite` from
+  `look.overBody`, as today.
+- ~~**Earth day map anisotropy.**~~ Tried and **dropped** (user decision, 2026-10-04): see the measurement below.
+
+**Tests:** `markerMaterial.test.ts` — the shared chunk comes before `main`, the uniforms, the pixel-ratio
+arithmetic in the vertex source, the `logdepthbuf` chunks, and `depthTest`/`depthWrite` following `overBody`;
+`swarmMesh.test.ts` — the swarm's fragment shader calls the shared chunk with core 0, so its look cannot drift. The
+`Stats` gate has no test (neither does `DevProbes`): evidence is the production bundle, grepped for `showPanel`.
+
+**Acceptance:**
+
+- [x] No FPS meter in `vite preview`; `showPanel` absent from `dist`; initial JS gzip recorded.
+- [x] Earth and asteroid markers are round with a soft edge, same size and colour as before; before/after stills.
+- [x] Frame time unchanged at `?bench=overview` and `?bench=approach`.
+
+**Measured 2026-10-04** (dev server, Chrome, Dell S2721HN 1080p 75 Hz, Apple M3 via ANGLE Metal, DPR 1, tier High):
+
+- `showPanel` appears in no file under `apps/web/dist`; it is drei's `Stats` (`@react-three/drei/core/Stats.js`).
+  Initial JS **374,431 B gzip** against the 380,000 B budget, down 586 B from Task 8's 375,017 B.
+- Frame times, 750 frames each, all vsync-bound at the display's 13.3 ms: `overview` median 13.3, p90 13.5,
+  worst 14.4, no hitches; `earth` median 13.3, p90 13.8, worst 14.7, no hitches; `approach` median 13.3, p90 13.7,
+  worst 21.9, one hitch. The baseline was 13.34 ms mean, so nothing changed.
+- **Anisotropic filtering of the day map was tried and dropped** (user decision). The renderer's maximum is 16, so
+  the map asked for 8 and really got it, but at the distances the shots use (Earth's disc ≈ 190 px wide) the map is
+  minified, not stretched, and the before/after stills are indistinguishable. It would only pay off zoomed in close,
+  which no shot does, so the code it needed — a wider `load` signature and an in-canvas loader for the renderer's
+  limit — is not worth carrying.
+
+### Step 2 — Orbit lines as `Line2` (commit 2)
+
+`OrbitLine` draws a `lineLoop` with `lineBasicMaterial`, so every orbit is a 1-pixel aliased hairline that WebGL
+cannot widen. Move to `Line2` / `LineGeometry` / `LineMaterial` from `three/examples/jsm`, which draws screen-space
+quads and smooths its own edges with `alphaToCoverage`.
+
+- Verified in this plan's research: three 0.186's `LineMaterial` **does** include the `logdepthbuf` chunks, so it
+  works with the logarithmic depth buffer. Its `resolution` uniform must be kept in sync with the canvas size by hand.
+- drei's `<Line>` is not usable: it takes `points` as a React prop, and the paths go stale ~10×/s at 10 yr/s, so
+  rebuilds would run through React; it also pulls `three-stdlib`'s duplicate lines code into the bundle.
+- So the line is built and updated **imperatively** in `useFrame` at `FRAME_PRIORITY.sceneObjects`, exactly where
+  `writeOrbitPath` runs today: `setPositions` on the existing `LineGeometry`, no React commit. The loop closes by
+  repeating the first point (`LineGeometry` has no loop mode).
+- `scene/bodies/orbitLineMaterial.ts` owns the material (colour per planet from `BODY_APPEARANCE`, width in pixels,
+  `ORBIT_LINE_OPACITY` 0.35, `alphaToCoverage`), and one place keeps `resolution` in step with
+  `state.size` / `state.viewport.dpr`.
+- Report the bundle cost of the three examples modules.
+
+**Tests:** `orbitLineMaterial.test.ts` — colour, width, opacity, `alphaToCoverage` and `resolution`;
+`orbitLineGeometry.test.ts` — the loop's closing segment, the shared buffer, the upload; `SolarSystem.test.tsx` —
+a rendered frame leaves every orbit a closed loop whose first point is the engine's.
+
+**Acceptance:**
+
+- [x] Orbit lines read as smooth curves at 1× and 2× pixel ratio, no stair-stepping (checked by the user by eye on
+      2026-10-04; no stills were captured).
+- [x] A path still refreshes as the clock runs (10 yr/s) with no React re-render.
+- [~] Frame time unchanged at `?bench=overview`: initial JS gzip recorded (379,843 B); **frame time not measured**
+  after this step, only by eye.
+
+**As built 2026-10-04:**
+
+1. `LineSegments2` + `LineSegmentsGeometry`, not `Line2`/`LineGeometry`: `LineGeometry.setPositions` builds the
+   segment pairs from a polyline and allocates a new array every call, which at ten refreshes a second across eight
+   planets is garbage per frame. `LineSegmentsGeometry.setPositions` keeps the `Float32Array` it is given, so the
+   geometry and the component share one buffer for the line's lifetime and a refresh is a write plus an upload.
+   Writing the pairs by hand is also what closes the loop, which `LineGeometry` has no mode for. Same material,
+   same rendering: `LineMaterial` draws each segment as a quad with round ends, so the joins do not show.
+2. One scratch path is shared by all eight lines; they are rewritten one after another inside the same frame.
+3. Width 1.5 CSS px; the `resolution` uniform is written from `state.size` in an effect, so only a resize touches it.
+4. **This cost 5.4 KB gzip and took the initial JS to 379,843 B.** The budget rose from 380,000 to 390,000 B
+   (user decision): the orbits are on screen from the first frame, so the modules cannot move to a lazy chunk the
+   way postprocessing did, and 390,000 is still below the 391,142 B Phase 7 started at.
+
+### Step 3 — A real starfield (commit 3)
+
+The background is flat black (`SCENE_BACKGROUND`), so the scene has no depth cue and reads like a diagram.
+Draw the real naked-eye sky from the Yale Bright Star Catalogue. Verified sources and numbers (do not re-derive):
+
+- NASA **HEASARC TAP** serves it and works:
+  `curl -G https://heasarc.gsfc.nasa.gov/xamin/vo/tap/sync --data-urlencode REQUEST=doQuery
+--data-urlencode LANG=ADQL --data-urlencode FORMAT=text --data-urlencode "QUERY=SELECT ... FROM bsc5p"`
+  (`FORMAT=csv` is rejected; `text` works). 9,110 rows, **8,404 at `vmag <= 6.5`**. `ra` / `dec` are J2000 degrees.
+  `vmag` is labelled "Photographic Magnitude" in the metadata but is visual: Sirius (HR 2491) reads
+  ra 101.2871, dec −16.7161, vmag −1.46 — the check the generator asserts.
+- CDS/VizieR is behind an anti-bot wall from this machine and Harvard's tdc-www mirror serves a cert for another
+  hostname: neither is a usable source.
+
+**Generator** (`npm run stars`, network, dev only, like `npm run fixtures`; the result is committed): queries
+HEASARC, converts each star to an ecliptic J2000 unit vector with `equatorialToEcliptic` from `@perihelion/orbit`
+(it already exists, with `OBLIQUITY_J2000_RAD`, in `heliographic.ts`), and packs
+**int16 unit vector + int8 vmag + int8 B−V = 8 bytes/star ≈ 67 KB** into `apps/web/public/stars/bsc5p-v1.bin`,
+with provenance (query, row count, retrieved date) beside it. Fetched at runtime like the Earth texture, so the
+initial-JS budget is untouched.
+
+**Scene:** `scene/stars/Starfield.tsx` — one `Points` with a `ShaderMaterial` sharing
+`roundSprite.glsl` from step 1; size and brightness from `vmag` (Pogson: flux ∝ 10^(−0.4 · vmag), clamped so the
+faintest stars stay visible and only Sirius-class stars reach the bloom threshold), colour from B−V. The scene has a
+floating origin (`sceneFrame.ts`), so the group copies `camera.position` each frame and the stars sit at infinity;
+the vertices are the unit vectors scaled near the camera's `far`. Loaded through a store on the `earthDayMap`
+pattern, so the scene tests need no fetch and the app draws black until the stars land.
+
+**Note:** adding `npm run stars` makes CLAUDE.md's Commands list stale. Editing CLAUDE.md needs the user's
+go-ahead — ask at the end of this step, do not edit it silently.
+
+**Tests:** the packer round-trips a known star within the quantisation step (int16 ⇒ ≤ 1e-4 rad ≈ 20″, far below a
+pixel); Sirius's catalogue row converts to the ecliptic direction `equatorialToEcliptic` gives for
+(101.2871°, −16.7161°); `vmag` → size/brightness is monotonic and clamped; the store leaves the scene black on a
+failed fetch. The committed `.bin` is a fixture: never edited by hand.
+
+**Acceptance:**
+
+- [x] The real constellations are recognisable (Orion, the Big Dipper) and keep their places as the camera moves
+      (checked by the user by eye on 2026-10-04, and numerically against published positions; no stills captured).
+- [x] The stars do not wash out the swarm or trip the bloom threshold as a field.
+- [x] 67 KB ± a little, fetched after first paint; initial JS gzip unchanged.
+- [~] Frame time unchanged at the four bench shots: **not measured** after steps 2 and 3, only by eye.
+
+**As built 2026-10-04:**
+
+1. `npm run stars` wrote **8,404 stars, 67,244 bytes**. The generator refuses to write unless HR 2491 reads back as
+   Sirius and the row count is at least 8,000, so a changed query or service fails loudly.
+2. The file is ground truth and is checked against published positions, not against the packer
+   (`apps/web/scripts/starCatalogFile.test.ts`, beside the generator because it reads from disk): Sirius at
+   ecliptic λ 104.07°, β −39.6°; Dubhe to Merak 5.37°; Betelgeuse, Dubhe and Merak at their own magnitude and B−V.
+   Measured from the written file: pointers 5.366° against 5.374° published, Orion's belt 1.373°.
+3. The brightest star is drawn at brightness 1, the same ceiling the swarm uses, so no star reaches bloom's
+   threshold of 1 in linear light.
+4. Credits gained the Bright Star Catalogue, and "Real vs illustrative" now says that where the stars are is real
+   while how big and bright they are drawn is not.
+5. Initial JS 381,103 B: the scene code is ~1.3 KB and the catalogue itself is fetched, not bundled.
+
+### Step 4 — Anti-aliasing: measure, then choose (commit 4)
+
+The composer's MSAA is per tier today (`QUALITY_TIERS`: high 4×, medium 2×, low 0). With the lines no longer
+hairlines and the sprites round, measure what MSAA is still buying and whether a post pass does it cheaper:
+**MSAA 4× / 2× / 0, FXAA, SMAA**, each at `?bench=overview|earth|approach|eruption`, `?dpr=1` and `?dpr=2`,
+on the Dell S2721HN. Verified: `FXAAEffect` is available and costs ~nothing; **SMAA costs ~50 KB gzip** because
+`postprocessing` embeds its area lookup texture as base64 (66,778 B → 50,381 B gzipped) in the lazy `Effects`
+chunk (24.5 KB gzip today), which `EffectsWarmUp` gates the opening on. Any AA pass belongs **after**
+`ToneMapping`, not before.
+
+Deliverable: a table of frame times and stills, then one recommendation per tier, applied. If MSAA wins, the code
+change is nothing and the step is the measurement plus the note in `PROGRESS.md`.
+
+**Harness built 2026-10-04** (the measurements still need a browser): a dev-only `?aa=msaa4|msaa2|off|fxaa|smaa`
+(`dev/devAntialiasing.ts`), read once per load like `?tier=` and `?dpr=`, so one page load gives one configuration
+and `?bench=` reports it. MSAA is the composer's own `multisampling`; FXAA and SMAA mount after `ToneMapping` and
+turn multisampling off, since a post pass replaces it rather than adding to it. Confirmed in the production build:
+the `Effects` chunk is 24.53 KB gzip against 24.48 KB before, the SMAA area texture is tree-shaken out, and the
+only `smaa` left in the chunk is the sample-count table.
+
+**To measure:** each of the five at `?bench=overview|earth|approach|eruption`, `?dpr=1` and `?dpr=2`, e.g.
+`?bench=overview&aa=fxaa&dpr=2`.
+
+**Tests:** whatever the chosen configuration needs in `qualityTiers.test.ts` / `Effects`; no test if nothing changes.
+
+**Acceptance:**
+
+- [-] ~~Frame times for all five options recorded.~~ **Skipped (user decision, 2026-10-04):** the sweep was not run.
+- [-] ~~Each tier's choice stated with its reason.~~ **Tiers unchanged** (user decision): High 4×, Medium 2×, Low 0.
+- [x] `npm run check` green; initial JS 381,102 B and `Effects` chunk 24.53 KB gzip recorded.
+
+**Outcome:** step 4 changes no tier. The `?aa=` harness stays in the tree (dev only, folded out of production), so
+the comparison can still be run later; nothing was measured with it.

@@ -7,8 +7,10 @@ import { constants, gzipSync } from 'node:zlib';
 
 const DIST_DIR = 'apps/web/dist';
 // Phase 7 baseline 391,142 bytes (2026-10-02); 370,460 once postprocessing moved to its own chunk (Task 4),
-// rounded up to the next 10 kB so it can only stop growth.
-const INITIAL_JS_GZIP_BUDGET_BYTES = 380_000;
+// rounded up to the next 10 kB so it can only stop growth. Task 11 raised it to 390,000: three's screen-space
+// lines cost 5.4 kB and the orbits are visible from the first frame, so they cannot be split off. That is still
+// below where Phase 7 started, and the starfield's own data is fetched at runtime rather than bundled.
+const INITIAL_JS_GZIP_BUDGET_BYTES = 390_000;
 // Fixed so the number means the same thing on every machine; Node's default level, close to what hosts serve.
 const GZIP_LEVEL = constants.Z_DEFAULT_COMPRESSION;
 

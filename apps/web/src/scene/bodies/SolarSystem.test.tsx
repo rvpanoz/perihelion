@@ -1,9 +1,12 @@
 import { PLANETS, julianDateFromCalendar, planetStateAt } from '@perihelion/orbit';
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import type { Object3D } from 'three';
+import { LineSegments2 } from 'three/examples/jsm/lines/LineSegments2.js';
 import { afterEach, describe, expect, it } from 'vitest';
 import { timeStore } from '../../time/timeStore';
 import { sceneAxesFromEcliptic, setSceneOrigin } from '../sceneFrame';
+import { ORBIT_LINE_SEGMENT_FLOATS } from './orbitLineGeometry';
+import { ORBIT_PATH_POINTS, writeOrbitPath } from './orbitPath';
 import { SolarSystem } from './SolarSystem';
 
 const SCRUBBED_DATES_TDB = [
@@ -36,6 +39,29 @@ describe('SolarSystem', () => {
       await renderer.unmount();
     },
   );
+
+  // The path is written straight into the geometry's buffer from `useFrame`, so only a rendered frame proves it.
+  it('draws every orbit as a loop that closes on itself', async () => {
+    const jdTdb = SCRUBBED_DATES_TDB[1] ?? 0;
+    const { renderer } = await renderAt(jdTdb);
+    const lines = renderer.scene
+      .findAll((node) => node.instance instanceof LineSegments2)
+      .map((node) => node.instance as LineSegments2);
+    expect(lines).toHaveLength(PLANETS.length);
+    const [mercury] = lines;
+    const segments = mercury?.geometry.getAttribute('instanceStart').array as Float32Array;
+    expect(mercury?.geometry.instanceCount).toBe(ORBIT_PATH_POINTS);
+    const path = writeOrbitPath(
+      { planet: 'mercury', jdTdb },
+      new Float32Array(ORBIT_PATH_POINTS * 3),
+    );
+    expect(Array.from(segments.slice(0, 3))).toEqual(Array.from(path.slice(0, 3)));
+    const lastSegment = (ORBIT_PATH_POINTS - 1) * ORBIT_LINE_SEGMENT_FLOATS;
+    expect(Array.from(segments.slice(lastSegment + 3, lastSegment + 6))).toEqual(
+      Array.from(path.slice(0, 3)),
+    );
+    await renderer.unmount();
+  });
 
   it('draws the focused body at exactly the scene origin', async () => {
     const jdTdb = SCRUBBED_DATES_TDB[1] ?? 0;

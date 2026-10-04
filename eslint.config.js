@@ -25,6 +25,7 @@ export default defineConfig(
   {
     files: [
       'apps/server/**/*.ts',
+      'apps/web/scripts/**/*.ts',
       'packages/fixtures/**/*.ts',
       'tools/**/*.ts',
       'scripts/**/*.mjs',

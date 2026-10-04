@@ -8,16 +8,13 @@ import { useQualityTier } from '../quality/qualityStore';
 import { pixelRatioFor } from '../quality/qualityTiers';
 import { CAMERA_SETTINGS, RENDERER_PARAMETERS, SCENE_BACKGROUND } from './canvasConfig';
 import { earthDayMap } from './bodies/earth/earthDayMap';
+import { starCatalog } from './stars/starCatalogStore';
 import { CameraControls } from './camera/CameraControls';
 import { EffectsWarmUp } from './effects/EffectsWarmUp';
 import { OpeningDirector } from './opening/OpeningDirector';
 import { SceneContents } from './SceneContents';
 import type { SwarmProps } from './swarm/Swarm';
 
-/**
- * Read once per load. It stands in for the device's ratio, so the tier still caps it and proxy runs show the tiers
- * apart; production builds drop it.
- */
 /**
  * Postprocessing is ~20 KB of the first download; as its own chunk it loads alongside the first frames, and the
  * scene draws without bloom until it lands. The opening waits for it (`EffectsWarmUp`), so its set-up frame never
@@ -27,6 +24,10 @@ const Effects = lazy(() =>
   import('./effects/Effects').then(({ Effects }) => ({ default: Effects })),
 );
 
+/**
+ * Read once per load. It stands in for the device's ratio, so the tier still caps it and proxy runs show the tiers
+ * apart; production builds drop it.
+ */
 const DEV_PIXEL_RATIO = import.meta.env.DEV
   ? devPixelRatioFromUrl(window.location.search)
   : undefined;
@@ -43,7 +44,10 @@ export interface SceneCanvasProps {
  * the scene tests don't have.
  */
 export function SceneCanvas({ swarm, openingCanStart }: SceneCanvasProps) {
-  useEffect(() => earthDayMap.load(), []);
+  useEffect(() => {
+    earthDayMap.load();
+    void starCatalog.load();
+  }, []);
   const pixelRatio = pixelRatioFor(useQualityTier(), DEV_PIXEL_RATIO ?? window.devicePixelRatio);
   const [effectsWarm, setEffectsWarm] = useState(false);
   return (
@@ -57,8 +61,12 @@ export function SceneCanvas({ swarm, openingCanStart }: SceneCanvasProps) {
         <EffectsWarmUp onWarm={() => setEffectsWarm(true)} />
       </Suspense>
       <QualityGovernor />
-      <Stats className="fps-meter" />
-      {import.meta.env.DEV && <DevProbes />}
+      {import.meta.env.DEV && (
+        <>
+          <Stats className="fps-meter" />
+          <DevProbes />
+        </>
+      )}
     </Canvas>
   );
 }

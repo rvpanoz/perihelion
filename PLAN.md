@@ -188,6 +188,9 @@ Performance comes before graphics detail (2026-10-02).
 - Accessibility basics for the UI chrome; reduced-motion mode (no auto camera moves)
 - Help: a short guide to what you're seeing, an orbit-class legend, and credits/attribution for NASA/JPL data and
   imagery
+- Visual polish (added 2026-10-04): the FPS meter dev-only, body markers as soft round sprites, orbit lines as
+  screen-space `Line2` instead of aliased hairlines, a real starfield from the Yale Bright Star Catalogue, and
+  anti-aliasing chosen per quality tier from measured frame times
 - Deploy (web: Netlify; server: Render) + a short screen recording for sharing
 
 **Exit criteria:** public URL, shareable recording, Lighthouse on desktop: Performance ≥ 85 with Total Blocking Time
