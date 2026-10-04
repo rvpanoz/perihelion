@@ -324,6 +324,7 @@ Plan: `docs/superpowers/plans/2026-10-02-phase-7-polish-and-ship.md`. Performanc
 - [ ] Deploy: Netlify and Render (#136): both services are live; the browser checks (asleep-server first visit, page loads) are the user's
 - [x] Jev PR review: fixtures, tolerances and commit messages (#148)
 - [ ] Exit verification (#137)
+- [ ] Link the GitHub repo in the app (#156)
 
 Status (2026-10-03): plan merged in #138, with issues #128–#137 on the board. README rewritten for the current state
 in #139. Task 1 (#128) merged in #141, Task 2 (#129) in #142, Task 3 (#130) in #143, Task 4 (#131) in #144, Task 7
@@ -1087,3 +1088,6 @@ _None._
   `must-revalidate` on `/` and `/snapshot/*`. The Netlify site was first behind Netlify's own login (project visibility
   private, 401); it had to be set to public. Not yet checked: the page in a browser and the asleep-server first
   visit (snapshot within about 4 s, then live).
+- **2026-10-04:** Task 10 (#137) reviewed and approved (plan Task 10, "As built"): the bench switches are dev-only, so the
+  frame-time sweeps and the no-WebGL2 check run on the dev server; the recording is a manual walkthrough of the public
+  site. Task 12 (#156) added at the user's request: link the repo from the credits, shipping once the repo is public.
