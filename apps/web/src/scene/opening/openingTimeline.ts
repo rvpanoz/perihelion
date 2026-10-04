@@ -7,11 +7,11 @@ export const OPENING_SECONDS = 12;
 export const OPENING_OVERVIEW_DISTANCE_AU = 4;
 /** The opening starts at real time, the slowest rate the clock allows. */
 export const OPENING_START_RATE_DAYS_PER_SECOND = RATE_LIMITS_DAYS_PER_SECOND.min;
-/** About a month per second: fast enough that the swarm visibly streams. */
-export const OPENING_FINAL_RATE_DAYS_PER_SECOND = 30;
+/** Ten days per second: fast enough that the swarm visibly streams, slow enough to follow. */
+export const OPENING_FINAL_RATE_DAYS_PER_SECOND = 10;
 
 /**
- * Real time to a month per second spans 6.4 decades. Interpolating the logarithm spends equal time per decade, as
+ * Real time to ten days per second spans 5.9 decades. Interpolating the logarithm spends equal time per decade, as
  * the camera's distance does; a linear ramp would leave real time almost at once. Eased like the flight, so both
  * start and settle together.
  */
